@@ -16,14 +16,14 @@
     <groupId>jp.sourceforge.jindolf</groupId>
     <artifactId>jindolf</artifactId>
 
-    <version>3.202.7-SNAPSHOT</version>
+    <version>3.202.8</version>
 
     <packaging>jar</packaging>
     <name>Jindolf</name>
 
     <description><!--
-    Jindolfプロジェクトは、CGIゲーム「人狼BBS」を快適にプレイするための
-    専用クライアントを製作するために発足したオープンソースプロジェクトです。
+-->Jindolfプロジェクトは、CGIゲーム「人狼BBS」を快適にプレイするための<!--
+-->専用クライアントを製作するために発足したオープンソースプロジェクトです。<!--
  --></description>
 
     <url>http://jindolf.sourceforge.jp/</url>
