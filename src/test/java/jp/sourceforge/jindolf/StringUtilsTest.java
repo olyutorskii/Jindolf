@@ -1,7 +1,7 @@
 /*
  * StringUtils Test
  *
- * $Id: StringUtilsTest.java 802 2009-08-31 10:28:35Z olyutorskii $
+ * Copyright(c) 2009 olyutorskii
  */
 
 package jp.sourceforge.jindolf;

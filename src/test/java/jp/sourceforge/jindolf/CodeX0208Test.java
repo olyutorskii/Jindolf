@@ -1,7 +1,7 @@
 /*
  * CodeX0208 Test
  *
- * $Id: CodeX0208Test.java 818 2009-09-01 15:18:42Z olyutorskii $
+ * Copyright(c) 2009 olyutorskii
  */
 
 package jp.sourceforge.jindolf;

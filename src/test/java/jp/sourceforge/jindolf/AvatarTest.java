@@ -1,7 +1,7 @@
 /*
  * Avatar Test
  *
- * $Id: AvatarTest.java 970 2009-12-24 16:13:09Z olyutorskii $
+ * Copyright(c) 2009 olyutorskii
  */
 
 package jp.sourceforge.jindolf;

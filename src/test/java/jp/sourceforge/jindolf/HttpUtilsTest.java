@@ -1,7 +1,7 @@
 /*
  * HttpUtils Test
  *
- * $Id: HttpUtilsTest.java 687 2009-08-19 05:29:22Z olyutorskii $
+ * Copyright(c) 2009 olyutorskii
  */
 
 package jp.sourceforge.jindolf;
