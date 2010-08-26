@@ -1,8 +1,8 @@
 /*
  * JSON value common interface
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsValue.java 899 2009-11-16 15:13:52Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

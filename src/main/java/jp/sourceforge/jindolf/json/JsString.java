@@ -1,8 +1,8 @@
 /*
  * JSON string value
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsString.java 917 2009-11-24 13:17:07Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

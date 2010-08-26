@@ -1,8 +1,8 @@
 /*
  * JSON pair in object
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsPair.java 920 2009-11-24 14:34:58Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

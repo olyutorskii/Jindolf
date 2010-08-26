@@ -1,8 +1,8 @@
 /*
  * JSON null value
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsNull.java 958 2009-12-14 13:21:00Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

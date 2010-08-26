@@ -1,8 +1,8 @@
 /*
  * JSON string output
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsonAppender.java 919 2009-11-24 14:32:50Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

@@ -1,8 +1,8 @@
 /*
  * JSON number value
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsNumber.java 915 2009-11-24 11:19:48Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

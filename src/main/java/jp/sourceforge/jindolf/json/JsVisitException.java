@@ -1,8 +1,8 @@
 /*
  * JSON traverse error exception
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsVisitException.java 900 2009-11-16 15:48:22Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

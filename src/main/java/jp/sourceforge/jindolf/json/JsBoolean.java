@@ -1,8 +1,8 @@
 /*
  * JSON boolean value
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: JsBoolean.java 913 2009-11-24 11:15:14Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;

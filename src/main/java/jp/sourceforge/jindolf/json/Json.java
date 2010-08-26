@@ -1,8 +1,8 @@
 /*
  * JSON utilities
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: Json.java 914 2009-11-24 11:16:36Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf.json;
