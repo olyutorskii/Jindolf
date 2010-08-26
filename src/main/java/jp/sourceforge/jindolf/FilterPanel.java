@@ -1,8 +1,8 @@
 /*
  * Filter panel
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: FilterPanel.java 969 2009-12-24 16:12:58Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

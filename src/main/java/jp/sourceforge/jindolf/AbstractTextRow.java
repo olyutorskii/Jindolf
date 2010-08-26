@@ -1,8 +1,8 @@
 /*
  * 矩形領域テキスト描画抽象クラス
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: AbstractTextRow.java 959 2009-12-14 14:11:01Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

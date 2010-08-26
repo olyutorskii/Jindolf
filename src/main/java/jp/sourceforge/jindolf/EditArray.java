@@ -1,8 +1,8 @@
 /*
  * エディタ集合の操作
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: EditArray.java 953 2009-12-06 16:42:14Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

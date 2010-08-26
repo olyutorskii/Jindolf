@@ -1,8 +1,8 @@
 /*
  * configuration file & directory
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: ConfigFile.java 928 2009-11-29 16:37:50Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

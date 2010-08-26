@@ -1,8 +1,8 @@
 /*
  * action manager
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: ActionManager.java 935 2009-12-02 12:10:29Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

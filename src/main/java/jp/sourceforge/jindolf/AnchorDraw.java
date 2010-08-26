@@ -1,8 +1,8 @@
 /*
  * アンカー描画
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: AnchorDraw.java 995 2010-03-15 03:54:09Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

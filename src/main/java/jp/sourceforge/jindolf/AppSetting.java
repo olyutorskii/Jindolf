@@ -1,8 +1,8 @@
 /*
  * application settings
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: AppSetting.java 977 2010-01-02 15:54:12Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * characters in village
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Avatar.java 972 2009-12-26 05:05:15Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

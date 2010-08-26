@@ -1,8 +1,8 @@
 /*
  * font information
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: FontInfo.java 957 2009-12-14 13:15:37Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

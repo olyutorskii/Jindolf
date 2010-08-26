@@ -1,8 +1,8 @@
 /*
  * MVC controller
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Controller.java 999 2010-03-15 11:59:28Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

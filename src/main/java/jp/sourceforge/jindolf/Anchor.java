@@ -1,8 +1,8 @@
 /*
  * anchor
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Anchor.java 1015 2010-03-16 11:21:21Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

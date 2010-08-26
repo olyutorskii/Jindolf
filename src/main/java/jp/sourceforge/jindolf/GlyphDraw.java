@@ -1,8 +1,8 @@
 /*
  * Text-Glyph Drawing
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: GlyphDraw.java 959 2009-12-14 14:11:01Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

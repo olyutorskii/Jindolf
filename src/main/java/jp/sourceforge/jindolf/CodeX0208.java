@@ -1,8 +1,8 @@
 /*
  * JIS X0208:1990 文字集合に関する諸々
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: CodeX0208.java 1002 2010-03-15 12:14:20Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

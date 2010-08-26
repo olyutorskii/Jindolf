@@ -1,8 +1,8 @@
 /*
  * Summarize game information
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: GameSummary.java 1028 2010-05-13 10:15:11Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * GUI utilities
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: GUIUtils.java 971 2009-12-24 16:59:42Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

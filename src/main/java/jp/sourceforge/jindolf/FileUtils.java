@@ -1,8 +1,8 @@
 /*
  * file utilities
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: FileUtils.java 952 2009-12-06 14:29:10Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

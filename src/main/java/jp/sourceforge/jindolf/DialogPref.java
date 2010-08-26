@@ -1,8 +1,8 @@
 /*
  * dialog preferences
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: DialogPref.java 977 2010-01-02 15:54:12Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;
