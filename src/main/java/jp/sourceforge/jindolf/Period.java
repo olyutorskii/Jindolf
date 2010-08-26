@@ -1,8 +1,8 @@
 /*
  * daily period in village
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Period.java 1028 2010-05-13 10:15:11Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * Web-browser invoke button
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: WebButton.java 955 2009-12-13 13:37:43Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * Log frame
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: LogFrame.java 956 2009-12-13 15:14:07Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

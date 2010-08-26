@@ -1,8 +1,8 @@
 /*
  * dialogs in game
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Talk.java 994 2010-03-15 03:14:25Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * 矩形領域テキスト描画基本インタフェース
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: TextRow.java 959 2009-12-14 14:11:01Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * WolfBBS
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: WolfBBS.java 969 2009-12-24 16:12:58Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

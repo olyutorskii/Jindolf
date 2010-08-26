@@ -1,8 +1,8 @@
 /*
  * Regex pattern
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: RegexPattern.java 904 2009-11-17 11:14:10Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

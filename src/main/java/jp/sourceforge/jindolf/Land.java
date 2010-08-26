@@ -1,8 +1,8 @@
 /*
  * land
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Land.java 993 2010-03-14 11:55:46Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

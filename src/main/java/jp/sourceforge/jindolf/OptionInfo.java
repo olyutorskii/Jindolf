@@ -1,8 +1,8 @@
 /*
  * option argument information
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: OptionInfo.java 929 2009-11-29 16:51:41Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

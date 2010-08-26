@@ -1,8 +1,8 @@
 /*
  * inter-VM file locking
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: InterVMLock.java 952 2009-12-06 14:29:10Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * period viewer with tab access
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: TabBrowser.java 964 2009-12-20 16:02:13Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

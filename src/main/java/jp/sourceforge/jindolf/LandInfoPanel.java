@@ -1,8 +1,8 @@
 /*
  * Land information panel
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: LandInfoPanel.java 955 2009-12-13 13:37:43Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

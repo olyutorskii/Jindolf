@@ -1,8 +1,8 @@
 /*
  * 原稿作成支援用テキストコンポーネント
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: TextEditor.java 1002 2010-03-15 12:14:20Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

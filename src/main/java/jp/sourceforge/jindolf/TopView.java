@@ -1,8 +1,8 @@
 /*
  * Top view
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: TopView.java 888 2009-11-04 06:23:35Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

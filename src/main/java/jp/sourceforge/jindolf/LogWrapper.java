@@ -1,8 +1,8 @@
 /*
  * log wrapper
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: LogWrapper.java 888 2009-11-04 06:23:35Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

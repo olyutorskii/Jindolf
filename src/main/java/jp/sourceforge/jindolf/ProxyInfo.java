@@ -1,8 +1,8 @@
 /*
  * proxy information
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: ProxyInfo.java 953 2009-12-06 16:42:14Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

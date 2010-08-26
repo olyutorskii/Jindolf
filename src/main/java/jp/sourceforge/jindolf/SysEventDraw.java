@@ -1,8 +1,8 @@
 /*
  * system event drawing
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: SysEventDraw.java 975 2009-12-27 12:54:02Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * Village
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Village.java 996 2010-03-15 09:59:05Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

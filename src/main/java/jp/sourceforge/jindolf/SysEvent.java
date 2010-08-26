@@ -1,8 +1,8 @@
 /*
  * system event in game
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: SysEvent.java 1028 2010-05-13 10:15:11Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

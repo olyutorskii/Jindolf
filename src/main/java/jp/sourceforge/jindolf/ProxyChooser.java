@@ -1,8 +1,8 @@
 /*
  * proxy chooser
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: ProxyChooser.java 956 2009-12-13 15:14:07Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

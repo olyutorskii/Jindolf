@@ -1,8 +1,8 @@
 /*
  * Jindolf main class
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Jindolf.java 944 2009-12-05 16:31:41Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

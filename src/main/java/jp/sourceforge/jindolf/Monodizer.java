@@ -1,8 +1,8 @@
 /*
  * font monodizer
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: Monodizer.java 963 2009-12-20 12:55:11Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

@@ -1,8 +1,8 @@
 /*
  * immutable Affine transformation
  *
+ * License : The MIT License
  * Copyright(c) 2009 olyutorskii
- * $Id: ImtblAffineTx.java 963 2009-12-20 12:55:11Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

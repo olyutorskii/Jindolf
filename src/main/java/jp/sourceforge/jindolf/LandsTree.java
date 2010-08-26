@@ -1,8 +1,8 @@
 /*
  * Lands tree container
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: LandsTree.java 953 2009-12-06 16:42:14Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

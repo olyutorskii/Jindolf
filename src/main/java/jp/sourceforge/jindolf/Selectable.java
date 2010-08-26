@@ -1,8 +1,8 @@
 /*
  * 文字列選択インタフェース
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: Selectable.java 888 2009-11-04 06:23:35Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;

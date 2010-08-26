@@ -1,8 +1,8 @@
 /*
  * period viewer
  *
+ * License : The MIT License
  * Copyright(c) 2008 olyutorskii
- * $Id: PeriodView.java 972 2009-12-26 05:05:15Z olyutorskii $
  */
 
 package jp.sourceforge.jindolf;
