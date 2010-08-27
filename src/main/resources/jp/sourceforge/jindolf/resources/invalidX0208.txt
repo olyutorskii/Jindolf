@@ -6,7 +6,6 @@
 # TODO: JIS2004も弾きたい。
 #
 # Copyright(c) 2008 olyutorskii
-# $Id: invalidX0208.txt 897 2009-11-04 07:44:30Z olyutorskii $
 
 
 ##### Windows-31J NEC特殊文字
