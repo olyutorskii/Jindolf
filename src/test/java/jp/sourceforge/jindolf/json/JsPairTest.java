@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright(c) 2009 olyutorskii
  */
 
 package jp.sourceforge.jindolf.json;
