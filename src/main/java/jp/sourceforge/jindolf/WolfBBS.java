@@ -382,28 +382,28 @@ public final class WolfBBS{
 
         switch(role){
         case INNOCENT:
-            result = "&ref(http://ninjinix.x0.com/img/skill00.jpg,nolink);";
+            result = "&char(村人,nolink);";
             break;
         case WOLF:
-            result = "&ref(http://ninjinix.x0.com/img/skill01.jpg,nolink);";
+            result = "&char(人狼,nolink);";
             break;
         case SEER:
-            result = "&ref(http://ninjinix.x0.com/img/skill02.jpg,nolink);";
+            result = "&char(占い師,nolink);";
             break;
         case SHAMAN:
-            result = "&ref(http://ninjinix.x0.com/img/skill03.jpg,nolink);";
+            result = "&char(霊能者,nolink);";
             break;
         case MADMAN:
-            result = "&ref(http://ninjinix.x0.com/img/skill04.jpg,nolink);";
+            result = "&char(狂人,nolink);";
             break;
         case HUNTER:
-            result = "&ref(http://ninjinix.x0.com/img/skill05.jpg,nolink);";
+            result = "&char(狩人,nolink);";
             break;
         case FRATER:
-            result = "&ref(http://ninjinix.x0.com/img/skill06.jpg,nolink);";
+            result = "&char(共有者,nolink);";
             break;
         case HAMSTER:
-            result = "アイコンURL不明";
+            result = "&char(ハムスター人間,nolink);";
             break;
         default:
             assert false;
