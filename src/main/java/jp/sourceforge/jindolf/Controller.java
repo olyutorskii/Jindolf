@@ -895,6 +895,26 @@ public class Controller
      */
     private void actionReloadPeriod(){
         updatePeriod(true);
+
+        TabBrowser tabBrowser = this.topView.getTabBrowser();
+        Village village = tabBrowser.getVillage();
+        if(village == null) return;
+        if(village.getState() != VillageState.EPILOGUE) return;
+
+        Discussion discussion = currentDiscussion();
+        if(discussion == null) return;
+        Period period = discussion.getPeriod();
+        if(period == null) return;
+        if(period.getTopics() > 1000){
+            JOptionPane.showMessageDialog(this.topFrame,
+                    "エピローグが1000発言を超えはじめたら、\n"
+                    +"負荷対策のためWebブラウザによるアクセスを"
+                    +"心がけましょう",
+                    "長大エピローグ警告",
+                    JOptionPane.WARNING_MESSAGE
+                    );
+        }
+
         return;
     }
 
