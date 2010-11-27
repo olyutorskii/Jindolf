@@ -33,8 +33,9 @@ import javax.swing.text.Segment;
 /**
  * 原稿作成支援エディタ。
  * 文字数行数管理などを行う。
- * 200文字もしくは5行まで入力可能。
- * ※ 5回目に出現する改行文字は許される。
+ * 200文字もしくは10行まで入力可能。
+ * ※ 10回目に出現する改行文字は許される。
+ * ※ 2010-11-27以降、G国では5行制限が10行に緩和された。
  */
 @SuppressWarnings("serial")
 public class TalkEditor
@@ -42,7 +43,7 @@ public class TalkEditor
         implements DocumentListener {
 
     private static final int MAX_CHARS = 200;
-    private static final int MAX_LINES = 5;
+    private static final int MAX_LINES = 10;
 
     private static final Color COLOR_ACTIVATED = Color.GRAY;
 
