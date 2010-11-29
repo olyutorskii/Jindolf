@@ -16,7 +16,7 @@
     <groupId>jp.sourceforge.jindolf</groupId>
     <artifactId>jindolf</artifactId>
 
-    <version>3.204.3-SNAPSHOT</version>
+    <version>3.205.2</version>
 
     <packaging>jar</packaging>
     <name>Jindolf</name>
@@ -112,7 +112,7 @@
         <dependency>
             <groupId>jp.sourceforge.jindolf</groupId>
             <artifactId>jinparser</artifactId>
-            <version>1.405.2</version>
+            <version>1.406.2</version>
             <scope>compile</scope>
         </dependency>
 
