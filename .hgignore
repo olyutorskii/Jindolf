@@ -1,8 +1,10 @@
+syntax: regexp
+
 \.orig$
 \.orig\..*$
 \.chg\..*$
 \.rej$
 \.conflict\~$
 ^nb-configuration\.xml$
-^target$
 ^nbactions\.xml$
+^target$
