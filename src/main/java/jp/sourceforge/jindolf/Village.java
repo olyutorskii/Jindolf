@@ -79,6 +79,57 @@ public class Village implements Comparable<Village> {
         PARSER.setTalkHandler    (HANDLER);
     }
 
+
+    private final Land parentLand;
+    private final String villageID;
+    private final int villageIDNum;
+    private final String villageName;
+
+    private final boolean isValid;
+
+    private int limitMonth;
+    private int limitDay;
+    private int limitHour;
+    private int limitMinute;
+
+    private VillageState state = VillageState.UNKNOWN;
+
+    private final LinkedList<Period> periodList = new LinkedList<Period>();
+    private final List<Period> unmodList =
+            Collections.unmodifiableList(this.periodList);
+
+    private final Map<String, Avatar> avatarMap =
+            new HashMap<String, Avatar>();
+
+    private final Map<Avatar, BufferedImage> faceImageMap =
+            new HashMap<Avatar, BufferedImage>();
+    private final Map<Avatar, BufferedImage> bodyImageMap =
+            new HashMap<Avatar, BufferedImage>();
+    private final Map<Avatar, BufferedImage> faceMonoImageMap =
+            new HashMap<Avatar, BufferedImage>();
+    private final Map<Avatar, BufferedImage> bodyMonoImageMap =
+            new HashMap<Avatar, BufferedImage>();
+
+
+    /**
+     * Villageを生成する。
+     * @param parentLand Villageの所属する国
+     * @param villageID 村のID
+     * @param villageName 村の名前
+     */
+    public Village(Land parentLand, String villageID, String villageName) {
+        this.parentLand    = parentLand;
+        this.villageID   = villageID.intern();
+        this.villageIDNum = Integer.parseInt(this.villageID);
+        this.villageName = villageName.intern();
+
+        this.isValid = this.parentLand.getLandDef()
+                       .isValidVillageId(this.villageIDNum);
+
+        return;
+    }
+
+
     /**
      * 村同士を比較するためのComparatorを返す。
      * @return Comparatorインスタンス
@@ -114,54 +165,6 @@ public class Village implements Comparable<Village> {
         }catch(HtmlParseException e){
             Jindolf.logger().warn("村の状態が不明", e);
         }
-
-        return;
-    }
-
-    private final Land parentLand;
-    private final String villageID;
-    private final int villageIDNum;
-    private final String villageName;
-
-    private final boolean isValid;
-
-    private int limitMonth;
-    private int limitDay;
-    private int limitHour;
-    private int limitMinute;
-
-    private VillageState state = VillageState.UNKNOWN;
-
-    private final LinkedList<Period> periodList = new LinkedList<Period>();
-    private final List<Period> unmodList =
-            Collections.unmodifiableList(this.periodList);
-
-    private final Map<String, Avatar> avatarMap =
-            new HashMap<String, Avatar>();
-
-    private final Map<Avatar, BufferedImage> faceImageMap =
-            new HashMap<Avatar, BufferedImage>();
-    private final Map<Avatar, BufferedImage> bodyImageMap =
-            new HashMap<Avatar, BufferedImage>();
-    private final Map<Avatar, BufferedImage> faceMonoImageMap =
-            new HashMap<Avatar, BufferedImage>();
-    private final Map<Avatar, BufferedImage> bodyMonoImageMap =
-            new HashMap<Avatar, BufferedImage>();
-
-    /**
-     * Villageを生成する。
-     * @param parentLand Villageの所属する国
-     * @param villageID 村のID
-     * @param villageName 村の名前
-     */
-    public Village(Land parentLand, String villageID, String villageName) {
-        this.parentLand    = parentLand;
-        this.villageID   = villageID.intern();
-        this.villageIDNum = Integer.parseInt(this.villageID);
-        this.villageName = villageName.intern();
-
-        this.isValid = this.parentLand.getLandDef()
-                       .isValidVillageId(this.villageIDNum);
 
         return;
     }

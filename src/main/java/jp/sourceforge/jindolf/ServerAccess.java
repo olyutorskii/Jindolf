@@ -47,6 +47,30 @@ public class ServerAccess{
         IMAGE_CACHE = Collections.synchronizedMap(cache);
     }
 
+
+    private final URL baseURL;
+    private final Charset charset;
+    private Proxy proxy = Proxy.NO_PROXY;
+    private long lastServerMs;
+    private long lastLocalMs;
+    private long lastSystemMs;
+    private AccountCookie cookieAuth = null;
+    private String encodedUserID = null;
+
+
+    /**
+     * 人狼BBSサーバとの接続管理を生成する。
+     * この時点ではまだ通信は行われない。
+     * @param baseURL 国別のベースURL
+     * @param charset 国のCharset
+     */
+    public ServerAccess(URL baseURL, Charset charset){
+        this.baseURL = baseURL;
+        this.charset = charset;
+        return;
+    }
+
+
     /**
      * 画像キャッシュを検索する。
      * @param key キー
@@ -121,27 +145,6 @@ public class ServerAccess{
      */
     public static String formEncode(char[] formData){
         return formEncode(new String(formData));
-    }
-
-    private final URL baseURL;
-    private final Charset charset;
-    private Proxy proxy = Proxy.NO_PROXY;
-    private long lastServerMs;
-    private long lastLocalMs;
-    private long lastSystemMs;
-    private AccountCookie cookieAuth = null;
-    private String encodedUserID = null;
-
-    /**
-     * 人狼BBSサーバとの接続管理を生成する。
-     * この時点ではまだ通信は行われない。
-     * @param baseURL 国別のベースURL
-     * @param charset 国のCharset
-     */
-    public ServerAccess(URL baseURL, Charset charset){
-        this.baseURL = baseURL;
-        this.charset = charset;
-        return;
     }
 
     /**

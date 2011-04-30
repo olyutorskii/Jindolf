@@ -22,6 +22,20 @@ public class JsObject
         extends AbstractJsValue
         implements Iterable<JsPair> {
 
+    private final Map<String, JsValue> valueMap =
+            new TreeMap<String, JsValue>();
+    private boolean changed = false;
+
+
+    /**
+     * コンストラクタ。
+     */
+    public JsObject(){
+        super();
+        return;
+    }
+
+
     /**
      * JSON Objectを文字ストリームからパースする。
      * @param reader 文字入力
@@ -75,19 +89,6 @@ public class JsObject
         return result;
     }
 
-
-    private final Map<String, JsValue> valueMap =
-            new TreeMap<String, JsValue>();
-    private boolean changed = false;
-
-
-    /**
-     * コンストラクタ。
-     */
-    public JsObject(){
-        super();
-        return;
-    }
 
     /**
      * 名前とValueからpairを登録する。

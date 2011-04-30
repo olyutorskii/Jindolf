@@ -36,28 +36,6 @@ public class GameSummary{
     public static final Comparator<Player> COMPARATOR_CASTING =
             new CastingComparator();
 
-    /**
-     * プレイヤーのリストから役職バランス文字列を得る。
-     * ex) "村村占霊狂狼"
-     * @param players プレイヤーのリスト
-     * @return 役職バランス文字列
-     */
-    public static String getRoleBalanceSequence(List<Player> players){
-        List<GameRole> roleList = new LinkedList<GameRole>();
-        for(Player player : players){
-            GameRole role = player.getRole();
-            roleList.add(role);
-        }
-        Collections.sort(roleList, GameRole.getPowerBalanceComparator());
-
-        StringBuilder result = new StringBuilder();
-        for(GameRole role : roleList){
-            char ch = role.getShortName();
-            result.append(ch);
-        }
-
-        return result.toString();
-    }
 
     private final Map<Avatar, Player> playerMap =
             new HashMap<Avatar, Player>();
@@ -91,6 +69,7 @@ public class GameSummary{
     private long talk1stTimeMs = -1;
     private long talkLastTimeMs = -1;
 
+
     /**
      * コンストラクタ。
      * @param village 村
@@ -109,6 +88,30 @@ public class GameSummary{
         summarize();
 
         return;
+    }
+
+
+    /**
+     * プレイヤーのリストから役職バランス文字列を得る。
+     * ex) "村村占霊狂狼"
+     * @param players プレイヤーのリスト
+     * @return 役職バランス文字列
+     */
+    public static String getRoleBalanceSequence(List<Player> players){
+        List<GameRole> roleList = new LinkedList<GameRole>();
+        for(Player player : players){
+            GameRole role = player.getRole();
+            roleList.add(role);
+        }
+        Collections.sort(roleList, GameRole.getPowerBalanceComparator());
+
+        StringBuilder result = new StringBuilder();
+        for(GameRole role : roleList){
+            char ch = role.getShortName();
+            result.append(ch);
+        }
+
+        return result.toString();
     }
 
     /**

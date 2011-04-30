@@ -25,6 +25,16 @@ public class BalloonBorder implements Border{
 
     private static final int RADIUS = 5;
 
+
+    /**
+     * コンストラクタ。
+     */
+    public BalloonBorder(){
+        super();
+        return;
+    }
+
+
     /**
      * 隙間が透明なフキダシ装飾を任意のコンポーネントに施す。
      * @param inner 装飾対象のコンポーネント
@@ -37,14 +47,6 @@ public class BalloonBorder implements Border{
         result.setBorder(border);
 
         return result;
-    }
-
-    /**
-     * コンストラクタ。
-     */
-    public BalloonBorder(){
-        super();
-        return;
     }
 
     /**

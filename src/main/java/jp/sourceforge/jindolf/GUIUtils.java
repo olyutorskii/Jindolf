@@ -117,6 +117,16 @@ public final class GUIUtils{
         OP_MONOIMG = new ColorConvertOp(mono, null);
     }
 
+
+    /**
+     * 隠れコンストラクタ。
+     */
+    private GUIUtils(){
+        assert false;
+        throw new AssertionError();
+    }
+
+
     /**
      * 描画品質優先の描画ヒントを返す。
      * @return 描画ヒント
@@ -384,14 +394,6 @@ public final class GUIUtils{
         BufferedImage result;
         result = OP_MONOIMG.filter(image, null);
         return result;
-    }
-
-    /**
-     * 隠れコンストラクタ。
-     */
-    private GUIUtils(){
-        assert false;
-        throw new AssertionError();
     }
 
 }

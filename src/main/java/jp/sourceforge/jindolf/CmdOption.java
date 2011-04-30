@@ -42,6 +42,27 @@ public enum CmdOption{
     OPT_NOCONF("noconfdir"),
     ;
 
+
+    private final List<String> nameList = new LinkedList<String>();
+
+
+    /**
+     * コンストラクタ。
+     * @param names 頭のハイフンを除いたオプション名の一覧
+     */
+    private CmdOption(CharSequence ... names){
+        if(names == null) throw new NullPointerException();
+        if(names.length <= 0) throw new IllegalArgumentException();
+
+        for(CharSequence name : names){
+            if(name == null) throw new NullPointerException();
+            this.nameList.add(name.toString().intern());
+        }
+
+        return;
+    }
+
+
     /**
      * オプション名に合致するEnumを返す。
      * @param seq ハイフン付きオプション名
@@ -107,24 +128,6 @@ public enum CmdOption{
         }
 
         return helpText;
-    }
-
-    private final List<String> nameList = new LinkedList<String>();
-
-    /**
-     * コンストラクタ。
-     * @param names 頭のハイフンを除いたオプション名の一覧
-     */
-    private CmdOption(CharSequence ... names){
-        if(names == null) throw new NullPointerException();
-        if(names.length <= 0) throw new IllegalArgumentException();
-
-        for(CharSequence name : names){
-            if(name == null) throw new NullPointerException();
-            this.nameList.add(name.toString().intern());
-        }
-
-        return;
     }
 
     /**

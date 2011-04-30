@@ -51,6 +51,7 @@ import jp.sourceforge.jindolf.corelib.TalkType;
 @SuppressWarnings("serial")
 public class DaySummary extends JDialog
         implements WindowListener, ActionListener, ItemListener{
+
     private static final String FRAMETITLE =
             "発言集計 - " + Jindolf.TITLE;
     private static final NumberFormat AVERAGE_FORM;
@@ -69,20 +70,6 @@ public class DaySummary extends JDialog
         AVERAGE_FORM.setMinimumFractionDigits(1);
     }
 
-    /**
-     * 初期のデータモデルを生成する。
-     * @return データモデル
-     */
-    private static DefaultTableModel createInitModel(){
-        DefaultTableModel result;
-        result = new DefaultTableModel();
-
-        Object[] rowHeads = {"名前", "発言回数", "平均文字列長", "最終発言"};
-        result.setColumnCount(rowHeads.length);
-        result.setColumnIdentifiers(rowHeads);
-
-        return result;
-    }
 
     private final DefaultTableModel tableModel;
     private final TableColumn avatarColumn;
@@ -95,6 +82,7 @@ public class DaySummary extends JDialog
 
     private TalkType talkFilter;
     private Period period;
+
 
     /**
      * コンストラクタ。
@@ -155,6 +143,23 @@ public class DaySummary extends JDialog
 
         return;
     }
+
+
+    /**
+     * 初期のデータモデルを生成する。
+     * @return データモデル
+     */
+    private static DefaultTableModel createInitModel(){
+        DefaultTableModel result;
+        result = new DefaultTableModel();
+
+        Object[] rowHeads = {"名前", "発言回数", "平均文字列長", "最終発言"};
+        result.setColumnCount(rowHeads.length);
+        result.setColumnIdentifiers(rowHeads);
+
+        return result;
+    }
+
 
     /**
      * テーブルをクリアする。

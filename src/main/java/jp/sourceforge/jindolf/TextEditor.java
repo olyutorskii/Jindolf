@@ -157,6 +157,14 @@ public class TextEditor extends JTextArea
     private class CustomFilter extends DocumentFilter{
 
         /**
+         * コンストラクタ。
+         */
+        public CustomFilter(){
+            super();
+            return;
+        }
+
+        /**
          * 入力禁止文字の判定。
          * @param ch 検査対象文字
          * @return 入力禁止ならfalse。ただしIME操作中は必ずtrue。
@@ -198,14 +206,6 @@ public class TextEditor extends JTextArea
 
             buf.flip();
             return buf.toString();
-        }
-
-        /**
-         * コンストラクタ。
-         */
-        public CustomFilter(){
-            super();
-            return;
         }
 
         /**

@@ -24,27 +24,6 @@ import jp.sourceforge.jindolf.corelib.LandState;
 @SuppressWarnings("serial")
 public class LandInfoPanel extends JPanel{
 
-    /**
-     * 国の状態を文字列化する。
-     * @param state 国状態
-     * @return 文字列化された国状態
-     */
-    private static String getStatusMark(LandState state){
-        String result;
-
-        switch(state){
-        case CLOSED:     result = "サービス終了";     break;
-        case HISTORICAL: result = "過去ログ提供のみ"; break;
-        case ACTIVE:     result = "稼動中";           break;
-        default:
-            assert false;
-            result = "";
-            break;
-        }
-
-        return result;
-    }
-
     private final JLabel landName       = new JLabel();
     private final JLabel landIdentifier = new JLabel();
     private final WebButton webURL      = new WebButton();
@@ -69,6 +48,28 @@ public class LandInfoPanel extends JPanel{
         design();
 
         return;
+    }
+
+
+    /**
+     * 国の状態を文字列化する。
+     * @param state 国状態
+     * @return 文字列化された国状態
+     */
+    private static String getStatusMark(LandState state){
+        String result;
+
+        switch(state){
+        case CLOSED:     result = "サービス終了";     break;
+        case HISTORICAL: result = "過去ログ提供のみ"; break;
+        case ACTIVE:     result = "稼動中";           break;
+        default:
+            assert false;
+            result = "";
+            break;
+        }
+
+        return result;
     }
 
     /**

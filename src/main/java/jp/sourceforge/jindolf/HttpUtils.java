@@ -45,6 +45,17 @@ public final class HttpUtils{
         SIZE_FORMAT.setGroupingUsed(true);
     }
 
+
+    /**
+     * 隠れコンストラクタ。
+     */
+    private HttpUtils(){
+        super();
+        assert false;
+        throw new AssertionError();
+    }
+
+
     /**
      * ネットワークのスループット報告用文字列を生成する。
      * @param size 転送サイズ(バイト数)
@@ -209,15 +220,6 @@ public final class HttpUtils{
             if(attribute.equalsIgnoreCase("charset")) charset = value;
         }
         return charset;
-    }
-
-    /**
-     * 隠れコンストラクタ。
-     */
-    private HttpUtils(){
-        super();
-        assert false;
-        throw new AssertionError();
     }
 
 }

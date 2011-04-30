@@ -47,6 +47,45 @@ public final class WebIPC{
         BROWSE_ENUM = getEnumMember(DESKTOP_ACTION_KLASS, "BROWSE");
     }
 
+
+    private final Object desktop;
+
+
+    /**
+     * 見えないコンストラクタ。
+     * @throws HeadlessException GUI環境が未接続
+     * @throws UnsupportedOperationException 未サポート
+     */
+    private WebIPC()
+            throws HeadlessException,
+                   UnsupportedOperationException {
+        super();
+
+        try{
+            this.desktop = METHOD_GETDESKTOP.invoke(null, (Object[]) null);
+        }catch(InvocationTargetException e){
+            Throwable targetException = e.getTargetException();
+
+            if(targetException instanceof RuntimeException){
+                throw (RuntimeException) targetException;
+            }
+            if(targetException instanceof Error){
+                throw (Error) targetException;
+            }
+
+            AssertionError thw = new AssertionError();
+            thw.initCause(e);
+            throw thw;
+        }catch(IllegalAccessException e){
+            AssertionError thw = new AssertionError();
+            thw.initCause(e);
+            throw thw;
+        }
+
+        return;
+    }
+
+
     /**
      * クラス名からClassインスタンスを探す。
      * @param klassName クラス名
@@ -195,42 +234,6 @@ public final class WebIPC{
         WebIPC webIPC = new WebIPC();
 
         return webIPC;
-    }
-
-    private final Object desktop;
-
-    /**
-     * 見えないコンストラクタ。
-     * @throws HeadlessException GUI環境が未接続
-     * @throws UnsupportedOperationException 未サポート
-     */
-    private WebIPC()
-            throws HeadlessException,
-                   UnsupportedOperationException {
-        super();
-
-        try{
-            this.desktop = METHOD_GETDESKTOP.invoke(null, (Object[]) null);
-        }catch(InvocationTargetException e){
-            Throwable targetException = e.getTargetException();
-
-            if(targetException instanceof RuntimeException){
-                throw (RuntimeException) targetException;
-            }
-            if(targetException instanceof Error){
-                throw (Error) targetException;
-            }
-
-            AssertionError thw = new AssertionError();
-            thw.initCause(e);
-            throw thw;
-        }catch(IllegalAccessException e){
-            AssertionError thw = new AssertionError();
-            thw.initCause(e);
-            throw thw;
-        }
-
-        return;
     }
 
     /**

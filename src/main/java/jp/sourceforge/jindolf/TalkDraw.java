@@ -74,6 +74,61 @@ public class TalkDraw extends AbstractTextRow{
         SQUARE_PRIVATE  = createSquareImage(COLOR_PRIVATE);
     }
 
+
+    private final Talk talk;
+    private Anchor showingAnchor;
+
+    private final GlyphDraw caption;
+    private BufferedImage faceImage;
+    private final GlyphDraw dialog;
+    private final List<AnchorDraw> anchorTalks = new LinkedList<AnchorDraw>();
+    private Point imageOrigin;
+    private Point dialogOrigin;
+    private Point tipOrigin;
+    private int baloonWidth;
+    private int baloonHeight;
+
+    private FontInfo anchorFontInfo;
+    private DialogPref dialogPref;
+
+
+    /**
+     * コンストラクタ。
+     * @param talk 一発言
+     */
+    public TalkDraw(Talk talk){
+        this(talk, new DialogPref(), FontInfo.DEFAULT_FONTINFO);
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * @param talk 一発言
+     * @param dialogPref 発言表示設定
+     * @param fontInfo フォント設定
+     */
+    public TalkDraw(Talk talk, DialogPref dialogPref, FontInfo fontInfo){
+        super(fontInfo);
+
+        this.talk = talk;
+        this.anchorFontInfo = deriveAnchorFontInfo(this.fontInfo);
+        this.dialogPref = dialogPref;
+
+        this.faceImage = getFaceImage();
+        this.caption = new GlyphDraw(getCaptionString(), this.fontInfo);
+        this.dialog  = new GlyphDraw(this.talk.getDialog(), this.fontInfo);
+
+        setColorDesign();
+
+        Period period = this.talk.getPeriod();
+        List<Anchor> anchorList = Anchor.getAnchorList(this.talk.getDialog(),
+                                                       period.getDay() );
+        this.dialog.setAnchorSet(anchorList);
+
+        return;
+    }
+
+
     /**
      * 指定した色で描画したクサビイメージを取得する。
      * @param color 色
@@ -176,58 +231,6 @@ public class TalkDraw extends AbstractTextRow{
         }
 
         return result;
-    }
-
-    private final Talk talk;
-    private Anchor showingAnchor;
-
-    private final GlyphDraw caption;
-    private BufferedImage faceImage;
-    private final GlyphDraw dialog;
-    private final List<AnchorDraw> anchorTalks = new LinkedList<AnchorDraw>();
-    private Point imageOrigin;
-    private Point dialogOrigin;
-    private Point tipOrigin;
-    private int baloonWidth;
-    private int baloonHeight;
-
-    private FontInfo anchorFontInfo;
-    private DialogPref dialogPref;
-
-    /**
-     * コンストラクタ。
-     * @param talk 一発言
-     */
-    public TalkDraw(Talk talk){
-        this(talk, new DialogPref(), FontInfo.DEFAULT_FONTINFO);
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * @param talk 一発言
-     * @param dialogPref 発言表示設定
-     * @param fontInfo フォント設定
-     */
-    public TalkDraw(Talk talk, DialogPref dialogPref, FontInfo fontInfo){
-        super(fontInfo);
-
-        this.talk = talk;
-        this.anchorFontInfo = deriveAnchorFontInfo(this.fontInfo);
-        this.dialogPref = dialogPref;
-
-        this.faceImage = getFaceImage();
-        this.caption = new GlyphDraw(getCaptionString(), this.fontInfo);
-        this.dialog  = new GlyphDraw(this.talk.getDialog(), this.fontInfo);
-
-        setColorDesign();
-
-        Period period = this.talk.getPeriod();
-        List<Anchor> anchorList = Anchor.getAnchorList(this.talk.getDialog(),
-                                                       period.getDay() );
-        this.dialog.setAnchorSet(anchorList);
-
-        return;
     }
 
     /**

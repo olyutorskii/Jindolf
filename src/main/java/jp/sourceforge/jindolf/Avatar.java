@@ -23,13 +23,13 @@ import jp.sourceforge.jindolf.corelib.PreDefAvatar;
  */
 public class Avatar implements Comparable<Avatar> {
 
+    /** ゲルト。 */
+    public static final Avatar AVATAR_GERD;
+
     private static final List<Avatar>        AVATAR_LIST;
     private static final Map<String, Avatar> AVATAR_MAP;
 
     private static final Pattern AVATAR_PATTERN;
-
-    /** ゲルト。 */
-    public static final Avatar AVATAR_GERD;
 
     static{
         List<PreDefAvatar>  predefs;
@@ -67,6 +67,68 @@ public class Avatar implements Comparable<Avatar> {
         assert AVATAR_LIST instanceof RandomAccess;
         assert AVATAR_GERD != null;
     }
+
+
+    private final String name;
+    private final String jobTitle;
+    private final String fullName;
+    private final int idNum;
+    private final String identifier;
+    private final int hashNum;
+
+
+    /**
+     * Avatarを生成する。
+     * @param name 名前
+     * @param jobTitle 職業名
+     * @param idNum 通し番号
+     * @param identifier 識別文字列
+     */
+    private Avatar(String name,
+                    String jobTitle,
+                    int idNum,
+                    String identifier ){
+        this.name = name.intern();
+        this.jobTitle = jobTitle.intern();
+        this.idNum = idNum;
+        this.identifier = identifier.intern();
+
+        this.fullName = (this.jobTitle + " " + this.name).intern();
+
+        this.hashNum = this.fullName.hashCode() ^ this.idNum;
+
+        return;
+    }
+
+    /**
+     * Avatarを生成する。
+     * @param fullName フルネーム
+     */
+    // TODO 当面は呼ばれないはず。Z国とか向け。
+    public Avatar(String fullName){
+        this.fullName = fullName.intern();
+        this.idNum = -1;
+
+        String[] tokens = this.fullName.split("\\p{Blank}+", 2);
+        if(tokens.length == 1){
+            this.jobTitle = null;
+            this.name = this.fullName;
+        }else if(tokens.length == 2){
+            this.jobTitle = tokens[0].intern();
+            this.name = tokens[1].intern();
+        }else{
+            this.jobTitle = null;
+            this.name = null;
+            assert false;
+        }
+
+        this.identifier = "???".intern();
+
+        this.hashNum = this.fullName.hashCode() ^ this.idNum;
+
+        return;
+    }
+
 
     /**
      * 定義済みAvatar群の生成。
@@ -145,65 +207,6 @@ public class Avatar implements Comparable<Avatar> {
         }
 
         return null;
-    }
-
-    private final String name;
-    private final String jobTitle;
-    private final String fullName;
-    private final int idNum;
-    private final String identifier;
-    private final int hashNum;
-
-    /**
-     * Avatarを生成する。
-     * @param name 名前
-     * @param jobTitle 職業名
-     * @param idNum 通し番号
-     * @param identifier 識別文字列
-     */
-    private Avatar(String name,
-                    String jobTitle,
-                    int idNum,
-                    String identifier ){
-        this.name = name.intern();
-        this.jobTitle = jobTitle.intern();
-        this.idNum = idNum;
-        this.identifier = identifier.intern();
-
-        this.fullName = (this.jobTitle + " " + this.name).intern();
-
-        this.hashNum = this.fullName.hashCode() ^ this.idNum;
-
-        return;
-    }
-
-    /**
-     * Avatarを生成する。
-     * @param fullName フルネーム
-     */
-    // TODO 当面は呼ばれないはず。Z国とか向け。
-    public Avatar(String fullName){
-        this.fullName = fullName.intern();
-        this.idNum = -1;
-
-        String[] tokens = this.fullName.split("\\p{Blank}+", 2);
-        if(tokens.length == 1){
-            this.jobTitle = null;
-            this.name = this.fullName;
-        }else if(tokens.length == 2){
-            this.jobTitle = tokens[0].intern();
-            this.name = tokens[1].intern();
-        }else{
-            this.jobTitle = null;
-            this.name = null;
-            assert false;
-        }
-
-        this.identifier = "???".intern();
-
-        this.hashNum = this.fullName.hashCode() ^ this.idNum;
-
-        return;
     }
 
     /**

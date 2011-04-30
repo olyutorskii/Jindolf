@@ -36,6 +36,15 @@ public final class FontUtils{
     /** JIS0208:1990 チェック用。 */
     private static final String JPCHECK_CODE = "9Aあゑアｱヴヰ┼ЖΩ峠凜熙";
 
+
+    /**
+     * 隠れコンストラクタ。
+     */
+    private FontUtils(){
+        assert false;
+    }
+
+
     /**
      * システムに存在する有効なファミリ名か判定する。
      * @param family フォントファミリ名。
@@ -146,13 +155,6 @@ public final class FontUtils{
      */
     public static String getRootFamilyName(Font font){
         return font.getFamily(ROOT);
-    }
-
-    /**
-     * 隠れコンストラクタ。
-     */
-    private FontUtils(){
-        assert false;
     }
 
 }

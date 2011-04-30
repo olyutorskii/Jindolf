@@ -36,6 +36,39 @@ public class Land {
     // 古国ID
     private static final String ID_VANILLAWOLF = "wolf";
 
+
+    private final LandDef landDef;
+    private final ServerAccess serverAccess;
+    private final HtmlParser parser = new HtmlParser();
+    private final VillageListHandler handler = new VillageListHandler();
+
+    private final List<Village> villageList = new LinkedList<Village>();
+
+
+    /**
+     * コンストラクタ。
+     * @param landDef 国定義
+     * @throws java.lang.IllegalArgumentException 不正な国定義
+     */
+    public Land(LandDef landDef) throws IllegalArgumentException{
+        super();
+
+        this.landDef = landDef;
+
+        URL url;
+        try{
+            url = this.landDef.getCgiURI().toURL();
+        }catch(MalformedURLException e){
+            throw new IllegalArgumentException(e);
+        }
+        this.serverAccess = new ServerAccess(url, this.landDef.getEncoding());
+
+        this.parser.setBasicHandler(this.handler);
+
+        return;
+    }
+
+
     /**
      * クエリー文字列から特定キーの値を得る。
      * クエリーの書式例：「a=b&c=d&e=f」この場合キーcの値はd
@@ -110,36 +143,6 @@ public class Land {
         if(villageID.length() <= 0) return null;
 
         return villageID;
-    }
-
-    private final LandDef landDef;
-    private final ServerAccess serverAccess;
-    private final HtmlParser parser = new HtmlParser();
-    private final VillageListHandler handler = new VillageListHandler();
-
-    private final List<Village> villageList = new LinkedList<Village>();
-
-    /**
-     * コンストラクタ。
-     * @param landDef 国定義
-     * @throws java.lang.IllegalArgumentException 不正な国定義
-     */
-    public Land(LandDef landDef) throws IllegalArgumentException{
-        super();
-
-        this.landDef = landDef;
-
-        URL url;
-        try{
-            url = this.landDef.getCgiURI().toURL();
-        }catch(MalformedURLException e){
-            throw new IllegalArgumentException(e);
-        }
-        this.serverAccess = new ServerAccess(url, this.landDef.getEncoding());
-
-        this.parser.setBasicHandler(this.handler);
-
-        return;
     }
 
     /**

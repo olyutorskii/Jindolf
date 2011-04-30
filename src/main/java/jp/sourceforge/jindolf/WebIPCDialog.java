@@ -47,42 +47,6 @@ public class WebIPCDialog
     private static final String FRAMETITLE =
             "URLへのアクセス確認 - " + Jindolf.TITLE;
 
-    /**
-     * Webブラウザ起動用のモーダルダイアログを表示する。
-     * @param owner オーナーフレーム
-     * @param url URL文字列
-     */
-    public static void showDialog(Frame owner, String url){
-        WebIPCDialog dialog = new WebIPCDialog(owner);
-
-        dialog.setUrlText(url);
-        dialog.pack();
-        dialog.setLocationRelativeTo(owner);
-        dialog.setVisible(true);
-
-        return;
-    }
-
-    /**
-     * 有効なURIか判定する。
-     * @param uri URI
-     * @return 有効ならtrue
-     */
-    private static boolean isValidURI(URI uri){
-        if(uri == null) return false;
-
-        if( ! uri.isAbsolute() ) return false;
-
-        String scheme = uri.getScheme();
-        if(scheme == null) return false;
-        if(   ! scheme.equalsIgnoreCase("http")
-           && ! scheme.equalsIgnoreCase("https") ) return false;
-
-        String host = uri.getHost();
-        if(host == null) return false;
-
-        return true;
-    }
 
     private final String warnMessage;
 
@@ -102,6 +66,7 @@ public class WebIPCDialog
     private final WebIPC ipc;
 
     private URI uri;
+
 
     /**
      * コンストラクタ。
@@ -174,6 +139,44 @@ public class WebIPCDialog
         });
 
         return;
+    }
+
+
+    /**
+     * Webブラウザ起動用のモーダルダイアログを表示する。
+     * @param owner オーナーフレーム
+     * @param url URL文字列
+     */
+    public static void showDialog(Frame owner, String url){
+        WebIPCDialog dialog = new WebIPCDialog(owner);
+
+        dialog.setUrlText(url);
+        dialog.pack();
+        dialog.setLocationRelativeTo(owner);
+        dialog.setVisible(true);
+
+        return;
+    }
+
+    /**
+     * 有効なURIか判定する。
+     * @param uri URI
+     * @return 有効ならtrue
+     */
+    private static boolean isValidURI(URI uri){
+        if(uri == null) return false;
+
+        if( ! uri.isAbsolute() ) return false;
+
+        String scheme = uri.getScheme();
+        if(scheme == null) return false;
+        if(   ! scheme.equalsIgnoreCase("http")
+           && ! scheme.equalsIgnoreCase("https") ) return false;
+
+        String host = uri.getHost();
+        if(host == null) return false;
+
+        return true;
     }
 
     /**

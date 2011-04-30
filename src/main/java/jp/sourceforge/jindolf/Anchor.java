@@ -66,6 +66,65 @@ public final class Anchor{
                                          Pattern.DOTALL);
     }
 
+
+    private final CharSequence source;
+    private final int startPos;
+    private final int endPos;
+    private final int day;
+    private final int hour;
+    private final int minute;
+    private final int talkNo;
+
+
+    /**
+     * アンカーのコンストラクタ。
+     * @param source アンカーが含まれる文字列
+     * @param startPos アンカーの始まる位置
+     * @param endPos アンカーの終わる位置
+     * @param talkNo 公開発言番号
+     */
+    private Anchor(CharSequence source, int startPos, int endPos,
+                    int talkNo ){
+        super();
+
+        if(talkNo <= 0) throw new IllegalArgumentException();
+
+        this.source = source;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        this.day = -1;
+        this.hour = -1;
+        this.minute = -1;
+        this.talkNo = talkNo;
+
+        return;
+    }
+
+    /**
+     * アンカーのコンストラクタ。
+     * @param source アンカーが含まれる文字列
+     * @param startPos アンカーの始まる位置
+     * @param endPos アンカーの終わる位置
+     * @param day 日
+     * @param hour 時間(0-23)
+     * @param minute 分(0-59)
+     */
+    private Anchor(CharSequence source, int startPos, int endPos,
+                    int day, int hour, int minute                 ){
+        super();
+
+        this.source = source;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        this.day = day;
+        this.hour = hour;
+        this.minute = minute;
+        this.talkNo = -1;
+
+        return;
+    }
+
+
     /**
      * 与えられた範囲指定文字列からアンカーを抽出する。
      * @param source 検索対象文字列
@@ -183,62 +242,6 @@ public final class Anchor{
                                    day, hour, minute);
 
         return anchor;
-    }
-
-    private final CharSequence source;
-    private final int startPos;
-    private final int endPos;
-    private final int day;
-    private final int hour;
-    private final int minute;
-    private final int talkNo;
-
-    /**
-     * アンカーのコンストラクタ。
-     * @param source アンカーが含まれる文字列
-     * @param startPos アンカーの始まる位置
-     * @param endPos アンカーの終わる位置
-     * @param day 日
-     * @param hour 時間(0-23)
-     * @param minute 分(0-59)
-     */
-    private Anchor(CharSequence source, int startPos, int endPos,
-                    int day, int hour, int minute                 ){
-        super();
-
-        this.source = source;
-        this.startPos = startPos;
-        this.endPos = endPos;
-        this.day = day;
-        this.hour = hour;
-        this.minute = minute;
-        this.talkNo = -1;
-
-        return;
-    }
-
-    /**
-     * アンカーのコンストラクタ。
-     * @param source アンカーが含まれる文字列
-     * @param startPos アンカーの始まる位置
-     * @param endPos アンカーの終わる位置
-     * @param talkNo 公開発言番号
-     */
-    private Anchor(CharSequence source, int startPos, int endPos,
-                    int talkNo ){
-        super();
-
-        if(talkNo <= 0) throw new IllegalArgumentException();
-
-        this.source = source;
-        this.startPos = startPos;
-        this.endPos = endPos;
-        this.day = -1;
-        this.hour = -1;
-        this.minute = -1;
-        this.talkNo = talkNo;
-
-        return;
     }
 
     /**

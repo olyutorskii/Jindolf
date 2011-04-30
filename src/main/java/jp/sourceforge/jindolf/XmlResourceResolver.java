@@ -32,6 +32,19 @@ public class XmlResourceResolver
 
     private static final URI EMPTY_URI = URI.create("");
 
+
+    private final Map<URI, URI> uriMap = XmlResource.RESOLVE_MAP;
+
+
+    /**
+     * コンストラクタ。
+     */
+    public XmlResourceResolver(){
+        super();
+        return;
+    }
+
+
     /**
      * 絶対URIと相対URIを合成したURIを返す。
      * 正規化も行われる。
@@ -76,16 +89,6 @@ public class XmlResourceResolver
     public static LSInput createLSInput(){
         LSInput input = new LSInputImpl();
         return input;
-    }
-
-    private final Map<URI, URI> uriMap = XmlResource.RESOLVE_MAP;
-
-    /**
-     * コンストラクタ。
-     */
-    public XmlResourceResolver(){
-        super();
-        return;
     }
 
     /**

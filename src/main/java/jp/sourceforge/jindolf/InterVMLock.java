@@ -33,6 +33,25 @@ public class InterVMLock{
         });
     }
 
+
+    private final File lockFile;
+    private boolean isFileOwner = false;
+    private FileOutputStream stream = null;
+
+
+    /**
+     * コンストラクタ。
+     * この時点ではまだロックファイルの存在は確認されない。
+     * @param lockFile ロックファイル
+     * @throws NullPointerException 引数がnull
+     */
+    public InterVMLock(File lockFile) throws NullPointerException{
+        if(lockFile == null) throw new NullPointerException();
+        this.lockFile = lockFile;
+        return;
+    }
+
+
     /**
      * 所持するロックオブジェクト一覧への登録。
      * @param lock 登録するロックオブジェクト
@@ -73,23 +92,6 @@ public class InterVMLock{
             }
             ownedLockSet.clear();
         }
-        return;
-    }
-
-
-    private final File lockFile;
-    private boolean isFileOwner = false;
-    private FileOutputStream stream = null;
-
-    /**
-     * コンストラクタ。
-     * この時点ではまだロックファイルの存在は確認されない。
-     * @param lockFile ロックファイル
-     * @throws NullPointerException 引数がnull
-     */
-    public InterVMLock(File lockFile) throws NullPointerException{
-        if(lockFile == null) throw new NullPointerException();
-        this.lockFile = lockFile;
         return;
     }
 

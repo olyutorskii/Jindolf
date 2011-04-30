@@ -39,6 +39,15 @@ public final class Monodizer implements PropertyChangeListener{
 
 
     /**
+     * 隠しコンストラクタ。
+     */
+    private Monodizer(){
+        super();
+        return;
+    }
+
+
+    /**
      * 等幅フォントか否か判定する。
      * @param font フォント
      * @return 等幅フォントならtrue
@@ -161,14 +170,6 @@ public final class Monodizer implements PropertyChangeListener{
 
         modifyComponent(comp);
 
-        return;
-    }
-
-    /**
-     * 隠しコンストラクタ。
-     */
-    private Monodizer(){
-        super();
         return;
     }
 

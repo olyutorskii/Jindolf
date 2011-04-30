@@ -30,6 +30,19 @@ public class ClipboardAction extends TextAction{
     /** アクション{@value}。 */
     public static final String ACTION_SELALL = "ACTION_SELALL";
 
+
+    /**
+     * コンストラクタ。
+     * @param name ポップアップメニュー名
+     * @param command アクションコマンド名
+     */
+    protected ClipboardAction(String name, String command){
+        super(name);
+        setActionCommand(command);
+        return;
+    }
+
+
     /**
      * 文字列をクリップボードにコピーする。
      * @param data 文字列
@@ -72,17 +85,6 @@ public class ClipboardAction extends TextAction{
      */
     public static ClipboardAction selectallAction(){
         return new ClipboardAction("すべて選択", ACTION_SELALL);
-    }
-
-    /**
-     * コンストラクタ。
-     * @param name ポップアップメニュー名
-     * @param command アクションコマンド名
-     */
-    protected ClipboardAction(String name, String command){
-        super(name);
-        setActionCommand(command);
-        return;
     }
 
     /**

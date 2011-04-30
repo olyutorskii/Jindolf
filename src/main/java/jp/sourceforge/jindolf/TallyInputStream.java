@@ -20,22 +20,13 @@ public class TallyInputStream extends InputStream{
 
     private static final int BUFSIZE = 2 * 1024;
 
-    /**
-     * HTTPコネクションから入力ストリームを得る。
-     * @param conn HTTPコネクション
-     * @return 入力ストリーム
-     * @throws java.io.IOException 入出力エラー
-     */
-    public static InputStream getInputStream(HttpURLConnection conn)
-            throws IOException{
-        return new TallyInputStream(conn);
-    }
 
     private final HttpURLConnection conn;
     private final InputStream in;
     private long counter;
     private long nanoLap;
     private boolean hasClosed;
+
 
     /**
      * コンストラクタ。
@@ -57,6 +48,18 @@ public class TallyInputStream extends InputStream{
         this.hasClosed = false;
 
         return;
+    }
+
+
+    /**
+     * HTTPコネクションから入力ストリームを得る。
+     * @param conn HTTPコネクション
+     * @return 入力ストリーム
+     * @throws java.io.IOException 入出力エラー
+     */
+    public static InputStream getInputStream(HttpURLConnection conn)
+            throws IOException{
+        return new TallyInputStream(conn);
     }
 
     /**

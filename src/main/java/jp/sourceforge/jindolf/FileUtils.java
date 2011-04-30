@@ -68,6 +68,16 @@ public final class FileUtils{
         assert ! ( isMacOSXFs() && isWindowsOSFs() );
     }
 
+
+    /**
+     * 隠しコンストラクタ。
+     */
+    private FileUtils(){
+        assert false;
+        throw new AssertionError();
+    }
+
+
     /**
      * なるべく自分にだけ許可を与え自分以外には許可を与えないように
      * ファイル属性を操作する。
@@ -379,14 +389,6 @@ public final class FileUtils{
         }
 
         return "<code>" + pathName + "</code>";
-    }
-
-    /**
-     * 隠しコンストラクタ。
-     */
-    private FileUtils(){
-        assert false;
-        throw new AssertionError();
     }
 
 }

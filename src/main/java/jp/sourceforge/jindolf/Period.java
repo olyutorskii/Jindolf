@@ -52,51 +52,6 @@ public class Period{
         PARSER.setTalkHandler    (HANDLER);
     }
 
-    /**
-     * Periodを更新する。Topicのリストが更新される。
-     * @param period 日
-     * @param force trueなら強制再読み込み。
-     * falseならまだ読み込んで無い時のみ読み込み。
-     * @throws IOException ネットワーク入力エラー
-     */
-    public static void parsePeriod(Period period, boolean force)
-            throws IOException{
-        if( ! force && period.hasLoaded() ) return;
-
-        Village village = period.getVillage();
-        Land land = village.getParentLand();
-        ServerAccess server = land.getServerAccess();
-
-        if(village.getState() != VillageState.PROGRESS){
-            period.isFullOpen = true;
-        }else if(period.getType() != PeriodType.PROGRESS){
-            period.isFullOpen = true;
-        }else{
-            period.isFullOpen = false;
-        }
-
-        HtmlSequence html = server.getHTMLPeriod(period);
-
-        period.topicList.clear();
-
-        boolean wasHot = period.isHot();
-
-        HANDLER.setPeriod(period);
-        DecodedContent content = html.getContent();
-        try{
-            PARSER.parseAutomatic(content);
-        }catch(HtmlParseException e){
-            Jindolf.logger().warn("発言抽出に失敗", e);
-        }
-
-        if(wasHot && ! period.isHot() ){
-            parsePeriod(period, true);
-            return;
-        }
-
-        return;
-    }
-
     private final Village homeVillage;
     private final PeriodType periodType;
     private final int day;
@@ -110,6 +65,7 @@ public class Period{
     private final List<Topic> unmodList =
             Collections.unmodifiableList(this.topicList);
 
+
     /**
      * この Period が進行中の村の最新日で、
      * 今まさに次々と発言が蓄積されているときは
@@ -117,6 +73,7 @@ public class Period{
      * ※重要: Hot な Period は meslog クエリーを使ってダウンロードできない。
      */
     private boolean isHot;
+
 
     /**
      * Periodを生成する。
@@ -174,6 +131,52 @@ public class Period{
         unload();
 
         this.isHot = isHot;
+
+        return;
+    }
+
+
+    /**
+     * Periodを更新する。Topicのリストが更新される。
+     * @param period 日
+     * @param force trueなら強制再読み込み。
+     * falseならまだ読み込んで無い時のみ読み込み。
+     * @throws IOException ネットワーク入力エラー
+     */
+    public static void parsePeriod(Period period, boolean force)
+            throws IOException{
+        if( ! force && period.hasLoaded() ) return;
+
+        Village village = period.getVillage();
+        Land land = village.getParentLand();
+        ServerAccess server = land.getServerAccess();
+
+        if(village.getState() != VillageState.PROGRESS){
+            period.isFullOpen = true;
+        }else if(period.getType() != PeriodType.PROGRESS){
+            period.isFullOpen = true;
+        }else{
+            period.isFullOpen = false;
+        }
+
+        HtmlSequence html = server.getHTMLPeriod(period);
+
+        period.topicList.clear();
+
+        boolean wasHot = period.isHot();
+
+        HANDLER.setPeriod(period);
+        DecodedContent content = html.getContent();
+        try{
+            PARSER.parseAutomatic(content);
+        }catch(HtmlParseException e){
+            Jindolf.logger().warn("発言抽出に失敗", e);
+        }
+
+        if(wasHot && ! period.isHot() ){
+            parsePeriod(period, true);
+            return;
+        }
 
         return;
     }

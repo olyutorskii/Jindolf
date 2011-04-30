@@ -36,62 +36,10 @@ public class ProxyInfo{
     private static final String HASH_HOST = "host";
     private static final String HASH_PORT = "port";
 
-    /**
-     * プロクシ設定をJSON形式にエンコードする。
-     * @param proxyInfo プロクシ設定
-     * @return JSON object
-     */
-    public static JsObject buildJson(ProxyInfo proxyInfo){
-        JsPair type = new JsPair(HASH_TYPE, proxyInfo.getType().name());
-        JsPair host = new JsPair(HASH_HOST, proxyInfo.getHostName());
-        JsPair port = new JsPair(HASH_PORT, proxyInfo.getPort());
-
-        JsObject result = new JsObject();
-        result.putPair(type);
-        result.putPair(host);
-        result.putPair(port);
-
-        return result;
-    }
-
-    /**
-     * JSONからのプロクシ設定復元。
-     * @param obj JSON object
-     * @return 復元されたプロクシ設定。
-     */
-    public static ProxyInfo decodeJson(JsObject obj){
-        JsValue value;
-
-        Proxy.Type type = Proxy.Type.DIRECT;
-        value = obj.getValue(HASH_TYPE);
-        if(value instanceof JsString){
-            JsString string = (JsString) value;
-            try{
-                type = Enum.valueOf(Proxy.Type.class, string.toRawString());
-            }catch(IllegalArgumentException e){
-                // NOTHING
-            }
-        }
-
-        String host = "0.0.0.0";
-        value = obj.getValue(HASH_HOST);
-        if(value instanceof JsString){
-            JsString string = (JsString) value;
-            host = string.toRawString();
-        }
-
-        int port = 0;
-        value = obj.getValue(HASH_PORT);
-        if(value instanceof JsNumber){
-            JsNumber number = (JsNumber) value;
-            port = number.intValue();
-        }
-
-        return new ProxyInfo(type, host, port);
-    }
 
     private final Proxy proxy;
     private final InetSocketAddress inetAddr;
+
 
     /**
      * コンストラクタ。
@@ -155,6 +103,61 @@ public class ProxyInfo{
         this.inetAddr = inetAddr;
 
         return;
+    }
+
+
+    /**
+     * プロクシ設定をJSON形式にエンコードする。
+     * @param proxyInfo プロクシ設定
+     * @return JSON object
+     */
+    public static JsObject buildJson(ProxyInfo proxyInfo){
+        JsPair type = new JsPair(HASH_TYPE, proxyInfo.getType().name());
+        JsPair host = new JsPair(HASH_HOST, proxyInfo.getHostName());
+        JsPair port = new JsPair(HASH_PORT, proxyInfo.getPort());
+
+        JsObject result = new JsObject();
+        result.putPair(type);
+        result.putPair(host);
+        result.putPair(port);
+
+        return result;
+    }
+
+    /**
+     * JSONからのプロクシ設定復元。
+     * @param obj JSON object
+     * @return 復元されたプロクシ設定。
+     */
+    public static ProxyInfo decodeJson(JsObject obj){
+        JsValue value;
+
+        Proxy.Type type = Proxy.Type.DIRECT;
+        value = obj.getValue(HASH_TYPE);
+        if(value instanceof JsString){
+            JsString string = (JsString) value;
+            try{
+                type = Enum.valueOf(Proxy.Type.class, string.toRawString());
+            }catch(IllegalArgumentException e){
+                // NOTHING
+            }
+        }
+
+        String host = "0.0.0.0";
+        value = obj.getValue(HASH_HOST);
+        if(value instanceof JsString){
+            JsString string = (JsString) value;
+            host = string.toRawString();
+        }
+
+        int port = 0;
+        value = obj.getValue(HASH_PORT);
+        if(value instanceof JsNumber){
+            JsNumber number = (JsNumber) value;
+            port = number.intValue();
+        }
+
+        return new ProxyInfo(type, host, port);
     }
 
     /**

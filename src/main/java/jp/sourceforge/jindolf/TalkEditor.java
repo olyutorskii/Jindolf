@@ -47,32 +47,6 @@ public class TalkEditor
 
     private static final Color COLOR_ACTIVATED = Color.GRAY;
 
-    /**
-     * 指定された文字列の指定された位置から、
-     * 最大何文字まで1発言におさめる事ができるか判定する。
-     * @param source 検査対象
-     * @param start 検査開始位置
-     * @return 1発言に納めていい長さ。
-     */
-    public static int choplimit(CharSequence source, int start){
-        int length = source.length();
-        if(start >= length) return 0;
-
-        int chars = 0;
-        int lines = 0;
-
-        for(int pos = start; pos < length; pos++){
-            chars++;
-            if(chars >= MAX_CHARS) break;
-            char ch = source.charAt(pos);
-            if(ch == '\n'){
-                lines++;
-                if(lines >= MAX_LINES) break;
-            }
-        }
-
-        return chars;
-    }
 
     private final PlainDocument document = new PlainDocument();
 
@@ -85,6 +59,7 @@ public class TalkEditor
     private final TextEditor textEditor = new TextEditor();
 
     private Font textFont;
+
 
     /**
      * コンストラクタ。
@@ -126,6 +101,34 @@ public class TalkEditor
         design();
 
         return;
+    }
+
+
+    /**
+     * 指定された文字列の指定された位置から、
+     * 最大何文字まで1発言におさめる事ができるか判定する。
+     * @param source 検査対象
+     * @param start 検査開始位置
+     * @return 1発言に納めていい長さ。
+     */
+    public static int choplimit(CharSequence source, int start){
+        int length = source.length();
+        if(start >= length) return 0;
+
+        int chars = 0;
+        int lines = 0;
+
+        for(int pos = start; pos < length; pos++){
+            chars++;
+            if(chars >= MAX_CHARS) break;
+            char ch = source.charAt(pos);
+            if(ch == '\n'){
+                lines++;
+                if(lines >= MAX_LINES) break;
+            }
+        }
+
+        return chars;
     }
 
     /**

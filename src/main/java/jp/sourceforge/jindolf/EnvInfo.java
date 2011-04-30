@@ -55,6 +55,15 @@ public final class EnvInfo{
         }
     }
 
+
+    /**
+     * 隠れコンストラクタ。
+     */
+    private EnvInfo(){
+        throw new AssertionError();
+    }
+
+
     /**
      * 可能ならシステムプロパティを読み込む。
      * @param key キー
@@ -137,13 +146,6 @@ public final class EnvInfo{
         result.append("\n");
 
         return result.toString();
-    }
-
-    /**
-     * 隠れコンストラクタ。
-     */
-    private EnvInfo(){
-        throw new AssertionError();
     }
 
 }

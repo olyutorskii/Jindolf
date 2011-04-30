@@ -20,6 +20,60 @@ public class JsNumber
         extends AbstractJsValue
         implements Comparable<JsNumber> {
 
+    private BigDecimal decimal;
+
+
+    /**
+     * コンストラクタ。
+     * @param val 初期数値
+     */
+    public JsNumber(long val){
+        this(BigDecimal.valueOf(val));
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * @param val 初期数値
+     */
+    public JsNumber(double val){
+        this(BigDecimal.valueOf(val));
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * @param val 初期数値
+     */
+    public JsNumber(BigInteger val){
+        this(new BigDecimal(val));
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * 書式はjava.math.BigDecinal#BigDecimal(String)に準ずる。
+     * @param val 初期数値の文字列表記
+     * @throws NumberFormatException 不正な数値表記
+     */
+    public JsNumber(CharSequence val) throws NumberFormatException{
+        this(new BigDecimal(val.toString()));
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * @param val 初期数値
+     * @throws NullPointerException 引数がnull
+     */
+    public JsNumber(BigDecimal val) throws NullPointerException{
+        super();
+        if(val == null) throw new NullPointerException();
+        this.decimal = val;
+        return;
+    }
+
+
     /**
      * 文字ストリームから符号付きの数字並びを読み込む。
      * +符号は読み飛ばされる。
@@ -181,58 +235,6 @@ public class JsNumber
         JsNumber result = new JsNumber(numText);
 
         return result;
-    }
-
-    private BigDecimal decimal;
-
-    /**
-     * コンストラクタ。
-     * @param val 初期数値
-     */
-    public JsNumber(long val){
-        this(BigDecimal.valueOf(val));
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * @param val 初期数値
-     */
-    public JsNumber(double val){
-        this(BigDecimal.valueOf(val));
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * @param val 初期数値
-     */
-    public JsNumber(BigInteger val){
-        this(new BigDecimal(val));
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * 書式はjava.math.BigDecinal#BigDecimal(String)に準ずる。
-     * @param val 初期数値の文字列表記
-     * @throws NumberFormatException 不正な数値表記
-     */
-    public JsNumber(CharSequence val) throws NumberFormatException{
-        this(new BigDecimal(val.toString()));
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * @param val 初期数値
-     * @throws NullPointerException 引数がnull
-     */
-    public JsNumber(BigDecimal val) throws NullPointerException{
-        super();
-        if(val == null) throw new NullPointerException();
-        this.decimal = val;
-        return;
     }
 
     /**

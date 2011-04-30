@@ -38,21 +38,6 @@ import javax.swing.border.Border;
 @SuppressWarnings("serial")
 public class ProxyChooser extends JPanel implements ItemListener{
 
-    /**
-     * ポート番号選択肢を生成する。
-     * @return ポート番号選択肢
-     */
-    private static ComboBoxModel buildPortRecommender(){
-        DefaultComboBoxModel model = new DefaultComboBoxModel();
-        model.addElement("80");
-        model.addElement("1080");
-        model.addElement("3128");
-        model.addElement("8000");
-        model.addElement("8080");
-        model.addElement("10080");
-        return model;
-    }
-
     private final JRadioButton isDirect =
             new JRadioButton("直接接続");
     private final JRadioButton isHttp =
@@ -107,6 +92,22 @@ public class ProxyChooser extends JPanel implements ItemListener{
         setProxyInfo(proxyInfo);
 
         return;
+    }
+
+
+    /**
+     * ポート番号選択肢を生成する。
+     * @return ポート番号選択肢
+     */
+    private static ComboBoxModel buildPortRecommender(){
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        model.addElement("80");
+        model.addElement("1080");
+        model.addElement("3128");
+        model.addElement("8000");
+        model.addElement("8080");
+        model.addElement("10080");
+        return model;
     }
 
     /**

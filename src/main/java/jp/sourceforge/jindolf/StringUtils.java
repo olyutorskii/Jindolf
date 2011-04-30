@@ -16,6 +16,17 @@ public final class StringUtils{
 
     private static final int SUPLEN = 5;
 
+
+    /**
+     * ダミーコンストラクタ。
+     */
+    private StringUtils(){
+        super();
+        assert false;
+        throw new AssertionError();
+    }
+
+
     /**
      * 正規表現にマッチした領域を数値化する。
      * @param seq 文字列
@@ -165,15 +176,6 @@ public final class StringUtils{
         int result = compareSubSequence(seq1,      0, seq1.length(),
                                         seq2, start2,          end2 );
         return result;
-    }
-
-    /**
-     * ダミーコンストラクタ。
-     */
-    private StringUtils(){
-        super();
-        assert false;
-        throw new AssertionError();
     }
 
     // TODO 文字エンコーダ・デコーダ処理の一本化。

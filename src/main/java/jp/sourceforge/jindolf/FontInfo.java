@@ -34,6 +34,48 @@ public class FontInfo{
     private static final String HASH_USEAA = "useAntiAlias";
     private static final String HASH_FRACTIONAL = "useFractional";
 
+
+    private Font font;
+    private FontRenderContext context;
+
+
+    /**
+     * コンストラクタ。
+     * デフォルトフォントとそれに適した描画属性が指定される。
+     */
+    public FontInfo(){
+        this(FontUtils.createDefaultSpeechFont());
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * 描画設定はフォント属性に応じて自動的に調整される。
+     * @param font フォント
+     * @throws NullPointerException 引数がnull
+     */
+    public FontInfo(Font font)
+            throws NullPointerException{
+        this(font, createBestContext(font));
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * @param font フォント
+     * @param context 描画設定
+     * @throws NullPointerException 引数がnull
+     */
+    public FontInfo(Font font, FontRenderContext context)
+            throws NullPointerException{
+        super();
+        if(font == null || context == null) throw new NullPointerException();
+        this.font = font;
+        this.context = context;
+        return;
+    }
+
+
     /**
      * フォントに応じた最適な描画設定を生成する。
      * @param font フォント
@@ -146,45 +188,6 @@ public class FontInfo{
         FontInfo result = new FontInfo(newFont, newFrc);
 
         return result;
-    }
-
-    private Font font;
-    private FontRenderContext context;
-
-    /**
-     * コンストラクタ。
-     * デフォルトフォントとそれに適した描画属性が指定される。
-     */
-    public FontInfo(){
-        this(FontUtils.createDefaultSpeechFont());
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * 描画設定はフォント属性に応じて自動的に調整される。
-     * @param font フォント
-     * @throws NullPointerException 引数がnull
-     */
-    public FontInfo(Font font)
-            throws NullPointerException{
-        this(font, createBestContext(font));
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * @param font フォント
-     * @param context 描画設定
-     * @throws NullPointerException 引数がnull
-     */
-    public FontInfo(Font font, FontRenderContext context)
-            throws NullPointerException{
-        super();
-        if(font == null || context == null) throw new NullPointerException();
-        this.font = font;
-        this.context = context;
-        return;
     }
 
     /**

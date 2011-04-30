@@ -31,123 +31,9 @@ import org.xml.sax.SAXException;
  */
 public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
 
-    /**
-     * 村IDで範囲指定した、村のセクション集合。国-村間の中間ツリー。
-     * @see javax.swing.tree.TreeModel
-     */
-    private static final class VillageSection{
-
-        /**
-         * 与えられた国の全ての村を、指定されたinterval間隔でセクション化する。
-         * @param land 国
-         * @param interval セクションの間隔
-         * @return セクションのリスト
-         * @throws java.lang.IllegalArgumentException intervalが正でない
-         */
-        private static List<VillageSection> getSectionList(Land land,
-                                                             int interval )
-                throws IllegalArgumentException{
-            if(interval <= 0){
-                throw new IllegalArgumentException();
-            }
-
-            List<Village> villageList = land.getVillageList();
-            Village village1st = villageList.get(0);
-            Village villageLast = villageList.get(villageList.size() - 1);
-
-            int startID = village1st.getVillageIDNum();
-            int endID = villageLast.getVillageIDNum();
-
-            List<VillageSection> result = new LinkedList<VillageSection>();
-
-            int fixedStart = startID / interval * interval;
-            for(int ct = fixedStart; ct <= endID; ct += interval){
-                VillageSection section =
-                        new VillageSection(land, ct, ct + interval - 1);
-                result.add(section);
-            }
-
-            return Collections.unmodifiableList(result);
-        }
-
-        private final int startID;
-        private final int endID;
-        private final String prefix;
-
-        private final List<Village> villageList = new LinkedList<Village>();
-
-        /**
-         * セクション集合を生成する。
-         * @param land 国
-         * @param startID 開始村ID
-         * @param endID 終了村ID
-         * @throws java.lang.IndexOutOfBoundsException IDの範囲指定が変
-         */
-        private VillageSection(Land land, int startID, int endID)
-                throws IndexOutOfBoundsException{
-            super();
-
-            if(startID < 0 || startID > endID){
-                throw new IndexOutOfBoundsException();
-            }
-
-            this.startID = startID;
-            this.endID = endID;
-            this.prefix = land.getLandDef().getLandPrefix();
-
-            for(Village village : land.getVillageList()){
-                int id = village.getVillageIDNum();
-                if(startID <= id && id <= endID){
-                    this.villageList.add(village);
-                }
-            }
-
-            return;
-        }
-
-        /**
-         * セクションに含まれる村の総数を返す。
-         * @return 村の総数
-         */
-        private int getVillageCount(){
-            return this.villageList.size();
-        }
-
-        /**
-         * セクションに含まれるindex番目の村を返す。
-         * @param index インデックス
-         * @return index番目の村
-         */
-        private Village getVillage(int index){
-            return this.villageList.get(index);
-        }
-
-        /**
-         * セクションにおける、指定された子（村）のインデックス位置を返す。
-         * @param child 子
-         * @return インデックス位置
-         */
-        private int getIndexOfVillage(Object child){
-            return this.villageList.indexOf(child);
-        }
-
-        /**
-         * セクションの文字列表記。
-         * JTree描画に反映される。
-         * @return 文字列表記
-         */
-        @Override
-        public String toString(){
-            StringBuilder result = new StringBuilder();
-            result.append(this.prefix).append(this.startID);
-            result.append(" ～ ");
-            result.append(this.prefix).append(this.endID);
-            return result.toString();
-        }
-    }
-
     private static final String ROOT = "ROOT";
     private static final int SECTION_INTERVAL = 100;
+
 
     private final List<Land> landList = new LinkedList<Land>();
     private final List<Land> unmodList =
@@ -447,6 +333,123 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
     @Override
     public void valueForPathChanged(TreePath path, Object newValue){
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * 村IDで範囲指定した、村のセクション集合。国-村間の中間ツリー。
+     * @see javax.swing.tree.TreeModel
+     */
+    private static final class VillageSection{
+
+        private final int startID;
+        private final int endID;
+        private final String prefix;
+
+        private final List<Village> villageList = new LinkedList<Village>();
+
+
+        /**
+         * セクション集合を生成する。
+         * @param land 国
+         * @param startID 開始村ID
+         * @param endID 終了村ID
+         * @throws java.lang.IndexOutOfBoundsException IDの範囲指定が変
+         */
+        private VillageSection(Land land, int startID, int endID)
+                throws IndexOutOfBoundsException{
+            super();
+
+            if(startID < 0 || startID > endID){
+                throw new IndexOutOfBoundsException();
+            }
+
+            this.startID = startID;
+            this.endID = endID;
+            this.prefix = land.getLandDef().getLandPrefix();
+
+            for(Village village : land.getVillageList()){
+                int id = village.getVillageIDNum();
+                if(startID <= id && id <= endID){
+                    this.villageList.add(village);
+                }
+            }
+
+            return;
+        }
+
+
+        /**
+         * 与えられた国の全ての村を、指定されたinterval間隔でセクション化する。
+         * @param land 国
+         * @param interval セクションの間隔
+         * @return セクションのリスト
+         * @throws java.lang.IllegalArgumentException intervalが正でない
+         */
+        private static List<VillageSection> getSectionList(Land land,
+                                                             int interval )
+                throws IllegalArgumentException{
+            if(interval <= 0){
+                throw new IllegalArgumentException();
+            }
+
+            List<Village> villageList = land.getVillageList();
+            Village village1st = villageList.get(0);
+            Village villageLast = villageList.get(villageList.size() - 1);
+
+            int startID = village1st.getVillageIDNum();
+            int endID = villageLast.getVillageIDNum();
+
+            List<VillageSection> result = new LinkedList<VillageSection>();
+
+            int fixedStart = startID / interval * interval;
+            for(int ct = fixedStart; ct <= endID; ct += interval){
+                VillageSection section =
+                        new VillageSection(land, ct, ct + interval - 1);
+                result.add(section);
+            }
+
+            return Collections.unmodifiableList(result);
+        }
+
+        /**
+         * セクションに含まれる村の総数を返す。
+         * @return 村の総数
+         */
+        private int getVillageCount(){
+            return this.villageList.size();
+        }
+
+        /**
+         * セクションに含まれるindex番目の村を返す。
+         * @param index インデックス
+         * @return index番目の村
+         */
+        private Village getVillage(int index){
+            return this.villageList.get(index);
+        }
+
+        /**
+         * セクションにおける、指定された子（村）のインデックス位置を返す。
+         * @param child 子
+         * @return インデックス位置
+         */
+        private int getIndexOfVillage(Object child){
+            return this.villageList.indexOf(child);
+        }
+
+        /**
+         * セクションの文字列表記。
+         * JTree描画に反映される。
+         * @return 文字列表記
+         */
+        @Override
+        public String toString(){
+            StringBuilder result = new StringBuilder();
+            result.append(this.prefix).append(this.startID);
+            result.append(" ～ ");
+            result.append(this.prefix).append(this.endID);
+            return result.toString();
+        }
     }
 
 }

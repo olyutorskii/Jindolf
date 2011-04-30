@@ -16,6 +16,34 @@ public class JsString
         extends AbstractJsValue
         implements CharSequence, Comparable<JsString> {
 
+    private final String text;
+
+
+    /**
+     * コンストラクタ。
+     * 空文字が設定される。
+     */
+    public JsString(){
+        this(null);
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * 引数はJSON書式ではない。
+     * @param seq 文字列。nullなら空文字が設定される。
+     */
+    public JsString(CharSequence seq){
+        super();
+        if(seq == null){
+            this.text = "";
+        }else{
+            this.text = seq.toString();
+        }
+        return;
+    }
+
+
     /**
      * FFFF形式4桁で16進エスケープされた文字列を読み、
      * 1文字にデコードする。
@@ -144,32 +172,6 @@ public class JsString
 
         appout.append('"');
 
-        return;
-    }
-
-    private final String text;
-
-    /**
-     * コンストラクタ。
-     * 空文字が設定される。
-     */
-    public JsString(){
-        this(null);
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * 引数はJSON書式ではない。
-     * @param seq 文字列。nullなら空文字が設定される。
-     */
-    public JsString(CharSequence seq){
-        super();
-        if(seq == null){
-            this.text = "";
-        }else{
-            this.text = seq.toString();
-        }
         return;
     }
 

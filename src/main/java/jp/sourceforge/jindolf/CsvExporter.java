@@ -76,6 +76,16 @@ public final class CsvExporter{
     private static final JFileChooser chooser = buildChooser();
     // TODO staticなGUIパーツってどうなんだ…
 
+
+    /**
+     * 隠しコンストラクタ。
+     */
+    private CsvExporter(){
+        assert false;
+        throw new AssertionError();
+    }
+
+
     /**
      * Charsetが日本語エンコーダを持っているか確認する。
      * @param cs Charset
@@ -499,14 +509,6 @@ public final class CsvExporter{
         }
 
         return false;
-    }
-
-    /**
-     * 隠しコンストラクタ。
-     */
-    private CsvExporter(){
-        assert false;
-        throw new AssertionError();
     }
 
     /**

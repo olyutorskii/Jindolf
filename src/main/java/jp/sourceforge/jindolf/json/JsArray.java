@@ -21,6 +21,19 @@ public class JsArray
         extends AbstractJsValue
         implements Iterable<JsValue> {
 
+    private final List<JsValue> valueList = new ArrayList<JsValue>();
+    private boolean changed = false;
+
+
+    /**
+     * コンストラクタ。
+     */
+    public JsArray(){
+        super();
+        return;
+    }
+
+
     /**
      * JSON Arrayを文字ストリームからパースする。
      * @param reader 文字入力
@@ -64,18 +77,6 @@ public class JsArray
         return result;
     }
 
-
-    private final List<JsValue> valueList = new ArrayList<JsValue>();
-    private boolean changed = false;
-
-
-    /**
-     * コンストラクタ。
-     */
-    public JsArray(){
-        super();
-        return;
-    }
 
     /**
      * JSON Valueを追加する。

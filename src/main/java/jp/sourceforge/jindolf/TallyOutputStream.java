@@ -19,21 +19,12 @@ public class TallyOutputStream extends OutputStream{
 
     private static final int BUFSIZE = 512;
 
-    /**
-     * HTTPコネクションから出力ストリームを得る。
-     * @param conn HTTPコネクション
-     * @return 出力ストリーム
-     * @throws java.io.IOException 入出力エラー
-     */
-    public static OutputStream getOutputStream(HttpURLConnection conn)
-            throws IOException{
-        return new TallyOutputStream(conn);
-    }
 
     private final HttpURLConnection conn;
     private final OutputStream out;
     private long counter;
     private long nanoLap;
+
 
     /**
      * コンストラクタ。
@@ -54,6 +45,18 @@ public class TallyOutputStream extends OutputStream{
         this.out = os;
 
         return;
+    }
+
+
+    /**
+     * HTTPコネクションから出力ストリームを得る。
+     * @param conn HTTPコネクション
+     * @return 出力ストリーム
+     * @throws java.io.IOException 入出力エラー
+     */
+    public static OutputStream getOutputStream(HttpURLConnection conn)
+            throws IOException{
+        return new TallyOutputStream(conn);
     }
 
     /**

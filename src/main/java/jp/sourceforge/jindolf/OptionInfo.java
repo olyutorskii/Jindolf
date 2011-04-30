@@ -28,6 +28,29 @@ public class OptionInfo{
                 +"(?:(\\+|\\-)([1-9][0-9]*)(\\+|\\-)([1-9][0-9]*))?"
                 );
 
+
+    private Integer frameWidth  = null;
+    private Integer frameHeight = null;
+    private Integer frameXpos = null;
+    private Integer frameYpos = null;
+
+    private final List<String> invokeArgs = new LinkedList<String>();
+    private final List<CmdOption> optionList = new LinkedList<CmdOption>();
+    private final Map<CmdOption, Boolean> boolOptionMap =
+            new EnumMap<CmdOption, Boolean>(CmdOption.class);
+    private final Map<CmdOption, String> stringOptionMap =
+            new EnumMap<CmdOption, String>(CmdOption.class);
+
+
+    /**
+     * コンストラクタ。
+     */
+    protected OptionInfo(){
+        super();
+        return;
+    }
+
+
     /**
      * オプション文字列を解析する。
      * @param args main()に渡されるオプション文字列
@@ -172,26 +195,6 @@ public class OptionInfo{
         return;
     }
 
-
-    private Integer frameWidth  = null;
-    private Integer frameHeight = null;
-    private Integer frameXpos = null;
-    private Integer frameYpos = null;
-
-    private final List<String> invokeArgs = new LinkedList<String>();
-    private final List<CmdOption> optionList = new LinkedList<CmdOption>();
-    private final Map<CmdOption, Boolean> boolOptionMap =
-            new EnumMap<CmdOption, Boolean>(CmdOption.class);
-    private final Map<CmdOption, String> stringOptionMap =
-            new EnumMap<CmdOption, String>(CmdOption.class);
-
-    /**
-     * コンストラクタ。
-     */
-    protected OptionInfo(){
-        super();
-        return;
-    }
 
     /**
      * 全引数のリストを返す。

@@ -61,6 +61,15 @@ public final class ConfigFile{
 
 
     /**
+     * 隠れコンストラクタ。
+     */
+    private ConfigFile(){
+        super();
+        return;
+    }
+
+
+    /**
      * 設定格納ディレクトリのセットアップ。
      * @return 設定格納ディレクトリ
      */
@@ -489,14 +498,6 @@ public final class ConfigFile{
                 + FileUtils.getHtmledFileName(path)
                 + "&nbsp;]</center>"
                 + "<br>";
-    }
-
-    /**
-     * 隠れコンストラクタ。
-     */
-    private ConfigFile(){
-        super();
-        return;
     }
 
     /**

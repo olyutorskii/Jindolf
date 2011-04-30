@@ -14,25 +14,6 @@ import jp.sourceforge.jindolf.corelib.TalkType;
  */
 public class Talk implements Topic{
 
-    /**
-     * 会話種別から色名への変換を行う。
-     * @param type 会話種別
-     * @return 色名
-     */
-    public static String encodeColorName(TalkType type){
-        String result;
-
-        switch(type){
-        case PUBLIC:   result = "白"; break;
-        case PRIVATE:  result = "灰"; break;
-        case WOLFONLY: result = "赤"; break;
-        case GRAVE:    result = "青"; break;
-        default: assert false; return null;
-        }
-
-        return result;
-    }
-
     private final Period homePeriod;
     private final TalkType talkType;
     private final Avatar avatar;
@@ -43,6 +24,7 @@ public class Talk implements Topic{
     private final CharSequence dialog;
     private final int charNum;
     private int count = -1;
+
 
     /**
      * Talkの生成。
@@ -85,6 +67,26 @@ public class Talk implements Topic{
         this.charNum = this.dialog.length();
 
         return;
+    }
+
+
+    /**
+     * 会話種別から色名への変換を行う。
+     * @param type 会話種別
+     * @return 色名
+     */
+    public static String encodeColorName(TalkType type){
+        String result;
+
+        switch(type){
+        case PUBLIC:   result = "白"; break;
+        case PRIVATE:  result = "灰"; break;
+        case WOLFONLY: result = "赤"; break;
+        case GRAVE:    result = "青"; break;
+        default: assert false; return null;
+        }
+
+        return result;
     }
 
     /**

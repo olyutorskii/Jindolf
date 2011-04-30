@@ -16,6 +16,15 @@ import java.io.Reader;
 public final class Json{
 
     /**
+     * 隠しコンストラクタ。
+     */
+    private Json(){
+        assert false;
+        throw new AssertionError();
+    }
+
+
+    /**
      * JSON最上位構造から文字出力を開始する。
      * @param appout 出力先
      * @param value JSONのObjectかArray
@@ -180,14 +189,6 @@ public final class Json{
         }
 
         throw new JsParseException();
-    }
-
-    /**
-     * 隠しコンストラクタ。
-     */
-    private Json(){
-        assert false;
-        throw new AssertionError();
     }
 
 }

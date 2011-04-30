@@ -35,6 +35,9 @@ import jp.sourceforge.jindolf.corelib.GameRole;
  */
 public final class WolfBBS{
 
+    /** PukiWikiコメント行。 */
+    public static final String COMMENTLINE;
+
     private static final String WIKICHAR = "#&[]()<>+-*:|~/,'%?";
     private static final Pattern WIKINAME_PATTERN =
             Pattern.compile("[A-Z][a-z]+([A-Z])[a-z]+");
@@ -44,9 +47,6 @@ public final class WolfBBS{
     private static final String ORDER_PREFIX = "iconset.order.";
     private static final List<FaceIconSet> FACEICONSET_LIST =
             new LinkedList<FaceIconSet>();
-
-    /** PukiWikiコメント行。 */
-    public static final String COMMENTLINE;
 
     private static final Charset CHARSET_EUC = Charset.forName("EUC-JP");
 
@@ -63,6 +63,16 @@ public final class WolfBBS{
         wikicomment.append('\n');
         COMMENTLINE = wikicomment.toString();
     }
+
+
+    /**
+     * 隠しコンストラクタ。
+     */
+    private WolfBBS(){
+        assert false;
+        throw new AssertionError();
+    }
+
 
     /**
      * アイコンセットのロード。
@@ -503,14 +513,6 @@ public final class WolfBBS{
         String result = WOLFBBS_URL + encodedId + ".html";
 
         return result;
-    }
-
-    /**
-     * 隠しコンストラクタ。
-     */
-    private WolfBBS(){
-        assert false;
-        throw new AssertionError();
     }
 
 }

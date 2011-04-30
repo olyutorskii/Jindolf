@@ -27,6 +27,78 @@ public class RegexPattern{
     private static final String REGEX_CHAR = ".?+*\\$(|)[]{}^-&";
 
 
+    private final String editSource;
+    private final boolean isRegex;
+    private final Pattern pattern;
+    private final String comment;
+
+
+    /**
+     * コンストラクタ。
+     *
+     * @param editSource リテラル文字列または正規表現
+     * @param isRegex 指定文字列が正規表現ならtrue。リテラルならfalse
+     * @param flag 正規表現フラグ
+     * @param comment コメント
+     * @throws java.util.regex.PatternSyntaxException 正規表現がおかしい
+     */
+    public RegexPattern(String editSource,
+                        boolean isRegex,
+                        int flag,
+                        String comment)
+            throws PatternSyntaxException{
+        super();
+        if(editSource == null) throw new NullPointerException();
+
+        this.isRegex    = isRegex;
+        if(comment != null) this.comment = comment;
+        else                this.comment = "";
+
+        String regexExpr;
+        if(this.isRegex){
+            this.editSource = editSource;
+            regexExpr = this.editSource;
+        }else{
+            String newSource = "";
+            regexExpr = "";
+
+            String[] tokens = editSource.split(REGEX_DELIM);
+            for(String token : tokens){
+                if(token == null || token.length() <= 0) continue;
+
+                if(newSource.length() <= 0) newSource  =       token;
+                else                        newSource += " " + token;
+
+                String quoted = "(?:" + quote(token) + ")";
+                if(regexExpr.length() <= 0) regexExpr  =       quoted;
+                else                        regexExpr += "|" + quoted;
+            }
+
+            this.editSource = newSource;
+        }
+
+        this.pattern = Pattern.compile(regexExpr, flag);
+
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     *
+     * @param editSource リテラル文字列または正規表現
+     * @param isRegex 指定文字列が正規表現ならtrue。リテラルならfalse
+     * @param flag 正規表現フラグ
+     * @throws java.util.regex.PatternSyntaxException 正規表現がおかしい
+     */
+    public RegexPattern(String editSource,
+                        boolean isRegex,
+                        int flag )
+            throws PatternSyntaxException{
+        this(editSource, isRegex, flag, " ");
+        return;
+    }
+
+
     /**
      * 正規表現とまぎらわしい字を含むか判定する。
      * @param seq 文字列
@@ -141,76 +213,6 @@ public class RegexPattern{
         return result;
     }
 
-
-    private final String editSource;
-    private final boolean isRegex;
-    private final Pattern pattern;
-    private final String comment;
-
-    /**
-     * コンストラクタ。
-     *
-     * @param editSource リテラル文字列または正規表現
-     * @param isRegex 指定文字列が正規表現ならtrue。リテラルならfalse
-     * @param flag 正規表現フラグ
-     * @param comment コメント
-     * @throws java.util.regex.PatternSyntaxException 正規表現がおかしい
-     */
-    public RegexPattern(String editSource,
-                        boolean isRegex,
-                        int flag,
-                        String comment)
-            throws PatternSyntaxException{
-        super();
-        if(editSource == null) throw new NullPointerException();
-
-        this.isRegex    = isRegex;
-        if(comment != null) this.comment = comment;
-        else                this.comment = "";
-
-        String regexExpr;
-        if(this.isRegex){
-            this.editSource = editSource;
-            regexExpr = this.editSource;
-        }else{
-            String newSource = "";
-            regexExpr = "";
-
-            String[] tokens = editSource.split(REGEX_DELIM);
-            for(String token : tokens){
-                if(token == null || token.length() <= 0) continue;
-
-                if(newSource.length() <= 0) newSource  =       token;
-                else                        newSource += " " + token;
-
-                String quoted = "(?:" + quote(token) + ")";
-                if(regexExpr.length() <= 0) regexExpr  =       quoted;
-                else                        regexExpr += "|" + quoted;
-            }
-
-            this.editSource = newSource;
-        }
-
-        this.pattern = Pattern.compile(regexExpr, flag);
-
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     *
-     * @param editSource リテラル文字列または正規表現
-     * @param isRegex 指定文字列が正規表現ならtrue。リテラルならfalse
-     * @param flag 正規表現フラグ
-     * @throws java.util.regex.PatternSyntaxException 正規表現がおかしい
-     */
-    public RegexPattern(String editSource,
-                        boolean isRegex,
-                        int flag )
-            throws PatternSyntaxException{
-        this(editSource, isRegex, flag, " ");
-        return;
-    }
 
     /**
      * 元の入力文字列を返す。

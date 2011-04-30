@@ -67,9 +67,6 @@ public final class Jindolf{
     public static final long EPOCHMS_LOADED;
 
 
-    /** バージョン定義リソース。 */
-    private static final String RES_VERDEF = "resources/version.properties";
-
     /** タイトル。 */
     public static final String TITLE;
     /** バージョン。 */
@@ -101,6 +98,9 @@ public final class Jindolf{
 
     private static OptionInfo option;
     private static AppSetting setting;
+
+    /** バージョン定義リソース。 */
+    private static final String RES_VERDEF = "resources/version.properties";
 
     static{
         SELF_KLASS   = Jindolf.class;
@@ -167,6 +167,17 @@ public final class Jindolf{
 
         new Jindolf();
     }
+
+
+    /**
+     * 隠れコンストラクタ。
+     */
+    private Jindolf(){
+        super();
+        assert this.getClass() == SELF_KLASS;
+        return;
+    }
+
 
     /**
      * 起動オプション情報を返す。
@@ -795,15 +806,6 @@ public final class Jindolf{
 
         if(hasError) exit(1);
 
-        return;
-    }
-
-    /**
-     * 隠れコンストラクタ。
-     */
-    private Jindolf(){
-        super();
-        assert this.getClass() == SELF_KLASS;
         return;
     }
 

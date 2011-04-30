@@ -19,15 +19,6 @@ public final class JsBoolean
     /** 偽。 */
     public static final JsBoolean FALSE = new JsBoolean();
 
-    /**
-     * boolean値から真偽Valueを返す。
-     * @param bool boolean値
-     * @return TRUEかFALSE
-     */
-    public static JsBoolean valueOf(boolean bool){
-        if(bool) return TRUE;
-        return FALSE;
-    }
 
     /**
      * コンストラクタ。
@@ -36,6 +27,17 @@ public final class JsBoolean
     private JsBoolean(){
         super();
         return;
+    }
+
+
+    /**
+     * boolean値から真偽Valueを返す。
+     * @param bool boolean値
+     * @return TRUEかFALSE
+     */
+    public static JsBoolean valueOf(boolean bool){
+        if(bool) return TRUE;
+        return FALSE;
     }
 
     /**

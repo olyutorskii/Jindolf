@@ -96,14 +96,6 @@ public class ActionManager{
     /** アクション{@value}。 */
     public static final String CMD_FONTSIZESEL = "FONTSIZESEL";
 
-    private static final KeyStroke KEY_F1 = KeyStroke.getKeyStroke("F1");
-    private static final KeyStroke KEY_F3 = KeyStroke.getKeyStroke("F3");
-    private static final KeyStroke KEY_SHIFT_F3 =
-            KeyStroke.getKeyStroke("shift F3");
-    private static final KeyStroke KEY_F5 = KeyStroke.getKeyStroke("F5");
-    private static final KeyStroke KEY_CTRL_F =
-            KeyStroke.getKeyStroke("ctrl F");
-
     /** WWWアイコン。 */
     public static final Icon ICON_WWW = GUIUtils.getWWWIcon();
     /** 検索アイコン。 */
@@ -118,6 +110,14 @@ public class ActionManager{
     public static final Icon ICON_FILTER;
     /** 発言エディタアイコン。 */
     public static final Icon ICON_EDITOR;
+
+    private static final KeyStroke KEY_F1 = KeyStroke.getKeyStroke("F1");
+    private static final KeyStroke KEY_F3 = KeyStroke.getKeyStroke("F3");
+    private static final KeyStroke KEY_SHIFT_F3 =
+            KeyStroke.getKeyStroke("shift F3");
+    private static final KeyStroke KEY_F5 = KeyStroke.getKeyStroke("F5");
+    private static final KeyStroke KEY_CTRL_F =
+            KeyStroke.getKeyStroke("ctrl F");
 
     static{
         URL iconurl;

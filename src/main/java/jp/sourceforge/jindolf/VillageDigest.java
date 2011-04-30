@@ -57,6 +57,113 @@ public class VillageDigest
             "村のダイジェスト - " + Jindolf.TITLE;
     private static final String ITEMDELIM = " : ";
 
+
+    private final JComponent summaryPanel = buildSummaryPanel();
+
+    private final JLabel faceLabel = new JLabel();
+    private final ImageIcon faceIcon = new ImageIcon();
+    private final JComboBox playerBox = new JComboBox();
+    private final DefaultComboBoxModel playerListModel =
+            new DefaultComboBoxModel();
+    private final JButton prevPlayer = new JButton("↑");
+    private final JButton nextPlayer = new JButton("↓");
+    private final JLabel roleLabel = new JLabel();
+    private final JLabel destinyLabel = new JLabel();
+    private final JLabel specialSkillLabel = new JLabel();
+    private final JLabel entryLabel = new JLabel();
+    private final JLabel idLabel = new JLabel();
+    private final WebButton urlLine = new WebButton();
+    private final JComponent playerPanel = buildPlayerPanel();
+
+    private final JComboBox iconSetBox = new JComboBox();
+    private final DefaultComboBoxModel iconSetListModel =
+            new DefaultComboBoxModel();
+    private final JLabel authorLabel = new JLabel();
+    private final JLabel authorUrlLabel = new JLabel();
+    private final WebButton iconCatalog = new WebButton();
+    private final JButton genCastTableButton =
+            new JButton("キャスト表Wiki生成");
+    private final JButton copyClipButton =
+            new JButton("クリップボードにコピー");
+    private final JTextArea templateArea = new JTextArea();
+    private final JButton voteButton = new JButton("投票Wiki生成");
+    private final JButton vlgWikiButton = new JButton("村詳細Wiki生成");
+    private final JComponent clipboardPanel = buildClipboardPanel();
+
+    private final JButton closeButton = new JButton("閉じる");
+
+    private Village village;
+
+    private GameSummary gameSummary;
+
+
+    /**
+     * コンストラクタ。
+     * @param owner 親フレーム
+     */
+    public VillageDigest(Frame owner){
+        super(owner, FRAMETITLE, true);
+
+        GUIUtils.modifyWindowAttributes(this, true, false, true);
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent event){
+                actionClose();
+                return;
+            }
+        });
+
+        this.faceLabel.setIcon(this.faceIcon);
+
+        this.playerBox.setModel(this.playerListModel);
+        this.playerBox.addItemListener(this);
+
+        this.prevPlayer.setMargin(new Insets(1, 1, 1, 1));
+        this.prevPlayer.addActionListener(this);
+        this.prevPlayer.setToolTipText("前のプレイヤー");
+
+        this.nextPlayer.setMargin(new Insets(1, 1, 1, 1));
+        this.nextPlayer.addActionListener(this);
+        this.nextPlayer.setToolTipText("次のプレイヤー");
+
+        this.iconSetBox.setModel(this.iconSetListModel);
+        this.iconSetBox.addItemListener(this);
+        for(FaceIconSet iconSet : WolfBBS.getFaceIconSetList()){
+            this.iconSetListModel.addElement(iconSet);
+        }
+
+        this.iconCatalog.setURLText(
+                "http://wolfbbs.jp/"
+                +"%A4%DE%A4%C8%A4%E1%A5%B5%A5%A4%A5%C8%A4%C7"
+                +"%CD%F8%CD%D1%B2%C4%C7%BD%A4%CA%A5%A2%A5%A4"
+                +"%A5%B3%A5%F3%B2%E8%C1%FC.html");
+        this.iconCatalog.setCaption("顔アイコン見本ページ");
+
+        this.templateArea.setEditable(true);
+        this.templateArea.setLineWrap(true);
+        Monodizer.monodize(this.templateArea);
+        JPopupMenu popup = new TextPopup();
+        this.templateArea.setComponentPopupMenu(popup);
+
+        this.genCastTableButton.addActionListener(this);
+        this.voteButton.addActionListener(this);
+        this.vlgWikiButton.addActionListener(this);
+        this.copyClipButton.addActionListener(this);
+
+        this.closeButton.addActionListener(this);
+
+        Monodizer.monodize(this.idLabel);
+        Monodizer.monodize(this.authorUrlLabel);
+
+        Container content = getContentPane();
+        design(content);
+
+        return;
+    }
+
+
     /**
      * キャプション付き項目をコンテナに追加。
      * @param container コンテナ
@@ -146,110 +253,6 @@ public class VillageDigest
         LayoutManager layout = new GridBagLayout();
         result.setLayout(layout);
         return result;
-    }
-
-    private final JComponent summaryPanel = buildSummaryPanel();
-
-    private final JLabel faceLabel = new JLabel();
-    private final ImageIcon faceIcon = new ImageIcon();
-    private final JComboBox playerBox = new JComboBox();
-    private final DefaultComboBoxModel playerListModel =
-            new DefaultComboBoxModel();
-    private final JButton prevPlayer = new JButton("↑");
-    private final JButton nextPlayer = new JButton("↓");
-    private final JLabel roleLabel = new JLabel();
-    private final JLabel destinyLabel = new JLabel();
-    private final JLabel specialSkillLabel = new JLabel();
-    private final JLabel entryLabel = new JLabel();
-    private final JLabel idLabel = new JLabel();
-    private final WebButton urlLine = new WebButton();
-    private final JComponent playerPanel = buildPlayerPanel();
-
-    private final JComboBox iconSetBox = new JComboBox();
-    private final DefaultComboBoxModel iconSetListModel =
-            new DefaultComboBoxModel();
-    private final JLabel authorLabel = new JLabel();
-    private final JLabel authorUrlLabel = new JLabel();
-    private final WebButton iconCatalog = new WebButton();
-    private final JButton genCastTableButton =
-            new JButton("キャスト表Wiki生成");
-    private final JButton copyClipButton =
-            new JButton("クリップボードにコピー");
-    private final JTextArea templateArea = new JTextArea();
-    private final JButton voteButton = new JButton("投票Wiki生成");
-    private final JButton vlgWikiButton = new JButton("村詳細Wiki生成");
-    private final JComponent clipboardPanel = buildClipboardPanel();
-
-    private final JButton closeButton = new JButton("閉じる");
-
-    private Village village;
-
-    private GameSummary gameSummary;
-
-    /**
-     * コンストラクタ。
-     * @param owner 親フレーム
-     */
-    public VillageDigest(Frame owner){
-        super(owner, FRAMETITLE, true);
-
-        GUIUtils.modifyWindowAttributes(this, true, false, true);
-
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter(){
-            @Override
-            public void windowClosing(WindowEvent event){
-                actionClose();
-                return;
-            }
-        });
-
-        this.faceLabel.setIcon(this.faceIcon);
-
-        this.playerBox.setModel(this.playerListModel);
-        this.playerBox.addItemListener(this);
-
-        this.prevPlayer.setMargin(new Insets(1, 1, 1, 1));
-        this.prevPlayer.addActionListener(this);
-        this.prevPlayer.setToolTipText("前のプレイヤー");
-
-        this.nextPlayer.setMargin(new Insets(1, 1, 1, 1));
-        this.nextPlayer.addActionListener(this);
-        this.nextPlayer.setToolTipText("次のプレイヤー");
-
-        this.iconSetBox.setModel(this.iconSetListModel);
-        this.iconSetBox.addItemListener(this);
-        for(FaceIconSet iconSet : WolfBBS.getFaceIconSetList()){
-            this.iconSetListModel.addElement(iconSet);
-        }
-
-        this.iconCatalog.setURLText(
-                "http://wolfbbs.jp/"
-                +"%A4%DE%A4%C8%A4%E1%A5%B5%A5%A4%A5%C8%A4%C7"
-                +"%CD%F8%CD%D1%B2%C4%C7%BD%A4%CA%A5%A2%A5%A4"
-                +"%A5%B3%A5%F3%B2%E8%C1%FC.html");
-        this.iconCatalog.setCaption("顔アイコン見本ページ");
-
-        this.templateArea.setEditable(true);
-        this.templateArea.setLineWrap(true);
-        Monodizer.monodize(this.templateArea);
-        JPopupMenu popup = new TextPopup();
-        this.templateArea.setComponentPopupMenu(popup);
-
-        this.genCastTableButton.addActionListener(this);
-        this.voteButton.addActionListener(this);
-        this.vlgWikiButton.addActionListener(this);
-        this.copyClipButton.addActionListener(this);
-
-        this.closeButton.addActionListener(this);
-
-        Monodizer.monodize(this.idLabel);
-        Monodizer.monodize(this.authorUrlLabel);
-
-        Container content = getContentPane();
-        design(content);
-
-        return;
     }
 
     /**

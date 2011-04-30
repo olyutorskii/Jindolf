@@ -33,6 +33,16 @@ public final class XmlUtils{
     private static final XmlResourceResolver RESOLVER =
             new XmlResourceResolver();
 
+
+    /**
+     * 隠しコンストラクタ。
+     */
+    private XmlUtils(){
+        super();
+        return;
+    }
+
+
     /**
      * リゾルバ経由でリソースにアクセスし、
      * 共通スキーマによるバリデーションを行うためのDocumentBuilderを生成する。
@@ -98,14 +108,6 @@ public final class XmlUtils{
         builder.setEntityResolver(resolver);
 
         return builder;
-    }
-
-    /**
-     * 隠しコンストラクタ。
-     */
-    private XmlUtils(){
-        super();
-        return;
     }
 
     /**
