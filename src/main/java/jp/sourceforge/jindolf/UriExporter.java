@@ -59,6 +59,7 @@ public class UriExporter implements Transferable{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public DataFlavor[] getTransferDataFlavors(){
         DataFlavor[] result = new DataFlavor[URI_FLAVORS.size()];
         int index = 0;
@@ -78,6 +79,7 @@ public class UriExporter implements Transferable{
      * @param flavor {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean isDataFlavorSupported(DataFlavor flavor){
         for(DataFlavor dataFlavor : URI_FLAVORS){
             if(dataFlavor.equals(flavor)) return true;
@@ -93,6 +95,7 @@ public class UriExporter implements Transferable{
      * @throws java.awt.datatransfer.UnsupportedFlavorException {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
+    @Override
     public Object getTransferData(DataFlavor flavor)
             throws UnsupportedFlavorException,
                    IOException {

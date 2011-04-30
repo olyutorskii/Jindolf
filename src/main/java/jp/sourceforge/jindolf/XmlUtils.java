@@ -126,6 +126,7 @@ public final class XmlUtils{
          * @param e {@inheritDoc} エラー情報
          * @throws org.xml.sax.SAXException {@inheritDoc} 引数と同じ物
          */
+        @Override
         public void error(SAXParseException e) throws SAXException{
             throw e;
         }
@@ -135,6 +136,7 @@ public final class XmlUtils{
          * @param e {@inheritDoc} エラー情報
          * @throws org.xml.sax.SAXException {@inheritDoc} 引数と同じ物
          */
+        @Override
         public void fatalError(SAXParseException e) throws SAXException{
             throw e;
         }
@@ -144,6 +146,7 @@ public final class XmlUtils{
          * @param e {@inheritDoc} エラー情報
          * @throws org.xml.sax.SAXException {@inheritDoc} 引数と同じ物
          */
+        @Override
         public void warning(SAXParseException e) throws SAXException{
             throw e;
         }

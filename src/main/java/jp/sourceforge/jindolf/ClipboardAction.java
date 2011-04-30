@@ -112,6 +112,7 @@ public class ClipboardAction extends TextAction{
      * アクションの受信によってクリップボード操作を行う。
      * @param event {@inheritDoc}
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         JTextComponent textComp = getTextComponent(event);
         if(textComp == null) return;

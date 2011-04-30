@@ -32,6 +32,7 @@ public final class JsNull
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int compareTo(JsNull value){
         if(value == null) throw new NullPointerException();
         return 0;

@@ -415,6 +415,7 @@ public class AccountPanel
      * @param event イベント {@inheritDoc}
      */
     // TODO Return キー押下によるログインもサポートしたい
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
 
@@ -440,6 +441,7 @@ public class AccountPanel
      * コンボボックス操作のリスナ。
      * @param event イベント {@inheritDoc}
      */
+    @Override
     public void itemStateChanged(ItemEvent event){
         Object source = event.getSource();
         if(source != this.landBox) return;

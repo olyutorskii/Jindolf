@@ -52,6 +52,7 @@ public class BalloonBorder implements Border{
      * @param comp {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Insets getBorderInsets(Component comp){
         Insets insets = new Insets(RADIUS, RADIUS, RADIUS, RADIUS);
         return insets;
@@ -62,6 +63,7 @@ public class BalloonBorder implements Border{
      * 必ずfalseを返す(このBorderは透明)。
      * @return {@inheritDoc}
      */
+    @Override
     public boolean isBorderOpaque(){
         return false;
     }
@@ -75,6 +77,7 @@ public class BalloonBorder implements Border{
      * @param width {@inheritDoc}
      * @param height {@inheritDoc}
      */
+    @Override
     public void paintBorder(Component comp,
                               Graphics g,
                               int x, int y,

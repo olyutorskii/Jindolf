@@ -282,6 +282,7 @@ public class PeriodView extends JPanel implements ItemListener{
      * コンボボックス操作のリスナ。
      * @param event コンボボックス操作イベント {@inheritDoc}
      */
+    @Override
     public void itemStateChanged(ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
 

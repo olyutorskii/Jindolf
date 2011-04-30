@@ -134,6 +134,7 @@ public class AnchorDraw extends AbstractTextRow{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Rectangle recalcBounds(){
         int newWidth = getWidth();
 
@@ -220,6 +221,7 @@ public class AnchorDraw extends AbstractTextRow{
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
+    @Override
     public void drag(Point from, Point to){
         this.caption.drag(from, to);
         this.dialog.drag(from, to);
@@ -232,6 +234,7 @@ public class AnchorDraw extends AbstractTextRow{
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
+    @Override
     public Appendable appendSelected(Appendable appendable)
             throws IOException{
         this.caption.appendSelected(appendable);
@@ -242,6 +245,7 @@ public class AnchorDraw extends AbstractTextRow{
     /**
      * {@inheritDoc}
      */
+    @Override
     public void clearSelect(){
         this.caption.clearSelect();
         this.dialog.clearSelect();
@@ -265,6 +269,7 @@ public class AnchorDraw extends AbstractTextRow{
      * {@inheritDoc}
      * @param g {@inheritDoc}
      */
+    @Override
     public void paint(Graphics2D g){
         final int xPos = this.bounds.x;
         final int yPos = this.bounds.y;

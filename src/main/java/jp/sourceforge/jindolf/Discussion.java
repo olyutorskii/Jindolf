@@ -626,6 +626,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Dimension getPreferredScrollableViewportSize(){
         return getPreferredSize();
     }
@@ -634,6 +635,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean getScrollableTracksViewportWidth(){
         return true;
     }
@@ -642,6 +644,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean getScrollableTracksViewportHeight(){
         return false;
     }
@@ -653,6 +656,7 @@ public class Discussion extends JComponent
      * @param direction {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getScrollableBlockIncrement(Rectangle visibleRect,
                                                int orientation,
                                                int direction        ){
@@ -669,6 +673,7 @@ public class Discussion extends JComponent
      * @param direction {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getScrollableUnitIncrement(Rectangle visibleRect,
                                               int orientation,
                                               int direction      ){
@@ -783,6 +788,7 @@ public class Discussion extends JComponent
      * @param event {@inheritDoc}
      */
     // TODO 距離判定がシビアすぎ
+    @Override
     public void mouseClicked(MouseEvent event){
         Point pt = event.getPoint();
         if(event.getButton() == MouseEvent.BUTTON1){
@@ -797,6 +803,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void mouseEntered(MouseEvent event){
         // TODO ここでキーボードフォーカス処理が必要？
         return;
@@ -806,6 +813,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void mouseExited(MouseEvent event){
         return;
     }
@@ -815,6 +823,7 @@ public class Discussion extends JComponent
      * ドラッグ開始処理を行う。
      * @param event {@inheritDoc}
      */
+    @Override
     public void mousePressed(MouseEvent event){
         requestFocusInWindow();
 
@@ -831,6 +840,7 @@ public class Discussion extends JComponent
      * ドラッグ終了処理を行う。
      * @param event {@inheritDoc}
      */
+    @Override
     public void mouseReleased(MouseEvent event){
         if(event.getButton() == MouseEvent.BUTTON1){
             this.dragFrom = null;
@@ -844,6 +854,7 @@ public class Discussion extends JComponent
      * @param event {@inheritDoc}
      */
     // TODO ドラッグ範囲がビューポートを超えたら自動的にスクロールしてほしい。
+    @Override
     public void mouseDragged(MouseEvent event){
         if(this.dragFrom == null) return;
         Point dragTo = event.getPoint();
@@ -855,6 +866,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void mouseMoved(MouseEvent event){
         return;
     }
@@ -863,6 +875,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void componentShown(ComponentEvent event){
         return;
     }
@@ -871,6 +884,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void componentHidden(ComponentEvent event){
         return;
     }
@@ -879,6 +893,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void componentMoved(ComponentEvent event){
         return;
     }
@@ -887,6 +902,7 @@ public class Discussion extends JComponent
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void componentResized(ComponentEvent event){
         int width  = getWidth();
         int height = getHeight();
@@ -1123,6 +1139,7 @@ public class Discussion extends JComponent
          * {@inheritDoc}
          * @param event {@inheritDoc}
          */
+        @Override
         public void actionPerformed(ActionEvent event){
             Object source  = event.getSource();
             int id         = event.getID();

@@ -120,6 +120,7 @@ public class SysEventDraw extends AbstractTextRow{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Rectangle recalcBounds(){
         int newWidth = getWidth();
 
@@ -160,6 +161,7 @@ public class SysEventDraw extends AbstractTextRow{
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
+    @Override
     public void drag(Point from, Point to){
         this.sysMessage.drag(from, to);
         return;
@@ -171,6 +173,7 @@ public class SysEventDraw extends AbstractTextRow{
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
+    @Override
     public Appendable appendSelected(Appendable appendable)
             throws IOException{
         this.sysMessage.appendSelected(appendable);
@@ -180,6 +183,7 @@ public class SysEventDraw extends AbstractTextRow{
     /**
      * {@inheritDoc}
      */
+    @Override
     public void clearSelect(){
         this.sysMessage.clearSelect();
         return;
@@ -201,6 +205,7 @@ public class SysEventDraw extends AbstractTextRow{
      * {@inheritDoc}
      * @param g {@inheritDoc}
      */
+    @Override
     public void paint(Graphics2D g){
         g.setColor(this.fgColor);
 

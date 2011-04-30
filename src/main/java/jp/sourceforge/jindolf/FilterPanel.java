@@ -342,6 +342,7 @@ public class FilterPanel extends JDialog
      * {@inheritDoc}
      * @param event イベント
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
 
@@ -403,6 +404,7 @@ public class FilterPanel extends JDialog
      * @param topic {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean isFiltered(Topic topic){
         Talk talk;
         if(topic instanceof Talk){
@@ -456,6 +458,7 @@ public class FilterPanel extends JDialog
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public FilterContext getFilterContext(){
         return new FilterPanelContext();
     }
@@ -465,6 +468,7 @@ public class FilterPanel extends JDialog
      * @param context {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean isSame(FilterContext context){
         if(context == null) return false;
         if( ! (context instanceof FilterPanelContext) ) return false;

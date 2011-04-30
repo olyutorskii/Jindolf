@@ -132,6 +132,7 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
      * @return {@inheritDoc}
      */
     // TODO 最後が \n で終わるダイアログが無限再帰を起こす？
+    @Override
     public Rectangle recalcBounds(){
         float newWidth = (float) getWidth();
         this.lines.clear();
@@ -246,6 +247,7 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
+    @Override
     public Appendable appendSelected(Appendable appendable)
             throws IOException{
         if(this.selectStart < 0 || this.selectLast < 0) return appendable;
@@ -259,6 +261,7 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
     /**
      * {@inheritDoc}
      */
+    @Override
     public void clearSelect(){
         this.selectStart = -1;
         this.selectLast  = -1;
@@ -288,6 +291,7 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
+    @Override
     public void drag(Point from, Point to){
         Point fromPt = from;
         Point toPt = to;
@@ -545,6 +549,7 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
      * {@inheritDoc}
      * @param g {@inheritDoc}
      */
+    @Override
     public void paint(Graphics2D g){
         g.setFont(this.fontInfo.getFont());
         FontMetrics metrics = g.getFontMetrics();

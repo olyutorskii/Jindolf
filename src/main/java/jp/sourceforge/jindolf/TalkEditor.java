@@ -515,6 +515,7 @@ public class TalkEditor
      * @param event {@inheritDoc}
      */
     // TODO いつ呼ばれるのか不明
+    @Override
     public void changedUpdate(DocumentEvent event){
         updateStat();
         return;
@@ -525,6 +526,7 @@ public class TalkEditor
      * 集計情報を更新する。
      * @param event {@inheritDoc}
      */
+    @Override
     public void insertUpdate(DocumentEvent event){
         updateStat();
         return;
@@ -535,6 +537,7 @@ public class TalkEditor
      * 集計情報を更新する。
      * @param event {@inheritDoc}
      */
+    @Override
     public void removeUpdate(DocumentEvent event){
         updateStat();
         return;

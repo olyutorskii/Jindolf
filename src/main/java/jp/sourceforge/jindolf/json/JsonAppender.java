@@ -188,6 +188,7 @@ class JsonAppender
      * @param value {@inheritDoc}
      * @throws JsVisitException {@inheritDoc}
      */
+    @Override
     public void visitValue(JsValue value)
             throws JsVisitException{
         try{
@@ -224,6 +225,7 @@ class JsonAppender
      * @param name {@inheritDoc}
      * @throws JsVisitException {@inheritDoc}
      */
+    @Override
     public void visitPairName(String name)
             throws JsVisitException{
         try{
@@ -250,6 +252,7 @@ class JsonAppender
      * @param composite {@inheritDoc}
      * @throws JsVisitException {@inheritDoc}
      */
+    @Override
     public void visitCollectionClose(JsValue composite)
             throws JsVisitException{
         boolean hasChild = hasChildOut();

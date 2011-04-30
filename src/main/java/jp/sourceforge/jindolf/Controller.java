@@ -1344,6 +1344,7 @@ public class Controller
      * ツリーリストで何らかの要素（国、村）がクリックされたときの処理。
      * @param event イベント {@inheritDoc}
      */
+    @Override
     public void valueChanged(TreeSelectionEvent event){
         TreePath path = event.getNewLeadSelectionPath();
         if(path == null) return;
@@ -1398,6 +1399,7 @@ public class Controller
      * Periodがタブ選択されたときもしくは発言フィルタが操作されたときの処理。
      * @param event イベント {@inheritDoc}
      */
+    @Override
     public void stateChanged(ChangeEvent event){
         Object source = event.getSource();
 
@@ -1418,6 +1420,7 @@ public class Controller
      * 主にメニュー選択やボタン押下など。
      * @param e イベント {@inheritDoc}
      */
+    @Override
     public void actionPerformed(ActionEvent e){
         if(this.isBusyNow) return;
 
@@ -1485,6 +1488,7 @@ public class Controller
      * 村選択ツリーリストが畳まれるとき呼ばれる。
      * @param event ツリーイベント {@inheritDoc}
      */
+    @Override
     public void treeWillCollapse(TreeExpansionEvent event){
         return;
     }
@@ -1494,6 +1498,7 @@ public class Controller
      * 村選択ツリーリストが展開されるとき呼ばれる。
      * @param event ツリーイベント {@inheritDoc}
      */
+    @Override
     public void treeWillExpand(TreeExpansionEvent event){
         if(!(event.getSource() instanceof JTree)){
             return;
@@ -1518,6 +1523,7 @@ public class Controller
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void anchorHitted(AnchorHitEvent event){
         PeriodView periodView = currentPeriodView();
         if(periodView == null) return;

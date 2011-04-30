@@ -273,6 +273,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowActivated(WindowEvent event){
         return;
     }
@@ -281,6 +282,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowDeactivated(WindowEvent event){
         return;
     }
@@ -289,6 +291,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowIconified(WindowEvent event){
         this.textarea.setDocument(DOC_EMPTY);
         return;
@@ -298,6 +301,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowDeiconified(WindowEvent event){
         this.textarea.setDocument(this.document);
         showLastPos();
@@ -308,6 +312,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowOpened(WindowEvent event){
         this.textarea.setDocument(this.document);
         showLastPos();
@@ -318,6 +323,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowClosed(WindowEvent event){
         return;
     }
@@ -326,6 +332,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowClosing(WindowEvent event){
         close();
         return;
@@ -335,6 +342,7 @@ public class LogFrame extends JDialog
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
         if(source == this.clearButton){

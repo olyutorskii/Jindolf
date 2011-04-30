@@ -306,6 +306,7 @@ public class JsNumber
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int compareTo(JsNumber value){
         if(this == value) return 0;
         return this.decimal.compareTo(value.decimal);

@@ -66,6 +66,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public char first(){
         this.cursorPos = this.cursorBegin;
         return current();
@@ -75,6 +76,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public char last(){
         this.cursorPos = this.cursorEnd - 1;
         return current();
@@ -84,6 +86,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public char current(){
         if(this.cursorLength <= 0 || this.cursorPos < this.cursorBegin){
             this.cursorPos = this.cursorBegin;
@@ -100,6 +103,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public char next(){
         this.cursorPos++;
         return current();
@@ -109,6 +113,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public char previous(){
         this.cursorPos--;
         return current();
@@ -120,6 +125,7 @@ public class SequenceCharacterIterator
      * @return {@inheritDoc}
      * @throws java.lang.IllegalArgumentException {@inheritDoc}
      */
+    @Override
     public char setIndex(int newPos) throws IllegalArgumentException{
         if(newPos < this.cursorBegin || this.cursorEnd < newPos){
             throw new IllegalArgumentException();
@@ -132,6 +138,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getBeginIndex(){
         return this.cursorBegin;
     }
@@ -140,6 +147,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getEndIndex(){
         return this.cursorEnd;
     }
@@ -148,6 +156,7 @@ public class SequenceCharacterIterator
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getIndex(){
         return this.cursorPos;
     }

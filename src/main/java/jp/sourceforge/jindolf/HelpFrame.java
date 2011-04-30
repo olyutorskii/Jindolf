@@ -158,6 +158,7 @@ public class HelpFrame extends JFrame
      * 閉じるボタン押下処理。
      * @param event ボタン押下イベント {@inheritDoc}
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         if(event.getSource() != this.closeButton) return;
         close();
@@ -169,6 +170,7 @@ public class HelpFrame extends JFrame
      * リンククリック処理。
      * @param event リンククリックイベント {@inheritDoc}
      */
+    @Override
     public void hyperlinkUpdate(HyperlinkEvent event){
         if(event.getEventType() != HyperlinkEvent.EventType.ACTIVATED){
             return;

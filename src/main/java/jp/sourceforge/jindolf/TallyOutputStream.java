@@ -129,6 +129,7 @@ public class TallyOutputStream extends OutputStream{
      * @param b {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
+    @Override
     public void write(int b) throws IOException{
         if(this.counter <= 0) this.nanoLap = System.nanoTime();
 

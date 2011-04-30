@@ -26,6 +26,7 @@ public class AbstractJsValue implements JsValue{
      * @param visitor {@inheritDoc}
      * @throws JsVisitException {@inheritDoc}
      */
+    @Override
     public void traverse(ValueVisitor visitor)
             throws JsVisitException{
         visitor.visitValue(this);
@@ -36,6 +37,7 @@ public class AbstractJsValue implements JsValue{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean hasChanged(){
         return false;
     }
@@ -43,6 +45,7 @@ public class AbstractJsValue implements JsValue{
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setUnchanged(){
         return;
     }

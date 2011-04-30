@@ -179,6 +179,7 @@ public class JsString
      * @return {@inheritDoc}
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    @Override
     public char charAt(int index)
             throws IndexOutOfBoundsException{
         return this.text.charAt(index);
@@ -188,6 +189,7 @@ public class JsString
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int length(){
         return this.text.length();
     }
@@ -199,6 +201,7 @@ public class JsString
      * @return {@inheritDoc}
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    @Override
     public CharSequence subSequence(int start, int end)
             throws IndexOutOfBoundsException{
         return this.text.subSequence(start, end);
@@ -234,6 +237,7 @@ public class JsString
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int compareTo(JsString value){
         if(this == value) return 0;
         if(value == null) return +1;

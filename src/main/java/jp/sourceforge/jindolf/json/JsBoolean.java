@@ -95,6 +95,7 @@ public final class JsBoolean
      * @param value {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int compareTo(JsBoolean value){
         if(value == null) throw new NullPointerException();
         if(this == value) return 0;

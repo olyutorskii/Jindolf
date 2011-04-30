@@ -70,6 +70,7 @@ public class HtmlSequence implements CharSequence{
      * @param index {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public char charAt(int index){
         return this.html.charAt(index);
     }
@@ -78,6 +79,7 @@ public class HtmlSequence implements CharSequence{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int length(){
         return this.html.length();
     }
@@ -88,6 +90,7 @@ public class HtmlSequence implements CharSequence{
      * @param end {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public CharSequence subSequence(int start, int end){
         return this.html.subSequence(start, end);
     }

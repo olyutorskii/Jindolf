@@ -45,6 +45,7 @@ public abstract class AbstractTextRow implements TextRow{
      * @param newWidth {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Rectangle setWidth(int newWidth){
         this.bounds.width = newWidth;
         recalcBounds();
@@ -55,6 +56,7 @@ public abstract class AbstractTextRow implements TextRow{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Rectangle getBounds(){
         return this.bounds;
     }
@@ -64,6 +66,7 @@ public abstract class AbstractTextRow implements TextRow{
      * @param xPos {@inheritDoc}
      * @param yPos {@inheritDoc}
      */
+    @Override
     public void setPos(int xPos, int yPos){
         this.bounds.x = xPos;
         this.bounds.y = yPos;
@@ -74,6 +77,7 @@ public abstract class AbstractTextRow implements TextRow{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getWidth(){
         return this.bounds.width;
     }
@@ -82,6 +86,7 @@ public abstract class AbstractTextRow implements TextRow{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getHeight(){
         return this.bounds.height;
     }
@@ -90,6 +95,7 @@ public abstract class AbstractTextRow implements TextRow{
      * {@inheritDoc}
      * @param fontInfo {@inheritDoc}
      */
+    @Override
     public void setFontInfo(FontInfo fontInfo){
         this.fontInfo = fontInfo;
         return;
@@ -99,6 +105,7 @@ public abstract class AbstractTextRow implements TextRow{
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public boolean isVisible(){
         return this.visible;
     }
@@ -107,6 +114,7 @@ public abstract class AbstractTextRow implements TextRow{
      * {@inheritDoc}
      * @param visible {@inheritDoc}
      */
+    @Override
     public void setVisible(boolean visible){
         this.visible = visible;
         return;

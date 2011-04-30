@@ -119,6 +119,7 @@ public class TextEditor extends JTextArea
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void caretPositionChanged(InputMethodEvent event){
         // NOTHING
         return;
@@ -129,6 +130,7 @@ public class TextEditor extends JTextArea
      * このテキストエディタで現在IMEの変換中か否か判定する処理を含む。
      * @param event {@inheritDoc}
      */
+    @Override
     public void inputMethodTextChanged(InputMethodEvent event){
         int committed = event.getCommittedCharacterCount();
         AttributedCharacterIterator aci = event.getText();

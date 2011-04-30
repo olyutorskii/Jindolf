@@ -174,6 +174,7 @@ public class OptionPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowOpened(WindowEvent event){
         return;
     }
@@ -184,6 +185,7 @@ public class OptionPanel
      * キャンセルボタン押下時と同じ。
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowClosing(WindowEvent event){
         actionCancel();
         return;
@@ -193,6 +195,7 @@ public class OptionPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowClosed(WindowEvent event){
         return;
     }
@@ -201,6 +204,7 @@ public class OptionPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowActivated(WindowEvent event){
         return;
     }
@@ -209,6 +213,7 @@ public class OptionPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowDeactivated(WindowEvent event){
         return;
     }
@@ -217,6 +222,7 @@ public class OptionPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowIconified(WindowEvent event){
         return;
     }
@@ -225,6 +231,7 @@ public class OptionPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void windowDeiconified(WindowEvent event){
         return;
     }

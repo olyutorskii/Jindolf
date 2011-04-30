@@ -550,6 +550,7 @@ public class EditArray extends JPanel
      * エディタのフォーカス取得とともにアクティブ状態にする。
      * @param event {@inheritDoc}
      */
+    @Override
     public void focusGained(FocusEvent event){
         Object source = event.getSource();
         if( ! (source instanceof JTextComponent) ) return;
@@ -567,6 +568,7 @@ public class EditArray extends JPanel
      * {@inheritDoc}
      * @param event {@inheritDoc}
      */
+    @Override
     public void focusLost(FocusEvent event){
         // NOTHING
         return;
@@ -576,6 +578,7 @@ public class EditArray extends JPanel
      * {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public Dimension getPreferredScrollableViewportSize(){
         Dimension result = getPreferredSize();
         return result;
@@ -586,6 +589,7 @@ public class EditArray extends JPanel
      * 横スクロールバーを極力出さないようレイアウトでがんばる。
      * @return {@inheritDoc}
      */
+    @Override
     public boolean getScrollableTracksViewportWidth(){
         return true;
     }
@@ -595,6 +599,7 @@ public class EditArray extends JPanel
      * 縦スクロールバーを出しても良いのでレイアウトでがんばらない。
      * @return {@inheritDoc}
      */
+    @Override
     public boolean getScrollableTracksViewportHeight(){
         return false;
     }
@@ -606,6 +611,7 @@ public class EditArray extends JPanel
      * @param direction {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getScrollableBlockIncrement(Rectangle visibleRect,
                                            int orientation,
                                            int direction ){
@@ -622,6 +628,7 @@ public class EditArray extends JPanel
      * @param direction {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int getScrollableUnitIncrement(Rectangle visibleRect,
                                           int orientation,
                                           int direction ){
@@ -703,6 +710,7 @@ public class EditArray extends JPanel
          * {@inheritDoc}
          * @param event {@inheritDoc}
          */
+        @Override
         public void changedUpdate(DocumentEvent event){
             detachAdjustTask(event);
             return;
@@ -712,6 +720,7 @@ public class EditArray extends JPanel
          * {@inheritDoc}
          * @param event {@inheritDoc}
          */
+        @Override
         public void insertUpdate(DocumentEvent event){
             detachAdjustTask(event);
             return;
@@ -721,6 +730,7 @@ public class EditArray extends JPanel
          * {@inheritDoc}
          * @param event {@inheritDoc}
          */
+        @Override
         public void removeUpdate(DocumentEvent event){
             detachAdjustTask(event);
             return;

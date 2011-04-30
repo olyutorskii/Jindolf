@@ -476,6 +476,7 @@ public class TalkPreview extends JFrame
      * 各種ボタン操作の処理。
      * @param event {@inheritDoc}
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
         if     (source == this.cutButton)      actionCutActive();

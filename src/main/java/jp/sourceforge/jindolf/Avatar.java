@@ -290,6 +290,7 @@ public class Avatar implements Comparable<Avatar> {
      * @param avatar {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int compareTo(Avatar avatar){
         if(avatar == null) return +1;
         return this.idNum - avatar.idNum;

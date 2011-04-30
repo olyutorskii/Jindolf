@@ -1040,6 +1040,7 @@ public class GameSummary{
          * @param p2 {@inheritDoc}
          * @return {@inheritDoc}
          */
+        @Override
         public int compare(Player p1, Player p2){
             if(p1 == p2) return 0;
             if(p1 == null) return -1;

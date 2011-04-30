@@ -51,6 +51,7 @@ public class Village implements Comparable<Village> {
          * @param v2 {@inheritDoc}
          * @return {@inheritDoc}
          */
+        @Override
         public int compare(Village v1, Village v2){
             int v1Num;
             if(v1 == null) v1Num = Integer.MIN_VALUE;
@@ -583,6 +584,7 @@ public class Village implements Comparable<Village> {
      * @param village {@inheritDoc}
      * @return {@inheritDoc}
      */
+    @Override
     public int compareTo(Village village){
         int cmpResult = VILLAGE_COMPARATOR.compare(this, village);
         return cmpResult;

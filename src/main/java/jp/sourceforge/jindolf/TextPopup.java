@@ -142,6 +142,7 @@ public class TextPopup extends JPopupMenu implements PropertyChangeListener{
      * ポップアップ呼び出し元を監視してL&Fを変更する。
      * @param event {@inheritDoc}
      */
+    @Override
     public void propertyChange(PropertyChangeEvent event){
         String propertyName = event.getPropertyName();
         if(PROPERTY_UI.equals(propertyName)) updateUI();

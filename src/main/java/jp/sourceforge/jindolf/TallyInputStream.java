@@ -107,6 +107,7 @@ public class TallyInputStream extends InputStream{
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
+    @Override
     public int read() throws IOException{
         if(this.counter <= 0) this.nanoLap = System.nanoTime();
 
