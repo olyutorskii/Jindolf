@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.security.Permission;
 import java.text.DateFormat;
@@ -792,7 +793,11 @@ public final class Jindolf{
                     return;
                 }
             });
-        }catch(Throwable e){
+        }catch(InvocationTargetException e){
+            logger().fatal("アプリケーション初期化に失敗しました", e);
+            e.printStackTrace(System.err);
+            hasError = true;
+        }catch(InterruptedException e){
             logger().fatal("アプリケーション初期化に失敗しました", e);
             e.printStackTrace(System.err);
             hasError = true;

@@ -24,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -424,41 +425,59 @@ public class Controller
     }
 
     /**
+     * 例外発生による警告ダイアログへの反応を促す。
+     * @param title タイトル文字列
+     * @param message メッセージ
+     * @param e 例外
+     */
+    private void warnDialog(String title, String message, Throwable e){
+        Jindolf.logger().warn(message, e);
+        JOptionPane.showMessageDialog(
+            this.topFrame,
+            message,
+            title + " - " + Jindolf.TITLE,
+            JOptionPane.WARNING_MESSAGE );
+        return;
+    }
+
+    /**
      * L&Fの変更を行う。
      */
-    // TODO Nimbus対応
     private void actionChangeLaF(){
         String className = this.actionManager.getSelectedLookAndFeel();
 
-        LookAndFeel lnf;
+        String warnTitle = "Look&Feel";
+        String warnMsg;
+
+        Class<?> lnfClass;
+        warnMsg = "このLook&Feel[" + className + "]を読み込む事ができません。";
         try{
-            Class<?> lnfClass = Class.forName(className);
-            lnf = (LookAndFeel)( lnfClass.newInstance() );
-        }catch(Exception e){
-            String message = "このLook&Feel["
-                            + className
-                            + "]を読み込む事ができません。";
-            Jindolf.logger().warn(message, e);
-            JOptionPane.showMessageDialog(
-                this.topFrame,
-                message,
-                "Look&Feel - " + Jindolf.TITLE,
-                JOptionPane.WARNING_MESSAGE );
+            lnfClass = Class.forName(className);
+        }catch(ClassNotFoundException e){
+            warnDialog(warnTitle, warnMsg, e);
             return;
         }
 
+        LookAndFeel lnf;
+        warnMsg = "このLook&Feel[" + className + "]を生成する事ができません。";
+        try{
+            lnf = (LookAndFeel)( lnfClass.newInstance() );
+        }catch(InstantiationException e){
+            warnDialog(warnTitle, warnMsg, e);
+            return;
+        }catch(IllegalAccessException e){
+            warnDialog(warnTitle, warnMsg, e);
+            return;
+        }catch(ClassCastException e){
+            warnDialog(warnTitle, warnMsg, e);
+            return;
+        }
+
+        warnMsg = "このLook&Feel[" + lnf.getName() + "]はサポートされていません。";
         try{
             UIManager.setLookAndFeel(lnf);
         }catch(UnsupportedLookAndFeelException e){
-            String message = "このLook&Feel["
-                            + lnf.getName()
-                            + "]はサポートされていません。";
-            Jindolf.logger().warn(message, e);
-            JOptionPane.showMessageDialog(
-                this.topFrame,
-                message,
-                "Look&Feel - " + Jindolf.TITLE,
-                JOptionPane.WARNING_MESSAGE );
+            warnDialog(warnTitle, warnMsg, e);
             return;
         }
 
@@ -490,7 +509,10 @@ public class Controller
                 updateStatusBar("Look&Feelを更新中…");
                 try{
                     SwingUtilities.invokeAndWait(updateUITask);
-                }catch(Exception e){
+                }catch(InvocationTargetException e){
+                    Jindolf.logger().warn(
+                            "Look&Feelの更新に失敗しました。", e);
+                }catch(InterruptedException e){
                     Jindolf.logger().warn(
                             "Look&Feelの更新に失敗しました。", e);
                 }finally{
@@ -1182,7 +1204,10 @@ public class Controller
                             return;
                         }
                     });
-                }catch(Exception e){
+                }catch(InvocationTargetException e){
+                    Jindolf.logger().fatal(
+                            "タブ操作で致命的な障害が発生しました", e);
+                }catch(InterruptedException e){
                     Jindolf.logger().fatal(
                             "タブ操作で致命的な障害が発生しました", e);
                 }
@@ -1201,7 +1226,10 @@ public class Controller
                                 return;
                             }
                         });
-                    }catch(Exception e){
+                    }catch(InvocationTargetException e){
+                        Jindolf.logger().fatal(
+                                "ブラウザ表示で致命的な障害が発生しました", e);
+                    }catch(InterruptedException e){
                         Jindolf.logger().fatal(
                                 "ブラウザ表示で致命的な障害が発生しました", e);
                     }
@@ -1613,7 +1641,9 @@ public class Controller
         }else{
             try{
                 SwingUtilities.invokeAndWait(microJob);
-            }catch(Exception e){
+            }catch(InvocationTargetException e){
+                Jindolf.logger().fatal("ビジー処理で失敗", e);
+            }catch(InterruptedException e){
                 Jindolf.logger().fatal("ビジー処理で失敗", e);
             }
         }
