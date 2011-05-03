@@ -290,6 +290,10 @@ public class Avatar implements Comparable<Avatar> {
         return this.hashNum;
     }
 
+    /**
+     * {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
     public String toString(){
         return getFullName();
