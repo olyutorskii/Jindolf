@@ -60,7 +60,7 @@ public final class Anchor{
                 +")";
 
         String talkNum =
-                "(?:>>([1-9][0-9]*))";
+                "(?:>>([1-9][0-9]{0,8}))";
 
         ANCHOR_PATTERN = Pattern.compile(day + ampm + hhmm +"|"+ talkNum,
                                          Pattern.DOTALL);
