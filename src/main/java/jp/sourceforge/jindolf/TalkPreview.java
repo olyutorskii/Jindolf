@@ -35,10 +35,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
-import jp.sourceforge.jindolf.json.JsArray;
-import jp.sourceforge.jindolf.json.JsObject;
-import jp.sourceforge.jindolf.json.JsString;
-import jp.sourceforge.jindolf.json.JsValue;
+import jp.sourceforge.jovsonz.JsArray;
+import jp.sourceforge.jovsonz.JsObject;
+import jp.sourceforge.jovsonz.JsString;
+import jp.sourceforge.jovsonz.JsValue;
 
 /**
  * 発言エディットパネル。

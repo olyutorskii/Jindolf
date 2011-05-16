@@ -9,11 +9,11 @@ package jp.sourceforge.jindolf;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import jp.sourceforge.jindolf.json.JsBoolean;
-import jp.sourceforge.jindolf.json.JsObject;
-import jp.sourceforge.jindolf.json.JsPair;
-import jp.sourceforge.jindolf.json.JsString;
-import jp.sourceforge.jindolf.json.JsValue;
+import jp.sourceforge.jovsonz.JsBoolean;
+import jp.sourceforge.jovsonz.JsObject;
+import jp.sourceforge.jovsonz.JsPair;
+import jp.sourceforge.jovsonz.JsString;
+import jp.sourceforge.jovsonz.JsValue;
 
 /**
  * 正規表現。

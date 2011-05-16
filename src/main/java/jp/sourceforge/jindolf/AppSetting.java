@@ -10,10 +10,10 @@ package jp.sourceforge.jindolf;
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.io.File;
-import jp.sourceforge.jindolf.json.JsBoolean;
-import jp.sourceforge.jindolf.json.JsObject;
-import jp.sourceforge.jindolf.json.JsPair;
-import jp.sourceforge.jindolf.json.JsValue;
+import jp.sourceforge.jovsonz.JsBoolean;
+import jp.sourceforge.jovsonz.JsObject;
+import jp.sourceforge.jovsonz.JsPair;
+import jp.sourceforge.jovsonz.JsValue;
 
 /**
  * アプリケーションの各種設定。

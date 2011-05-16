@@ -12,12 +12,12 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.text.CharacterIterator;
-import jp.sourceforge.jindolf.json.JsBoolean;
-import jp.sourceforge.jindolf.json.JsNumber;
-import jp.sourceforge.jindolf.json.JsObject;
-import jp.sourceforge.jindolf.json.JsPair;
-import jp.sourceforge.jindolf.json.JsString;
-import jp.sourceforge.jindolf.json.JsValue;
+import jp.sourceforge.jovsonz.JsBoolean;
+import jp.sourceforge.jovsonz.JsNumber;
+import jp.sourceforge.jovsonz.JsObject;
+import jp.sourceforge.jovsonz.JsPair;
+import jp.sourceforge.jovsonz.JsString;
+import jp.sourceforge.jovsonz.JsValue;
 
 /**
  * フォント描画に関する各種設定。

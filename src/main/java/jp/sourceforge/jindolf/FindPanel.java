@@ -51,9 +51,9 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.JTextComponent;
-import jp.sourceforge.jindolf.json.JsArray;
-import jp.sourceforge.jindolf.json.JsObject;
-import jp.sourceforge.jindolf.json.JsValue;
+import jp.sourceforge.jovsonz.JsArray;
+import jp.sourceforge.jovsonz.JsObject;
+import jp.sourceforge.jovsonz.JsValue;
 
 /**
  * 検索パネルGUI。

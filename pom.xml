@@ -124,6 +124,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>jp.sourceforge.jovsonz</groupId>
+            <artifactId>jovsonz</artifactId>
+            <version>1.101.2</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <repositories/>
