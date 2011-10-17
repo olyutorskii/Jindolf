@@ -106,6 +106,8 @@ public class TopView extends JPanel{
         warn.append("※ たまにはWebブラウザでアクセスして、");
         warn.append("<br></br>");
         warn.append("運営の動向を確かめようね！");
+        warn.append("<br></br>");
+        warn.append("広告収入にも貢献しよう！");
         warn.insert(0, "<center>").append("</center>");
         warn.insert(0, "<body>")  .append("</body>");
         warn.insert(0, "<html>")  .append("</html>");
