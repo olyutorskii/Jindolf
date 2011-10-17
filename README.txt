@@ -13,7 +13,7 @@
 
 ※ このアーカイブは、開発者向けにJindolfのソースコードのみをまとめたものです。
 　 ただJindolfをプレイしたいだけの人は、別途JARファイルを入手してください。
-※ 人狼BBSのURLは [ http://homepage2.nifty.com/ninjinia/ ] まで
+※ 人狼BBSのURLは [ http://ninjinix.com/ ] まで
 ※ 人狼BBSを主催するninjin氏は、Jindolfの製作に一切関与していません。
 　 Jindolfに関する問い合わせををninjin氏へ投げかけないように！約束だよ！
 
