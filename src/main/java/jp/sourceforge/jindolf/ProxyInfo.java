@@ -10,11 +10,11 @@ package jp.sourceforge.jindolf;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
-import jp.sourceforge.jindolf.json.JsNumber;
-import jp.sourceforge.jindolf.json.JsObject;
-import jp.sourceforge.jindolf.json.JsPair;
-import jp.sourceforge.jindolf.json.JsString;
-import jp.sourceforge.jindolf.json.JsValue;
+import jp.sourceforge.jovsonz.JsNumber;
+import jp.sourceforge.jovsonz.JsObject;
+import jp.sourceforge.jovsonz.JsPair;
+import jp.sourceforge.jovsonz.JsString;
+import jp.sourceforge.jovsonz.JsValue;
 
 /**
  * プロクシ情報。

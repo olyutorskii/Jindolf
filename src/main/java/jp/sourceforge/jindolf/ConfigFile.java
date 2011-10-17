@@ -31,9 +31,10 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-import jp.sourceforge.jindolf.json.JsParseException;
-import jp.sourceforge.jindolf.json.JsValue;
-import jp.sourceforge.jindolf.json.Json;
+import jp.sourceforge.jovsonz.JsComposition;
+import jp.sourceforge.jovsonz.JsParseException;
+import jp.sourceforge.jovsonz.JsVisitException;
+import jp.sourceforge.jovsonz.Json;
 
 /**
  * Jindolf設定格納ディレクトリに関するあれこれ。
@@ -576,7 +577,7 @@ public final class ConfigFile{
      * もしくはJSONファイルが存在しない、
      * もしくは入力エラーがあればnull
      */
-    public static JsValue loadJson(File file){
+    public static JsComposition loadJson(File file){
         AppSetting setting = Jindolf.getAppSetting();
         if( ! setting.useConfigPath() ) return null;
 
@@ -602,9 +603,9 @@ public final class ConfigFile{
 
         Reader reader = new InputStreamReader(istream, CHARSET_JSON);
 
-        JsValue value;
+        JsComposition<?> root;
         try{
-            value = Json.parseValue(reader);
+            root = Json.parseJson(reader);
         }catch(IOException e){
             Jindolf.logger().fatal(
                     "JSONファイル["
@@ -629,17 +630,17 @@ public final class ConfigFile{
             }
         }
 
-        return value;
+        return root;
     }
 
     /**
      * 設定ディレクトリ上のJSONファイルに書き込む。
      * @param file JSONファイルの相対パス
-     * @param value JSON objectまたはarray
+     * @param root JSON objectまたはarray
      * @return 正しくセーブが行われればtrue。
      * 何らかの理由でセーブが完了できなければfalse
      */
-    public static boolean saveJson(File file, JsValue value){
+    public static boolean saveJson(File file, JsComposition root){
         AppSetting setting = Jindolf.getAppSetting();
         if( ! setting.useConfigPath() ) return false;
         File configPath = setting.getConfigPath();
@@ -669,7 +670,13 @@ public final class ConfigFile{
         Writer writer = new OutputStreamWriter(ostream, CHARSET_JSON);
 
         try{
-            Json.writeJsonTop(writer, value);
+            Json.dumpJson(writer, root);
+        }catch(JsVisitException e){
+            Jindolf.logger().fatal(
+                    "JSONファイル["
+                    + absFile.getPath()
+                    + "]の出力処理で支障がありました。", e);
+            return false;
         }catch(IOException e){
             Jindolf.logger().fatal(
                     "JSONファイル["
