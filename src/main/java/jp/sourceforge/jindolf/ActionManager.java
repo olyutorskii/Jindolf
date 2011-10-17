@@ -169,7 +169,7 @@ public class ActionManager{
      * コンストラクタ。
      */
     public ActionManager(){
-        this.menuFile       = buildMenu("ファイル", KeyEvent.VK_F);
+        this.menuFile       = buildMenu("Jindolf",  KeyEvent.VK_F);
         this.menuEdit       = buildMenu("編集",     KeyEvent.VK_E);
         this.menuVillage    = buildMenu("村",       KeyEvent.VK_V);
         this.menuDay        = buildMenu("日",       KeyEvent.VK_D);
