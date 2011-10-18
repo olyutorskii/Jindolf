@@ -116,9 +116,11 @@ public final class Monodizer implements PropertyChangeListener{
      * @param textComp テキストコンポーネント
      */
     private static void modifyTextComponent(JTextComponent textComp){
-        if( ! textComp.isEditable() ){
-            textComp.setCaretPosition(0);
-        }
+        if(textComp.isEditable()) return;
+        if(textComp.getCaret() == null) return;
+
+        textComp.setCaretPosition(0);
+
         return;
     }
 
