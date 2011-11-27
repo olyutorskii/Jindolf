@@ -5,6 +5,7 @@ Jindolf 変更履歴
 
 
 3.206.5-SNAPSHOT (201X-XX-XX)
+    ・Maven3対応。
     ・JSON入出力処理を Jovsonz プロジェクトへ分離。
     ・ninjin氏の連絡先を http://ninjinix.com へ変更。
     ・UIの各種文言を修正。

@@ -34,17 +34,9 @@
 
 === 依存ライブラリ ===
 
- - Jindolfはビルドおよび実行に際してJinCoreおよびJinParserライブラリを
+ - Jindolfはビルドおよび実行に際してJinCore,JinParserおよびJovsonzライブラリを
    必要とします。開発時はMaven等を用いてこれらのライブラリを用意してください。
 
-
-
-=== アーカイブ管理体制 ===
-
-  このアーカイブは、UTF-8による開発環境を前提として構成されています。
-  このアーカイブの原本となる開発資産は、
-      http://hg.sourceforge.jp/view/jindolf/Jindolf
-  を上位に持つMercurialリポジトリで管理されています。
 
 
 === 開発プロジェクト運営元 ===
@@ -59,7 +51,7 @@
 
 === ディレクトリ内訳構成 ===
 
-基本的にはMaven2のmaven-archetype-quickstart構成に準じます。
+基本的にはMaven3のmaven-archetype-quickstart構成に準じます。
 
 ./README.txt
     あなたが今見てるこれ。
@@ -70,11 +62,11 @@
 ./LICENSE.txt
     ライセンスに関して。
 
-./pom.xml
-    Maven2用プロジェクト構成定義ファイル。
+./SCM.txt
+    ソースコード管理に関して。
 
-./build.xml
-    Ant用追加タスク。
+./pom.xml
+    Maven3用プロジェクト構成定義ファイル。
 
 ./src/main/java/
     Javaのソースコード。
@@ -84,6 +76,9 @@
 
 ./src/test/java/
     JUnit 4.* 用のユニットテストコード。
+
+./src/main/config/
+    各種ビルド・構成管理に必要なファイル群。
 
 ./src/main/config/checks.xml
     Checkstyle用configファイル。
