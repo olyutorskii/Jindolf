@@ -95,8 +95,8 @@
         <checkstyle.config.location>${project.mainconf}/checks.xml</checkstyle.config.location>
         <checkstyle.enable.rss>false</checkstyle.enable.rss>
 
-        <project.mainentry>jp.sourceforge.jindolf.Jindolf</project.mainentry>
-        <project.splash>jp/sourceforge/jindolf/resources/image/logo.png</project.splash>
+        <project.mainentry>jp.sfjp.jindolf.Jindolf</project.mainentry>
+        <project.splash>jp/sfjp/jindolf/resources/image/logo.png</project.splash>
 
     </properties>
 
@@ -191,7 +191,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.4</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -234,7 +234,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>2.3</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/main/assembly/descriptor.xml</descriptor>
@@ -410,7 +410,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
+                <version>2.8.1</version>
                 <configuration>
                     <skip>false</skip>
                     <notimestamp>true</notimestamp>
@@ -439,7 +439,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.10</version>
+                <version>2.12</version>
                 <configuration>
                     <showSuccess>false</showSuccess>
                 </configuration>
@@ -502,7 +502,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.4.0</version>
                 <configuration>
                     <skip>true</skip>
                     <effort>Max</effort>
