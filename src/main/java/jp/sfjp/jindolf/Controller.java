@@ -7,18 +7,13 @@
 
 package jp.sfjp.jindolf;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Frame;
-import java.awt.LayoutManager;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.MouseAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -27,19 +22,17 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -72,11 +65,11 @@ import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.glyph.AnchorHitEvent;
 import jp.sfjp.jindolf.glyph.AnchorHitListener;
 import jp.sfjp.jindolf.glyph.Discussion;
+import jp.sfjp.jindolf.glyph.FontChooser;
 import jp.sfjp.jindolf.glyph.FontInfo;
 import jp.sfjp.jindolf.glyph.TalkDraw;
 import jp.sfjp.jindolf.log.LogFrame;
 import jp.sfjp.jindolf.log.LogUtils;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sfjp.jindolf.net.ProxyInfo;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.summary.DaySummary;
@@ -92,7 +85,9 @@ import jp.sfjp.jindolf.view.LandsTree;
 import jp.sfjp.jindolf.view.OptionPanel;
 import jp.sfjp.jindolf.view.PeriodView;
 import jp.sfjp.jindolf.view.TabBrowser;
+import jp.sfjp.jindolf.view.TopFrame;
 import jp.sfjp.jindolf.view.TopView;
+import jp.sfjp.jindolf.view.WindowManager;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.VillageState;
 import jp.sourceforge.jovsonz.JsObject;
@@ -106,68 +101,42 @@ public class Controller
                    TreeSelectionListener,
                    ChangeListener,
                    AnchorHitListener {
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
-    private static final String TITLE_LOGGER =
-            VerInfo.getFrameTitle("ログ表示");
-    private static final String TITLE_FILTER =
-            VerInfo.getFrameTitle("発言フィルタ");
-    private static final String TITLE_EDITOR =
-            VerInfo.getFrameTitle("発言エディタ");
-    private static final String TITLE_OPTION =
-            VerInfo.getFrameTitle("オプション設定");
-    private static final String TITLE_FIND =
-            VerInfo.getFrameTitle("発言検索");
-    private static final String TITLE_ACCOUNT =
-            VerInfo.getFrameTitle("アカウント管理");
-    private static final String TITLE_DIGEST =
-            VerInfo.getFrameTitle("村のダイジェスト");
-    private static final String TITLE_DAYSUMMARY =
-            VerInfo.getFrameTitle("発言集計");
-    private static final String TITLE_HELP =
-            VerInfo.getFrameTitle("ヘルプ");
+    private static final String ERRTITLE_LAF = "Look&Feel";
+    private static final String ERRFORM_LAF =
+            "このLook&Feel[{0}]を生成する事ができません。";
 
-    private static final LogWrapper LOGGER = new LogWrapper();
-
-
-    private final AppSetting appSetting;
-    private final ActionManager actionManager;
-    private final TopView topView;
     private final LandsModel model;
+    private final WindowManager windowManager;
+    private final ActionManager actionManager;
+    private final AppSetting appSetting;
 
-    private final FilterPanel filterFrame;
-    private final LogFrame showlogFrame;
-    private final OptionPanel optionPanel;
-    private final FindPanel findPanel;
-    private final TalkPreview talkPreview;
-    private JFrame helpFrame;
-    private AccountPanel accountFrame;
-    private DaySummary daySummaryPanel;
-    private VillageDigest digestPanel;
-    private final Map<Window, Boolean> windowMap =
-            new HashMap<Window, Boolean>();
+    private final TopView topView;
 
     private volatile boolean isBusyNow;
 
-    private JFrame topFrame = null;
 
     /**
      * コントローラの生成。
-     * @param setting アプリ設定
-     * @param actionManager アクション管理
-     * @param topView 最上位ビュー
      * @param model 最上位データモデル
+     * @param windowManager ウィンドウ管理
+     * @param actionManager アクション管理
+     * @param setting アプリ設定
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public Controller(AppSetting setting,
-                       ActionManager actionManager,
-                       TopView topView,
-                       LandsModel model){
+    public Controller(LandsModel model,
+                      WindowManager windowManager,
+                      ActionManager actionManager,
+                      AppSetting setting){
         super();
 
         this.appSetting = setting;
         this.actionManager = actionManager;
-        this.topView = topView;
+        this.windowManager = windowManager;
         this.model = model;
+
+        this.topView = this.windowManager.getTopFrame().getTopView();
 
         JToolBar toolbar = this.actionManager.getBrowseToolBar();
         this.topView.setBrowseToolBar(toolbar);
@@ -189,101 +158,186 @@ public class Controller
         reloadVillageListButton.addActionListener(this);
         reloadVillageListButton.setEnabled(false);
 
-        this.filterFrame = new FilterPanel(this.topFrame);
-        this.filterFrame.setTitle(TITLE_FILTER);
-        this.filterFrame.addChangeListener(this);
-        this.filterFrame.pack();
-        this.filterFrame.setVisible(false);
+        TopFrame topFrame         = this.windowManager.getTopFrame();
+        TalkPreview talkPreview   = this.windowManager.getTalkPreview();
+        OptionPanel optionPanel   = this.windowManager.getOptionPanel();
+        FindPanel findPanel       = this.windowManager.getFindPanel();
+        FilterPanel filterPanel   = this.windowManager.getFilterPanel();
+        LogFrame logFrame         = this.windowManager.getLogFrame();
+        AccountPanel accountPanel = this.windowManager.getAccountPanel();
+        HelpFrame helpFrame       = this.windowManager.getHelpFrame();
 
-        this.showlogFrame = new LogFrame(this.topFrame);
-        this.showlogFrame.setTitle(TITLE_LOGGER);
-        this.showlogFrame.pack();
-        this.showlogFrame.setSize(600, 500);
-        this.showlogFrame.setLocationByPlatform(true);
-        this.showlogFrame.setVisible(false);
-        Logger rootLogger = Logger.getLogger("");
-        Handler newHandler = this.showlogFrame.getHandler();
-        LogUtils.switchHandler(rootLogger, newHandler);
-
-        this.talkPreview = new TalkPreview();
-        this.talkPreview.setTitle(TITLE_EDITOR);
-        this.talkPreview.pack();
-        this.talkPreview.setSize(700, 500);
-        this.talkPreview.setVisible(false);
-
-        this.optionPanel = new OptionPanel(this.topFrame);
-        this.optionPanel.setTitle(TITLE_OPTION);
-        this.optionPanel.pack();
-        this.optionPanel.setSize(450, 500);
-        this.optionPanel.setVisible(false);
-
-        this.findPanel = new FindPanel(this.topFrame);
-        this.findPanel.setTitle(TITLE_FIND);
-        this.findPanel.pack();
-        this.findPanel.setVisible(false);
-
-        this.windowMap.put(this.filterFrame,  true);
-        this.windowMap.put(this.showlogFrame, false);
-        this.windowMap.put(this.talkPreview,  false);
-        this.windowMap.put(this.optionPanel,  false);
-        this.windowMap.put(this.findPanel,    true);
-
-        ConfigStore config = this.appSetting.getConfigStore();
-
-        JsObject draft = config.loadDraftConfig();
-        this.talkPreview.putJson(draft);
-
-        JsObject history = config.loadHistoryConfig();
-        this.findPanel.putJson(history);
-
-        FontInfo fontInfo = this.appSetting.getFontInfo();
-        this.topView.getTabBrowser().setFontInfo(fontInfo);
-        this.talkPreview.setFontInfo(fontInfo);
-        this.optionPanel.getFontChooser().setFontInfo(fontInfo);
-
-        ProxyInfo proxyInfo = this.appSetting.getProxyInfo();
-        this.optionPanel.getProxyChooser().setProxyInfo(proxyInfo);
-
-        DialogPref pref = this.appSetting.getDialogPref();
-        this.topView.getTabBrowser().setDialogPref(pref);
-        this.optionPanel.getDialogPrefPanel().setDialogPref(pref);
-
-        return;
-    }
-
-    /**
-     * トップフレームを生成する。
-     * @return トップフレーム
-     */
-    @SuppressWarnings("serial")
-    public JFrame createTopFrame(){
-        this.topFrame = new JFrame();
-
-        Container content = this.topFrame.getContentPane();
-        LayoutManager layout = new BorderLayout();
-        content.setLayout(layout);
-        content.add(this.topView, BorderLayout.CENTER);
-
-        Component glassPane = new JComponent() {};
-        glassPane.addMouseListener(new MouseAdapter() {});
-        glassPane.addKeyListener(new KeyAdapter() {});
-        this.topFrame.setGlassPane(glassPane);
-
-        this.topFrame.setJMenuBar(this.actionManager.getMenuBar());
+        topFrame.setJMenuBar(this.actionManager.getMenuBar());
         setFrameTitle(null);
-
-        this.windowMap.put(this.topFrame, false);
-
-        this.topFrame.setDefaultCloseOperation(
+        topFrame.setDefaultCloseOperation(
                 WindowConstants.DISPOSE_ON_CLOSE);
-        this.topFrame.addWindowListener(new WindowAdapter(){
+        topFrame.addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosed(WindowEvent event){
                 shutdown();
             }
         });
 
-        return this.topFrame;
+        filterPanel.addChangeListener(this);
+
+        Handler newHandler = logFrame.getHandler();
+        LogUtils.switchHandler(newHandler);
+
+        ConfigStore config = this.appSetting.getConfigStore();
+
+        JsObject draft = config.loadDraftConfig();
+        talkPreview.putJson(draft);
+
+        JsObject history = config.loadHistoryConfig();
+        findPanel.putJson(history);
+
+        FontInfo fontInfo = this.appSetting.getFontInfo();
+        this.topView.getTabBrowser().setFontInfo(fontInfo);
+        talkPreview.setFontInfo(fontInfo);
+        optionPanel.getFontChooser().setFontInfo(fontInfo);
+
+        ProxyInfo proxyInfo = this.appSetting.getProxyInfo();
+        optionPanel.getProxyChooser().setProxyInfo(proxyInfo);
+
+        DialogPref pref = this.appSetting.getDialogPref();
+        this.topView.getTabBrowser().setDialogPref(pref);
+        optionPanel.getDialogPrefPanel().setDialogPref(pref);
+
+        accountPanel.setModel(this.model);
+
+        OptionInfo optInfo = this.appSetting.getOptionInfo();
+        ConfigStore configStore = this.appSetting.getConfigStore();
+        helpFrame.updateVmInfo(optInfo, configStore);
+
+        return;
+    }
+
+    /**
+     * ウィンドウマネジャを返す。
+     * @return ウィンドウマネジャ
+     */
+    public WindowManager getWindowManager(){
+        return this.windowManager;
+    }
+
+    /**
+     * アプリ最上位フレームを返す。
+     * @return アプリ最上位フレーム
+     */
+    public TopFrame getTopFrame(){
+        TopFrame result = this.windowManager.getTopFrame();
+        return result;
+    }
+
+    /**
+     * ビジー状態を設定する。
+     * <p>EDT以外から呼ばれると実際の処理が次回のEDT移行に遅延される。
+     * @param isBusy ビジーならtrue
+     * @param message ステータスバー表示。nullなら変更なし
+     */
+    public void submitBusyStatus(final boolean isBusy, final String message){
+        Runnable task = new Runnable(){
+            @Override
+            public void run(){
+                if(isBusy) setBusy(true);
+                if(message != null) updateStatusBar(message);
+                if( ! isBusy ) setBusy(false);
+                return;
+            }
+        };
+
+        EventQueue.invokeLater(task);
+
+        return;
+    }
+
+    /**
+     * 軽量タスクをEDTで実行する。
+     * <p>タスク実行中はビジー状態となる。
+     * <p>軽量タスク実行中はイベントループが停止するので、
+     * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
+     * @param task 軽量タスク
+     * @param beforeMsg ビジー中ステータス文字列
+     * @param afterMsg ビジー復帰時のステータス文字列
+     */
+    public void submitLightBusyTask(Runnable task,
+                                    String beforeMsg,
+                                    String afterMsg ){
+        submitBusyStatus(true, beforeMsg);
+        EventQueue.invokeLater(task);
+        submitBusyStatus(false, afterMsg);
+
+        return;
+    }
+
+    /**
+     * 軽量タスクをEDTで実行する。
+     * <p>タスク実行中はビジー状態となる。
+     * <p>軽量タスク実行中はイベントループが停止するので、
+     * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
+     * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
+     * @param task 軽量タスク
+     * @param beforeMsg ビジー中ステータス文字列。
+     * ビジー復帰時は元のステータス文字列に戻る。
+     */
+    public void submitLightBusyTask(Runnable task, String beforeMsg){
+        String afterMsg = this.topView.getSysMessage();
+        submitLightBusyTask(task, beforeMsg, afterMsg);
+        return;
+    }
+
+    /**
+     * 重量級タスクをEDTとは別のスレッドで実行する。
+     * <p>タスク実行中はビジー状態となる。
+     * @param heavyTask 重量級タスク
+     * @param beforeMsg ビジー中ステータス文字列
+     * @param afterMsg ビジー復帰時のステータス文字列
+     */
+    public void submitHeavyBusyTask(final Runnable heavyTask,
+                                    final String beforeMsg,
+                                    final String afterMsg ){
+        submitBusyStatus(true, beforeMsg);
+
+        final Runnable busyManager = new Runnable(){
+            @Override
+            @SuppressWarnings("CallToThreadYield")
+            public void run(){
+                Thread.yield();
+                try{
+                    heavyTask.run();
+                }finally{
+                    submitBusyStatus(false, afterMsg);
+                }
+                return;
+            }
+        };
+
+        Runnable forkLauncher = new Runnable(){
+            @Override
+            public void run(){
+                Executor executor = Executors.newCachedThreadPool();
+                executor.execute(busyManager);
+                return;
+            }
+        };
+
+        EventQueue.invokeLater(forkLauncher);
+
+        return;
+    }
+
+    /**
+     * 重量級タスクをEDTとは別のスレッドで実行する。
+     * <p>タスク実行中はビジー状態となる。
+     * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
+     * @param task 重量級タスク
+     * @param beforeMsg ビジー中ステータス文字列。
+     * ビジー復帰時は元のステータス文字列に戻る。
+     */
+    public void submitHeavyBusyTask(Runnable task, String beforeMsg){
+        String afterMsg = this.topView.getSysMessage();
+        submitHeavyBusyTask(task, beforeMsg, afterMsg);
+        return;
     }
 
     /**
@@ -296,7 +350,7 @@ public class Controller
                                            JOptionPane.DEFAULT_OPTION,
                                            GUIUtils.getLogoIcon());
 
-        JDialog dialog = pane.createDialog(this.topFrame,
+        JDialog dialog = pane.createDialog(getTopFrame(),
                                            VerInfo.TITLE + "について");
 
         dialog.pack();
@@ -318,23 +372,8 @@ public class Controller
      * Help画面を表示する。
      */
     private void actionHelp(){
-        if(this.helpFrame != null){                 // show Toggle
-            toggleWindow(this.helpFrame);
-            return;
-        }
-
-        OptionInfo optInfo = this.appSetting.getOptionInfo();
-        ConfigStore configStore = this.appSetting.getConfigStore();
-
-        this.helpFrame = new HelpFrame(optInfo, configStore);
-        this.helpFrame.setTitle(TITLE_HELP);
-        this.helpFrame.pack();
-        this.helpFrame.setSize(450, 450);
-
-        this.windowMap.put(this.helpFrame, false);
-
-        this.helpFrame.setVisible(true);
-
+        HelpFrame helpFrame = this.windowManager.getHelpFrame();
+        toggleWindow(helpFrame);
         return;
     }
 
@@ -356,7 +395,7 @@ public class Controller
             urlText += "#bottom";
         }
 
-        WebIPCDialog.showDialog(this.topFrame, urlText);
+        WebIPCDialog.showDialog(getTopFrame(), urlText);
 
         return;
     }
@@ -385,7 +424,7 @@ public class Controller
                 .append(villageName)
                 .append("%C2%BC.html");
 
-        WebIPCDialog.showDialog(this.topFrame, url.toString());
+        WebIPCDialog.showDialog(getTopFrame(), url.toString());
 
         return;
     }
@@ -414,7 +453,7 @@ public class Controller
 
         url.append("&s=1");
 
-        WebIPCDialog.showDialog(this.topFrame, url.toString());
+        WebIPCDialog.showDialog(getTopFrame(), url.toString());
 
         return;
     }
@@ -441,7 +480,7 @@ public class Controller
         String urlText = url.toString();
         if(period.isHot()) urlText += "#bottom";
 
-        WebIPCDialog.showDialog(this.topFrame, urlText);
+        WebIPCDialog.showDialog(getTopFrame(), urlText);
 
         return;
     }
@@ -471,7 +510,7 @@ public class Controller
 
         String urlText = url.toString();
         urlText += "#" + talk.getMessageID();
-        WebIPCDialog.showDialog(this.topFrame, urlText);
+        WebIPCDialog.showDialog(getTopFrame(), urlText);
 
         return;
     }
@@ -480,7 +519,7 @@ public class Controller
      * ポータルサイトをWebブラウザで表示する。
      */
     private void actionShowPortal(){
-        WebIPCDialog.showDialog(this.topFrame, VerInfo.CONTACT);
+        WebIPCDialog.showDialog(getTopFrame(), VerInfo.CONTACT);
         return;
     }
 
@@ -491,9 +530,9 @@ public class Controller
      * @param e 例外
      */
     private void warnDialog(String title, String message, Throwable e){
-        LOGGER.warn(message, e);
+        LOGGER.log(Level.WARNING, message, e);
         JOptionPane.showMessageDialog(
-            this.topFrame,
+            getTopFrame(),
             message,
             VerInfo.getFrameTitle(title),
             JOptionPane.WARNING_MESSAGE );
@@ -506,82 +545,70 @@ public class Controller
     private void actionChangeLaF(){
         String className = this.actionManager.getSelectedLookAndFeel();
 
-        String warnTitle = "Look&Feel";
-        String warnMsg;
-
         Class<?> lnfClass;
-        warnMsg = "このLook&Feel[" + className + "]を読み込む事ができません。";
         try{
             lnfClass = Class.forName(className);
         }catch(ClassNotFoundException e){
-            warnDialog(warnTitle, warnMsg, e);
+            String warnMsg = MessageFormat.format(
+                    "このLook&Feel[{0}]を読み込む事ができません。",
+                    className );
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
 
-        LookAndFeel lnf;
-        warnMsg = "このLook&Feel[" + className + "]を生成する事ができません。";
+        final LookAndFeel lnf;
         try{
             lnf = (LookAndFeel)( lnfClass.newInstance() );
         }catch(InstantiationException e){
-            warnDialog(warnTitle, warnMsg, e);
+            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }catch(IllegalAccessException e){
-            warnDialog(warnTitle, warnMsg, e);
+            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }catch(ClassCastException e){
-            warnDialog(warnTitle, warnMsg, e);
+            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
 
-        warnMsg = "このLook&Feel[" + lnf.getName() + "]はサポートされていません。";
-        try{
-            UIManager.setLookAndFeel(lnf);
-        }catch(UnsupportedLookAndFeelException e){
-            warnDialog(warnTitle, warnMsg, e);
-            return;
-        }
-
-        LOGGER.info(
-                "Look&Feelが["
-                +lnf.getName()
-                +"]に変更されました。");
-
-        final Runnable updateUITask = new Runnable(){
+        Runnable lafTask = new Runnable(){
+            @Override
             public void run(){
-                Set<Window> windows = Controller.this.windowMap.keySet();
-                for(Window window : windows){
-                    SwingUtilities.updateComponentTreeUI(window);
-                    window.validate();
-                    boolean needPack = Controller.this.windowMap.get(window);
-                    if(needPack){
-                        window.pack();
-                    }
-                }
-
+                changeLaF(lnf);
                 return;
             }
         };
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            public void run(){
-                setBusy(true);
-                updateStatusBar("Look&Feelを更新中…");
-                try{
-                    SwingUtilities.invokeAndWait(updateUITask);
-                }catch(InvocationTargetException e){
-                    LOGGER.warn(
-                            "Look&Feelの更新に失敗しました。", e);
-                }catch(InterruptedException e){
-                    LOGGER.warn(
-                            "Look&Feelの更新に失敗しました。", e);
-                }finally{
-                    updateStatusBar("Look&Feelが更新されました");
-                    setBusy(false);
-                }
-                return;
-            }
-        });
+        submitLightBusyTask(lafTask,
+                            "Look&Feelを更新中…",
+                            "Look&Feelが更新されました" );
+
+        return;
+    }
+
+    /**
+     * LookAndFeelの実際の更新を行う。
+     * @param lnf LookAndFeel
+     */
+    private void changeLaF(LookAndFeel lnf){
+        assert EventQueue.isDispatchThread();
+
+        try{
+            UIManager.setLookAndFeel(lnf);
+        }catch(UnsupportedLookAndFeelException e){
+            String warnMsg = MessageFormat.format(
+                    "このLook&Feel[{0}]はサポートされていません。",
+                    lnf.getName() );
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
+            return;
+        }
+
+        this.windowManager.changeAllWindowUI();
+
+        LOGGER.log(Level.INFO,
+                   "Look&Feelが[{0}]に変更されました。", lnf.getName() );
 
         return;
     }
@@ -590,7 +617,8 @@ public class Controller
      * 発言フィルタ画面を表示する。
      */
     private void actionShowFilter(){
-        toggleWindow(this.filterFrame);
+        FilterPanel filterPanel = this.windowManager.getFilterPanel();
+        toggleWindow(filterPanel);
         return;
     }
 
@@ -598,18 +626,8 @@ public class Controller
      * アカウント管理画面を表示する。
      */
     private void actionShowAccount(){
-        if(this.accountFrame != null){                 // show Toggle
-            toggleWindow(this.accountFrame);
-            return;
-        }
-
-        this.accountFrame = new AccountPanel(this.topFrame, this.model);
-        this.accountFrame.setTitle(TITLE_ACCOUNT);
-        this.accountFrame.pack();
-        this.accountFrame.setVisible(true);
-
-        this.windowMap.put(this.accountFrame, true);
-
+        AccountPanel accountPanel = this.windowManager.getAccountPanel();
+        toggleWindow(accountPanel);
         return;
     }
 
@@ -617,7 +635,8 @@ public class Controller
      * ログ表示画面を表示する。
      */
     private void actionShowLog(){
-        toggleWindow(this.showlogFrame);
+        LogFrame logFrame = this.windowManager.getLogFrame();
+        toggleWindow(logFrame);
         return;
     }
 
@@ -625,7 +644,8 @@ public class Controller
      * 発言エディタを表示する。
      */
     private void actionTalkPreview(){
-        toggleWindow(this.talkPreview);
+        TalkPreview talkPreview = this.windowManager.getTalkPreview();
+        toggleWindow(talkPreview);
         return;
     }
 
@@ -633,25 +653,27 @@ public class Controller
      * オプション設定画面を表示する。
      */
     private void actionOption(){
+        OptionPanel optionPanel = this.windowManager.getOptionPanel();
+
         FontInfo fontInfo = this.appSetting.getFontInfo();
-        this.optionPanel.getFontChooser().setFontInfo(fontInfo);
+        optionPanel.getFontChooser().setFontInfo(fontInfo);
 
         ProxyInfo proxyInfo = this.appSetting.getProxyInfo();
-        this.optionPanel.getProxyChooser().setProxyInfo(proxyInfo);
+        optionPanel.getProxyChooser().setProxyInfo(proxyInfo);
 
         DialogPref dialogPref = this.appSetting.getDialogPref();
-        this.optionPanel.getDialogPrefPanel().setDialogPref(dialogPref);
+        optionPanel.getDialogPrefPanel().setDialogPref(dialogPref);
 
-        this.optionPanel.setVisible(true);
-        if(this.optionPanel.isCanceled()) return;
+        optionPanel.setVisible(true);
+        if(optionPanel.isCanceled()) return;
 
-        fontInfo = this.optionPanel.getFontChooser().getFontInfo();
+        fontInfo = optionPanel.getFontChooser().getFontInfo();
         updateFontInfo(fontInfo);
 
-        proxyInfo = this.optionPanel.getProxyChooser().getProxyInfo();
+        proxyInfo = optionPanel.getProxyChooser().getProxyInfo();
         updateProxyInfo(proxyInfo);
 
-        dialogPref = this.optionPanel.getDialogPrefPanel().getDialogPref();
+        dialogPref = optionPanel.getDialogPrefPanel().getDialogPref();
         updateDialogPref(dialogPref);
 
         return;
@@ -668,8 +690,13 @@ public class Controller
         this.appSetting.setFontInfo(newFontInfo);
 
         this.topView.getTabBrowser().setFontInfo(newFontInfo);
-        this.talkPreview.setFontInfo(newFontInfo);
-        this.optionPanel.getFontChooser().setFontInfo(newFontInfo);
+
+        TalkPreview talkPreview = this.windowManager.getTalkPreview();
+        OptionPanel optionPanel = this.windowManager.getOptionPanel();
+        FontChooser fontChooser = optionPanel.getFontChooser();
+
+        talkPreview.setFontInfo(newFontInfo);
+        fontChooser.setFontInfo(newFontInfo);
 
         return;
     }
@@ -725,22 +752,15 @@ public class Controller
             JOptionPane pane = new JOptionPane(message,
                                                JOptionPane.WARNING_MESSAGE,
                                                JOptionPane.DEFAULT_OPTION );
-            JDialog dialog = pane.createDialog(this.topFrame, title);
+            JDialog dialog = pane.createDialog(getTopFrame(), title);
             dialog.pack();
             dialog.setVisible(true);
             dialog.dispose();
             return;
         }
 
-        if(this.digestPanel == null){
-            this.digestPanel = new VillageDigest(this.topFrame);
-            this.digestPanel.setTitle(TITLE_DIGEST);
-            this.digestPanel.pack();
-            this.digestPanel.setSize(600, 550);
-            this.windowMap.put(this.digestPanel, false);
-        }
-
-        final VillageDigest digest = this.digestPanel;
+        VillageDigest villageDigest = this.windowManager.getVillageDigest();
+        final VillageDigest digest = villageDigest;
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
             public void run(){
@@ -797,12 +817,14 @@ public class Controller
      * 検索パネルを表示する。
      */
     private void actionShowFind(){
-        this.findPanel.setVisible(true);
-        if(this.findPanel.isCanceled()){
+        FindPanel findPanel = this.windowManager.getFindPanel();
+
+        findPanel.setVisible(true);
+        if(findPanel.isCanceled()){
             updateFindPanel();
             return;
         }
-        if(this.findPanel.isBulkSearch()){
+        if(findPanel.isBulkSearch()){
             bulkSearch();
         }else{
             regexSearch();
@@ -817,7 +839,8 @@ public class Controller
         Discussion discussion = currentDiscussion();
         if(discussion == null) return;
 
-        RegexPattern regPattern = this.findPanel.getRegexPattern();
+        FindPanel findPanel = this.windowManager.getFindPanel();
+        RegexPattern regPattern = findPanel.getRegexPattern();
         int hits = discussion.setRegexPattern(regPattern);
 
         String hitMessage = "［" + hits + "］件ヒットしました";
@@ -855,7 +878,8 @@ public class Controller
     private void taskBulkSearch(){
         taskLoadAllPeriod();
         int totalhits = 0;
-        RegexPattern regPattern = this.findPanel.getRegexPattern();
+        FindPanel findPanel = this.windowManager.getFindPanel();
+        RegexPattern regPattern = findPanel.getRegexPattern();
         StringBuilder hitDesc = new StringBuilder();
         TabBrowser browser = this.topView.getTabBrowser();
         for(PeriodView periodView : browser.getPeriodViewList()){
@@ -894,7 +918,8 @@ public class Controller
         Discussion discussion = currentDiscussion();
         if(discussion == null) return;
         RegexPattern pattern = discussion.getRegexPattern();
-        this.findPanel.setRegexPattern(pattern);
+        FindPanel findPanel = this.windowManager.getFindPanel();
+        findPanel.setRegexPattern(pattern);
         return;
     }
 
@@ -908,17 +933,9 @@ public class Controller
         Period period = periodView.getPeriod();
         if(period == null) return;
 
-        if(this.daySummaryPanel == null){
-            this.daySummaryPanel = new DaySummary(this.topFrame);
-            this.daySummaryPanel.setTitle(TITLE_DAYSUMMARY);
-            this.daySummaryPanel.pack();
-            this.daySummaryPanel.setSize(400, 500);
-        }
-
-        this.daySummaryPanel.summaryPeriod(period);
-        this.daySummaryPanel.setVisible(true);
-
-        this.windowMap.put(this.daySummaryPanel, false);
+        DaySummary daySummary = this.windowManager.getDaySummary();
+        daySummary.summaryPeriod(period);
+        daySummary.setVisible(true);
 
         return;
     }
@@ -933,7 +950,8 @@ public class Controller
         Period period = periodView.getPeriod();
         if(period == null) return;
 
-        File file = CsvExporter.exportPeriod(period, this.filterFrame);
+        FilterPanel filterPanel = this.windowManager.getFilterPanel();
+        File file = CsvExporter.exportPeriod(period, filterPanel);
         if(file != null){
             String message = "CSVファイル("
                             +file.getName()
@@ -986,7 +1004,7 @@ public class Controller
         Period period = discussion.getPeriod();
         if(period == null) return;
         if(period.getTopics() > 1000){
-            JOptionPane.showMessageDialog(this.topFrame,
+            JOptionPane.showMessageDialog(getTopFrame(),
                     "エピローグが1000発言を超えはじめたら、\n"
                     +"負荷対策のためWebブラウザによるアクセスを"
                     +"心がけましょう",
@@ -1065,7 +1083,7 @@ public class Controller
 
         this.topView.showInitPanel();
 
-        execReloadVillageList(land);
+        submitReloadVillageList(land);
 
         return;
     }
@@ -1169,30 +1187,44 @@ public class Controller
     }
 
     /**
-     * 指定した国の村一覧を読み込む。
+     * 指定した国の村一覧を読み込むジョブを投下。
      * @param land 国
      */
-    private void execReloadVillageList(final Land land){
-        final LandsTree treePanel = this.topView.getLandsTree();
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
+    private void submitReloadVillageList(final Land land){
+        Runnable heavyTask = new Runnable(){
+            @Override
             public void run(){
-                setBusy(true);
-                updateStatusBar("村一覧を読み込み中…");
-                try{
-                    try{
-                        Controller.this.model.loadVillageList(land);
-                    }catch(IOException e){
-                        showNetworkError(land, e);
-                    }
-                    treePanel.expandLand(land);
-                }finally{
-                    updateStatusBar("村一覧の読み込み完了");
-                    setBusy(false);
-                }
+                taskReloadVillageList(land);
                 return;
             }
-        });
+        };
+
+        submitHeavyBusyTask(heavyTask,
+                            "村一覧を読み込み中…",
+                            "村一覧の読み込み完了" );
+
+        return;
+    }
+
+    /**
+     * 指定した国の村一覧を読み込む。(ヘビータスク本体)
+     * @param land 国
+     */
+    private void taskReloadVillageList(Land land){
+        SortedSet<Village> villageList;
+        try{
+            villageList = land.downloadVillageList();
+        }catch(IOException e){
+            showNetworkError(land, e);
+            return;
+        }
+        land.updateVillageList(villageList);
+
+        this.model.updateVillageList(land);
+
+        LandsTree treePanel = this.topView.getLandsTree();
+        treePanel.expandLand(land);
+
         return;
     }
 
@@ -1209,7 +1241,8 @@ public class Controller
         final PeriodView periodView = currentPeriodView();
         Discussion discussion = currentDiscussion();
         if(discussion == null) return;
-        discussion.setTopicFilter(this.filterFrame);
+        FilterPanel filterPanel = this.windowManager.getFilterPanel();
+        discussion.setTopicFilter(filterPanel);
         final Period period = discussion.getPeriod();
         if(period == null) return;
 
@@ -1263,10 +1296,10 @@ public class Controller
                         }
                     });
                 }catch(InvocationTargetException e){
-                    LOGGER.fatal(
+                    LOGGER.log(Level.SEVERE,
                             "タブ操作で致命的な障害が発生しました", e);
                 }catch(InterruptedException e){
-                    LOGGER.fatal(
+                    LOGGER.log(Level.SEVERE,
                             "タブ操作で致命的な障害が発生しました", e);
                 }
                 updateStatusBar("村情報を読み直しました…");
@@ -1285,11 +1318,13 @@ public class Controller
                             }
                         });
                     }catch(InvocationTargetException e){
-                        LOGGER.fatal(
-                                "ブラウザ表示で致命的な障害が発生しました", e);
+                        LOGGER.log(Level.SEVERE,
+                                "ブラウザ表示で致命的な障害が発生しました",
+                                e );
                     }catch(InterruptedException e){
-                        LOGGER.fatal(
-                                "ブラウザ表示で致命的な障害が発生しました", e);
+                        LOGGER.log(Level.SEVERE,
+                                "ブラウザ表示で致命的な障害が発生しました",
+                                e );
                     }
                     EventQueue.invokeLater(new Runnable(){
                         public void run(){
@@ -1312,22 +1347,11 @@ public class Controller
     private void filterChanged(){
         final Discussion discussion = currentDiscussion();
         if(discussion == null) return;
-        discussion.setTopicFilter(this.filterFrame);
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            public void run(){
-                setBusy(true);
-                updateStatusBar("フィルタリング中…");
-                try{
-                    discussion.filtering();
-                }finally{
-                    updateStatusBar("フィルタリング完了");
-                    setBusy(false);
-                }
-                return;
-            }
-        });
+        FilterPanel filterPanel = this.windowManager.getFilterPanel();
+
+        discussion.setTopicFilter(filterPanel);
+        discussion.filtering();
 
         return;
     }
@@ -1400,7 +1424,7 @@ public class Controller
      * @param e ネットワークエラー
      */
     public void showNetworkError(Land land, IOException e){
-        LOGGER.warn("ネットワークで障害が発生しました", e);
+        LOGGER.log(Level.WARNING, "ネットワークで障害が発生しました", e);
 
         ServerAccess server = land.getServerAccess();
         String message =
@@ -1416,7 +1440,7 @@ public class Controller
                                            JOptionPane.DEFAULT_OPTION );
 
         String title = VerInfo.getFrameTitle("通信異常発生");
-        JDialog dialog = pane.createDialog(this.topFrame, title);
+        JDialog dialog = pane.createDialog(getTopFrame(), title);
 
         dialog.pack();
         dialog.setVisible(true);
@@ -1489,7 +1513,7 @@ public class Controller
     public void stateChanged(ChangeEvent event){
         Object source = event.getSource();
 
-        if(source == this.filterFrame){
+        if(source == this.windowManager.getFilterPanel()){
             filterChanged();
         }else if(source instanceof TabBrowser){
             updateFindPanel();
@@ -1600,7 +1624,7 @@ public class Controller
             return;
         }
 
-        execReloadVillageList(land);
+        submitReloadVillageList(land);
 
         return;
     }
@@ -1685,7 +1709,7 @@ public class Controller
                     cursor = Cursor.getDefaultCursor();
                 }
 
-                Component glass = Controller.this.topFrame.getGlassPane();
+                Component glass = getTopFrame().getGlassPane();
                 glass.setCursor(cursor);
                 glass.setVisible(isBusy);
                 Controller.this.topView.setBusy(isBusy);
@@ -1700,9 +1724,9 @@ public class Controller
             try{
                 SwingUtilities.invokeAndWait(microJob);
             }catch(InvocationTargetException e){
-                LOGGER.fatal("ビジー処理で失敗", e);
+                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
             }catch(InterruptedException e){
-                LOGGER.fatal("ビジー処理で失敗", e);
+                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
             }
         }
 
@@ -1724,7 +1748,8 @@ public class Controller
      */
     private void setFrameTitle(String name){
         String title = VerInfo.getFrameTitle(name);
-        this.topFrame.setTitle(title);
+        TopFrame topFrame = this.windowManager.getTopFrame();
+        topFrame.setTitle(title);
         return;
     }
 
@@ -1734,13 +1759,15 @@ public class Controller
     private void shutdown(){
         ConfigStore configStore = this.appSetting.getConfigStore();
 
-        JsObject findConf = this.findPanel.getJson();
-        if( ! this.findPanel.hasConfChanged(findConf) ){
+        FindPanel findPanel = this.windowManager.getFindPanel();
+        JsObject findConf = findPanel.getJson();
+        if( ! findPanel.hasConfChanged(findConf) ){
             configStore.saveHistoryConfig(findConf);
         }
 
-        JsObject draftConf = this.talkPreview.getJson();
-        if( ! this.talkPreview.hasConfChanged(draftConf) ){
+        TalkPreview talkPreview = this.windowManager.getTalkPreview();
+        JsObject draftConf = talkPreview.getJson();
+        if( ! talkPreview.hasConfChanged(draftConf) ){
             configStore.saveDraftConfig(draftConf);
         }
 

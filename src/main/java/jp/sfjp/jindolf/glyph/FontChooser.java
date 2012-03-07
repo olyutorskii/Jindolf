@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.MessageFormat;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -32,7 +33,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import jp.sfjp.jindolf.ResourceManager;
 import jp.sfjp.jindolf.dxchg.TextPopup;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sfjp.jindolf.util.Monodizer;
 
 /**
@@ -50,7 +50,7 @@ public class FontChooser extends JPanel
     private static final CharSequence PREVIEW_CONTENT;
     private static final int UNIT_INC = 8;
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     static{
         PREVIEW_CONTENT =
@@ -86,6 +86,7 @@ public class FontChooser extends JPanel
      * @param fontInfo 初期フォント設定
      * @throws NullPointerException 引数がnull
      */
+    @SuppressWarnings("LeakingThisInConstructor")
     public FontChooser(FontInfo fontInfo)
             throws NullPointerException{
         super();
@@ -363,7 +364,7 @@ public class FontChooser extends JPanel
             .setSelected(this.fontInfo.usesFractionalMetrics());
 
         // デコード名
-        this.decodeName.setText(FontUtils.getFontDecodeName(currentFont));
+        this.decodeName.setText(getFontInfo().getFontDecodeName());
         this.decodeName.setCaretPosition(0);
 
         // 寸法

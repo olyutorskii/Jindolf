@@ -9,6 +9,7 @@ package jp.sfjp.jindolf;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,7 +26,7 @@ import javax.swing.ImageIcon;
  * <p>{@link Class}用と{@link ClassLoader}用とでは
  * 微妙に絶対リソース名の形式が異なることに留意せよ。
  * <p>基本的に、リソースファイルへのアクセスにおける異常系は
- * リカバリの対象外とする。ビルド工程の不手際扱い。
+ * リカバリの対象外とする。(ビルド工程の不手際扱い。)
  * @see java.lang.Class#getResource
  */
 public final class ResourceManager {
@@ -42,7 +43,10 @@ public final class ResourceManager {
     public static final String PKG_SEPARATOR =
             Character.toString(PKG_SEPCHAR);
 
-    /** デフォルトで用いられるルートパッケージ。 */
+    /**
+     * デフォルトで用いられるルートパッケージ。
+     * 相対リソース名の起点となる。
+     */
     public static final Package DEF_ROOT_PACKAGE;
     /** デフォルトで用いられるクラスローダ。 */
     public static final ClassLoader DEF_LOADER;
@@ -61,9 +65,7 @@ public final class ResourceManager {
      * 隠しコンストラクタ。
      */
     private ResourceManager(){
-        super();
         assert false;
-        return;
     }
 
 
@@ -98,7 +100,7 @@ public final class ResourceManager {
 
         String pkgName = pkg.getName();
         String result = pkgName.replace(PKG_SEPCHAR, RES_SEPCHAR);
-        if( ! result.isEmpty() ){
+        if(result.length() > 0){
             result += RES_SEPARATOR;
         }
 
@@ -138,8 +140,8 @@ public final class ResourceManager {
      * @return リソースのURL。リソースが見つからなければnull。
      */
     public static URL getResource(ClassLoader loader,
-                                  Package rootPkg,
-                                  String resPath ){
+                                    Package rootPkg,
+                                    String resPath ){
         String fullName;
         if(isAbsoluteResourcePath(resPath)){
             fullName = resPath.substring(1);    // chop '/' heading
@@ -173,7 +175,7 @@ public final class ResourceManager {
      * @return リソースの入力ストリーム。リソースが見つからなければnull。
      */
     public static InputStream getResourceAsStream(Package rootPkg,
-                                                  String resPath ){
+                                                     String resPath ){
         return getResourceAsStream(DEF_LOADER, rootPkg, resPath);
     }
 
@@ -187,8 +189,8 @@ public final class ResourceManager {
      * @return リソースの入力ストリーム。リソースが見つからなければnull。
      */
     public static InputStream getResourceAsStream(ClassLoader loader,
-                                                  Package rootPkg,
-                                                  String resPath ){
+                                                     Package rootPkg,
+                                                     String resPath ){
         URL url = getResource(loader, rootPkg, resPath);
         if(url == null) return null;
 
@@ -268,12 +270,13 @@ public final class ResourceManager {
      * @param resPath テキストファイルのリソース名
      * @return テキスト。リソースが読み込めなければnull。
      */
-    public static CharSequence getTextFile(String resPath){
+    public static String getTextFile(String resPath){
         InputStream is = getResourceAsStream(resPath);
         if(is == null) return null;
         is = new BufferedInputStream(is);
 
         Reader reader = new InputStreamReader(is, CS_UTF8);
+        reader = new BufferedReader(reader);
         LineNumberReader lineReader = new LineNumberReader(reader);
 
         StringBuilder result = new StringBuilder();
@@ -297,7 +300,9 @@ public final class ResourceManager {
             result = null;
         }
 
-        return result;
+        if(result == null) return null;
+
+        return result.toString();
     }
 
 }

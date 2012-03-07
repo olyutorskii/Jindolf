@@ -14,31 +14,41 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.text.CharacterIterator;
-import jp.sourceforge.jovsonz.JsBoolean;
-import jp.sourceforge.jovsonz.JsNumber;
-import jp.sourceforge.jovsonz.JsObject;
-import jp.sourceforge.jovsonz.JsPair;
-import jp.sourceforge.jovsonz.JsString;
-import jp.sourceforge.jovsonz.JsValue;
+import java.util.Locale;
 
 /**
  * フォント描画に関する各種設定。
  */
 public class FontInfo{
 
+    /** デフォルトのフォント環境。 */
+    public static final FontEnv DEFAULT_FONTENV;
     /** デフォルトのフォント設定。 */
-    public static final FontInfo DEFAULT_FONTINFO = new FontInfo();
+    public static final FontInfo DEFAULT_FONTINFO;
 
-    private static final String HASH_FAMILY     = "family";
-    private static final String HASH_SIZE       = "size";
-    private static final String HASH_ISBOLD     = "isBold";
-    private static final String HASH_ISITALIC   = "isItalic";
-    private static final String HASH_USEAA      = "useAntiAlias";
-    private static final String HASH_FRACTIONAL = "useFractional";
+    /** デフォルトのポイントサイズ。 */
+    public static final int DEF_SIZE = 16;
+    /** デフォルトのフォントスタイル。 */
+    public static final int DEF_STYLE = 0x00 | Font.PLAIN;
+
+    /** {@link java.util.Locale#ROOT}代替品。 */
+    private static final Locale LOCALE_ROOT = new Locale("", "", "");
+    /** MSリコー系日本語ベクトルフォント下限ポイントサイズ。 */
+    private static final int MS_VEC_LIMIT = 24;
+    /** 二重引用符。 */
+    private static final char DQ = '"';
 
 
-    private final Font font;
-    private final FontRenderContext context;
+    static{
+        DEFAULT_FONTENV = FontEnv.DEFAULT;
+        DEFAULT_FONTINFO = new FontInfo();
+    }
+
+
+    // いずれのフィールドもnull値はデフォルト値の遅延評価フラグ
+    private String familyName;
+    private Font font;
+    private FontRenderContext context;
 
 
     /**
@@ -46,19 +56,7 @@ public class FontInfo{
      * デフォルトフォントとそれに適した描画属性が指定される。
      */
     public FontInfo(){
-        this(FontUtils.createDefaultSpeechFont());
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * 描画設定はフォント属性に応じて自動的に調整される。
-     * @param font フォント
-     * @throws NullPointerException 引数がnull
-     */
-    public FontInfo(Font font)
-            throws NullPointerException{
-        this(font, createBestContext(font));
+        this((Font)null, (FontRenderContext)null);
         return;
     }
 
@@ -66,12 +64,10 @@ public class FontInfo{
      * コンストラクタ。
      * @param font フォント
      * @param context 描画設定
-     * @throws NullPointerException 引数がnull
      */
-    public FontInfo(Font font, FontRenderContext context)
-            throws NullPointerException{
+    public FontInfo(Font font, FontRenderContext context){
         super();
-        if(font == null || context == null) throw new NullPointerException();
+        this.familyName = null;
         this.font = font;
         this.context = context;
         return;
@@ -79,156 +75,80 @@ public class FontInfo{
 
 
     /**
+     * マイクロソフト&リコー(リョービイマジクス)系
+     * 日本語ベクトルフォントか否か、ファミリ名で見当をつける。
+     * <p>日本語Windows同梱のMSゴシックやMS明朝などが対象。
+     * <p>メイリオは対象外。
+     * @param font フォント
+     * @return 見当が付けばtrue
+     */
+    protected static boolean isMsRicohJpFont(Font font){
+        String rootFamilyName = font.getFamily(LOCALE_ROOT);
+        if(rootFamilyName.startsWith("MS")){
+            if(rootFamilyName.contains("Gothic")) return true;
+            if(rootFamilyName.contains("Mincho")) return true;
+        }
+        return false;
+    }
+
+    /**
+     * ビットマップフォントか否か見当をつける。
+     * <p>判定基準はかなりアバウト。
+     * 実用上、小さめのMSPゴシックを補足できればそれでいい。
+     * <p>ビットマップフォントには
+     * アンチエイリアスやサブピクセルを使わないほうが
+     * 見栄えがいいような気がする。
+     * @param font 判定対象フォント
+     * @return ビットマップフォントらしかったらtrue
+     */
+    protected static boolean isBitmapFont(Font font){
+        if(font.getSize() >= MS_VEC_LIMIT) return false;
+        if(isMsRicohJpFont(font)) return true;
+        return false;
+    }
+
+    /**
      * フォントに応じた最適な描画設定を生成する。
      * <p>ビットマップフォントと推測されるときは
      * アンチエイリアスやサブピクセル補完を無効にする。
      * @param font フォント
      * @return 描画設定
-     * @see FontUtils#guessBitmapFont(Font)
      */
-    public static FontRenderContext createBestContext(Font font){
-        boolean isAntiAliased         = true;
-        boolean usesFractionalMetrics = true;
-        if(FontUtils.guessBitmapFont(font)){
+    protected static FontRenderContext createBestContext(Font font){
+        boolean isAntiAliased;
+        boolean usesFractionalMetrics;
+
+        if(isBitmapFont(font)){
             isAntiAliased         = false;
             usesFractionalMetrics = false;
+        }else{
+            isAntiAliased         = true;
+            usesFractionalMetrics = true;
         }
 
         AffineTransform identity = ImtblAffineTx.IDENTITY;
-        FontRenderContext result =
-                new FontRenderContext(identity,
-                                      isAntiAliased,
-                                      usesFractionalMetrics);
+        FontRenderContext result;
+        result = new FontRenderContext(identity,
+                                       isAntiAliased,
+                                       usesFractionalMetrics );
 
         return result;
     }
 
     /**
-     * フォント設定をJSON形式にエンコードする。
-     * @param fontInfo フォント設定
-     * @return JSON Object
+     * ファミリ名を返す。
+     * @return ファミリ名
      */
-    public static JsObject buildJson(FontInfo fontInfo){
-        Font font             = fontInfo.getFont();
-        FontRenderContext frc = fontInfo.getFontRenderContext();
-
-        JsPair family = new JsPair(HASH_FAMILY,
-                                   FontUtils.getRootFamilyName(font) );
-        JsPair size   = new JsPair(HASH_SIZE, font.getSize());
-        JsPair bold   = new JsPair(HASH_ISBOLD, font.isBold());
-        JsPair italic = new JsPair(HASH_ISITALIC, font.isItalic());
-        JsPair aa     = new JsPair(HASH_USEAA, frc.isAntiAliased());
-        JsPair frac   = new JsPair(HASH_FRACTIONAL,
-                                   frc.usesFractionalMetrics() );
-
-        JsObject result = new JsObject();
-        result.putPair(family);
-        result.putPair(size);
-        result.putPair(bold);
-        result.putPair(italic);
-        result.putPair(aa);
-        result.putPair(frac);
-
-        return result;
-    }
-
-    /**
-     * JSONからフォントを復元。
-     * @param obj JSON Object
-     * @return フォント
-     */
-    private static Font decodeJsonFont(JsObject obj){
-        JsValue value;
-
-        Font font = null;
-        value = obj.getValue(HASH_FAMILY);
-        if(value instanceof JsString){
-            JsString string = (JsString) value;
-            Font decoded = Font.decode(string.toRawString());
-            if(decoded != null){
-                font = decoded;
+    private String getFamilyName(){
+        if(this.familyName == null){
+            if(this.font == null){
+                this.familyName = DEFAULT_FONTENV.selectFontFamily();
+            }else{
+                // 再帰に注意
+                this.familyName = getRootFamilyName();
             }
         }
-        if(font == null){
-            font = FontUtils.createDefaultSpeechFont();
-        }
-
-        boolean isBold   = false;
-        boolean isItalic = false;
-
-        value = obj.getValue(HASH_ISBOLD);
-        if(value instanceof JsBoolean){
-            JsBoolean bool = (JsBoolean) value;
-            isBold = bool.booleanValue();
-        }
-
-        value = obj.getValue(HASH_ISITALIC);
-        if(value instanceof JsBoolean){
-            JsBoolean bool = (JsBoolean) value;
-            isItalic = bool.booleanValue();
-        }
-
-        int style = Font.PLAIN;
-        if(isBold)   style |= Font.BOLD;
-        if(isItalic) style |= Font.ITALIC;
-
-        int size = FontUtils.DEF_SIZE;
-        value = obj.getValue(HASH_SIZE);
-        if(value instanceof JsNumber){
-            JsNumber number = (JsNumber) value;
-            size = number.intValue();
-        }
-
-        Font derivedFont = font.deriveFont(style, (float)size);
-
-        return derivedFont;
-    }
-
-    /**
-     * JSONからフォント描画設定を復元。
-     * @param obj JSON Object
-     * @param font デフォルトフォント
-     * @return フォント描画設定
-     */
-    private static FontRenderContext decodeJsonFrc(JsObject obj,
-                                                   Font font ){
-        FontRenderContext defFrc = createBestContext(font);
-        boolean isAntiAlias   = defFrc.isAntiAliased();
-        boolean useFractional = defFrc.usesFractionalMetrics();
-
-        JsValue value;
-
-        value = obj.getValue(HASH_USEAA);
-        if(value instanceof JsBoolean){
-            JsBoolean bool = (JsBoolean) value;
-            isAntiAlias = bool.booleanValue();
-        }
-
-        value = obj.getValue(HASH_FRACTIONAL);
-        if(value instanceof JsBoolean){
-            JsBoolean bool = (JsBoolean) value;
-            useFractional = bool.booleanValue();
-        }
-
-        FontRenderContext newFrc =
-                new FontRenderContext(ImtblAffineTx.IDENTITY,
-                                      isAntiAlias, useFractional );
-
-        return newFrc;
-    }
-
-    /**
-     * JSONからのフォント設定復元。
-     * @param obj JSON Object
-     * @return フォント設定
-     */
-    public static FontInfo decodeJson(JsObject obj){
-        Font font = decodeJsonFont(obj);
-        FontRenderContext frc = decodeJsonFrc(obj, font);
-
-        FontInfo result = new FontInfo(font, frc);
-
-        return result;
+        return this.familyName;
     }
 
     /**
@@ -236,6 +156,10 @@ public class FontInfo{
      * @return フォント
      */
     public Font getFont(){
+        if(this.font == null){
+            String name = getFamilyName();
+            this.font = new Font(name, DEF_STYLE, DEF_SIZE);
+        }
         return this.font;
     }
 
@@ -244,6 +168,10 @@ public class FontInfo{
      * @return 描画属性
      */
     public FontRenderContext getFontRenderContext(){
+        if(this.context == null){
+            Font thisFont = getFont();
+            this.context = createBestContext(thisFont);
+        }
         return this.context;
     }
 
@@ -252,7 +180,8 @@ public class FontInfo{
      * @return アンチエイリアス機能を使うならtrue
      */
     public boolean isAntiAliased(){
-        boolean result = this.context.isAntiAliased();
+        FontRenderContext frc = getFontRenderContext();
+        boolean result = frc.isAntiAliased();
         return result;
     }
 
@@ -261,7 +190,8 @@ public class FontInfo{
      * @return サブピクセル精度を使うならtrue
      */
     public boolean usesFractionalMetrics(){
-        boolean result = this.context.usesFractionalMetrics();
+        FontRenderContext frc = getFontRenderContext();
+        boolean result = frc.usesFractionalMetrics();
         return result;
     }
 
@@ -271,7 +201,9 @@ public class FontInfo{
      * @see java.awt.Font#getMaxCharBounds(FontRenderContext)
      */
     public Rectangle getMaxCharBounds(){
-        Rectangle2D r2d = this.font.getMaxCharBounds(this.context);
+        Font thisFont = getFont();
+        FontRenderContext frc = getFontRenderContext();
+        Rectangle2D r2d = thisFont.getMaxCharBounds(frc);
         Rectangle rect = r2d.getBounds();
         return rect;
     }
@@ -282,7 +214,8 @@ public class FontInfo{
      * @return 新設定
      */
     public FontInfo deriveFont(Font newFont){
-        return new FontInfo(newFont, this.context);
+        FontInfo result = new FontInfo(newFont, this.context);
+        return result;
     }
 
     /**
@@ -291,7 +224,8 @@ public class FontInfo{
      * @return 新設定
      */
     public FontInfo deriveRenderContext(FontRenderContext newContext){
-        return new FontInfo(this.font, newContext);
+        FontInfo result = new FontInfo(this.font, newContext);
+        return result;
     }
 
     /**
@@ -301,8 +235,13 @@ public class FontInfo{
      * @return 新設定
      */
     public FontInfo deriveRenderContext(boolean isAntiAliases,
-                                        boolean useFractional){
-        AffineTransform tx = this.context.getTransform();
+                                           boolean useFractional ){
+        AffineTransform tx;
+        if(this.context == null){
+            tx = ImtblAffineTx.IDENTITY;
+        }else{
+            tx = this.context.getTransform();
+        }
         FontRenderContext newContext =
                 new FontRenderContext(tx, isAntiAliases, useFractional);
         return deriveRenderContext(newContext);
@@ -314,9 +253,53 @@ public class FontInfo{
      * @return グリフ集合
      */
     public GlyphVector createGlyphVector(CharacterIterator iterator){
-        GlyphVector glyph =
-                this.font.createGlyphVector(this.context, iterator);
+        Font thisFont = getFont();
+        FontRenderContext frc = getFontRenderContext();
+        GlyphVector glyph = thisFont.createGlyphVector(frc, iterator);
         return glyph;
+    }
+
+    /**
+     * ロケール中立なフォントファミリ名を返す。
+     * JRE1.5対策
+     * @return ファミリ名
+     * @see Font#getFamily(Locale)
+     */
+    public String getRootFamilyName(){
+        Font thisFont = getFont();
+        String result = thisFont.getFamily(LOCALE_ROOT);
+        return result;
+    }
+
+    /**
+     * Font#decode()用の名前を返す。
+     * 空白が含まれる場合は二重引用符で囲まれる。
+     * @return {@link java.awt.Font#decode(String)}用の名前
+     * @see java.awt.Font#decode(String)
+     */
+    public String getFontDecodeName(){
+        StringBuilder result = new StringBuilder();
+
+        String name = getRootFamilyName();
+
+        Font thisFont = getFont();
+        StringBuilder style = new StringBuilder();
+        if(thisFont.isBold())   style.append("BOLD");
+        if(thisFont.isItalic()) style.append("ITALIC");
+        if(style.length() <= 0) style.append("PLAIN");
+
+        int fontSize = thisFont.getSize();
+
+        result.append(name)
+              .append('-').append(style)
+              .append('-').append(fontSize);
+
+        if(   result.indexOf("\u0020") >= 0
+           || result.indexOf("\u3000") >= 0 ){
+            result.insert(0, DQ).append(DQ);
+        }
+
+        return result.toString();
     }
 
     /**
@@ -329,8 +312,17 @@ public class FontInfo{
         if( ! (obj instanceof FontInfo) ) return false;
         FontInfo target = (FontInfo) obj;
 
-        if( ! (this.font   .equals(target.font))    ) return false;
-        if( ! (this.context.equals(target.context)) ) return false;
+        Font thisFont = getFont();
+        Font targetFont = target.getFont();
+        if( ! (thisFont.equals(targetFont)) ){
+            return false;
+        }
+
+        FontRenderContext thisContext = getFontRenderContext();
+        FontRenderContext targetContext = target.getFontRenderContext();
+        if( ! (thisContext.equals(targetContext)) ){
+            return false;
+        }
 
         return true;
     }
@@ -341,7 +333,9 @@ public class FontInfo{
      */
     @Override
     public int hashCode(){
-        return this.font.hashCode() ^ this.context.hashCode();
+        int hashFont = getFont().hashCode();
+        int hashContext = getFontRenderContext().hashCode();
+        return hashFont ^ hashContext;
     }
 
 }

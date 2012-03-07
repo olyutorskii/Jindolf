@@ -18,7 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import jp.sfjp.jindolf.log.LogWrapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sourceforge.jindolf.corelib.LandDef;
@@ -39,7 +40,7 @@ public class Land {
     // 古国ID
     private static final String ID_VANILLAWOLF = "wolf";
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final LandDef landDef;
@@ -122,7 +123,7 @@ public class Land {
         try{
             uri = new URI(pureHREF);
         }catch(URISyntaxException e){
-            LOGGER.warn(
+            LOGGER.warning(
                      "不正なURI["
                     + hrefValue
                     + "]を検出しました");
@@ -209,7 +210,7 @@ public class Land {
         try{
             image = server.downloadImage(imageURL);
         }catch(IOException e){
-            LOGGER.warn(
+            LOGGER.log(Level.WARNING,
                     "イメージ[" + imageURL + "]"
                     + "のダウンロードに失敗しました",
                     e );
@@ -239,14 +240,15 @@ public class Land {
     }
 
     /**
-     * 村リストを更新する。
-     * 元情報は国のトップページと村一覧ページ。
+     * 村一覧情報をダウンロードする。
+     * リスト元情報は国のトップページと村一覧ページ。
      * 古国の場合は村一覧にアクセスせずトップページのみ。
-     * 古国以外に村建てをやめた国はトップページにアクセスしない。
+     * 古国以外で村建てをやめた国はトップページにアクセスしない。
      * 村リストはVillageの実装に従いソートされる。重複する村は排除。
      * @throws java.io.IOException ネットワーク入出力の異常
+     * @return ソートされた村一覧
      */
-    public void updateVillageList() throws IOException{
+    public SortedSet<Village> downloadVillageList() throws IOException {
         LandDef thisLand = getLandDef();
         LandState state = thisLand.getLandState();
         boolean isVanillaWolf = thisLand.getLandId().equals(ID_VANILLAWOLF);
@@ -254,7 +256,7 @@ public class Land {
         ServerAccess server = getServerAccess();
 
         // たまに同じ村が複数回出現するので注意！
-        SortedSet<Village> vset = new TreeSet<Village>();
+        SortedSet<Village> result = new TreeSet<Village>();
 
         // トップページ
         if(state.equals(LandState.ACTIVE) || isVanillaWolf){
@@ -263,11 +265,11 @@ public class Land {
             try{
                 this.parser.parseAutomatic(content);
             }catch(HtmlParseException e){
-                LOGGER.warn("トップページを認識できない", e);
+                LOGGER.log(Level.WARNING, "トップページを認識できない", e);
             }
             List<Village> list = this.handler.getVillageList();
             if(list != null){
-                vset.addAll(list);
+                result.addAll(list);
             }
         }
 
@@ -278,21 +280,28 @@ public class Land {
             try{
                 this.parser.parseAutomatic(content);
             }catch(HtmlParseException e){
-                LOGGER.warn("村一覧ページを認識できない", e);
+                LOGGER.log(Level.WARNING, "村一覧ページを認識できない", e);
             }
             List<Village> list = this.handler.getVillageList();
             if(list != null){
-                vset.addAll(list);
+                result.addAll(list);
             }
         }
-
-        // TODO 村リスト更新のイベントリスナがあると便利か？
-        this.villageList.clear();
-        this.villageList.addAll(vset);
 
         this.parser.reset();
         this.handler.reset();
 
+        return result;
+    }
+
+    /**
+     * 村リストを更新する。
+     * @param vset ソート済みの村一覧
+     */
+    public void updateVillageList(SortedSet<Village> vset){
+        // TODO 村リスト更新のイベントリスナがあると便利か？
+        this.villageList.clear();
+        this.villageList.addAll(vset);
         return;
     }
 
@@ -401,7 +410,7 @@ public class Land {
             String villageID = getVillageIDFromHREF(href);
             if(   villageID == null
                || villageID.length() <= 0 ){
-                LOGGER.warn(
+                LOGGER.warning(
                         "認識できないURL[" + href + "]に遭遇しました。");
                  return;
             }

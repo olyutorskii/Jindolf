@@ -10,7 +10,7 @@ package jp.sfjp.jindolf.net;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
-import java.text.NumberFormat;
+import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.sfjp.jindolf.VerInfo;
@@ -35,17 +35,9 @@ public final class HttpUtils{
     private static final Pattern MTYPE_PATTERN = Pattern.compile(MTYPE_REGEX);
     private static final Pattern ATTR_PATTERN  = Pattern.compile(PARAM_REGEX);
 
-    private static final NumberFormat THROUGHPUT_FORMAT;
-    private static final NumberFormat SIZE_FORMAT;
-
-    static{
-        THROUGHPUT_FORMAT = NumberFormat.getInstance();
-        THROUGHPUT_FORMAT.setMaximumFractionDigits(1);
-        THROUGHPUT_FORMAT.setMinimumFractionDigits(1);
-        THROUGHPUT_FORMAT.setGroupingUsed(true);
-        SIZE_FORMAT = NumberFormat.getInstance();
-        SIZE_FORMAT.setGroupingUsed(true);
-    }
+    private static final String THROUGHPUT_FORM =
+            "{0,number,#,##0}Bytes {1,number,#,##0.0}{2}Bytes/sec";
+    private static final String HTTP_FORM = "{0} {1} [{2} {3}] {4}";
 
 
     /**
@@ -62,7 +54,7 @@ public final class HttpUtils{
      * ネットワークのスループット報告用文字列を生成する。
      * @param size 転送サイズ(バイト数)
      * @param nano 所要時間(ナノ秒)
-     * @return スループット文字列
+     * @return スループット文字列。引数のいずれかが0以下なら空文字列
      */
     public static String throughput(long size, long nano){
         if(size <= 0 || nano <= 0) return "";
@@ -80,9 +72,9 @@ public final class HttpUtils{
             unit = "M";
         }
 
-        String result =  SIZE_FORMAT.format(size) + "Bytes "
-                       + THROUGHPUT_FORMAT.format(rate) + unit
-                       + "Bytes/sec";
+        String result =
+                  MessageFormat.format(THROUGHPUT_FORM, size, rate, unit);
+
         return result;
     }
 
@@ -91,11 +83,11 @@ public final class HttpUtils{
      * @param conn HTTPコネクション
      * @param size 転送サイズ
      * @param nano 転送に要したナノ秒
-     * @return セッション結果
+     * @return セッション結果文字列。
      */
     public static String formatHttpStat(HttpURLConnection conn,
-                                          long size,
-                                          long nano ){
+                                        long size,
+                                        long nano ){
         String method = conn.getRequestMethod();
         String url    = conn.getURL().toString();
 
@@ -115,13 +107,13 @@ public final class HttpUtils{
 
         String throughput = throughput(size, nano);
 
-        String message =  method
-                        + " " + url
-                        + " [" + responseCode
-                        + " " + responseMessage + "]"
-                        + " " + throughput;
+        String result;
+        result = MessageFormat.format(HTTP_FORM,
+                                      method, url,
+                                      responseCode, responseMessage,
+                                      throughput );
 
-        return message;
+        return result;
     }
 
     /**

@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.log;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -22,13 +23,18 @@ public final class LogUtils {
     public static final LoggingPermission PERM_LOGCTL =
             new LoggingPermission("control", null);
 
+    private static final PrintStream STDERR = System.err;
+    private static final String ERRMSG_LOGSECURITY =
+            "セキュリティ設定により、ログ設定を変更できませんでした";
+
+
     /**
      * 隠しコンストラクタ。
      */
     private LogUtils(){
-        super();
-        return;
+        assert false;
     }
+
 
     /**
      * ログ操作のアクセス権があるか否か判定する。
@@ -58,28 +64,36 @@ public final class LogUtils {
     }
 
     /**
+     * ルートロガーを返す。
+     * @return ルートロガー
+     */
+    public static Logger getRootLogger(){
+        Logger rootLogger = Logger.getLogger("");
+        return rootLogger;
+    }
+
+    /**
      * ルートロガーの初期化を行う。
      * ルートロガーの既存ハンドラを全解除し、
-     * {@link PileHandler}ハンドラを登録する。
+     * {@link MomentaryHandler}ハンドラを登録する。
      * @param useConsoleLog trueなら
      * {@link java.util.logging.ConsoleHandler}も追加する。
      */
     public static void initRootLogger(boolean useConsoleLog){
         if( ! hasLoggingPermission() ){
-            System.err.println(
-                      "セキュリティ設定により、"
-                    + "ログ設定を変更できませんでした" );
+            STDERR.println(ERRMSG_LOGSECURITY);
             return;
         }
 
-        Logger rootLogger = Logger.getLogger("");
+        Logger rootLogger = getRootLogger();
 
-        for(Handler handler : rootLogger.getHandlers()){
+        Handler[] oldHandlers = rootLogger.getHandlers();
+        for(Handler handler : oldHandlers){
             rootLogger.removeHandler(handler);
         }
 
-        Handler pileHandler = new PileHandler();
-        rootLogger.addHandler(pileHandler);
+        Handler momentaryHandler = new MomentaryHandler();
+        rootLogger.addHandler(momentaryHandler);
 
         if(useConsoleLog){
             Handler consoleHandler = new ConsoleHandler();
@@ -90,25 +104,27 @@ public final class LogUtils {
     }
 
     /**
-     * ロガーに新ハンドラを追加する。
-     * ロガー中の全{@link PileHandler}型ハンドラに蓄積されていたログは、
-     * 新ハンドラに一気に転送される。
-     * {@link PileHandler}型ハンドラはロガーから削除される。
+     * ルートロガーに新ハンドラを追加する。
+     * ルートロガー中の全{@link MomentaryHandler}型ハンドラに
+     * 蓄積されていたログは、新ハンドラに一気に転送される。
+     * {@link MomentaryHandler}型ハンドラはルートロガーから削除される。
      * ログ操作のパーミッションがない場合、何もしない。
-     * @param logger ロガー
      * @param newHandler 新ハンドラ
      */
-    public static void switchHandler(Logger logger, Handler newHandler){
+    public static void switchHandler(Handler newHandler){
         if( ! hasLoggingPermission() ) return;
 
-        List<PileHandler> pileHandlers = PileHandler.getPileHandlers(logger);
-        PileHandler.removePileHandlers(logger);
+        Logger logger = getRootLogger();
+
+        List<MomentaryHandler> momentaryHandlers =
+                MomentaryHandler.getMomentaryHandlers(logger);
+        MomentaryHandler.removeMomentaryHandlers(logger);
 
         logger.addHandler(newHandler);
 
-        for(PileHandler pileHandler : pileHandlers){
-            pileHandler.delegate(newHandler);
-            pileHandler.close();
+        for(MomentaryHandler momentaryHandler : momentaryHandlers){
+            momentaryHandler.transfer(newHandler);
+            momentaryHandler.close();
         }
 
         return;

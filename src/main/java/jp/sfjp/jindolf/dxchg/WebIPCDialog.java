@@ -22,6 +22,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -37,7 +38,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import jp.sfjp.jindolf.JreChecker;
 import jp.sfjp.jindolf.VerInfo;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.Monodizer;
 
@@ -53,7 +53,7 @@ public class WebIPCDialog
             VerInfo.getFrameTitle("URLへのアクセス確認");
 
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final String warnMessage;

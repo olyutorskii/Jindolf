@@ -15,7 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jp.sfjp.jindolf.log.LogWrapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.StringUtils;
@@ -50,7 +51,7 @@ public class Period{
     private static final PeriodHandler HANDLER =
             new PeriodHandler();
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     static{
         PARSER.setBasicHandler   (HANDLER);
@@ -176,7 +177,7 @@ public class Period{
         try{
             PARSER.parseAutomatic(content);
         }catch(HtmlParseException e){
-            LOGGER.warn("発言抽出に失敗", e);
+            LOGGER.log(Level.WARNING, "発言抽出に失敗", e);
         }
 
         if(wasHot && ! period.isHot() ){

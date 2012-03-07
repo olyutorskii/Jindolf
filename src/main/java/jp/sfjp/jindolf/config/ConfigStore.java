@@ -23,7 +23,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import jp.sfjp.jindolf.log.LogWrapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jp.sourceforge.jovsonz.JsComposition;
 import jp.sourceforge.jovsonz.JsObject;
 import jp.sourceforge.jovsonz.JsParseException;
@@ -45,12 +46,15 @@ public class ConfigStore {
     /** 台詞表示設定ファイル。 */
     public static final File TALKCONFIG_FILE = new File("talkconfig.json");
 
+    private static final String LOCKFILE = "lock";
+
     private static final Charset CHARSET_JSON = Charset.forName("UTF-8");
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private boolean useStoreFile;
+    private boolean isImplicitPath;
     private File configPath;
 
 
@@ -60,17 +64,40 @@ public class ConfigStore {
      * @param configPath 設定ディレクトリ。
      * 設定ディレクトリを使わない場合は無視され、nullとして扱われる。
      */
-    public ConfigStore(boolean useStoreFile, File configPath){
+    public ConfigStore(boolean useStoreFile, File configPath ){
+        this(useStoreFile, true, configPath);
+        return;
+    }
+
+    /**
+     * コンストラクタ。
+     * @param useStoreFile 設定ディレクトリへの永続化機能を使うならtrue
+     * @param isImplicitPath コマンドラインで指定されたディレクトリならfalse
+     * @param configPath 設定ディレクトリ。
+     * 設定ディレクトリを使わない場合は無視され、nullとして扱われる。
+     */
+    public ConfigStore(boolean useStoreFile,
+                         boolean isImplicitPath,
+                         File configPath ){
         super();
 
         this.useStoreFile = useStoreFile;
 
-        File path = null;
-        if(this.useStoreFile) path = configPath;
-        this.configPath = path;
+        if(this.useStoreFile){
+            this.isImplicitPath = isImplicitPath;
+        }else{
+            this.isImplicitPath = true;
+        }
+
+        if(this.useStoreFile){
+            this.configPath = configPath;
+        }else{
+            this.configPath = null;
+        }
 
         return;
     }
+
 
     /**
      * 設定ディレクトリを使うか否か判定する。
@@ -78,18 +105,6 @@ public class ConfigStore {
      */
     public boolean useStoreFile(){
         return this.useStoreFile;
-    }
-
-    /**
-     * 設定ディレクトリ利用の有無を変更する。
-     * @param sw 利用するならtrue
-     */
-    public void setUseStoreFile(boolean sw){
-        this.useStoreFile = sw;
-        if( ! this.useStoreFile ){
-            this.configPath = null;
-        }
-        return;
     }
 
     /**
@@ -104,11 +119,43 @@ public class ConfigStore {
     }
 
     /**
-     * 設定ディレクトリを変更する。
-     * @param path 設定ディレクトリ
+     * 設定ディレクトリの存在を確認し、なければ作る。
+     * <p>設定ディレクトリを使わない場合は何もしない。
      */
-    public void setConfigPath(File path){
-        this.configPath = path;
+    public void prepareConfigDir(){
+        if( ! this.useStoreFile ) return;
+
+        if( ! this.configPath.exists() ){
+            File created =
+                ConfigFile.buildConfigDirectory(this.configPath,
+                                                this.isImplicitPath );
+            ConfigFile.checkAccessibility(created);
+        }else{
+            ConfigFile.checkAccessibility(this.configPath);
+        }
+
+        return;
+    }
+
+    /**
+     * ロックファイルの取得を試みる。
+     */
+    public void tryLock(){
+        if( ! this.useStoreFile ) return;
+
+        File lockFile = new File(this.configPath, LOCKFILE);
+        InterVMLock lock = new InterVMLock(lockFile);
+
+        lock.tryLock();
+
+        if( ! lock.isFileOwner() ){
+            ConfigFile.confirmLockError(lock);
+            if( ! lock.isFileOwner() ){
+                this.useStoreFile = false;
+                this.configPath = null;
+            }
+        }
+
         return;
     }
 
@@ -163,13 +210,13 @@ public class ConfigStore {
         try{
             root = loadJson(istream);
         }catch(IOException e){
-            LOGGER.fatal(
+            LOGGER.log(Level.SEVERE,
                     "JSONファイル["
                     + absPath
                     + "]の読み込み時に支障がありました。", e);
             return null;
         }catch(JsParseException e){
-            LOGGER.fatal(
+            LOGGER.log(Level.SEVERE,
                     "JSONファイル["
                     + absPath
                     + "]の内容に不備があります。", e);
@@ -178,7 +225,7 @@ public class ConfigStore {
             try{
                 istream.close();
             }catch(IOException e){
-                LOGGER.fatal(
+                LOGGER.log(Level.SEVERE,
                         "JSONファイル["
                         + absPath
                         + "]を閉じることができません。", e);
@@ -236,7 +283,7 @@ public class ConfigStore {
         try{
             if(absFile.createNewFile() != true) return false;
         }catch(IOException e){
-            LOGGER.fatal(
+            LOGGER.log(Level.SEVERE,
                     "JSONファイル["
                     + absPath
                     + "]の新規生成ができません。", e);
@@ -255,13 +302,13 @@ public class ConfigStore {
         try{
             saveJson(ostream, root);
         }catch(JsVisitException e){
-            LOGGER.fatal(
+            LOGGER.log(Level.SEVERE,
                     "JSONファイル["
                     + absPath
                     + "]の出力処理で支障がありました。", e);
             return false;
         }catch(IOException e){
-            LOGGER.fatal(
+            LOGGER.log(Level.SEVERE,
                     "JSONファイル["
                     + absPath
                     + "]の書き込み時に支障がありました。", e);
@@ -270,7 +317,7 @@ public class ConfigStore {
             try{
                 ostream.close();
             }catch(IOException e){
-                LOGGER.fatal(
+                LOGGER.log(Level.SEVERE,
                         "JSONファイル["
                         + absPath
                         + "]を閉じることができません。", e);

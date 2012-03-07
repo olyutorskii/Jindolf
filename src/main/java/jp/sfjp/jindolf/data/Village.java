@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import jp.sfjp.jindolf.log.LogWrapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.GUIUtils;
@@ -77,7 +78,7 @@ public class Village implements Comparable<Village> {
     private static final VillageHeadHandler HANDLER =
             new VillageHeadHandler();
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     static{
         PARSER.setBasicHandler   (HANDLER);
@@ -169,7 +170,7 @@ public class Village implements Comparable<Village> {
         try{
             PARSER.parseAutomatic(content);
         }catch(HtmlParseException e){
-            LOGGER.warn("村の状態が不明", e);
+            LOGGER.log(Level.WARNING, "村の状態が不明", e);
         }
 
         return;
@@ -800,7 +801,7 @@ public class Village implements Comparable<Village> {
             if(villageState == VillageState.UNKNOWN){
                 this.village.setState(villageState);
                 this.village.periodList.clear();
-                LOGGER.warn("村の状況を読み取れません");
+                LOGGER.warning("村の状況を読み取れません");
                 return;
             }
 

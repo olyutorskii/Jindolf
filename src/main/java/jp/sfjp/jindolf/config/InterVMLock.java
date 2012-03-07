@@ -8,35 +8,46 @@
 package jp.sfjp.jindolf.config;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ロックファイルを用いたVM間ロックオブジェクト。
- * 大昔のNFSではうまく動かないかも。
- * 一度でもロックに成功したロックファイルはVM終了時に消されてしまうので注意。
+ * <p>大昔のNFSではうまく動かないかも。
+ * <p>一度でもロックに成功したロックファイルは、
+ * VM終了時に消されてしまうので注意。
  */
 public class InterVMLock{
 
     /** 所持するロックオブジェクト一覧。 */
-    private static final Set<InterVMLock> ownedLockSet =
-            Collections.synchronizedSet(new HashSet<InterVMLock>());
+    private static final Collection<InterVMLock> OWNEDLOCKSET =
+            Collections.synchronizedCollection(
+                new LinkedList<InterVMLock>()
+            );
+    private static final AtomicBoolean SHUTDOWNGOING =
+            new AtomicBoolean(false);
 
     static{
         Runtime runtime = Runtime.getRuntime();
         runtime.addShutdownHook(new Thread(){
-            @Override public void run(){ clearOwnedLockSet(); }
+            @Override
+            public void run(){
+                shutdown();
+            }
         });
     }
 
 
     private final File lockFile;
     private boolean isFileOwner = false;
-    private FileOutputStream stream = null;
+    private InputStream stream = null;
+    private final Object thisLock = new Object();
 
 
     /**
@@ -53,54 +64,37 @@ public class InterVMLock{
 
 
     /**
-     * 所持するロックオブジェクト一覧への登録。
-     * @param lock 登録するロックオブジェクト
-     */
-    private static void addOwnedLock(InterVMLock lock){
-        synchronized(ownedLockSet){
-            if( ! lock.isFileOwner() ) return;
-            ownedLockSet.add(lock);
-            lock.getLockFile().deleteOnExit();
-        }
-        return;
-    }
-
-    /**
-     * 所持するロックオブジェクト一覧からの脱退。
-     * @param lock 脱退対象のロックオブジェクト
-     */
-    private static void removeOwnedLock(InterVMLock lock){
-        synchronized(ownedLockSet){
-            ownedLockSet.remove(lock);
-        }
-        return;
-    }
-
-    /**
      * 所持するロックオブジェクトすべてを解放しロックファイルを削除する。
      */
-    private static void clearOwnedLockSet(){
-        synchronized(ownedLockSet){
-            for(InterVMLock lock : ownedLockSet){
-                if( ! lock.isFileOwner() ) continue;
-                lock.release();
-                try{
-                    lock.getLockFile().delete();
-                }catch(SecurityException e){
-                    // NOTHING
-                }
+    private static void shutdown(){
+        if( ! SHUTDOWNGOING.compareAndSet(false, true) ) return;
+
+        synchronized(OWNEDLOCKSET){
+            for(InterVMLock lock : OWNEDLOCKSET){
+                lock.releaseImpl();
             }
-            ownedLockSet.clear();
+            OWNEDLOCKSET.clear();
         }
         return;
     }
 
     /**
-     * ロック対象のファイルを返す。
-     * @return ロック対象ファイル
+     * シャットダウン処理進行中or完了済みか否か判定する。
+     * @return 進行中or完了済みならtrue
      */
-    public File getLockFile(){
-        return this.lockFile;
+    protected static boolean isShutdownGoing(){
+        boolean going = SHUTDOWNGOING.get();
+        return going;
+    }
+
+
+    /**
+     * このオブジェクトがロックファイルの作者であるか判定する。
+     * @return 作者ならtrue
+     */
+    public boolean isFileOwner(){
+        boolean result = this.isFileOwner;
+        return result;
     }
 
     /**
@@ -115,124 +109,185 @@ public class InterVMLock{
     }
 
     /**
-     * このオブジェクトがロックファイルの作者であるか判定する。
-     * @return 作者ならtrue
+     * ロック対象のファイルを返す。
+     * <p>勝手に作ったり消したりしないように。
+     * @return ロック対象ファイル
      */
-    public synchronized boolean isFileOwner(){
-        return this.isFileOwner;
+    public File getLockFile(){
+        return this.lockFile;
     }
 
     /**
      * ロックファイルのオープン中のストリームを返す。
      * ※ 排他制御目的のリソースなので、
-     * 勝手に書き込んだりクローズしたりしないように。
+     * 勝手に読み込んだりクローズしたりしないように。
      * @return オープン中のストリーム。オープンしてなければnull
      */
-    protected synchronized FileOutputStream getOpenedStream(){
-        if(isFileOwner()) return this.stream;
-        return null;
+    protected InputStream getOpenedStream(){
+        InputStream result = null;
+
+        synchronized(this.thisLock){
+            if(this.isFileOwner){
+                result = this.stream;
+            }
+        }
+
+        return result;
     }
 
     /**
      * ロックファイルの強制削除を試みる。
      * @return 強制削除に成功すればtrue
      */
-    public synchronized boolean forceRemove(){
-        if(isFileOwner()) release();
+    public boolean forceRemove(){
+        synchronized(this.thisLock){
+            if(this.isFileOwner) release();
 
-        if( ! isExistsFile() ) return true;
+            if( ! isExistsFile() ) return true;
 
-        try{
-            boolean result = this.lockFile.delete();
-            if( ! result ) return false;
-        }catch(SecurityException e){
-            return false;
-        }
-
-        if(isExistsFile()) return false;
-
-        return true;
-    }
-
-    /**
-     * ロックファイルを生成する。
-     * 生成されるロックファイルはVM終了時に削除されるよう登録される。
-     * このメソッド実行中にVM終了が重なると、
-     * ロックファイルが正しく削除されない場合がありうる。
-     * @return 成功すればtrue
-     */
-    protected synchronized boolean touchLockFile(){
-        boolean result = false;
-        try{
-            result = this.lockFile.createNewFile();
-        }catch(IOException e){
-            // NOTHING
-        }catch(SecurityException e){
-            // NOTHING
-        }
-        if(result == false){
-            return false;
-        }
-
-        try{
-            this.isFileOwner = true;
-            this.stream = new FileOutputStream(this.lockFile);
-        }catch(FileNotFoundException e){
-            assert false;
-            this.isFileOwner = false;
-            this.stream = null;
             try{
-                this.lockFile.delete();
-            }catch(SecurityException e2){
-                // NOTHING
+                boolean result = this.lockFile.delete();
+                if( ! result ) return false;
+            }catch(SecurityException e){
+                return false;
             }
-            return false;
-        }
 
-        addOwnedLock(this);
+            if(isExistsFile()) return false;
+        }
 
         return true;
     }
 
     /**
      * ロックを試みる。
-     * このメソッドはブロックしない。
+     * このメソッドは実行をブロックしない。
      * @return すでにロック済みもしくはロックに成功すればtrue
      */
-    public synchronized boolean tryLock(){
-        if( isFileOwner() ) return true;
+    public boolean tryLock(){
+        if(isShutdownGoing()) return false;
 
-        if(isExistsFile()) return false;
-        if(touchLockFile() != true) return false;
+        synchronized(this.thisLock){
+            if(hasLockedByMe()) return true;
+            if(touchLockFile()) return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 自身によるロックに成功しているか判定する。
+     * @return 自身によるロック中であればtrue
+     */
+    public boolean hasLockedByMe(){
+        boolean result;
+        synchronized(this.thisLock){
+            if( ! this.isFileOwner ){
+                result = false;
+            }else if( ! this.lockFile.exists() ){
+                this.isFileOwner = false;
+                result = false;
+            }else{
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * ロックファイルを生成する。{@link #tryLock()}の下請け。
+     * 生成されるロックファイルはVM終了時に削除されるよう登録される。
+     * このメソッド実行中にVM終了が重なると、
+     * ロックファイルが正しく削除されない場合がありうる。
+     * @return 成功すればtrue
+     */
+    protected boolean touchLockFile(){
+        synchronized(this.thisLock){
+            boolean created = false;
+            try{
+                created = this.lockFile.createNewFile();
+            }catch(IOException e){
+                assert true;   // IGNORE
+            }catch(SecurityException e){
+                assert true;   // IGNORE
+            }finally{
+                if(created){
+                    this.isFileOwner = true;
+                    this.lockFile.deleteOnExit();
+                }else{
+                    this.isFileOwner = false;
+                }
+            }
+
+            if( ! created )  return false;
+
+            try{
+                this.stream = new FileInputStream(this.lockFile);
+            }catch(FileNotFoundException e){
+                this.isFileOwner = false;
+                this.stream = null;
+                try{
+                    this.lockFile.delete();
+                }catch(SecurityException e2){
+                    assert true; // IGNORE
+                }
+                return false;
+            }
+
+            synchronized(OWNEDLOCKSET){
+                OWNEDLOCKSET.add(this);
+            }
+        }
 
         return true;
     }
 
     /**
      * ロックを解除する。
-     * 自分が作者であるロックファイルは閉じられ削除される。
-     * 削除に失敗しても無視。
+     * <p>自分が作者であるロックファイルは閉じられ削除される。
+     * <p>削除に失敗しても無視。
+     * <p>シャットダウン処理進行中の場合は何もしない。
      */
-    public synchronized void release(){
-        if( ! isFileOwner() ) return;
+    public void release(){
+        if(isShutdownGoing()) return;
 
-        try{
-            this.stream.close();
-        }catch(IOException e){
-            // NOTHING
-        }finally{
-            this.stream = null;
+        releaseImpl();
+
+        synchronized(OWNEDLOCKSET){
+            OWNEDLOCKSET.remove(this);
+        }
+
+        return;
+    }
+
+    /**
+     * ロックを解除する。{@link #release()}の下請け。
+     * <p>自分が作者であるロックファイルは閉じられ削除される。
+     * <p>削除に失敗しても無視。
+     * <p>シャットダウン処理進行中か否かは無視される。
+     */
+    protected void releaseImpl(){
+        synchronized(this.thisLock){
+            if( ! this.isFileOwner ) return;
+
             try{
-                this.lockFile.delete();
-            }catch(SecurityException e){
-                // NOTHING
+                this.stream.close();
+            }catch(IOException e){
+                assert true;   // IGNORE
             }finally{
-                removeOwnedLock(this);
-                this.isFileOwner = false;
+                this.stream = null;
+                try{
+                    this.lockFile.delete();
+                }catch(SecurityException e){
+                    assert true;   // IGNORE
+                }finally{
+                    this.isFileOwner = false;
+                }
             }
         }
 
         return;
     }
+
+    // TODO {@link java.nio.channels.FileChannnel}によるロック機構の併用。
 
 }

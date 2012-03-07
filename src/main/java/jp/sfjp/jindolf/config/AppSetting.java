@@ -8,8 +8,10 @@
 package jp.sfjp.jindolf.config;
 
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.io.File;
 import jp.sfjp.jindolf.data.DialogPref;
+import jp.sfjp.jindolf.glyph.Font2Json;
 import jp.sfjp.jindolf.glyph.FontInfo;
 import jp.sfjp.jindolf.net.ProxyInfo;
 import jp.sourceforge.jovsonz.JsBoolean;
@@ -22,22 +24,23 @@ import jp.sourceforge.jovsonz.JsValue;
  */
 public class AppSetting{
 
-    private static final String HASH_PROXY = "proxy";
+    // デフォルトのウィンドウサイズ
+    private static final int DEF_WIDTH  = 800;
+    private static final int DEF_HEIGHT = 600;
 
-    private static final String HASH_FONT = "font";
+    private static final String HASH_FONT        = "font";
     private static final String HASH_USEBODYICON = "useBodyIcon";
     private static final String HASH_USEMONOTOMB = "useMonoTomb";
-    private static final String HASH_SIMPLEMODE = "isSimpleMode";
+    private static final String HASH_SIMPLEMODE  = "isSimpleMode";
     private static final String HASH_ALIGNBALOON = "alignBaloonWidth";
+    private static final String HASH_PROXY       = "proxy";
 
-    private OptionInfo optInfo;
-    private ConfigStore configStore;
-    private FontInfo fontInfo = FontInfo.DEFAULT_FONTINFO;
 
-    private int frameWidth  = 800;
-    private int frameHeight = 600;
-    private int frameXpos = Integer.MIN_VALUE;
-    private int frameYpos = Integer.MIN_VALUE;
+    private final OptionInfo optInfo;
+    private final ConfigStore configStore;
+    private final Rectangle frameRect;
+
+    private FontInfo fontInfo;
 
     private ProxyInfo proxyInfo = ProxyInfo.DEFAULT;
 
@@ -48,104 +51,114 @@ public class AppSetting{
 
     /**
      * コンストラクタ。
+     * @param info コマンドライン引数
      */
-    public AppSetting(){
+    public AppSetting(OptionInfo info){
         super();
+
+        this.optInfo = info;
+        this.configStore = parseConfigStore(this.optInfo);
+        this.frameRect = parseGeometrySetting(this.optInfo);
+
         return;
     }
 
+
     /**
      * 設定格納ディレクトリ関係の解析。
-     * @param optionInfo コマンドライン情報
+     * @param option コマンドラインオプション情報
      * @return 設定ディレクトリ情報
      */
-    private static ConfigStore parseConfigStore(OptionInfo optionInfo){
-        CmdOption opt =
-                optionInfo.getExclusiveOption(CmdOption.OPT_CONFDIR,
-                                              CmdOption.OPT_NOCONF );
+    private static ConfigStore parseConfigStore(OptionInfo option){
+        CmdOption opt = option.getExclusiveOption(CmdOption.OPT_CONFDIR,
+                                                  CmdOption.OPT_NOCONF );
 
         boolean useConfig;
+        boolean isImplicitPath;
         File configPath;
 
         if(opt == CmdOption.OPT_NOCONF){
             useConfig = false;
+            isImplicitPath = true;
             configPath = null;
         }else if(opt == CmdOption.OPT_CONFDIR){
-            String path = optionInfo.getStringArg(CmdOption.OPT_CONFDIR);
             useConfig = true;
-            configPath = FileUtils.supplyFullPath(new File(path));
+            isImplicitPath = false;
+            String optPath = option.getStringArg(opt);
+            configPath = FileUtils.supplyFullPath(new File(optPath));
         }else{
             useConfig = true;
-            File path = ConfigFile.getImplicitConfigDirectory();
-            configPath = path;
+            isImplicitPath = true;
+            configPath = ConfigFile.getImplicitConfigDirectory();
         }
 
-        ConfigStore result = new ConfigStore(useConfig, configPath);
+        ConfigStore result =
+                new ConfigStore(useConfig, isImplicitPath, configPath);
 
         return result;
     }
 
     /**
-     * コマンドラインオプションからアプリ設定を展開する。
-     * @param optionInfo オプション情報
+     * ウィンドウジオメトリ関係の設定。
+     * @param option コマンドラインオプション情報
+     * @return ウィンドウ矩形。
      */
-    public void applyOptionInfo(OptionInfo optionInfo){
-        this.optInfo = optionInfo;
-        this.configStore = parseConfigStore(optionInfo);
-        applyFontSetting();
-        applyGeometrySetting();
-        return;
+    private static Rectangle parseGeometrySetting(OptionInfo option){
+        Rectangle result = new Rectangle(Integer.MIN_VALUE,
+                                         Integer.MIN_VALUE,
+                                         DEF_WIDTH,
+                                         DEF_HEIGHT );
+
+        Integer ival;
+
+        ival = option.initialFrameWidth();
+        if(ival != null) result.width = ival;
+
+        ival = option.initialFrameHeight();
+        if(ival != null) result.height = ival;
+
+        ival = option.initialFrameXpos();
+        if(ival != null) result.x = ival;
+
+        ival = option.initialFrameYpos();
+        if(ival != null) result.y = ival;
+
+        return result;
     }
 
+
     /**
-     * フォント関係の設定。
+     * フォントオプションの解析。
+     * @param baseFont 元のフォント設定。
+     * @return コマンドライン設定で補正されたフォント設定
      */
-    private void applyFontSetting(){
+    private FontInfo parseFontOption(FontInfo baseFont){
+        FontInfo result;
+
         String fontName = this.optInfo.getStringArg(CmdOption.OPT_INITFONT);
+        if(fontName != null){
+            Font font = Font.decode(fontName);
+            result = baseFont.deriveFont(font);
+        }else{
+            result = baseFont;
+        }
 
         Boolean useAntiAlias =
                 this.optInfo.getBooleanArg(CmdOption.OPT_ANTIALIAS);
         if(useAntiAlias == null){
-            useAntiAlias = this.fontInfo.isAntiAliased();
+            useAntiAlias = baseFont.isAntiAliased();
         }
 
         Boolean useFractional =
                 this.optInfo.getBooleanArg(CmdOption.OPT_FRACTIONAL);
         if(useFractional == null){
-            useFractional = this.fontInfo.usesFractionalMetrics();
+            useFractional = baseFont.usesFractionalMetrics();
         }
 
-        if(fontName != null){
-            Font font = Font.decode(fontName);
-            this.fontInfo = this.fontInfo.deriveFont(font);
-        }
+        result = result.deriveRenderContext(useAntiAlias,
+                                            useFractional );
 
-        this.fontInfo =
-                this.fontInfo.deriveRenderContext(useAntiAlias,
-                                                  useFractional );
-
-        return;
-    }
-
-    /**
-     * ジオメトリ関係の設定。
-     */
-    private void applyGeometrySetting(){
-        Integer ival;
-
-        ival = this.optInfo.initialFrameWidth();
-        if(ival != null) this.frameWidth = ival;
-
-        ival = this.optInfo.initialFrameHeight();
-        if(ival != null) this.frameHeight = ival;
-
-        ival = this.optInfo.initialFrameXpos();
-        if(ival != null) this.frameXpos = ival;
-
-        ival = this.optInfo.initialFrameYpos();
-        if(ival != null) this.frameYpos = ival;
-
-        return;
+        return result;
     }
 
     /**
@@ -169,7 +182,8 @@ public class AppSetting{
      * @return 初期のフレーム幅
      */
     public int initialFrameWidth(){
-        return this.frameWidth;
+        int width = this.frameRect.width;
+        return width;
     }
 
     /**
@@ -177,7 +191,8 @@ public class AppSetting{
      * @return 初期のフレーム高
      */
     public int initialFrameHeight(){
-        return this.frameHeight;
+        int height = this.frameRect.height;
+        return height;
     }
 
     /**
@@ -186,7 +201,8 @@ public class AppSetting{
      * @return 初期のフレーム位置のX座標
      */
     public int initialFrameXpos(){
-        return this.frameXpos;
+        int xPos = this.frameRect.x;
+        return xPos;
     }
 
     /**
@@ -195,7 +211,8 @@ public class AppSetting{
      * @return 初期のフレーム位置のY座標
      */
     public int initialFrameYpos(){
-        return this.frameYpos;
+        int yPos = this.frameRect.y;
+        return yPos;
     }
 
     /**
@@ -203,6 +220,9 @@ public class AppSetting{
      * @return フォント設定
      */
     public FontInfo getFontInfo(){
+        if(this.fontInfo == null){
+            this.fontInfo = parseFontOption(FontInfo.DEFAULT_FONTINFO);
+        }
         return this.fontInfo;
     }
 
@@ -281,9 +301,9 @@ public class AppSetting{
         JsValue value = root.getValue(HASH_FONT);
         if(value instanceof JsObject){
             JsObject font = (JsObject) value;
-            FontInfo info = FontInfo.decodeJson(font);
+            FontInfo info = Font2Json.decodeJson(font);
+            info = parseFontOption(info);
             setFontInfo(info);
-            applyFontSetting();
         }
 
         DialogPref pref = new DialogPref();
@@ -340,7 +360,7 @@ public class AppSetting{
 
         JsObject root = new JsObject();
 
-        JsObject font = FontInfo.buildJson(getFontInfo());
+        JsObject font = Font2Json.buildJson(getFontInfo());
         root.putValue(HASH_FONT, font);
 
         DialogPref pref = getDialogPref();

@@ -22,11 +22,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.sfjp.jindolf.ResourceManager;
 import jp.sfjp.jindolf.data.Avatar;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sourceforge.jindolf.corelib.Destiny;
 import jp.sourceforge.jindolf.corelib.GameRole;
 
@@ -55,7 +55,7 @@ public final class WolfBBS{
 
     private static final String WOLFBBS_URL = "http://wolfbbs.jp/";
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     static{
         try{
@@ -90,7 +90,7 @@ public final class WolfBBS{
     private static void loadFaceIconSet() throws FileNotFoundException {
         Properties properties = ResourceManager.getProperties(FACEICONSET);
         if(properties == null){
-            LOGGER.fatal("顔アイコンセットの読み込みに失敗しました");
+            LOGGER.severe("顔アイコンセットの読み込みに失敗しました");
             throw new FileNotFoundException();
         }
 
@@ -110,7 +110,7 @@ public final class WolfBBS{
         if(   codeCheck == null
            || codeCheck.length() != 1
            || codeCheck.charAt(0) != '\u72fc'){  // 「狼」
-            LOGGER.fatal(
+            LOGGER.severe(
                     "顔アイコンセットプロパティファイルの"
                     +"文字コードがおかしいようです。"
                     +"native2ascii は正しく適用しましたか？");

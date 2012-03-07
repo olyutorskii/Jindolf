@@ -22,10 +22,10 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Village;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sourceforge.jindolf.parser.ContentBuilder;
 import jp.sourceforge.jindolf.parser.ContentBuilderSJ;
 import jp.sourceforge.jindolf.parser.ContentBuilderUCS2;
@@ -44,7 +44,7 @@ public class ServerAccess{
     private static final
             Map<String, SoftReference<BufferedImage>> IMAGE_CACHE;
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     static{
         Map<String, SoftReference<BufferedImage>> cache =
@@ -281,7 +281,7 @@ public class ServerAccess{
         if(responseCode != HttpURLConnection.HTTP_OK){ // 200
             String logMessage =  "発言のダウンロードに失敗しました。";
             logMessage += HttpUtils.formatHttpStat(connection, 0, 0);
-            LOGGER.warn(logMessage);
+            LOGGER.warning(logMessage);
             return null;
         }
 
@@ -336,7 +336,7 @@ public class ServerAccess{
         if(responseCode != HttpURLConnection.HTTP_OK){
             String logMessage =  "イメージのダウンロードに失敗しました。";
             logMessage += HttpUtils.formatHttpStat(connection, 0, 0);
-            LOGGER.warn(logMessage);
+            LOGGER.warning(logMessage);
             return null;
         }
 
@@ -381,7 +381,7 @@ public class ServerAccess{
         int responseCode = connection.getResponseCode();
         if(responseCode != HttpURLConnection.HTTP_MOVED_TEMP){    // 302
             String logMessage =  "認証情報の送信に失敗しました。";
-            LOGGER.warn(logMessage);
+            LOGGER.warning(logMessage);
             connection.disconnect();
             return false;
         }

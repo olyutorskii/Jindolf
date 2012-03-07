@@ -23,11 +23,17 @@ import java.util.regex.Pattern;
  */
 public class OptionInfo{
 
+    private static final String REGEX_DIMNO =
+            "([1-9][0-9]{0,5})";
+    private static final String REGEX_SIGN =
+            "(?:\\+|(\\-))";
+    private static final String REGEX_LOCNO =
+            REGEX_SIGN + REGEX_DIMNO;
+    private static final String REGEX_GEOMETRY =
+              REGEX_DIMNO + "x" + REGEX_DIMNO
+            + "(?:" + REGEX_LOCNO + REGEX_LOCNO + ")?";
     private static final Pattern PATTERN_GEOMETRY =
-            Pattern.compile(
-                 "([1-9][0-9]*)x([1-9][0-9]*)"
-                +"(?:(\\+|\\-)([1-9][0-9]*)(\\+|\\-)([1-9][0-9]*))?"
-                );
+            Pattern.compile(REGEX_GEOMETRY);
 
     private static final String ERRFORM_UKNOWN =
             "未定義の起動オプション[{0}]が指定されました。";
@@ -45,8 +51,8 @@ public class OptionInfo{
 
     private Integer frameWidth  = null;
     private Integer frameHeight = null;
-    private Integer frameXpos = null;
-    private Integer frameYpos = null;
+    private Integer frameXpos   = null;
+    private Integer frameYpos   = null;
 
     private final List<String> invokeArgs = new LinkedList<String>();
     private final List<CmdOption> optionList = new LinkedList<CmdOption>();
@@ -85,12 +91,12 @@ public class OptionInfo{
      * @param option オプション種別
      * @param optTxt オプション名文字列
      * @param onoff オプション引数
-     * @throws IllegalArgumentException 構文エラー
+     * @throws IllegalArgumentException 引数の構文エラー
      */
     private static void parseBooleanSwitch(OptionInfo info,
-                                           CmdOption option,
-                                           String optTxt,
-                                           String onoff )
+                                              CmdOption option,
+                                              String optTxt,
+                                              String onoff )
             throws IllegalArgumentException{
         Boolean flag;
 
@@ -110,28 +116,16 @@ public class OptionInfo{
     }
 
     /**
-     * 文字列がマイナス記号で始まるか判定する。
-     * @param txt 文字列
-     * @return マイナス記号で始まればtrue
-     */
-    private static boolean isMinus(String txt){
-        if(txt.length() >= 1 && txt.charAt(0) == '-'){
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * ウィンドウジオメトリオプション解析。
      * <p>例) WIDTHxHEIGHT+XPOS+YPOS
      * @param info オプション情報格納先
      * @param optTxt オプション名文字列
      * @param geometry オプション引数
-     * @throws IllegalArgumentException 構文エラー
+     * @throws IllegalArgumentException 引数の構文エラー
      */
     private static void parseGeometry(OptionInfo info,
-                                      String optTxt,
-                                      String geometry )
+                                        String optTxt,
+                                        String geometry )
             throws IllegalArgumentException{
         Matcher matcher = PATTERN_GEOMETRY.matcher(geometry);
         if( ! matcher.matches() ){
@@ -143,9 +137,9 @@ public class OptionInfo{
         int gpos = 1;
         String width  = matcher.group(gpos++);
         String height = matcher.group(gpos++);
-        String xSign  = matcher.group(gpos++);
+        String xMinus = matcher.group(gpos++);
         String xPos   = matcher.group(gpos++);
-        String ySign  = matcher.group(gpos++);
+        String yMinus = matcher.group(gpos++);
         String yPos   = matcher.group(gpos++);
 
         info.frameWidth  = Integer.parseInt(width);
@@ -153,14 +147,14 @@ public class OptionInfo{
 
         if(xPos != null){
             info.frameXpos = Integer.parseInt(xPos);
-            if(isMinus(xSign)){
+            if(xMinus != null){
                 info.frameXpos = -info.frameXpos;
             }
         }
 
         if(yPos != null){
             info.frameYpos = Integer.parseInt(yPos);
-            if(isMinus(ySign)){
+            if(yMinus != null){
                 info.frameYpos = -info.frameYpos;
             }
         }
@@ -169,18 +163,17 @@ public class OptionInfo{
     }
 
     /**
-     * オプション引数を解析する。
-     * @param result オプション情報
+     * 引数付きオプションを解析する。
+     * @param info オプション情報
      * @param optTxt オプション文字列
      * @param option オプション種別
-     * @param iterator オプション並び
-     * @return 引数と同じオプション情報
-     * @throws IllegalArgumentException 構文エラー
+     * @param iterator コマンドライン引数並び
+     * @throws IllegalArgumentException オプションの引数がない
      */
-    private static OptionInfo parseOptionArg(OptionInfo result,
-                                             String optTxt,
-                                             CmdOption option,
-                                             Iterator<String> iterator )
+    private static void parseOptionArg(OptionInfo info,
+                                         String optTxt,
+                                         CmdOption option,
+                                         Iterator<String> iterator )
             throws IllegalArgumentException {
         String nextArg;
         if(iterator.hasNext()){
@@ -191,17 +184,17 @@ public class OptionInfo{
         }
 
         if(option == CmdOption.OPT_GEOMETRY){
-            parseGeometry(result, optTxt, nextArg);
+            parseGeometry(info, optTxt, nextArg);
         }else if(option.isBooleanOption()){
-            parseBooleanSwitch(result, option, optTxt, nextArg);
+            parseBooleanSwitch(info, option, optTxt, nextArg);
         }else if(   option == CmdOption.OPT_INITFONT
                  || option == CmdOption.OPT_CONFDIR ){
-            result.stringOptionMap.put(option, nextArg);
+            info.stringOptionMap.put(option, nextArg);
         }else{
             assert false;
         }
 
-        return result;
+        return;
     }
 
     /**

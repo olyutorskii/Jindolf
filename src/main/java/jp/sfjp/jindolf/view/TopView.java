@@ -54,7 +54,7 @@ public class TopView extends JPanel{
 
     private final LandInfoPanel landInfo = new LandInfoPanel();
 
-    private final JTextField sysMessage = new JTextField();
+    private final JTextField sysMessage = new JTextField("");
     private final JProgressBar progressBar = new JProgressBar();
 
     private final TabBrowser tabBrowser = new TabBrowser();
@@ -263,13 +263,21 @@ public class TopView extends JPanel{
      * @param message 更新文字列
      */
     public void updateSysMessage(String message){
-        if(message == null) return;
-        String text;
-        if(message.length() <= 0) text = " ";
-        else                      text = message;
+        String text = message;
+        if(message == null) text = "";
         this.sysMessage.setText(text);   // Thread safe
         GUIUtils.dispatchEmptyAWTEvent();
         return;
+    }
+
+    /**
+     * ステータスバー文字列を返す。
+     * @return ステータスバー文字列
+     */
+    public String getSysMessage(){
+        String result = this.sysMessage.getText();
+        if(result == null) result = "";
+        return result;
     }
 
     /**

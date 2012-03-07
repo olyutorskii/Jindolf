@@ -17,6 +17,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -33,7 +35,6 @@ import jp.sfjp.jindolf.config.ConfigStore;
 import jp.sfjp.jindolf.config.EnvInfo;
 import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.dxchg.TextPopup;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sfjp.jindolf.util.GUIUtils;
 
 /**
@@ -45,7 +46,7 @@ public class HelpFrame extends JFrame
 
     private static final String HELP_HTML = "resources/html/help.html";
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final JTabbedPane tabPanel = new JTabbedPane();
@@ -55,11 +56,9 @@ public class HelpFrame extends JFrame
 
     /**
      * コンストラクタ。
-     * @param optinfo コマンドラインオプション
-     * @param configStore 設定ディレクトリ情報
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public HelpFrame(OptionInfo optinfo, ConfigStore configStore){
+    public HelpFrame(){
         super();
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
@@ -91,24 +90,6 @@ public class HelpFrame extends JFrame
 
         URL topUrl = ResourceManager.getResource(HELP_HTML);
         loadURL(topUrl);
-
-        StringBuilder info = new StringBuilder();
-
-        info.append("起動時引数:\n");
-        for(String arg : optinfo.getInvokeArgList()){
-            info.append("\u0020\u0020").append(arg).append('\n');
-        }
-        info.append('\n');
-
-        info.append(EnvInfo.getVMInfo());
-
-        if(configStore.useStoreFile()){
-            info.append("設定格納ディレクトリ : ")
-                .append(configStore.getConfigPath().getPath());
-        }else{
-            info.append("※ 設定格納ディレクトリは使っていません。");
-        }
-        this.vmInfo.setText(info.toString());
 
         design();
 
@@ -166,9 +147,37 @@ public class HelpFrame extends JFrame
         try{
             this.htmlView.setPage(url);
         }catch(IOException e){
-            LOGGER.warn("ヘルプファイルが読み込めません", e);
+            LOGGER.log(Level.WARNING, "ヘルプファイルが読み込めません", e);
             assert false;
         }
+
+        return;
+    }
+
+    /**
+     * 実行環境に関する情報を更新する。
+     * @param optinfo コマンドライン引数情報
+     * @param configStore 設定ファイル情報
+     */
+    public void updateVmInfo(OptionInfo optinfo, ConfigStore configStore){
+        StringBuilder info = new StringBuilder();
+
+        info.append("起動時引数:\n");
+        for(String arg : optinfo.getInvokeArgList()){
+            info.append("\u0020\u0020").append(arg).append('\n');
+        }
+        info.append('\n');
+
+        info.append(EnvInfo.getVMInfo());
+
+        if(configStore.useStoreFile()){
+            info.append("設定格納ディレクトリ : ")
+                .append(configStore.getConfigPath().getPath());
+        }else{
+            info.append("※ 設定格納ディレクトリは使っていません。");
+        }
+
+        this.vmInfo.setText(info.toString());
 
         return;
     }

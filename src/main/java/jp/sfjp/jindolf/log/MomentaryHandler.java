@@ -1,5 +1,5 @@
 /*
- * Dummy logging handler
+ * momentary logging handler
  *
  * License : The MIT License
  * Copyright(c) 2008 olyutorskii
@@ -16,47 +16,52 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
- * なにもしないロギングハンドラ。
- * あとからなにがロギングされたのか一括して出力することができる。
+ * なにもしない一時的なロギングハンドラ。
+ * なにがロギングされたのかあとから一括して取得することができる。
+ * <p>知らないうちにメモリを圧迫しないよう注意。
  */
-public class PileHandler extends Handler{
+public class MomentaryHandler extends Handler{
 
-    private final List<LogRecord> logList = new LinkedList<LogRecord>();
+    private final List<LogRecord> logList =
+            Collections.synchronizedList(new LinkedList<LogRecord>());
     private final List<LogRecord> unmodList =
             Collections.unmodifiableList(this.logList);
 
+
     /**
-     * ロギングハンドラを生成する。
+     * コンストラクタ。
      */
-    public PileHandler(){
+    public MomentaryHandler(){
         super();
         return;
     }
 
+
     /**
-     * ロガーに含まれる{@link PileHandler}型ハンドラのリストを返す。
+     * ロガーに含まれる{@link MomentaryHandler}型ハンドラのリストを返す。
      * @param logger ロガー
-     * @return {@link PileHandler}型ハンドラのリスト
+     * @return {@link MomentaryHandler}型ハンドラのリスト
      */
-    public static List<PileHandler> getPileHandlers(Logger logger){
-        List<PileHandler> result = new LinkedList<PileHandler>();
+    public static List<MomentaryHandler>
+            getMomentaryHandlers(Logger logger){
+        List<MomentaryHandler> result = new LinkedList<MomentaryHandler>();
 
         for(Handler handler : logger.getHandlers()){
-            if( ! (handler instanceof PileHandler) ) continue;
-            PileHandler pileHandler = (PileHandler) handler;
-            result.add(pileHandler);
+            if( ! (handler instanceof MomentaryHandler) ) continue;
+            MomentaryHandler momentaryHandler = (MomentaryHandler) handler;
+            result.add(momentaryHandler);
         }
 
         return result;
     }
 
     /**
-     * ロガーに含まれる{@link PileHandler}型ハンドラを全て削除する。
+     * ロガーに含まれる{@link MomentaryHandler}型ハンドラを全て削除する。
      * @param logger ロガー
      */
-    public static void removePileHandlers(Logger logger){
-        for(PileHandler pileHandler : getPileHandlers(logger)){
-            logger.removeHandler(pileHandler);
+    public static void removeMomentaryHandlers(Logger logger){
+        for(MomentaryHandler handler : getMomentaryHandlers(logger)){
+            logger.removeHandler(handler);
         }
         return;
     }
@@ -64,7 +69,7 @@ public class PileHandler extends Handler{
     /**
      * 蓄積されたログレコードのリストを返す。
      * 古いログが先頭に来る。
-     * @return ログレコードのリスト。変更不可。
+     * @return 刻一刻と成長するログレコードのリスト。変更不可。
      */
     public List<LogRecord> getRecordList(){
         return this.unmodList;
@@ -83,6 +88,8 @@ public class PileHandler extends Handler{
             return;
         }
 
+        record.getSourceMethodName();
+
         this.logList.add(record);
 
         return;
@@ -99,6 +106,7 @@ public class PileHandler extends Handler{
 
     /**
      * {@inheritDoc}
+     * 以降のログ出力を無視する。
      */
     @Override
     public void close(){
@@ -108,11 +116,14 @@ public class PileHandler extends Handler{
     }
 
     /**
-     * 他のハンドラへ蓄積したログをまとめて出力する。
-     * 最後に自分自身をクローズし、蓄積されたログを解放する。
+     * 自分自身をクローズし、
+     * 蓄積したログを他のハンドラへまとめて出力する。
+     * 最後に蓄積されたログを解放する。
      * @param handler 他のハンドラ
+     * @throws NullPointerException 引数がnull
      */
-    public void delegate(Handler handler){
+    public void transfer(Handler handler) throws NullPointerException {
+        if(handler == null) throw new NullPointerException();
         if(handler == this) return;
 
         close();

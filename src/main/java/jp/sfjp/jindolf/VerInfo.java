@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf;
 
+import java.text.MessageFormat;
 import java.util.Properties;
 
 /**
@@ -51,25 +52,25 @@ public final class VerInfo {
         VERSION   = getPackageInfo(verProp, PFX_VERSION,   "0.0.1");
         AUTHOR    = getPackageInfo(verProp, PFX_AUTHOR,    "nobody");
         LICENSE   = getPackageInfo(verProp, PFX_LICENSE,   "Unknown");
-        CONTACT   = getPackageInfo(verProp, PFX_CONTACT,   "Unknown");
+        CONTACT   = getPackageInfo(verProp, PFX_CONTACT,   "Where?");
         INCEPTION = getPackageInfo(verProp, PFX_INCEPTION, "2008");
         COMMENT   = getPackageInfo(verProp, PFX_COMMENT,   "");
 
-        COPYRIGHT = "Copyright(c)" +"\u0020"+ INCEPTION +"\u0020"+ AUTHOR;
+        COPYRIGHT = MessageFormat.format(
+                "Copyright(c) {0} {1}",
+                INCEPTION, AUTHOR );
 
-        ID = TITLE
-            +"\u0020"+ "Ver." + VERSION
-            +"\u0020"+ COPYRIGHT
-            +"\u0020"+ "("+ LICENSE +")";
+        ID = MessageFormat.format(
+                "{0} Ver.{1} {2} ({3})",
+                TITLE, VERSION, COPYRIGHT, LICENSE );
     }
+
 
     /**
      * 隠しコンストラクタ。
      */
     private VerInfo(){
-        super();
         assert false;
-        return;
     }
 
 
@@ -81,8 +82,8 @@ public final class VerInfo {
      * @return パッケージ情報
      */
     static String getPackageInfo(Properties prop,
-                                 String prefix,
-                                 String defValue ){
+                                   String prefix,
+                                   String defValue ){
         String result = getPackageInfo(prop, prefix,
                                        ResourceManager.DEF_ROOT_PACKAGE,
                                        defValue );
@@ -98,9 +99,9 @@ public final class VerInfo {
      * @return パッケージ情報
      */
     static String getPackageInfo(Properties prop,
-                                 String prefix,
-                                 Package pkg,
-                                 String defValue ){
+                                   String prefix,
+                                   Package pkg,
+                                   String defValue ){
         String propKeyName = prefix + pkg.getName();
         String result = prop.getProperty(propKeyName, defValue);
 
@@ -152,23 +153,16 @@ public final class VerInfo {
     public static String getAboutMessage(){
         StringBuilder result = new StringBuilder();
 
-        result.append(TITLE)
-              .append("\u0020\u0020\u0020")
-              .append("Version")
-              .append('\u0020')
-              .append(VERSION)
-              .append('\n');
-        result.append(COPYRIGHT)
-              .append('\n');
-        result.append("ライセンス:\u0020")
-              .append(LICENSE)
-              .append('\n');
-        result.append("連絡先:\u0020")
-              .append(CONTACT);
+        result.append(MessageFormat.format(
+                  "{0}\u0020\u0020\u0020Version {1}\n"
+                + "{2}\n"
+                + "ライセンス: {3}\n"
+                + "連絡先: {4}",
+                TITLE, VERSION, COPYRIGHT, LICENSE, CONTACT )
+                );
 
         if(COMMENT.length() > 0){
-            result.append('\n')
-                  .append(COMMENT);
+            result.append('\n').append(COMMENT);
         }
 
         String message = result.toString();

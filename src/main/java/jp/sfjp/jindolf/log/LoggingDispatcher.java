@@ -10,6 +10,8 @@ package jp.sfjp.jindolf.log;
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 異常系をロギングするイベントディスパッチャ。
@@ -19,7 +21,7 @@ public class LoggingDispatcher extends EventQueue{
     private static final String FATALMSG =
             "イベントディスパッチ中に異常が起きました。";
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     /**
      * コンストラクタ。
@@ -46,7 +48,7 @@ public class LoggingDispatcher extends EventQueue{
      * @param e 例外
      */
     private void errlog(Throwable e){
-        LOGGER.fatal(FATALMSG, e);
+        LOGGER.log(Level.SEVERE, FATALMSG, e);
         return;
     }
 

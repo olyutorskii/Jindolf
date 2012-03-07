@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -22,7 +24,6 @@ import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import jp.sfjp.jindolf.dxchg.XmlUtils;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import org.xml.sax.SAXException;
 
@@ -36,7 +37,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
     private static final String ROOT = "ROOT";
     private static final int SECTION_INTERVAL = 100;
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final List<Land> landList = new LinkedList<Land>();
@@ -60,13 +61,10 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
     }
 
     /**
-     * 指定した国の村一覧を読み込む。
+     * 指定した国の村一覧を更新しイベントを投げる。
      * @param land 国
-     * @throws java.io.IOException ネットワーク入出力の異常
      */
-    public void loadVillageList(Land land) throws IOException{
-        land.updateVillageList();
-
+    public void updateVillageList(Land land){
         List<VillageSection> sectionList =
                 VillageSection.getSectionList(land, SECTION_INTERVAL);
         this.sectionMap.put(land, sectionList);
@@ -102,16 +100,16 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
             DocumentBuilder builder = XmlUtils.createDocumentBuilder();
             landDefList = LandDef.buildLandDefList(builder);
         }catch(IOException e){
-            LOGGER.fatal("failed to load land list", e);
+            LOGGER.log(Level.SEVERE, "failed to load land list", e);
             return;
         }catch(SAXException e){
-            LOGGER.fatal("failed to load land list", e);
+            LOGGER.log(Level.SEVERE, "failed to load land list", e);
             return;
         }catch(URISyntaxException e){
-            LOGGER.fatal("failed to load land list", e);
+            LOGGER.log(Level.SEVERE, "failed to load land list", e);
             return;
         }catch(ParserConfigurationException e){
-            LOGGER.fatal("failed to load land list", e);
+            LOGGER.log(Level.SEVERE, "failed to load land list", e);
             return;
         }
 

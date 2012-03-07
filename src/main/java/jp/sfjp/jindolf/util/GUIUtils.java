@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorConvertOp;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -27,7 +28,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import jp.sfjp.jindolf.ResourceManager;
-import jp.sfjp.jindolf.log.LogWrapper;
 
 /**
  * GUI関連のユーティリティクラス。
@@ -58,7 +58,7 @@ public final class GUIUtils{
         public void run(){}
     };
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     static{
         HINTS_QUALITY = new RenderingHints(null);
@@ -145,7 +145,7 @@ public final class GUIUtils{
         BufferedImage image =
                 ResourceManager.getBufferedImage(RES_LOGOICON);
         if(image == null){
-            LOGGER.warn("ロゴイメージの取得に失敗しました");
+            LOGGER.warning("ロゴイメージの取得に失敗しました");
             image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
             // TODO デカく "狼" とでも描くか？
         }
@@ -167,7 +167,7 @@ public final class GUIUtils{
         BufferedImage image =
                 ResourceManager.getBufferedImage(RES_WINDOWICON);
         if(image == null){
-            LOGGER.warn("アイコンイメージの取得に失敗しました");
+            LOGGER.warning("アイコンイメージの取得に失敗しました");
             image = getLogoImage();
         }
 

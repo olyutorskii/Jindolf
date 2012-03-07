@@ -8,6 +8,8 @@
 package jp.sfjp.jindolf.config;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import jp.sfjp.jindolf.ResourceManager;
 
@@ -43,6 +45,22 @@ public enum CmdOption {
     ;
 
 
+    private static final Collection<CmdOption> OPTS_INDEPENDENT =
+            EnumSet.of(
+            OPT_HELP,
+            OPT_VERSION,
+            OPT_VMINFO,
+            OPT_BOLDMETAL,
+            OPT_NOSPLASH,
+            OPT_CONSOLELOG,
+            OPT_NOCONF
+            );
+    private static final Collection<CmdOption> OPTS_BOOLEAN =
+            EnumSet.of(
+            OPT_ANTIALIAS,
+            OPT_FRACTIONAL
+            );
+
     private static final String RES_HELPTEXT = "resources/help.txt";
 
 
@@ -51,7 +69,7 @@ public enum CmdOption {
 
     /**
      * コンストラクタ。
-     * @param names 頭のハイフンを除いたオプション名の一覧
+     * @param names オプション名の一覧
      */
     private CmdOption(String ... names){
         assert names.length > 0;
@@ -64,10 +82,8 @@ public enum CmdOption {
      * ヘルプメッセージ（オプションの説明）を返す。
      * @return ヘルプメッセージ
      */
-    public static CharSequence getHelpText(){
-        CharSequence helpText =
-            ResourceManager.getTextFile(RES_HELPTEXT);
-
+    public static String getHelpText(){
+        String helpText = ResourceManager.getTextFile(RES_HELPTEXT);
         return helpText;
     }
 
@@ -101,19 +117,7 @@ public enum CmdOption {
      * @return 単体で意味をなすならtrue
      */
     public boolean isIndepOption(){
-        switch(this){
-        case OPT_HELP:
-        case OPT_VERSION:
-        case OPT_VMINFO:
-        case OPT_BOLDMETAL:
-        case OPT_NOSPLASH:
-        case OPT_CONSOLELOG:
-        case OPT_NOCONF:
-            return true;
-        default:
-            break;
-        }
-
+        if(OPTS_INDEPENDENT.contains(this)) return true;
         return false;
     }
 
@@ -122,25 +126,19 @@ public enum CmdOption {
      * @return 真偽指定を一つ必要とするオプションならtrue
      */
     public boolean isBooleanOption(){
-        switch(this){
-        case OPT_ANTIALIAS:
-        case OPT_FRACTIONAL:
-            return true;
-        default:
-            break;
-        }
-
+        if(OPTS_BOOLEAN.contains(this)) return true;
         return false;
     }
 
     /**
-     * 頭のハイフンを除いたオプション名を返す。
-     * オプション名が複数指定されていた場合は最初のオプション名
+     * オプション名を返す。
+     * オプション別名が複数指定されている場合は最初のオプション名
      * @return オプション名
      */
     @Override
     public String toString(){
-        return this.nameList.get(0);
+        String result = this.nameList.get(0);
+        return result;
     }
 
 }

@@ -11,7 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import jp.sfjp.jindolf.log.LogWrapper;
+import java.util.logging.Logger;
 
 /**
  * 読み込みバイト数を記録するHTTPコネクション由来のInputStream。
@@ -21,7 +21,7 @@ public class TallyInputStream extends InputStream{
 
     private static final int BUFSIZE = 2 * 1024;
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final HttpURLConnection conn;

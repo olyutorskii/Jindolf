@@ -8,8 +8,6 @@
 package jp.sfjp.jindolf.dxchg;
 
 import java.awt.Component;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.JPopupMenu;
 import javax.swing.text.Document;
@@ -20,10 +18,7 @@ import javax.swing.text.JTextComponent;
  * 各種クリップボード操作(カット、コピー、ペースト、etc.)を備える。
  */
 @SuppressWarnings("serial")
-public class TextPopup extends JPopupMenu implements PropertyChangeListener{
-
-    /** プロパティ変更イベントキー。 */
-    private static final String PROPERTY_UI = "UI";
+public class TextPopup extends JPopupMenu {
 
     private final Action cutAction    = ClipboardAction.cutAction();
     private final Action copyAction   = ClipboardAction.copyAction();
@@ -86,27 +81,6 @@ public class TextPopup extends JPopupMenu implements PropertyChangeListener{
 
     /**
      * {@inheritDoc}
-     * ついでにL&F変更監視機構を仕込む。
-     * @param invoker {@inheritDoc}
-     */
-    @Override
-    public void setInvoker(Component invoker){
-        Component old = getInvoker();
-        if(old != null){
-            old.removePropertyChangeListener(this);
-        }
-
-        super.setInvoker(invoker);
-
-        if(invoker != null){
-            invoker.addPropertyChangeListener(PROPERTY_UI, this);
-        }
-
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
      * 文字列選択状況によって一部のポップアップメニューをマスクする。
      * @param invoker {@inheritDoc}
      * @param x {@inheritDoc}
@@ -134,18 +108,6 @@ public class TextPopup extends JPopupMenu implements PropertyChangeListener{
 
         super.show(invoker, x, y);
 
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
-     * ポップアップ呼び出し元を監視してL&Fを変更する。
-     * @param event {@inheritDoc}
-     */
-    @Override
-    public void propertyChange(PropertyChangeEvent event){
-        String propertyName = event.getPropertyName();
-        if(PROPERTY_UI.equals(propertyName)) updateUI();
         return;
     }
 

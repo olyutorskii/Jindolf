@@ -56,7 +56,7 @@ import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.Team;
 
 /**
- * 決着のついた村のサマリを表示する。
+ * 決着のついた村のダイジェストを表示する。
  */
 @SuppressWarnings("serial")
 public class VillageDigest

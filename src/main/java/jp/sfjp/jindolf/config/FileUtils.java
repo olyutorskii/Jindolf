@@ -26,11 +26,14 @@ public final class FileUtils{
 
     private static final Class<?> THISKLASS = FileUtils.class;
 
+    private static final String LANG_JA = "ja";
+    private static final String SYSPROP_OSNAME = "os.name";
     private static final String SCHEME_FILE = "file";
+    private static final String ENTITY_YEN = "&yen;";
 
-    /** JRE1.6のjava.io.File#setReadableに相当。 */
+    /** JRE1.6の{@link java.io.File#setReadable(boolean,boolean)}に相当。 */
     private static final Method METHOD_SETREADABLE;
-    /** JRE1.6のjava.io.File#setWritableに相当。 */
+    /** JRE1.6の{@link java.io.File#setWritable(boolean,boolean)}に相当。 */
     private static final Method METHOD_SETWRITABLE;
     /** Locale.ROOT代替品。 */
     private static final Locale ROOT = new Locale("", "", "");
@@ -83,33 +86,54 @@ public final class FileUtils{
 
 
     /**
-     * なるべく自分にだけ許可を与え自分以外には許可を与えないように
-     * ファイル属性を操作する。
-     * @param method setReadableかsetWritableのいずれかのメソッド。
-     * nullならなにもしない。
+     * パーミッション操作メソッドの下請け。
+     * リフレクション機構に関する異常系を吸収する。
+     * @param method setReadableかsetWritableのいずれかの2引数版メソッド。
+     * @param file 捜査対象のファイル
+     * @param flag 操作フラグ
+     * @param ownerOnly 対象は所有者のみか否か
+     * @return メソッドの戻り値。成功すればtrue
+     * @throws InvocationTargetException メソッドが発した異常系
+     */
+    private static boolean reflectFilePermOp(
+            Method method, File file, boolean flag, boolean ownerOnly)
+            throws InvocationTargetException {
+        Object result;
+        try{
+            result = method.invoke(file, flag, ownerOnly);
+        }catch(IllegalAccessException e){
+            assert false;
+            throw new AssertionError(e);
+        }catch(IllegalArgumentException e){
+            assert false;
+            throw new AssertionError(e);
+        }catch(ExceptionInInitializerError e){
+            assert false;
+            throw new AssertionError(e);
+        }
+
+        assert result instanceof Boolean;
+        Boolean boolResult = (Boolean) result;
+
+        return boolResult;
+    }
+
+    /**
+     * パーミッション操作メソッドの下請け。
+     * @param method setReadableかsetWritableのいずれかの2引数版メソッド。
      * @param file 操作対象のファイル。
+     * @param flag 操作フラグ
+     * @param ownerOnly 対象は所有者のみか否か
      * @return 成功すればtrue
      * @throws SecurityException セキュリティ上の許可が無い場合
      */
-    private static boolean invokeOwnerOnly(Method method, File file)
+    private static boolean invokeFilePermOp(
+            Method method, File file, boolean flag, boolean ownerOnly)
             throws SecurityException{
-        if(method == null) return false;
-        if(file == null) throw new NullPointerException();
+        boolean result;
 
-        Object result1;
-        Object result2;
         try{
-            result1 = method.invoke(file, false, false);
-            result2 = method.invoke(file, true,  true);
-        }catch(IllegalAccessException e){
-            assert false;
-            return false;
-        }catch(IllegalArgumentException e){
-            assert false;
-            return false;
-        }catch(ExceptionInInitializerError e){
-            assert false;
-            return false;
+            result = reflectFilePermOp(method, file, flag, ownerOnly);
         }catch(InvocationTargetException e){
             Throwable cause = e.getCause();
             if(cause instanceof SecurityException){
@@ -118,18 +142,57 @@ public final class FileUtils{
                 throw (RuntimeException) cause;
             }else if(cause instanceof Error){
                 throw (Error) cause;
-            }else{
-                assert false;
             }
-            return false;
+
+            assert false;
+            throw new AssertionError(e);
         }
 
-        assert result1 instanceof Boolean;
-        assert result2 instanceof Boolean;
-        Boolean bresult1 = (Boolean) result1;
-        Boolean bresult2 = (Boolean) result2;
+        return result;
+    }
 
-        return bresult1 && bresult2;
+    /**
+     * ファイルの読み込みパーミッションを操作する。
+     * JRE1.6の{@link java.io.File#setReadable(boolean,boolean)}
+     * の代用品。
+     * <p>JRE1.6でなければなにもせずにfalseを返す。
+     * @param file ファイルorディレクトリ
+     * @param flag 操作フラグ
+     * @param ownerOnly 対象は所有者のみか否か
+     * @return 成功すればtrue
+     * @throws SecurityException セキュリティ上の許可が無い場合
+     */
+    public static boolean setReadable(
+            File file, boolean flag, boolean ownerOnly )
+            throws SecurityException {
+        if(file == null) throw new NullPointerException();
+        if(METHOD_SETREADABLE == null) return false;
+
+        boolean result;
+        result = invokeFilePermOp(METHOD_SETREADABLE, file, flag, ownerOnly);
+        return result;
+    }
+
+    /**
+     * ファイルの書き込みパーミッションを操作する。
+     * JRE1.6の{@link java.io.File#setWritable(boolean,boolean)}
+     * の代用品。
+     * <p>JRE1.6でなければなにもせずにfalseを返す。
+     * @param file ファイルorディレクトリ
+     * @param flag 操作フラグ
+     * @param ownerOnly 対象は所有者のみか否か
+     * @return 成功すればtrue
+     * @throws SecurityException セキュリティ上の許可が無い場合
+     */
+    public static boolean setWritable(
+            File file, boolean flag, boolean ownerOnly )
+            throws SecurityException {
+        if(file == null) throw new NullPointerException();
+        if(METHOD_SETWRITABLE == null) return false;
+
+        boolean result;
+        result = invokeFilePermOp(METHOD_SETWRITABLE, file, flag, ownerOnly);
+        return result;
     }
 
     /**
@@ -143,9 +206,15 @@ public final class FileUtils{
      */
     public static boolean setOwnerOnlyAccess(File file)
             throws SecurityException{
-        boolean readresult  = invokeOwnerOnly(METHOD_SETREADABLE, file);
-        boolean writeresult = invokeOwnerOnly(METHOD_SETWRITABLE, file);
-        return readresult & writeresult;
+        boolean result = true;
+
+        result &= setReadable(file, false, false);
+        result &= setReadable(file, true,  true);
+
+        result &= setWritable(file, false, false);
+        result &= setWritable(file, true, true);
+
+        return result;
     }
 
     /**
@@ -199,10 +268,12 @@ public final class FileUtils{
     /**
      * 任意のディレクトリがアクセス可能な状態にあるか判定する。
      * アクセス可能の条件を満たすためには、与えられたパスが
-     * 存在し、
-     * かつディレクトリであり、
-     * かつ読み込み可能であり、
-     * かつ書き込み可能
+     * <ul>
+     * <li>存在し、
+     * <li>かつディレクトリであり、
+     * <li>かつ読み込み可能であり、
+     * <li>かつ書き込み可能
+     * </ul>
      * でなければならない。
      * @param path 任意のディレクトリ
      * @return アクセス可能ならtrue
@@ -210,12 +281,14 @@ public final class FileUtils{
     public static boolean isAccessibleDirectory(File path){
         if(path == null) return false;
 
-        if( ! path.exists() )      return false;
-        if( ! path.isDirectory() ) return false;
-        if( ! path.canRead() )     return false;
-        if( ! path.canWrite() )    return false;
+        boolean result = true;
 
-        return true;
+        if     ( ! path.exists() )      result = false;
+        else if( ! path.isDirectory() ) result = false;
+        else if( ! path.canRead() )     result = false;
+        else if( ! path.canWrite() )    result = false;
+
+        return result;
     }
 
     /**
@@ -324,7 +397,7 @@ public final class FileUtils{
 
         String osName;
         try{
-            osName = System.getProperty("os.name");
+            osName = System.getProperty(SYSPROP_OSNAME);
         }catch(SecurityException e){
             return false;
         }
@@ -349,7 +422,7 @@ public final class FileUtils{
 
         String osName;
         try{
-            osName = System.getProperty("os.name");
+            osName = System.getProperty(SYSPROP_OSNAME);
         }catch(SecurityException e){
             return false;
         }
@@ -368,6 +441,9 @@ public final class FileUtils{
     /**
      * アプリケーション設定ディレクトリを返す。
      * 存在の有無、アクセスの可否は関知しない。
+     * <p>WindowsやLinuxではホームディレクトリ。
+     * Mac OS X ではさらにホームディレクトリの下の
+     * "Library/Application Support/"
      * @return アプリケーション設定ディレクトリ
      */
     public static File getAppSetDir(){
@@ -398,8 +474,8 @@ public final class FileUtils{
         Locale locale = Locale.getDefault();
         String lang = locale.getLanguage();
 
-        if( FileUtils.isWindowsOSFs() && lang.equals("ja") ){
-            pathName = pathName.replace(File.separator, "&yen;");
+        if( FileUtils.isWindowsOSFs() && lang.equals(LANG_JA) ){
+            pathName = pathName.replace(File.separator, ENTITY_YEN);
         }
 
         return "<code>" + pathName + "</code>";

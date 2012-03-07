@@ -18,7 +18,6 @@ import java.nio.charset.Charset;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import jp.sfjp.jindolf.VerInfo;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sfjp.jindolf.view.LockErrorPane;
 
 /**
@@ -33,7 +32,6 @@ public final class ConfigFile{
     private static final String JINCONF_DOT = ".jindolf";
     private static final String FILE_README = "README.txt";
     private static final Charset CHARSET_README = Charset.forName("UTF-8");
-    private static final Charset CHARSET_JSON = Charset.forName("UTF-8");
 
     private static final String MSG_POST =
             "<ul>"
@@ -45,8 +43,6 @@ public final class ConfigFile{
             + "設定格納ディレクトリを使わずに起動することができます。<br>"
             + "</ul>";
 
-    private static final LogWrapper LOGGER = new LogWrapper();
-
 
     /**
      * 隠れコンストラクタ。
@@ -56,62 +52,6 @@ public final class ConfigFile{
         return;
     }
 
-
-    /**
-     * 設定格納ディレクトリのセットアップ。
-     * @param configStore 設定ディレクトリ
-     * @return 設定格納ディレクトリ
-     */
-    public static File setupConfigDirectory(ConfigStore configStore){
-        File configPath;
-
-        if( ! configStore.useStoreFile() ){
-            configPath = null;
-        }else{
-            String optName;
-            if(configStore.getConfigPath() != null){
-                configPath = configStore.getConfigPath();
-                optName = CmdOption.OPT_CONFDIR.toString();
-            }else{
-                configPath = ConfigFile.getImplicitConfigDirectory();
-                optName = null;
-            }
-            if( ! configPath.exists() ){
-                configPath =
-                        ConfigFile.buildConfigDirectory(configPath, optName);
-            }
-            ConfigFile.checkAccessibility(configPath);
-        }
-
-        configStore.setConfigPath(configPath);
-
-        return configPath;
-    }
-
-    /**
-     * ロックファイルのセットアップ。
-     * @param configStore 設定ディレクトリ
-     * @return ロックオブジェクト
-     */
-    public static InterVMLock setupLockFile(ConfigStore configStore){
-        File configPath = configStore.getConfigPath();
-        if(configPath == null) return null;
-
-        File lockFile = new File(configPath, "lock");
-        InterVMLock lock = new InterVMLock(lockFile);
-
-        lock.tryLock();
-
-        if( ! lock.isFileOwner() ){
-            confirmLockError(lock);
-            if( ! lock.isFileOwner() ){
-                configStore.setConfigPath(null);
-                configStore.setUseStoreFile(false);
-            }
-        }
-
-        return lock;
-    }
 
     /**
      * 暗黙的な設定格納ディレクトリを返す。
@@ -153,13 +93,12 @@ public final class ConfigFile{
      * まだ存在しない設定格納ディレクトリを新規に作成する。
      * エラーがあればダイアログ提示とともにVM終了する。
      * @param confPath 設定格納ディレクトリ
-     * @param optName 設定を指定したオプション名。
-     * 暗黙的に指示されたものならnullを渡すべし。
+     * @param isImplicitPath ディレクトリが暗黙的に指定されたものならtrue。
      * @return 新規に作成した設定格納ディレクトリ
      * @throws IllegalArgumentException すでにそのディレクトリは存在する。
      */
     public static File buildConfigDirectory(File confPath,
-                                               String optName)
+                                               boolean isImplicitPath )
             throws IllegalArgumentException{
         if(confPath.exists()) throw new IllegalArgumentException();
 
@@ -169,9 +108,11 @@ public final class ConfigFile{
                 "設定格納ディレクトリ<br>"
                 + getCenteredFileName(absPath)
                 + "の作成に失敗しました。";
-        if(optName != null){
+        if( ! isImplicitPath ){
             preErrMessage =
-                    "<code>" + optName + "</code>&nbsp;オプション"
+                    "<code>"
+                    + CmdOption.OPT_CONFDIR
+                    + "</code>&nbsp;オプション"
                     + "で指定された、<br>"
                     + preErrMessage;
         }

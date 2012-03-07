@@ -20,6 +20,8 @@ import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -37,7 +39,6 @@ import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.data.LandsModel;
 import jp.sfjp.jindolf.dxchg.TextPopup;
-import jp.sfjp.jindolf.log.LogWrapper;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.Monodizer;
@@ -51,7 +52,7 @@ public class AccountPanel
         extends JDialog
         implements ActionListener, ItemListener{
 
-    private static final LogWrapper LOGGER = new LogWrapper();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final Map<Land, String> landUserIDMap =
@@ -70,23 +71,11 @@ public class AccountPanel
     /**
      * アカウントパネルを生成。
      * @param owner フレームオーナー
-     * @param landsModel 国モデル
-     * @throws java.lang.NullPointerException 引数がnull
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public AccountPanel(Frame owner, LandsModel landsModel)
-            throws NullPointerException{
+    public AccountPanel(Frame owner){
         super(owner);
         setModal(true);
-
-        if(landsModel == null) throw new NullPointerException();
-        for(Land land : landsModel.getLandList()){
-            String userID = "";
-            char[] password = {};
-            this.landUserIDMap.put(land, userID);
-            this.landPasswordMap.put(land, password);
-            this.landBox.addItem(land);
-        }
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
 
@@ -147,10 +136,6 @@ public class AccountPanel
         content.add(new JSeparator(), constraints);
 
         content.add(buttonPanel, constraints);
-
-        preSelectActiveLand();
-
-        updateGUI();
 
         return;
     }
@@ -277,7 +262,7 @@ public class AccountPanel
      * @param e ネットワークエラー
      */
     protected void showNetworkError(IOException e){
-        LOGGER.warn(
+        LOGGER.log(Level.WARNING,
                 "アカウント処理中にネットワークのトラブルが発生しました", e);
 
         Land land = getSelectedLand();
@@ -389,6 +374,8 @@ public class AccountPanel
      */
     private void updateGUI(){
         Land land = getSelectedLand();
+        if(land == null) return;
+
         LandState state = land.getLandDef().getLandState();
         ServerAccess server = land.getServerAccess();
         boolean hasLoggedIn = server.hasLoggedIn();
@@ -415,6 +402,32 @@ public class AccountPanel
             this.loginButton.setEnabled(true);
             this.logoutButton.setEnabled(false);
         }
+
+        return;
+    }
+
+    /**
+     * 国情報を設定する。
+     * @param model 国情報
+     * @throws NullPointerException 引数がnull
+     */
+    public void setModel(LandsModel model) throws NullPointerException{
+        if(model == null) throw new NullPointerException();
+
+        this.landUserIDMap.clear();
+        this.landPasswordMap.clear();
+        this.landBox.removeAllItems();
+
+        for(Land land : model.getLandList()){
+            String userID = "";
+            char[] password = {};
+            this.landUserIDMap.put(land, userID);
+            this.landPasswordMap.put(land, password);
+            this.landBox.addItem(land);
+        }
+
+        preSelectActiveLand();
+        updateGUI();
 
         return;
     }

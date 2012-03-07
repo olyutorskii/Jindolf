@@ -7,6 +7,8 @@
 
 package jp.sfjp.jindolf;
 
+import java.awt.Frame;
+import java.io.PrintStream;
 import javax.swing.JOptionPane;
 
 /**
@@ -27,20 +29,25 @@ import javax.swing.JOptionPane;
  */
 public final class JreChecker {
 
-    /** required JRE version. */
+    /** Jindolfが実行時に必要とするJREの版。 */
     public static final String REQUIRED_JRE_VER = "1.5";
 
-    /** exit code. */
+    /** 互換性エラーの終了コード。 */
     public static final int EXIT_CODE_INCOMPAT_JRE = 1;
+
+    private static final PrintStream STDERR = System.err;
 
     private static final String DIALOG_TITLE =
             "JRE Incompatibility detected...";
 
     private static final int MAX_LINE = 40;
+    private static final int DEF_LINES = 5;
+    private static final int INIT_SBUF = 100;
 
 
     /**
      * 隠しコンストラクタ。
+     * <p><code>assert false;</code> 書きたいけど書いちゃだめ。
      */
     private JreChecker(){
         super();
@@ -53,16 +60,14 @@ public final class JreChecker {
      * @param klassName FQDNなクラス名
      * @return ロードできたらtrue
      */
-    private static boolean hasClass(String klassName){
-        boolean result = false;
+    public static boolean hasClass(String klassName){
+        boolean result;
 
         try{
             Class.forName(klassName); // 1.2Laterな3引数版メソッドは利用禁止
             result = true;
         }catch(ClassNotFoundException e){
             result = false;
-        }catch(LinkageError e){
-            throw e;
         }
 
         return result;
@@ -71,6 +76,7 @@ public final class JreChecker {
     /**
      * JRE 1.1 相当のランタイムライブラリが提供されているか判定する。
      * @return 提供されているならtrue
+     * @see java.io.Serializable
      */
     public static boolean has11Runtime(){
         boolean result = hasClass("java.io.Serializable");
@@ -80,6 +86,7 @@ public final class JreChecker {
     /**
      * JRE 1.2 相当のランタイムライブラリが提供されているか判定する。
      * @return 提供されているならtrue
+     * @see java.util.Iterator
      */
     public static boolean has12Runtime(){
         boolean result;
@@ -91,6 +98,7 @@ public final class JreChecker {
     /**
      * JRE 1.3 相当のランタイムライブラリが提供されているか判定する。
      * @return 提供されているならtrue
+     * @see java.util.TimerTask
      */
     public static boolean has13Runtime(){
         boolean result;
@@ -102,6 +110,7 @@ public final class JreChecker {
     /**
      * JRE 1.4 相当のランタイムライブラリが提供されているか判定する。
      * @return 提供されているならtrue
+     * @see java.lang.CharSequence
      */
     public static boolean has14Runtime(){
         boolean result;
@@ -113,6 +122,7 @@ public final class JreChecker {
     /**
      * JRE 1.5 相当のランタイムライブラリが提供されているか判定する。
      * @return 提供されているならtrue
+     * @see java.lang.Appendable
      */
     public static boolean has15Runtime(){
         boolean result;
@@ -124,6 +134,7 @@ public final class JreChecker {
     /**
      * JRE 1.6 相当のランタイムライブラリが提供されているか判定する。
      * @return 提供されているならtrue
+     * @see java.util.Deque
      */
     public static boolean has16Runtime(){
         boolean result;
@@ -132,8 +143,16 @@ public final class JreChecker {
         return result;
     }
 
+    // TODO JRE1.7,1.8 対応
+
     /**
-     * JREもしくはjava.langパッケージの仕様バージョンを返す。
+     * JREもしくは<code>java.lang</code>パッケージの
+     * 仕様バージョンを返す。
+     * <ol>
+     * <li>システムプロパティ<code>java.specification.version</code>
+     * <li>システムプロパティ<code>java.version</code>
+     * <li><code>java.lang</code>パッケージの仕様バージョン
+     * </ol>の順でバージョンが求められる。
      * @return 仕様バージョン文字列。不明ならnull
      */
     public static String getLangPkgSpec(){
@@ -162,6 +181,7 @@ public final class JreChecker {
 
     /**
      * JREのインストール情報を返す。
+     * システムプロパティ<code>java.home</code>の取得が試みられる。
      * @return インストール情報。不明ならnull
      */
     public static String getJreHome(){
@@ -172,7 +192,6 @@ public final class JreChecker {
         }catch(SecurityException e){
             result = null;
         }
-        if(result != null) return result;
 
         return result;
     }
@@ -182,7 +201,8 @@ public final class JreChecker {
      * @return エラーメッセージ
      */
     public static String buildErrMessage(){
-        StringBuffer message = new StringBuffer();
+        // このクラスではStringBuilder禁止
+        StringBuffer message = new StringBuffer(INIT_SBUF);
 
         message.append("ERROR : Java JRE ")
                .append(REQUIRED_JRE_VER)
@@ -190,10 +210,9 @@ public final class JreChecker {
 
         String specVer = getLangPkgSpec();
         if(specVer != null){
-            message.append('\n')
-                   .append("but").append('\u0020')
+            message.append("\nbut\u0020")
                    .append(specVer)
-                   .append('\u0020').append("detected.");
+                   .append("\u0020detected.");
         }
 
         String jreHome = getJreHome();
@@ -207,18 +226,19 @@ public final class JreChecker {
     }
 
     /**
-     * 指定された文字数で行の長さを揃える。
+     * 指定された文字数で行の長さを改行文字で揃える。
      * <p>サロゲートペアは無視される。
      * @param text 文字列
      * @param limit 行ごとの最大文字数
      * @return 改行済みの文字列
      */
     public static String alignLine(String text, int limit){
-        StringBuffer message = new StringBuffer();
+        // このクラスではStringBuilder禁止
+        int textLength = text.length();
+        StringBuffer message = new StringBuffer(textLength + DEF_LINES);
 
         int lineLength = 0;
 
-        int textLength = text.length();
         for(int idx = 0; idx < textLength; idx++){
             if(lineLength >= limit){
                 message.append('\n');
@@ -237,39 +257,37 @@ public final class JreChecker {
     }
 
     /**
+     * JRE環境をチェックする。(JRE1.5)
+     * <p>もしJREの非互換性が検出されたらエラーメッセージを報告する。
+     * @return 互換性があれば0、無ければ非0
+     */
+    public static int checkJre(){
+        if(has15Runtime()) return 0;
+
+        String message = buildErrMessage();
+        STDERR.println(message);
+        STDERR.flush();
+        if(has12Runtime()){
+            showErrorDialog(message);
+        }
+
+        return EXIT_CODE_INCOMPAT_JRE;
+    }
+
+    /**
      * Swingダイアログでエラーを報告する。
      * <p>ボタンを押すまでの間、実行はブロックされる。
-     * <p>JRE1.2環境が用意されていなければ何もしない。
      * <p>GUIに接続できなければ何か例外を投げるかもしれない。
      * @param text エラー文面
      */
     public static void showErrorDialog(String text){
-        if( ! has12Runtime() ) return;
         String aligned = alignLine(text, MAX_LINE);
+
+        Frame parent = null;
         JOptionPane.showMessageDialog(
-                null,
+                parent,
                 aligned, DIALOG_TITLE,
                 JOptionPane.ERROR_MESSAGE );
-        return;
-    }
-
-    /**
-     * JRE環境をチェックする。(JRE1.5)
-     * <p>もしJREの非互換性が検出されたらエラーメッセージを報告し、
-     * 所定の終了コードでJVMを終了させる。
-     */
-    public static void checkJre(){
-        if(has15Runtime()) return;
-
-        // 以降、JVM終了へ向けて一直線。
-        try{
-            String message = buildErrMessage();
-            System.err.println(message);
-            System.err.flush();
-            showErrorDialog(message);
-        }finally{
-            System.exit(EXIT_CODE_INCOMPAT_JRE);
-        }
 
         return;
     }
