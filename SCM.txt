@@ -21,7 +21,7 @@
 ./.hgignore
 
 Mercurial 管理の対象外にさせたいファイル群の設定です。
-IDE独自の設定ファイルは基本的に管理対象外とするつもりです。
+IDE独自の設定ファイルは基本的に管理対象外とする方針です。
 
 
 ./.hgeol
@@ -36,7 +36,7 @@ Mercurial の EOL Extension 用の設定です。
 EOL Extensionを有効にしないと設定が反映されません。
 
 
-=== リンク ===
+=== Mercurial に関するリンク ===
 
 ・http://mercurial.selenic.com/
 ・http://mercurial.selenic.com/wiki/.hgignore

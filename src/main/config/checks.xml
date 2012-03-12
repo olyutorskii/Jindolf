@@ -7,7 +7,7 @@
 <!--
     Checkstyle用チェック項目定義。
 
-    Checkstyle 5.3 以降向けに記述。
+    Checkstyle 5.5 以降向けに記述。
 
     [ http://checkstyle.sourceforge.net/ ]
 
@@ -167,6 +167,9 @@
         <module name="FallThrough" />
         <module name="MultipleStringLiterals" />
         <module name="MultipleVariableDeclarations" />
+        <module name="RequireThis">
+            <property name="checkMethods" value="false" />
+        </module>
         <module name="UnnecessaryParentheses" />
         <module name="OneStatementPerLine" />
 
@@ -367,10 +370,6 @@
         <module name="RegexpSingleline" />
         <module name="RegexpMultiline" />
         <module name="RegexpSinglelineJava" />
--->
-
-<!-- バグ？
-        <module name="RequireThis" />
 -->
 
 <!-- Obsolated
