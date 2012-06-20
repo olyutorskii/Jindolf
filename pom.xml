@@ -16,7 +16,7 @@
     <groupId>jp.sourceforge.jindolf</groupId>
     <artifactId>jindolf</artifactId>
 
-    <version>3.207.3-SNAPSHOT</version>
+    <version>3.208.2</version>
 
     <packaging>jar</packaging>
     <name>Jindolf</name>
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>jp.sourceforge.jindolf</groupId>
             <artifactId>jinparser</artifactId>
-            <version>1.407.4</version>
+            <version>1.408.2</version>
             <scope>compile</scope>
         </dependency>
 
@@ -138,7 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0.1</version>
+                <version>1.1</version>
                 <configuration>
                     <rules>
                         <requireMavenVersion>
@@ -154,7 +154,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.5</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -176,7 +176,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.5.1</version>
                 <configuration>
                     <source>1.5</source>  <!-- for NetBeans IDE -->
                     <target>1.5</target>
@@ -208,7 +208,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -284,7 +284,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.0</version>
+                <version>3.1</version>
                 <configuration>
                     <generateReports>true</generateReports>
                     <locales>ja</locales>
@@ -416,7 +416,6 @@
                     <notimestamp>true</notimestamp>
                     <quiet>true</quiet>
                     <show>protected</show>
-                    <stylesheet>maven</stylesheet>
                 </configuration>
                 <reportSets>
                     <reportSet>
