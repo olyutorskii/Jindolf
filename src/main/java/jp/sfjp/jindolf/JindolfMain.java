@@ -34,7 +34,7 @@ import jp.sfjp.jindolf.view.WindowManager;
 
 /**
  * Jindolf スタートアップクラス。
- * <p>{@link JindolfJre15}の下請けとして本格的なJindolf起動処理に入る。
+ * <p>{@link JindolfJre16}の下請けとして本格的なJindolf起動処理に入る。
  */
 public final class JindolfMain {
 
@@ -264,7 +264,7 @@ public final class JindolfMain {
         }
         UIManager.put("swing.boldMetal", boldFlag);
 
-        // JRE1.5用スプラッシュウィンドウ
+        // JRE1.5用スプラッシュウィンドウ。だけどもういらん。
         Window splashWindow = null;
         if( ! optinfo.hasOption(CmdOption.OPT_NOSPLASH) ){
             splashWindow = showSplash();

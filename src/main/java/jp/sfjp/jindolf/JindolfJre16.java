@@ -2,7 +2,7 @@
  * Jindolf main class
  *
  * License : The MIT License
- * Copyright(c) 2011 olyutorskii
+ * Copyright(c) 2012 olyutorskii
  */
 
 package jp.sfjp.jindolf;
@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JOptionPane;
 
 /**
- * JRE1.5の利用が解禁されたJindolfエントリ。
+ * JRE1.6の利用が解禁されたJindolfエントリ。
  * <p>起動クラスJindolfの下請けとしての機能が想定される。
  * <p>必ずしも必要ないが、異常系切り分けに有用な、
  * 実行環境やビルドの成否に関する各種診断を行う。
  * <p>各種診断を通過した後、JindolfMainに制御を渡す。
  */
-public final class JindolfJre15 {
+public final class JindolfJre16 {
 
     /** GUI環境に接続できないときの終了コード。 */
     public static final int EXIT_CODE_HEADLESS = 1;
@@ -69,7 +69,7 @@ public final class JindolfJre15 {
     /**
      * 隠しコンストラクタ。
      */
-    private JindolfJre15(){
+    private JindolfJre16(){
         assert false;
     }
 
@@ -192,7 +192,7 @@ public final class JindolfJre15 {
 
     /**
      * Jindolf のスタートアップエントリ。
-     * <p>ここからJRE1.5の利用が解禁される。
+     * <p>ここからJRE1.6の利用が解禁される。
      * <p>最終的に{@link JindolfMain}へ制御が渡される。
      * @param args コマンドライン引数
      * @return 起動に成功すれば0。失敗したら0以外。

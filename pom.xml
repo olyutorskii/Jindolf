@@ -81,8 +81,8 @@
     <properties>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
 
-        <maven.compiler.source>1.5</maven.compiler.source>
-        <maven.compiler.target>1.5</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
 
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
@@ -145,10 +145,16 @@
                             <version>[2.2,)</version>
                         </requireMavenVersion>
                         <requireJavaVersion>
-                            <version>[1.5,)</version>
+                            <version>[1.6,)</version>
                         </requireJavaVersion>
                     </rules>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.4</version>
             </plugin>
 
             <plugin>
@@ -178,8 +184,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.5.1</version>
                 <configuration>
-                    <source>1.5</source>  <!-- for NetBeans IDE -->
-                    <target>1.5</target>
+                    <source>1.6</source>  <!-- for NetBeans IDE -->
+                    <target>1.6</target>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                     <compilerArguments>
@@ -208,7 +214,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>1.7</version>
+                <version>2.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -216,6 +222,7 @@
                           <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
                                     <include>jp.sourceforge.jindolf:jincore</include>
@@ -247,6 +254,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
+                <!-- 2.2はplexus-archiverへの依存性で問題あり -->
                 <configuration>
                     <includePom>true</includePom>
                     <archive>
@@ -269,13 +277,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.1</version>
+                <version>2.12.4</version>
                 <configuration>
                     <skipTests>false</skipTests>
                     <enableAssertions>true</enableAssertions>
@@ -379,7 +387,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.5.1</version>
                 <configuration>
                     <linkOnly>true</linkOnly>
                     <offline>true</offline>
@@ -396,6 +404,7 @@
                             <report>project-team</report>
 <!--
                             <report>dependency-convergence</report>
+                            <report>dependency-info</report>
                             <report>dependency-management</report>
                             <report>distribution-management</report>
                             <report>issue-tracking</report>
@@ -411,7 +420,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8.1</version>
+                <version>2.9</version>
                 <configuration>
                     <skip>false</skip>
                     <notimestamp>true</notimestamp>
@@ -439,7 +448,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.12.1</version>
+                <version>2.12.4</version>
                 <configuration>
                     <showSuccess>false</showSuccess>
                 </configuration>
@@ -455,7 +464,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>2.5.2</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>

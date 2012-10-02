@@ -30,7 +30,7 @@ import javax.swing.JOptionPane;
 public final class JreChecker {
 
     /** Jindolfが実行時に必要とするJREの版。 */
-    public static final String REQUIRED_JRE_VER = "1.5";
+    public static final String REQUIRED_JRE_VER = "1.6";
 
     /** 互換性エラーの終了コード。 */
     public static final int EXIT_CODE_INCOMPAT_JRE = 1;
@@ -257,12 +257,12 @@ public final class JreChecker {
     }
 
     /**
-     * JRE環境をチェックする。(JRE1.5)
+     * JRE環境をチェックする。(JRE1.6)
      * <p>もしJREの非互換性が検出されたらエラーメッセージを報告する。
      * @return 互換性があれば0、無ければ非0
      */
     public static int checkJre(){
-        if(has15Runtime()) return 0;
+        if(has16Runtime()) return 0;
 
         String message = buildErrMessage();
         STDERR.println(message);

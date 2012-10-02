@@ -326,7 +326,7 @@ public class FindPanel extends JDialog
                 +"正しい正規表現として認識されませんでした。\n"
                 +position
                 +"正規表現の書き方は"
-                +" [ http://java.sun.com/j2se/1.5.0/ja/docs/ja/api/"
+                +" [ http://docs.oracle.com/javase/jp/6/api/"
                 +"java/util/regex/Pattern.html#sum ] "
                 +"を参照してください。\n"
                 +"ただの文字列を検索したい場合は"

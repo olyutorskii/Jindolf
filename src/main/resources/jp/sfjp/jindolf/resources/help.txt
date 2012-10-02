@@ -29,7 +29,7 @@ Jindolfは、人狼BBSを閲覧するために開発された、GUIを利用す�
 
 -initfont FONTIDENTIFIER
     発言表示用フォントを指定する。
-    具体的な書式はJRE1.5のjava.awt.Font#decode()を参照せよ。
+    具体的な書式はJRE1.6のjava.awt.Font#decode()を参照せよ。
     「SansSerif-BOLD-16」
         →SansSerifファミリBoldフェース16ポイントのフォントを指定する。
 

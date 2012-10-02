@@ -11,13 +11,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +43,7 @@ public class ServerAccess{
             Map<String, SoftReference<BufferedImage>> IMAGE_CACHE;
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
+    private static final String ENC_POST = "UTF-8";
 
     static{
         Map<String, SoftReference<BufferedImage>> cache =
@@ -54,13 +53,13 @@ public class ServerAccess{
 
 
     private final URL baseURL;
+    private final AuthManager authManager;
+
     private final Charset charset;
     private Proxy proxy = Proxy.NO_PROXY;
     private long lastServerMs;
     private long lastLocalMs;
     private long lastSystemMs;
-    private AccountCookie cookieAuth = null;
-    private String encodedUserID = null;
 
 
     /**
@@ -68,10 +67,16 @@ public class ServerAccess{
      * この時点ではまだ通信は行われない。
      * @param baseURL 国別のベースURL
      * @param charset 国のCharset
+     * @throws IllegalArgumentException 不正なURL
      */
-    public ServerAccess(URL baseURL, Charset charset){
+    public ServerAccess(URL baseURL, Charset charset)
+            throws IllegalArgumentException{
+        super();
+
         this.baseURL = baseURL;
+        this.authManager = new AuthManager(this.baseURL);
         this.charset = charset;
+
         return;
     }
 
@@ -121,38 +126,6 @@ public class ServerAccess{
     }
 
     /**
-     * 与えられた文字列に対し「application/x-www-form-urlencoded」符号化を行う。
-     * この符号化はHTTPのPOSTメソッドで必要になる。
-     * この処理は、一般的なPC用Webブラウザにおける、
-     * Shift_JISで書かれたHTML文書のFORMタグに伴う
-     * submit処理を模倣する。
-     * @param formData 元の文字列
-     * @return 符号化された文字列
-     */
-    public static String formEncode(String formData){
-        if(formData == null){
-            return null;
-        }
-        String result;
-        try{
-            result = URLEncoder.encode(formData, "US-ASCII");
-        }catch(UnsupportedEncodingException e){
-            assert false;
-            result = null;
-        }
-        return result;
-    }
-
-    /**
-     * 配列版formEncode。
-     * @param formData 元の文字列
-     * @return 符号化された文字列
-     */
-    public static String formEncode(char[] formData){
-        return formEncode(new String(formData));
-    }
-
-    /**
      * HTTP-Proxyを返す。
      * @return HTTP-Proxy
      */
@@ -199,7 +172,7 @@ public class ServerAccess{
     }
 
     /**
-     * 「Shift_JIS」でエンコーディングされた入力ストリームから文字列を生成する。
+     * エンコーディングされた入力ストリームから文字列を生成する。
      * @param istream 入力ストリーム
      * @return 文字列
      * @throws java.io.IOException 入出力エラー（おそらくネットワーク関連）
@@ -261,17 +234,6 @@ public class ServerAccess{
         connection.setInstanceFollowRedirects(false);
         connection.setDoInput(true);
         connection.setRequestMethod("GET");
-
-        AccountCookie cookie = this.cookieAuth;
-        if(cookie != null){
-            if(shouldAccept(url, cookie)){
-                connection.setRequestProperty(
-                        "Cookie",
-                        "login=" + cookie.getLoginData());
-            }else{
-                clearAuthentication();
-            }
-        }
 
         connection.connect();
 
@@ -369,7 +331,7 @@ public class ServerAccess{
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
 
-        byte[] authBytes = authData.getBytes();
+        byte[] authBytes = authData.getBytes(ENC_POST);
 
         OutputStream os = TallyOutputStream.getOutputStream(connection);
         os.write(authBytes);
@@ -378,22 +340,13 @@ public class ServerAccess{
 
         updateLastAccess(connection);
 
-        int responseCode = connection.getResponseCode();
-        if(responseCode != HttpURLConnection.HTTP_MOVED_TEMP){    // 302
-            String logMessage =  "認証情報の送信に失敗しました。";
-            LOGGER.warning(logMessage);
-            connection.disconnect();
-            return false;
-        }
-
         connection.disconnect();
 
-        AccountCookie loginCookie = AccountCookie.createCookie(connection);
-        if(loginCookie == null){
+        if( ! this.authManager.hasLoggedIn() ){
+            String logMessage =  "認証情報の送信に失敗しました。";
+            LOGGER.warning(logMessage);
             return false;
         }
-
-        setAuthentication(loginCookie);
 
         LOGGER.info("正しく認証が行われました。");
 
@@ -489,45 +442,6 @@ public class ServerAccess{
     }
 
     /**
-     * 指定したURLに対しCookieを送っても良いか否か判定する。
-     * 判別材料は Cookie の寿命とパス指定のみ。
-     * @param url URL
-     * @param cookie Cookie
-     * @return 送ってもよければtrue
-     */
-    private static boolean shouldAccept(URL url, AccountCookie cookie){
-        if(cookie.hasExpired()){
-            return false;
-        }
-
-        String urlPath = url.getPath();
-        String cookiePath = cookie.getPathURI().getPath();
-
-        if( ! urlPath.startsWith(cookiePath) ){
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * 現在ログイン中か否か判別する。
-     * @return ログイン中ならtrue
-     */
-    // TODO interval call
-    public boolean hasLoggedIn(){
-        AccountCookie cookie = this.cookieAuth;
-        if(cookie == null){
-            return false;
-        }
-        if(cookie.hasExpired()){
-            clearAuthentication();
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * 与えられたユーザIDとパスワードでログイン処理を行う。
      * @param userID ユーザID
      * @param password パスワード
@@ -536,35 +450,16 @@ public class ServerAccess{
      */
     public final boolean login(String userID, char[] password)
             throws IOException{
-        if(hasLoggedIn()){
+        if(this.authManager.hasLoggedIn()){
             return true;
         }
 
-        String id = formEncode(userID);
-        if(id == null || id.length() <= 0){
-            return false;
-        }
-
-        String pw = formEncode(password);
-        if(pw == null || pw.length() <= 0){
-            return false;
-        }
-
-        this.encodedUserID = id;
-
-        String redirect = formEncode("&#bottom");   // TODO ほんとに必要？
-
-        StringBuilder postData = new StringBuilder();
-        postData.append("cmd=login");
-        postData.append('&').append("cgi_param=").append(redirect);
-        postData.append('&').append("user_id=").append(id);
-        postData.append('&').append("password=").append(pw);
-
+        String postText = AuthManager.buildLoginPostData(userID, password);
         boolean result;
         try{
-            result = postAuthData(postData.toString());
+            result = postAuthData(postText);
         }catch(IOException e){
-            clearAuthentication();
+            this.authManager.clearAuthentication();
             throw e;
         }
 
@@ -575,51 +470,28 @@ public class ServerAccess{
      * ログアウト処理を行う。
      * @throws java.io.IOException ネットワーク入出力エラー
      */
-    // TODO シャットダウンフックでログアウトさせようかな…
     public void logout() throws IOException{
-        if(!hasLoggedIn()){
+        if( ! this.authManager.hasLoggedIn() ){
             return;
         }
-        if(this.encodedUserID == null){
-            clearAuthentication();
-            return;
-        }
-
-        String redirect = formEncode("&#bottom"); // TODO 必要？
-
-        StringBuilder postData = new StringBuilder();
-        postData.append("cmd=logout");
-        postData.append('&').append("cgi_param=").append(redirect);
-        postData.append('&').append("user_id=").append(this.encodedUserID);
 
         try{
-            postAuthData(postData.toString());
+            postAuthData(AuthManager.POST_LOGOUT);
         }finally{
-            clearAuthentication();
+            this.authManager.clearAuthentication();
         }
 
         return;
     }
+    // TODO シャットダウンフックでログアウトさせようかな…
 
     /**
-     * 認証情報クリア。
+     * ログイン中か否か判定する。
+     * @return ログイン中ならtrue
      */
-    // TODO タイマーでExpire date の時刻にクリアしたい。
-    protected void clearAuthentication(){
-        this.cookieAuth = null;
-        this.encodedUserID = null;
-        return;
+    public boolean hasLoggedIn(){
+        boolean result = this.authManager.hasLoggedIn();
+        return result;
     }
-
-    /**
-     * 認証情報のセット。
-     * @param cookie 認証Cookie
-     */
-    private void setAuthentication(AccountCookie cookie){
-        this.cookieAuth = cookie;
-        return;
-    }
-
-    // TODO JRE1.6対応するときに HttpCookie, CookieManager 利用へ移行したい。
 
 }
