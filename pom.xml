@@ -107,7 +107,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
 
@@ -182,7 +182,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.0</version>
                 <configuration>
                     <source>1.6</source>  <!-- for NetBeans IDE -->
                     <target>1.6</target>
@@ -241,7 +241,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
                 <configuration>
                     <archiveBaseDirectory>.</archiveBaseDirectory>
                     <descriptors>
@@ -253,8 +253,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
-                <!-- 2.2はplexus-archiverへの依存性で問題あり -->
+                <version>2.2.1</version>
                 <configuration>
                     <includePom>true</includePom>
                     <archive>
@@ -293,7 +292,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.2</version>
                 <configuration>
                     <generateReports>true</generateReports>
                     <locales>ja</locales>
@@ -328,6 +327,23 @@
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
+                    <!-- for Jenkins -->
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                    <xmlOutput>true</xmlOutput>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format> <!-- for Jenkins -->
+                    </formats>
                 </configuration>
             </plugin>
 
@@ -387,7 +403,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>2.6</version>
                 <configuration>
                     <linkOnly>true</linkOnly>
                     <offline>true</offline>
@@ -467,6 +483,10 @@
                 <version>2.5.2</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format> <!-- for Jenkins -->
+                    </formats>
                 </configuration>
             </plugin>
 
@@ -516,6 +536,10 @@
                     <skip>false</skip>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
+                    <!-- for Jenkins -->
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                    <xmlOutput>true</xmlOutput>
                     <!-- excludeFilterFile/ -->
                 </configuration>
             </plugin>

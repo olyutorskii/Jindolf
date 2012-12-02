@@ -37,6 +37,7 @@ public class SwingDocHandler extends Handler{
 
     private final Document document;
 
+
     /**
      * ログハンドラの生成。
      * @param document ドキュメントモデル
@@ -100,9 +101,11 @@ public class SwingDocHandler extends Handler{
         final String message = formatter.format(record);
 
         EventQueue.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 appendLog(message);
                 chopHead();
+                return;
             }
         });
 
@@ -120,6 +123,7 @@ public class SwingDocHandler extends Handler{
 
     /**
      * {@inheritDoc}
+     * ログ受け入れを締め切る。
      */
     @Override
     public void close(){

@@ -23,6 +23,7 @@ public class LoggingDispatcher extends EventQueue{
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
+
     /**
      * コンストラクタ。
      */
@@ -31,8 +32,9 @@ public class LoggingDispatcher extends EventQueue{
         return;
     }
 
+
     /**
-     * 独自ロガーにエラーや例外を吐く、
+     * 匿名ロガーにエラーや例外を吐く、
      * カスタム化されたイベントキューに差し替える。
      */
     public static void replaceEventQueue(){
@@ -44,17 +46,18 @@ public class LoggingDispatcher extends EventQueue{
     }
 
     /**
-     * 異常系をログ出力。
+     * 異常系を匿名ロガーに出力する。
      * @param e 例外
      */
-    private void errlog(Throwable e){
+    private static void logThrowable(Throwable e){
         LOGGER.log(Level.SEVERE, FATALMSG, e);
         return;
     }
 
+
     /**
      * {@inheritDoc}
-     * 発生した例外をログ出力する。
+     * イベントディスパッチにより発生した例外を匿名ログ出力する。
      * @param event {@inheritDoc}
      */
     @Override
@@ -62,12 +65,12 @@ public class LoggingDispatcher extends EventQueue{
         try{
             super.dispatchEvent(event);
         }catch(RuntimeException e){
-            errlog(e);
+            logThrowable(e);
             throw e;
         }catch(Exception e){
-            errlog(e);
+            logThrowable(e);
         }catch(Error e){
-            errlog(e);
+            logThrowable(e);
             throw e;
         }
         // TODO Toolkit#beep()もするべきか
