@@ -144,6 +144,7 @@ public final class JindolfMain {
         if(splashWindow == null) return;
 
         EventQueue.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 splashWindow.setVisible(false);
                 splashWindow.dispose();
@@ -324,6 +325,7 @@ public final class JindolfMain {
         int exitCode = 0;
         try{
             EventQueue.invokeAndWait(new Runnable(){
+                @Override
                 public void run(){
                     startGUI(appSetting);
                     return;

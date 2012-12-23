@@ -152,6 +152,7 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
                 super.createDialog(parentComponent, title);
 
         ActionListener listener = new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent event){
                 dialog.setVisible(false);
                 return;
@@ -168,6 +169,7 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
      * ボタン押下を受信する。
      * @param event イベント
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
         if(source == this.okButton) this.aborted = false;

@@ -289,6 +289,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
      * プロクシ種別ボタン操作の受信。
      * @param event ボタン操作イベント
      */
+    @Override
     public void itemStateChanged(ItemEvent event){
         Object source = event.getSource();
 

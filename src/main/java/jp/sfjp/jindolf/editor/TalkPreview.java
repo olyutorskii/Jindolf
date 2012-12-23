@@ -502,6 +502,7 @@ public class TalkPreview extends JFrame
      * アクティブなエディタが変更された時の処理。
      * @param event イベント情報
      */
+    @Override
     public void stateChanged(ChangeEvent event){
         TalkEditor activeEditor = this.editArray.getActiveEditor();
         int seqNo = activeEditor.getSequenceNumber();

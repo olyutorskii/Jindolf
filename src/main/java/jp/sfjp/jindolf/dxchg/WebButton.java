@@ -153,6 +153,7 @@ public class WebButton extends JPanel implements ActionListener{
      * ボタン押下イベントの受信。
      * @param event イベント
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         if(event.getSource() != this.button) return;
 

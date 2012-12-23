@@ -647,6 +647,7 @@ public class VillageDigest
      * アクションイベントの振り分け。
      * @param event アクションイベント
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
 
@@ -718,6 +719,7 @@ public class VillageDigest
         this.templateArea.setText(wikiText.toString());
         // 最上部へスクロールアップ
         EventQueue.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 templateArea.scrollRectToVisible(new Rectangle());
             }
@@ -814,6 +816,7 @@ public class VillageDigest
      * コンボボックス操作の受信。
      * @param event コンボボックス操作イベント
      */
+    @Override
     public void itemStateChanged(ItemEvent event){
         int state = event.getStateChange();
         if(state != ItemEvent.SELECTED) return;

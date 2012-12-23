@@ -763,9 +763,11 @@ public class Controller
         final VillageDigest digest = villageDigest;
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
+            @Override
             public void run(){
                 taskFullOpenAllPeriod();
                 EventQueue.invokeLater(new Runnable(){
+                    @Override
                     public void run(){
                         digest.setVillage(village);
                         digest.setVisible(true);
@@ -865,6 +867,7 @@ public class Controller
     private void bulkSearch(){
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
+            @Override
             public void run(){
                 taskBulkSearch();
                 return;
@@ -1022,6 +1025,7 @@ public class Controller
     private void actionLoadAllPeriod(){
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
+            @Override
             public void run(){
                 taskLoadAllPeriod();
                 return;
@@ -1135,6 +1139,7 @@ public class Controller
 
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
+            @Override
             public void run(){
                 setBusy(true);
                 updateStatusBar("ジャンプ先の読み込み中…");
@@ -1161,6 +1166,7 @@ public class Controller
                     final PeriodView target = browser.getPeriodView(tabIndex);
 
                     EventQueue.invokeLater(new Runnable(){
+                        @Override
                         public void run(){
                             browser.setSelectedIndex(tabIndex);
                             target.setPeriod(targetPeriod);
@@ -1248,6 +1254,7 @@ public class Controller
 
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
+            @Override
             public void run(){
                 setBusy(true);
                 try{
@@ -1290,6 +1297,7 @@ public class Controller
                 }
                 try{
                     SwingUtilities.invokeAndWait(new Runnable(){
+                        @Override
                         public void run(){
                             tabBrowser.setVillage(village);
                             return;
@@ -1312,6 +1320,7 @@ public class Controller
                     final int lastPos = periodView.getVerticalPosition();
                     try{
                         SwingUtilities.invokeAndWait(new Runnable(){
+                            @Override
                             public void run(){
                                 periodView.showTopics();
                                 return;
@@ -1327,6 +1336,7 @@ public class Controller
                                 e );
                     }
                     EventQueue.invokeLater(new Runnable(){
+                        @Override
                         public void run(){
                             periodView.setVerticalPosition(lastPos);
                         }
@@ -1472,6 +1482,7 @@ public class Controller
 
             Executor executor = Executors.newCachedThreadPool();
             executor.execute(new Runnable(){
+                @Override
                 public void run(){
                     setBusy(true);
                     updateStatusBar("村情報を読み込み中…");
@@ -1490,6 +1501,7 @@ public class Controller
                     setFrameTitle(village.getVillageFullName());
 
                     EventQueue.invokeLater(new Runnable(){
+                        @Override
                         public void run(){
                             Controller.this.topView.showVillageInfo(village);
                             return;
@@ -1647,6 +1659,7 @@ public class Controller
 
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(new Runnable(){
+            @Override
             public void run(){
                 setBusy(true);
                 updateStatusBar("アンカーの展開中…");
@@ -1667,6 +1680,7 @@ public class Controller
                         return;
                     }
                     EventQueue.invokeLater(new Runnable(){
+                        @Override
                         public void run(){
                             talkDraw.showAnchorTalks(anchor, talkList);
                             discussion.layoutRows();
@@ -1701,6 +1715,7 @@ public class Controller
         this.isBusyNow = isBusy;
 
         Runnable microJob = new Runnable(){
+            @Override
             public void run(){
                 Cursor cursor;
                 if(isBusy){

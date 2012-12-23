@@ -166,6 +166,7 @@ public class OptionPanel
      * ボタン押下イベント受信。
      * @param event イベント
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
         if     (source == this.okButton    ) actionOk();

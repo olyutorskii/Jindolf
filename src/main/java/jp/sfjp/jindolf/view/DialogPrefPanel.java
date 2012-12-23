@@ -228,6 +228,7 @@ public class DialogPrefPanel
      * デフォルトボタン押下処理。
      * @param event ボタン押下イベント
      */
+    @Override
     public void actionPerformed(ActionEvent event){
         Object source = event.getSource();
         if(source != this.resetDefault) return;
@@ -243,6 +244,7 @@ public class DialogPrefPanel
      * チェックボックス操作の受信。
      * @param event チェックボックス操作イベント
      */
+    @Override
     public void itemStateChanged(ItemEvent event){
         modifyGUIState();
         return;

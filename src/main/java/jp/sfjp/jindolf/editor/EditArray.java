@@ -238,6 +238,7 @@ public class EditArray extends JPanel
         this.onAdjusting = true;
 
         EventQueue.invokeLater(new Runnable(){
+            @Override
             public void run(){
                 try{
                     adjustTask(triggerEditor);

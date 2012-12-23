@@ -149,6 +149,7 @@ public final class Monodizer implements PropertyChangeListener{
      * フォント変更イベントの受信。
      * @param event フォント変更イベント
      */
+    @Override
     public void propertyChange(PropertyChangeEvent event){
         Object source = event.getSource();
         if( ! (source instanceof JComponent) ) return;
