@@ -42,6 +42,7 @@
     <module name="RegexpHeader">
         <property name="header" value="^/\*$\n^ \*( .*)?$\n^ \*/$\n" />
         <property name="multiLines" value="2" />
+        <property name="fileExtensions" value="java" />
     </module>
 
 
@@ -50,7 +51,9 @@
 
 
     <!-- Miscellaneous -->
-    <module name="NewlineAtEndOfFile" />
+    <module name="NewlineAtEndOfFile">
+        <property name="fileExtensions" value="java" />
+    </module>
     <module name="Translation" />
 
 
@@ -114,7 +117,7 @@
         <module name="ArrayTrailingComma" />
         <module name="AvoidInlineConditionals" />
         <module name="CovariantEquals" />
-        <module name="DoubleCheckedLocking" />
+<!--    <module name="DoubleCheckedLocking" />  5.6 obsolete -->
         <module name="EmptyStatement" />
         <module name="EqualsAvoidNull" />
         <module name="EqualsHashCode" />
