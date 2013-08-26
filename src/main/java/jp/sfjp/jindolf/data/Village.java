@@ -71,6 +71,8 @@ public class Village implements Comparable<Village> {
 
     }
 
+    private static final int GID_MIN = 3;
+
     private static final Comparator<Village> VILLAGE_COMPARATOR =
             new VillageComparator();
 
@@ -205,7 +207,22 @@ public class Village implements Comparable<Village> {
      * @return 村の名前
      */
     public String getVillageName(){
-        return this.parentLand.getLandDef().getLandPrefix() + getVillageID();
+        StringBuilder name = new StringBuilder();
+
+        LandDef landDef = this.parentLand.getLandDef();
+        String prefix = landDef.getLandPrefix();
+        name.append(prefix);
+
+        StringBuilder id = new StringBuilder(this.villageID);
+        if(landDef.getLandId().equals("wolfg")){
+            while(id.length() < GID_MIN){
+                id.insert(0, '0');
+            }
+        }
+        name.append(id);
+
+        String result = name.toString();
+        return result;
     }
 
     /**

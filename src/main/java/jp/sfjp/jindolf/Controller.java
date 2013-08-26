@@ -88,7 +88,6 @@ import jp.sfjp.jindolf.view.TabBrowser;
 import jp.sfjp.jindolf.view.TopFrame;
 import jp.sfjp.jindolf.view.TopView;
 import jp.sfjp.jindolf.view.WindowManager;
-import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.VillageState;
 import jp.sourceforge.jovsonz.JsObject;
 
@@ -408,15 +407,7 @@ public class Controller
         Village village = browser.getVillage();
         if(village == null) return;
 
-        String villageName;
-        LandDef landDef = village.getParentLand().getLandDef();
-        if(landDef.getLandId().equals("wolfg")){
-            String vnum = "000" + village.getVillageID();
-            vnum = vnum.substring(vnum.length() - 3);
-            villageName = landDef.getLandPrefix() + vnum;
-        }else{
-            villageName = village.getVillageName();
-        }
+        String villageName = village.getVillageName();
 
         StringBuilder url =
                 new StringBuilder()
