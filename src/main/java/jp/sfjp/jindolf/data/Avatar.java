@@ -53,7 +53,7 @@ public class Avatar implements Comparable<Avatar> {
 
         AVATAR_LIST = buildAvatarList(predefs);
 
-        AVATAR_MAP = new HashMap<String, Avatar>();
+        AVATAR_MAP = new HashMap<>();
         for(Avatar avatar : AVATAR_LIST){
             String fullName = avatar.getFullName();
             AVATAR_MAP.put(fullName, avatar);
@@ -145,7 +145,7 @@ public class Avatar implements Comparable<Avatar> {
      * @return ソートされた定義済みAvatarのリスト
      */
     private static List<Avatar> buildAvatarList(List<PreDefAvatar> predefs){
-        List<Avatar> result = new ArrayList<Avatar>(predefs.size());
+        List<Avatar> result = new ArrayList<>(predefs.size());
 
         for(PreDefAvatar preDefAvatar : predefs){
             String shortName = preDefAvatar.getShortName();

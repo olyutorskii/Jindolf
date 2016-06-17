@@ -141,11 +141,11 @@ public class ActionManager{
     }
 
     private final Set<AbstractButton> actionItems =
-            new HashSet<AbstractButton>();
+            new HashSet<>();
     private final Map<String, JMenuItem> namedMenuItems =
-            new HashMap<String, JMenuItem>();
+            new HashMap<>();
     private final Map<String, JButton> namedToolButtons =
-            new HashMap<String, JButton>();
+            new HashMap<>();
 
     private final JMenuBar menuBar;
 
@@ -160,7 +160,7 @@ public class ActionManager{
     private final JMenu menuLook;
     private final ButtonGroup landfGroup = new ButtonGroup();
     private final Map<ButtonModel, String> landfMap =
-        new HashMap<ButtonModel, String>();
+        new HashMap<>();
 
     private final JToolBar browseToolBar;
 

@@ -51,11 +51,11 @@ public class GameSummary{
 
 
     private final Map<Avatar, Player> playerMap =
-            new HashMap<Avatar, Player>();
+            new HashMap<>();
     private final List<Player> playerList =
-            new LinkedList<Player>();
+            new LinkedList<>();
     private final Map<SysEventType, List<SysEvent>> eventMap =
-            new EnumMap<SysEventType, List<SysEvent>>(SysEventType.class);
+            new EnumMap<>(SysEventType.class);
 
     private final Village village;
 
@@ -111,7 +111,7 @@ public class GameSummary{
      * @return 役職バランス文字列
      */
     public static String getRoleBalanceSequence(List<Player> players){
-        List<GameRole> roleList = new LinkedList<GameRole>();
+        List<GameRole> roleList = new LinkedList<>();
         for(Player player : players){
             GameRole role = player.getRole();
             roleList.add(role);
@@ -152,7 +152,7 @@ public class GameSummary{
      */
     private void buildEventMap(){
         for(SysEventType type : SysEventType.values()){
-            List<SysEvent> eventList = new LinkedList<SysEvent>();
+            List<SysEvent> eventList = new LinkedList<>();
             this.eventMap.put(type, eventList);
         }
 
@@ -918,7 +918,7 @@ public class GameSummary{
             throw new IndexOutOfBoundsException();
         }
 
-        List<Player> result = new LinkedList<Player>();
+        List<Player> result = new LinkedList<>();
 
         Period period = this.village.getPeriod(day);
 
@@ -968,7 +968,7 @@ public class GameSummary{
      */
     public List<Player> getCastingPlayerList(){
         List<Player> sortedPlayers =
-                new LinkedList<Player>();
+                new LinkedList<>();
         sortedPlayers.addAll(this.playerList);
         Collections.sort(sortedPlayers, COMPARATOR_CASTING);
         return sortedPlayers;
@@ -980,7 +980,7 @@ public class GameSummary{
      * @return 役職に合致するプレイヤーのリスト
      */
     public List<Player> getRoledPlayerList(GameRole role){
-        List<Player> result = new LinkedList<Player>();
+        List<Player> result = new LinkedList<>();
 
         for(Player player : this.playerList){
             if(player.getRole() == role){

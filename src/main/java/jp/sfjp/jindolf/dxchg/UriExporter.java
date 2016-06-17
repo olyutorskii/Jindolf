@@ -26,7 +26,7 @@ public class UriExporter implements Transferable{
         "text/plain",
     };
     private static final List<DataFlavor> URI_FLAVORS =
-            new ArrayList<DataFlavor>(MIMES.length);
+            new ArrayList<>(MIMES.length);
 
     static{
         String stringClassName = "class=" + String.class.getName();

@@ -60,7 +60,7 @@ public class WindowManager {
     private HelpFrame helpFrame;
     private TopFrame topFrame;
 
-    private final List<Window> windowSet = new LinkedList<Window>();
+    private final List<Window> windowSet = new LinkedList<>();
 
 
     /**

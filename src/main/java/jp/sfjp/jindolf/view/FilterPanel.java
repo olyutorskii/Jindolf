@@ -64,8 +64,8 @@ public class FilterPanel extends JDialog
     private final JButton applyButton = new JButton("フィルタ適用");
 
     private final Map<Avatar, JCheckBox> cbMap =
-            new HashMap<Avatar, JCheckBox>();
-    private final List<JCheckBox> cbList = new LinkedList<JCheckBox>();
+            new HashMap<>();
+    private final List<JCheckBox> cbList = new LinkedList<>();
 
     private final EventListenerList listeners = new EventListenerList();
 

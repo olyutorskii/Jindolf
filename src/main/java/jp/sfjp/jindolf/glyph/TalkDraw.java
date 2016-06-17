@@ -88,7 +88,7 @@ public class TalkDraw extends AbstractTextRow{
     private final GlyphDraw caption;
     private BufferedImage faceImage;
     private final GlyphDraw dialog;
-    private final List<AnchorDraw> anchorTalks = new LinkedList<AnchorDraw>();
+    private final List<AnchorDraw> anchorTalks = new LinkedList<>();
     private Point imageOrigin;
     private Point dialogOrigin;
     private Point tipOrigin;

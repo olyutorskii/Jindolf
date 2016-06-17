@@ -192,7 +192,7 @@ public class TabBrowser extends JTabbedPane{
      * @return PeriodView の List
      */
     public List<PeriodView> getPeriodViewList(){
-        List<PeriodView> result = new LinkedList<PeriodView>();
+        List<PeriodView> result = new LinkedList<>();
 
         int tabCount = getTabCount();
         for(int tabIndex = 0; tabIndex <= tabCount - 1; tabIndex++){

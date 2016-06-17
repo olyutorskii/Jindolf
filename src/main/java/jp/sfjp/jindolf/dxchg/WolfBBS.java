@@ -49,7 +49,7 @@ public final class WolfBBS{
             "resources/wolfbbs/faceIconSet.properties";
     private static final String ORDER_PREFIX = "iconset.order.";
     private static final List<FaceIconSet> FACEICONSET_LIST =
-            new LinkedList<FaceIconSet>();
+            new LinkedList<>();
 
     private static final Charset CHARSET_EUC = Charset.forName("EUC-JP");
 
@@ -119,7 +119,7 @@ public final class WolfBBS{
 
         Set<Object> keySet = properties.keySet();
 
-        SortedSet<Integer> orderSet = new TreeSet<Integer>();
+        SortedSet<Integer> orderSet = new TreeSet<>();
         for(Object keyObj : keySet){
             if(keyObj == null) continue;
             String key = keyObj.toString();

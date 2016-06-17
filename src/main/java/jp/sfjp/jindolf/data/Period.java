@@ -68,7 +68,7 @@ public class Period{
     private String loginName;
     private boolean isFullOpen = false;
 
-    private final List<Topic> topicList = new LinkedList<Topic>();
+    private final List<Topic> topicList = new LinkedList<>();
     private final List<Topic> unmodList =
             Collections.unmodifiableList(this.topicList);
 
@@ -489,7 +489,7 @@ public class Period{
      * @return 投票に参加したAvatarのSet
      */
     public Set<Avatar> getVoterSet(){
-        Set<Avatar> result = new HashSet<Avatar>();
+        Set<Avatar> result = new HashSet<>();
 
         for(Topic topic : getTopicList()){
             if( ! (topic instanceof SysEvent) ) continue;
@@ -527,7 +527,7 @@ public class Period{
                 new EntityConverter();
 
         private final Map<Avatar, int[]> countMap =
-                new HashMap<Avatar, int[]>();
+                new HashMap<>();
 
         private Period period = null;
 
@@ -542,11 +542,11 @@ public class Period{
         private EventFamily eventFamily;
         private SysEventType sysEventType;
         private DecodedContent eventContent = null;
-        private final List<Avatar> avatarList = new LinkedList<Avatar>();
-        private final List<GameRole> roleList = new LinkedList<GameRole>();
-        private final List<Integer> integerList = new LinkedList<Integer>();
+        private final List<Avatar> avatarList = new LinkedList<>();
+        private final List<GameRole> roleList = new LinkedList<>();
+        private final List<Integer> integerList = new LinkedList<>();
         private final List<CharSequence>  charseqList =
-            new LinkedList<CharSequence>();
+            new LinkedList<>();
 
         /**
          * コンストラクタ。

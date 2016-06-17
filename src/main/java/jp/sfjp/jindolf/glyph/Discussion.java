@@ -73,8 +73,8 @@ public class Discussion extends JComponent
     private static final int MARGINBOTTOM = 100;
 
     private Period period;
-    private final List<TextRow> rowList       = new LinkedList<TextRow>();
-    private final List<TalkDraw> talkDrawList = new LinkedList<TalkDraw>();
+    private final List<TextRow> rowList       = new LinkedList<>();
+    private final List<TalkDraw> talkDrawList = new LinkedList<>();
 
     private TopicFilter topicFilter;
     private TopicFilter.FilterContext filterContext;

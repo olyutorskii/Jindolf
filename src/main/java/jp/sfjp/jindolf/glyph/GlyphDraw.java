@@ -40,9 +40,9 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
     private final CharSequence source;
 
     private float[] dimArray;
-    private final List<GlyphVector> lines = new LinkedList<GlyphVector>();
+    private final List<GlyphVector> lines = new LinkedList<>();
     private Collection<Anchor> anchorSet;
-    private final List<MatchInfo> matchList = new LinkedList<MatchInfo>();
+    private final List<MatchInfo> matchList = new LinkedList<>();
     private MatchInfo hotTarget = null;
 
     private int selectStart = -1;

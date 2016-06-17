@@ -28,11 +28,11 @@ public class SysEvent implements Topic{
     private SysEventType sysEventType;
     private DecodedContent content;
 
-    private final List<Avatar>   avatarList  = new LinkedList<Avatar>();
-    private final List<GameRole> roleList    = new LinkedList<GameRole>();
-    private final List<Integer>  integerList = new LinkedList<Integer>();
+    private final List<Avatar>   avatarList  = new LinkedList<>();
+    private final List<GameRole> roleList    = new LinkedList<>();
+    private final List<Integer>  integerList = new LinkedList<>();
     private final List<CharSequence>  charseqList =
-            new LinkedList<CharSequence>();
+            new LinkedList<>();
 
     /**
      * コンストラクタ。
@@ -223,7 +223,7 @@ public class SysEvent implements Topic{
      */
     public Set<Avatar> getVoterSet(Set<Avatar> set){
         Set<Avatar> result;
-        if(set == null) result = new HashSet<Avatar>();
+        if(set == null) result = new HashSet<>();
         else            result = set;
 
         if(   this.sysEventType != SysEventType.COUNTING

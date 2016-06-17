@@ -156,7 +156,7 @@ public final class Anchor{
      */
     public static List<Anchor> getAnchorList(CharSequence source,
                                                int currentDay      ){
-        List<Anchor> result = new LinkedList<Anchor>();
+        List<Anchor> result = new LinkedList<>();
 
         Matcher matcher = ANCHOR_PATTERN.matcher(source);
         int regionEnd = source.length();

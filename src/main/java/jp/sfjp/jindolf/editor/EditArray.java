@@ -42,7 +42,7 @@ public class EditArray extends JPanel
 
     private static final int MAX_EDITORS = 50;
 
-    private final List<TalkEditor> editorList = new ArrayList<TalkEditor>();
+    private final List<TalkEditor> editorList = new ArrayList<>();
     private boolean onAdjusting = false;
 
     private final NavigationFilter keyNavigator = new CustomNavigation();

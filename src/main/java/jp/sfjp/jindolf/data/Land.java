@@ -48,7 +48,7 @@ public class Land {
     private final HtmlParser parser = new HtmlParser();
     private final VillageListHandler handler = new VillageListHandler();
 
-    private final List<Village> villageList = new LinkedList<Village>();
+    private final List<Village> villageList = new LinkedList<>();
 
 
     /**
@@ -256,7 +256,7 @@ public class Land {
         ServerAccess server = getServerAccess();
 
         // たまに同じ村が複数回出現するので注意！
-        SortedSet<Village> result = new TreeSet<Village>();
+        SortedSet<Village> result = new TreeSet<>();
 
         // トップページ
         if(state.equals(LandState.ACTIVE) || isVanillaWolf){
@@ -365,7 +365,7 @@ public class Land {
         public void startParse(DecodedContent content)
                 throws HtmlParseException{
             reset();
-            this.villageList = new LinkedList<Village>();
+            this.villageList = new LinkedList<>();
             return;
         }
 

@@ -147,7 +147,7 @@ public class FontEnv {
 
         yield();
 
-        Collection<String> result = new HashSet<String>();
+        Collection<String> result = new HashSet<>();
         int ct = 0;
         for(Font font : allFonts){
             if(++ct % STRIDE == 0) yield();
@@ -253,7 +253,7 @@ public class FontEnv {
                     createFontSet(FontEnv.this.proveChars);
             yield();
 
-            List<String> result = new ArrayList<String>(fontSet);
+            List<String> result = new ArrayList<>(fontSet);
             Collections.sort(result);
             yield();
 

@@ -40,11 +40,11 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
-    private final List<Land> landList = new LinkedList<Land>();
+    private final List<Land> landList = new LinkedList<>();
     private final List<Land> unmodList =
             Collections.unmodifiableList(this.landList);
     private final Map<Land, List<VillageSection>> sectionMap =
-            new HashMap<Land, List<VillageSection>>();
+            new HashMap<>();
     private boolean isLandListLoaded = false;
 
     private final EventListenerList listeners = new EventListenerList();
@@ -347,7 +347,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
         private final int endID;
         private final String prefix;
 
-        private final List<Village> villageList = new LinkedList<Village>();
+        private final List<Village> villageList = new LinkedList<>();
 
 
         /**
@@ -401,7 +401,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
             int startID = village1st.getVillageIDNum();
             int endID = villageLast.getVillageIDNum();
 
-            List<VillageSection> result = new LinkedList<VillageSection>();
+            List<VillageSection> result = new LinkedList<>();
 
             int fixedStart = startID / interval * interval;
             for(int ct = fixedStart; ct <= endID; ct += interval){

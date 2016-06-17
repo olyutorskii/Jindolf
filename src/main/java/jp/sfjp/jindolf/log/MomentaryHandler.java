@@ -44,7 +44,7 @@ public class MomentaryHandler extends Handler{
      */
     public static List<MomentaryHandler>
             getMomentaryHandlers(Logger logger){
-        List<MomentaryHandler> result = new LinkedList<MomentaryHandler>();
+        List<MomentaryHandler> result = new LinkedList<>();
 
         for(Handler handler : logger.getHandlers()){
             if( ! (handler instanceof MomentaryHandler) ) continue;

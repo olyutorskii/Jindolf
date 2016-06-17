@@ -54,12 +54,12 @@ public class OptionInfo{
     private Integer frameXpos   = null;
     private Integer frameYpos   = null;
 
-    private final List<String> invokeArgs = new LinkedList<String>();
-    private final List<CmdOption> optionList = new LinkedList<CmdOption>();
+    private final List<String> invokeArgs = new LinkedList<>();
+    private final List<CmdOption> optionList = new LinkedList<>();
     private final Map<CmdOption, Boolean> boolOptionMap =
-            new EnumMap<CmdOption, Boolean>(CmdOption.class);
+            new EnumMap<>(CmdOption.class);
     private final Map<CmdOption, String> stringOptionMap =
-            new EnumMap<CmdOption, String>(CmdOption.class);
+            new EnumMap<>(CmdOption.class);
 
 
     /**

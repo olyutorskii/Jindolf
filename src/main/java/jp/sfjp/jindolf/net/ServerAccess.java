@@ -47,7 +47,7 @@ public class ServerAccess{
 
     static{
         Map<String, SoftReference<BufferedImage>> cache =
-                new HashMap<String, SoftReference<BufferedImage>>();
+                new HashMap<>();
         IMAGE_CACHE = Collections.synchronizedMap(cache);
     }
 
@@ -118,7 +118,7 @@ public class ServerAccess{
         synchronized(IMAGE_CACHE){
             if(getImageCache(key) != null) return;
             SoftReference<BufferedImage> ref =
-                    new SoftReference<BufferedImage>(image);
+                    new SoftReference<>(image);
             IMAGE_CACHE.put(key, ref);
         }
 

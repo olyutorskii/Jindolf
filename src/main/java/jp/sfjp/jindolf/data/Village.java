@@ -103,21 +103,21 @@ public class Village implements Comparable<Village> {
 
     private VillageState state = VillageState.UNKNOWN;
 
-    private final LinkedList<Period> periodList = new LinkedList<Period>();
+    private final LinkedList<Period> periodList = new LinkedList<>();
     private final List<Period> unmodList =
             Collections.unmodifiableList(this.periodList);
 
     private final Map<String, Avatar> avatarMap =
-            new HashMap<String, Avatar>();
+            new HashMap<>();
 
     private final Map<Avatar, BufferedImage> faceImageMap =
-            new HashMap<Avatar, BufferedImage>();
+            new HashMap<>();
     private final Map<Avatar, BufferedImage> bodyImageMap =
-            new HashMap<Avatar, BufferedImage>();
+            new HashMap<>();
     private final Map<Avatar, BufferedImage> faceMonoImageMap =
-            new HashMap<Avatar, BufferedImage>();
+            new HashMap<>();
     private final Map<Avatar, BufferedImage> bodyMonoImageMap =
-            new HashMap<Avatar, BufferedImage>();
+            new HashMap<>();
 
 
     /**
@@ -567,7 +567,7 @@ public class Village implements Comparable<Village> {
      */
     public List<Talk> getTalkListFromAnchor(Anchor anchor)
             throws IOException{
-        List<Talk> result = new LinkedList<Talk>();
+        List<Talk> result = new LinkedList<>();
 
         /* G国アンカー対応 */
         if(anchor.hasTalkNo()){

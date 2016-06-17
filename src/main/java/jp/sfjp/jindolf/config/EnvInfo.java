@@ -33,10 +33,10 @@ public final class EnvInfo{
     public static final long MAX_MEMORY;
 
     private static final SortedMap<String, String> propertyMap =
-            new TreeMap<String, String>();
+            new TreeMap<>();
 
     private static final SortedMap<String, String> environmentMap =
-            new TreeMap<String, String>();
+            new TreeMap<>();
 
     private static final String[] classpaths;
 
