@@ -721,7 +721,8 @@ public class VillageDigest
         EventQueue.invokeLater(new Runnable(){
             @Override
             public void run(){
-                templateArea.scrollRectToVisible(new Rectangle());
+                JTextArea area = VillageDigest.this.templateArea;
+                area.scrollRectToVisible(new Rectangle());
             }
         });
         // TODO あらかじめテキストを全選択させておきたい
@@ -755,7 +756,7 @@ public class VillageDigest
             this.nextPlayer.setEnabled(true);
         }
 
-        Image image = village.getAvatarFaceImage(avatar);
+        Image image = this.village.getAvatarFaceImage(avatar);
         this.faceIcon.setImage(image);
         this.faceLabel.setIcon(null);          // なぜかこれが必要
         this.faceLabel.setIcon(this.faceIcon);

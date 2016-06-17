@@ -46,7 +46,7 @@ public class Player{
      * @return Avatar
      */
     public Avatar getAvatar(){
-        return avatar;
+        return this.avatar;
     }
 
     /**
@@ -63,7 +63,7 @@ public class Player{
      * @return 役割
      */
     public GameRole getRole(){
-        return role;
+        return this.role;
     }
 
     /**
@@ -80,7 +80,7 @@ public class Player{
      * @return 運命
      */
     public Destiny getDestiny(){
-        return destiny;
+        return this.destiny;
     }
 
     /**
@@ -97,7 +97,7 @@ public class Player{
      * @return プロローグを0とする命日。死んでなければ負。
      */
     public int getObitDay(){
-        return obitDay;
+        return this.obitDay;
     }
 
     /**
@@ -114,7 +114,7 @@ public class Player{
      * @return プレイヤーID
      */
     public String getIdName(){
-        return idName;
+        return this.idName;
     }
 
     /**
@@ -132,7 +132,7 @@ public class Player{
      * @return URL文字列
      */
     public String getUrlText(){
-        return urlText;
+        return this.urlText;
     }
 
     /**
@@ -149,7 +149,7 @@ public class Player{
      * @return エントリーNo.
      */
     public int getEntryNo(){
-        return entryNo;
+        return this.entryNo;
     }
 
     /**

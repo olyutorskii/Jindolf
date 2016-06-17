@@ -37,40 +37,6 @@ import jp.sourceforge.jindolf.parser.SeqRange;
  */
 public class Village implements Comparable<Village> {
 
-    /**
-     * 村同士を比較するためのComparator。
-     */
-    private static class VillageComparator implements Comparator<Village> {
-
-        /**
-         * コンストラクタ。
-         */
-        public VillageComparator(){
-            super();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param v1 {@inheritDoc}
-         * @param v2 {@inheritDoc}
-         * @return {@inheritDoc}
-         */
-        @Override
-        public int compare(Village v1, Village v2){
-            int v1Num;
-            if(v1 == null) v1Num = Integer.MIN_VALUE;
-            else           v1Num = v1.getVillageIDNum();
-
-            int v2Num;
-            if(v2 == null) v2Num = Integer.MIN_VALUE;
-            else           v2Num = v2.getVillageIDNum();
-
-            return v1Num - v2Num;
-        }
-
-    }
-
     private static final int GID_MIN = 3;
 
     private static final Comparator<Village> VILLAGE_COMPARATOR =
@@ -659,6 +625,7 @@ public class Village implements Comparable<Village> {
         return getVillageFullName();
     }
 
+
     /**
      * Period一覧取得用ハンドラ。
      */
@@ -892,6 +859,41 @@ public class Village implements Comparable<Village> {
             }
 
             return;
+        }
+
+    }
+
+
+    /**
+     * 村同士を比較するためのComparator。
+     */
+    private static class VillageComparator implements Comparator<Village> {
+
+        /**
+         * コンストラクタ。
+         */
+        public VillageComparator(){
+            super();
+            return;
+        }
+
+        /**
+         * {@inheritDoc}
+         * @param v1 {@inheritDoc}
+         * @param v2 {@inheritDoc}
+         * @return {@inheritDoc}
+         */
+        @Override
+        public int compare(Village v1, Village v2){
+            int v1Num;
+            if(v1 == null) v1Num = Integer.MIN_VALUE;
+            else           v1Num = v1.getVillageIDNum();
+
+            int v2Num;
+            if(v2 == null) v2Num = Integer.MIN_VALUE;
+            else           v2Num = v2.getVillageIDNum();
+
+            return v1Num - v2Num;
         }
 
     }

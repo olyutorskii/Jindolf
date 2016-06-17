@@ -521,7 +521,7 @@ public class TalkDraw extends AbstractTextRow{
         this.dialog.paint(g);
 
         int anchorX = xPos + OFFSET_ANCHOR;
-        int anchorY = yPos + this.dialogOrigin.y + baloonHeight;
+        int anchorY = yPos + this.dialogOrigin.y + this.baloonHeight;
 
         for(AnchorDraw anchorDraw : this.anchorTalks){
             anchorDraw.setPos(anchorX, anchorY);
