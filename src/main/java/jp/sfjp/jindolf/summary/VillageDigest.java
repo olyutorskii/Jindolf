@@ -71,9 +71,9 @@ public class VillageDigest
 
     private final JLabel faceLabel = new JLabel();
     private final ImageIcon faceIcon = new ImageIcon();
-    private final JComboBox playerBox = new JComboBox();
-    private final DefaultComboBoxModel playerListModel =
-            new DefaultComboBoxModel();
+    private final JComboBox<Avatar> playerBox = new JComboBox<>();
+    private final DefaultComboBoxModel<Avatar> playerListModel =
+            new DefaultComboBoxModel<>();
     private final JButton prevPlayer = new JButton("↑");
     private final JButton nextPlayer = new JButton("↓");
     private final JLabel roleLabel = new JLabel();
@@ -84,9 +84,9 @@ public class VillageDigest
     private final WebButton urlLine = new WebButton();
     private final JComponent playerPanel = buildPlayerPanel();
 
-    private final JComboBox iconSetBox = new JComboBox();
-    private final DefaultComboBoxModel iconSetListModel =
-            new DefaultComboBoxModel();
+    private final JComboBox<FaceIconSet> iconSetBox = new JComboBox<>();
+    private final DefaultComboBoxModel<FaceIconSet> iconSetListModel =
+            new DefaultComboBoxModel<>();
     private final JLabel authorLabel = new JLabel();
     private final JLabel authorUrlLabel = new JLabel();
     private final WebButton iconCatalog = new WebButton();

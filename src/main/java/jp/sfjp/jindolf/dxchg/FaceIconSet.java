@@ -19,7 +19,7 @@ public class FaceIconSet{
     private final String caption;
     private final String author;
     private final String urlText;
-    private final Map<Avatar, String> wikiMap = new HashMap<Avatar, String>();
+    private final Map<Avatar, String> wikiMap = new HashMap<>();
 
     /**
      * コンストラクタ。

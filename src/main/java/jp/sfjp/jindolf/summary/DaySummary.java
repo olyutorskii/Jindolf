@@ -80,7 +80,7 @@ public class DaySummary extends JDialog
     private final TableColumn avatarColumn;
 
     private final JTable tableComp;
-    private final JComboBox typeSelector = new JComboBox();
+    private final JComboBox<String> typeSelector = new JComboBox<>();
     private final JButton closeButton = new JButton("閉じる");
     private final JLabel caption = new JLabel();
     private final JLabel totalSum = new JLabel();
@@ -267,10 +267,10 @@ public class DaySummary extends JDialog
 
         if(this.period == null) return;
 
-        SortedSet<Avatar> avatarSet = new TreeSet<Avatar>();
-        Map<Avatar, Integer> talkCount  = new HashMap<Avatar, Integer>();
-        Map<Avatar, Integer> totalChars = new HashMap<Avatar, Integer>();
-        Map<Avatar, Talk> lastTalk = new HashMap<Avatar, Talk>();
+        SortedSet<Avatar> avatarSet = new TreeSet<>();
+        Map<Avatar, Integer> talkCount  = new HashMap<>();
+        Map<Avatar, Integer> totalChars = new HashMap<>();
+        Map<Avatar, Talk> lastTalk = new HashMap<>();
 
         List<Topic> topicList = this.period.getTopicList();
         for(Topic topic : topicList){

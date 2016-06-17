@@ -61,7 +61,7 @@ public class FontChooser extends JPanel
     private FontInfo lastFontInfo;
 
     private final FontSelectList familySelector;
-    private final JComboBox sizeSelector;
+    private final JComboBox<Integer> sizeSelector;
     private final JCheckBox isBoldCheck;
     private final JCheckBox isItalicCheck;
     private final JCheckBox useTextAntiAliaseCheck;
@@ -99,7 +99,7 @@ public class FontChooser extends JPanel
 
         this.familySelector = new FontSelectList();
 
-        this.sizeSelector = new JComboBox();
+        this.sizeSelector = new JComboBox<>();
         this.sizeSelector.setEditable(true);
         for(int size : POINT_SIZES){
             this.sizeSelector.addItem(size);
@@ -344,7 +344,7 @@ public class FontChooser extends JPanel
         this.familySelector.setSelectedFamily(defaultFamily);
 
         // サイズ指定コンボボックス
-        Integer selectedInteger = Integer.valueOf(currentFont.getSize());
+        Integer selectedInteger = currentFont.getSize();
         this.sizeSelector.setSelectedItem(selectedInteger);
         int sizeItems = this.sizeSelector.getItemCount();
         for(int index = 0; index < sizeItems; index++){

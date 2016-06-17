@@ -104,7 +104,7 @@ public final class Monodizer implements PropertyChangeListener{
             JTextComponent textComp = (JTextComponent) comp;
             modifyTextComponent(textComp);
         }else if(comp instanceof JComboBox){
-            JComboBox combo = (JComboBox) comp;
+            JComboBox<?> combo = (JComboBox) comp;
             modifyComboBox(combo);
         }
 
@@ -128,7 +128,7 @@ public final class Monodizer implements PropertyChangeListener{
      * コンボボックスのエディタを等幅化する。
      * @param comboBox コンボボックス
      */
-    private static void modifyComboBox(JComboBox comboBox){
+    private static void modifyComboBox(JComboBox<?> comboBox){
         ComboBoxEditor editor = comboBox.getEditor();
         if(editor == null) return;
 

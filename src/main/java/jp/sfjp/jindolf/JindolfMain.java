@@ -34,7 +34,7 @@ import jp.sfjp.jindolf.view.WindowManager;
 
 /**
  * Jindolf スタートアップクラス。
- * <p>{@link JindolfJre16}の下請けとして本格的なJindolf起動処理に入る。
+ * <p>{@link JindolfJre17}の下請けとして本格的なJindolf起動処理に入る。
  */
 public final class JindolfMain {
 

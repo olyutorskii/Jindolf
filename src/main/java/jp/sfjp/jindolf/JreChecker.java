@@ -30,7 +30,7 @@ import javax.swing.JOptionPane;
 public final class JreChecker {
 
     /** Jindolfが実行時に必要とするJREの版。 */
-    public static final String REQUIRED_JRE_VER = "1.6";
+    public static final String REQUIRED_JRE_VER = "1.7";
 
     /** 互換性エラーの終了コード。 */
     public static final int EXIT_CODE_INCOMPAT_JRE = 1;
@@ -143,7 +143,19 @@ public final class JreChecker {
         return result;
     }
 
-    // TODO JRE1.7,1.8 対応
+    /**
+     * JRE 1.7 相当のランタイムライブラリが提供されているか判定する。
+     * @return 提供されているならtrue
+     * @see java.lang.AutoCloseable
+     */
+    public static boolean has17Runtime(){
+        boolean result;
+        if(has16Runtime()) result = hasClass("java.lang.AutoCloseable");
+        else               result = false;
+        return result;
+    }
+
+    // TODO JRE1.8 対応
 
     /**
      * JREもしくは<code>java.lang</code>パッケージの
@@ -257,12 +269,12 @@ public final class JreChecker {
     }
 
     /**
-     * JRE環境をチェックする。(JRE1.6)
+     * JRE環境をチェックする。(JRE1.7)
      * <p>もしJREの非互換性が検出されたらエラーメッセージを報告する。
      * @return 互換性があれば0、無ければ非0
      */
     public static int checkJre(){
-        if(has16Runtime()) return 0;
+        if(has17Runtime()) return 0;
 
         String message = buildErrMessage();
         STDERR.println(message);

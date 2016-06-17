@@ -18,7 +18,7 @@ import javax.swing.event.ListDataListener;
  * <p>フォント一覧の遅延読み込みに対応。
  */
 @SuppressWarnings("serial")
-public class FontSelectList extends JList
+public class FontSelectList extends JList<String>
         implements ListDataListener {
 
     private String selectedFamily = null;
@@ -30,7 +30,7 @@ public class FontSelectList extends JList
     public FontSelectList(){
         super();
 
-        ListModel fontListModel = new FontListModel();
+        ListModel<String> fontListModel = new FontListModel();
         setModelImpl(fontListModel);
         setVisibleRowCount(-1);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -43,8 +43,8 @@ public class FontSelectList extends JList
      * 与えられたモデルの更新は監視対象となる。
      * @param model リストモデル
      */
-    private void setModelImpl(ListModel model){
-        ListModel oldModel = getModel();
+    private void setModelImpl(ListModel<String> model){
+        ListModel<String> oldModel = getModel();
         if(oldModel != null){
             oldModel.removeListDataListener(this);
         }
@@ -62,7 +62,7 @@ public class FontSelectList extends JList
      * @param model {@inheritDoc}
      */
     @Override
-    public void setModel(ListModel model){
+    public void setModel(ListModel<String> model){
         setModelImpl(model);
         return;
     }

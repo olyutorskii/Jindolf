@@ -76,7 +76,7 @@ public class FindPanel extends JDialog
     private static final String LABEL_REENTER = "再入力";
     private static final String LABEL_IGNORE = "無視して検索をキャンセル";
 
-    private final JComboBox findBox = new JComboBox();
+    private final JComboBox<Object> findBox = new JComboBox<>();
     private final JButton searchButton = new JButton("検索");
     private final JButton clearButton = new JButton("クリア");
     private final JCheckBox capitalSwitch =
@@ -494,7 +494,7 @@ public class FindPanel extends JDialog
         result.putValue("history", array);
 
         List<RegexPattern> history = this.model.getOriginalHistoryList();
-        history = new ArrayList<RegexPattern>(history);
+        history = new ArrayList<>(history);
         Collections.reverse(history);
         for(RegexPattern regex : history){
             JsObject obj = RegexPattern.encodeJson(regex);
@@ -564,7 +564,7 @@ public class FindPanel extends JDialog
          */
         @Override
         public Component getListCellRendererComponent(
-                JList list,
+                JList<?> list,
                 Object value,
                 int index,
                 boolean isSelected,
@@ -602,14 +602,14 @@ public class FindPanel extends JDialog
     /**
      * コンボボックスの独自データモデル。
      */
-    private static class CustomModel implements ComboBoxModel{
+    private static class CustomModel implements ComboBoxModel<Object>{
 
         private static final int HISTORY_MAX = 7;
         private static final RegexPattern INITITEM =
             new RegexPattern(
                 "", false, RegexPattern.IGNORECASEFLAG | Pattern.DOTALL);
         private static final List<RegexPattern> PREDEF_PATTERN_LIST =
-                new LinkedList<RegexPattern>();
+                new LinkedList<>();
 
         static{
             PREDEF_PATTERN_LIST.add(
@@ -630,7 +630,7 @@ public class FindPanel extends JDialog
         }
 
         private final List<RegexPattern> history =
-                new LinkedList<RegexPattern>();
+                new LinkedList<>();
         private final JSeparator separator1st = new JSeparator();
         private final JSeparator separator2nd = new JSeparator();
         private Object selected;

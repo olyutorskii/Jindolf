@@ -9,9 +9,10 @@ package jp.sfjp.jindolf;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -107,9 +108,17 @@ public class JreCheckerTest {
     @Test
     public void testHas16Runtime() {
         System.out.println("has16Runtime");
+        assertTrue(JreChecker.has16Runtime());
+        return;
+    }
 
-        boolean result = JreChecker.has16Runtime();
-
+    /**
+     * Test of has17Runtime method, of class JreChecker.
+     */
+    @Test
+    public void testHas17Runtime() {
+        System.out.println("has17Runtime");
+        assertTrue(JreChecker.has17Runtime());
         return;
     }
 
@@ -199,9 +208,7 @@ public class JreCheckerTest {
     public void testCheckJre() {
         System.out.println("checkJre");
 
-        if(false){
-            JreChecker.checkJre();
-        }
+        JreChecker.checkJre();
 
         return;
     }

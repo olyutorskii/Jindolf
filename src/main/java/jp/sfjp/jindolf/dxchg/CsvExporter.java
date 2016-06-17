@@ -78,7 +78,7 @@ public final class CsvExporter{
 
     private static final List<Charset> CHARSET_LIST = buildCharsetList();
     private static final FileFilter CSV_FILTER = new CsvFileFilter();
-    private static final JComboBox encodeBox = new JComboBox();
+    private static final JComboBox<Charset> encodeBox = new JComboBox<>();
     private static final JFileChooser chooser = buildChooser();
     // TODO staticなGUIパーツってどうなんだ…
 
@@ -115,7 +115,7 @@ public final class CsvExporter{
      * @return 日本語Charset一覧
      */
     private static List<Charset> buildCharsetList(){
-        List<Charset> csList = new LinkedList<Charset>();
+        List<Charset> csList = new LinkedList<>();
         for(String name : ENCNAMES){
             if( ! Charset.isSupported(name) ) continue;
             Charset cs = Charset.forName(name);

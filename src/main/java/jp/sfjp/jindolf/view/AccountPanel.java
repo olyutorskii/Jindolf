@@ -56,11 +56,11 @@ public class AccountPanel
 
 
     private final Map<Land, String> landUserIDMap =
-            new HashMap<Land, String>();
+            new HashMap<>();
     private final Map<Land, char[]> landPasswordMap =
-            new HashMap<Land, char[]>();
+            new HashMap<>();
 
-    private final JComboBox landBox = new JComboBox();
+    private final JComboBox<Land> landBox = new JComboBox<>();
     private final JTextField idField = new JTextField(15);
     private final JPasswordField pwField = new JPasswordField(15);
     private final JButton loginButton = new JButton("ログイン");

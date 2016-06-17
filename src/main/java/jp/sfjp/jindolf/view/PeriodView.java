@@ -56,8 +56,9 @@ public class PeriodView extends JPanel implements ItemListener{
     private final JScrollPane scroller = new JScrollPane();
     private final JLabel caption = new JLabel();
     private final JLabel limit = new JLabel();
-    private final JComboBox talkSelector = new JComboBox();
-    private final DefaultComboBoxModel model = new DefaultComboBoxModel();
+    private final JComboBox<Talk> talkSelector = new JComboBox<>();
+    private final DefaultComboBoxModel<Talk> model =
+            new DefaultComboBoxModel<>();
 
     private DialogPref dialogPref = new DialogPref();
 
@@ -208,7 +209,7 @@ public class PeriodView extends JPanel implements ItemListener{
         this.limit.setText("更新時刻 " + limitCaption);
 
         this.model.removeAllElements();
-        this.model.addElement(" ");
+        this.model.addElement(null);
         List<Topic> topicList = this.period.getTopicList();
         for(Topic topic : topicList){
             if( ! (topic instanceof Talk) ) continue;
@@ -348,13 +349,13 @@ public class PeriodView extends JPanel implements ItemListener{
          */
         @Override
         public Component getListCellRendererComponent(
-                JList list,
+                JList<?> list,
                 Object value,
                 int index,
                 boolean isSelected,
                 boolean cellHasFocus ){
             Talk talk = null;
-            Object newValue = value;
+            Object newValue;
             if(value instanceof Talk){
                 talk = (Talk) value;
                 newValue = new StringBuilder()
@@ -362,6 +363,8 @@ public class PeriodView extends JPanel implements ItemListener{
                           .append(' ')
                           .append(talk.getAvatar().getName())
                           .toString();
+            }else{
+                newValue=" ";
             }
 
             Component superResult =

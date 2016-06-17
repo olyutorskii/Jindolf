@@ -22,11 +22,11 @@ import javax.swing.AbstractListModel;
  * 基本的にスレッド間競合の問題はEDTで解決すること。
  */
 @SuppressWarnings("serial")
-public class FontListModel extends AbstractListModel {
+public class FontListModel extends AbstractListModel<String> {
 
     private static final FontEnv DEFAULT_FONTENV = FontEnv.DEFAULT;
 
-    private final List<String> familyList = new LinkedList<String>();
+    private final List<String> familyList = new LinkedList<>();
 
     /**
      * コンストラクタ。
@@ -63,8 +63,8 @@ public class FontListModel extends AbstractListModel {
      * @return {@inheritDoc}
      */
     @Override
-    public Object getElementAt(int index){
-        Object result = this.familyList.get(index);
+    public String getElementAt(int index){
+        String result = this.familyList.get(index);
         return result;
     }
 

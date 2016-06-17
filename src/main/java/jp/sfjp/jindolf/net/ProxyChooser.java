@@ -50,7 +50,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
     private final ButtonGroup buttonGroup = new ButtonGroup();
 
     private final JTextField hostname = new JTextField();
-    private final JComboBox port = new JComboBox();
+    private final JComboBox<Integer> port = new JComboBox<>();
     private final JComponent serverInfo = buildServerPanel();
 
 
@@ -102,14 +102,14 @@ public class ProxyChooser extends JPanel implements ItemListener{
      * ポート番号選択肢を生成する。
      * @return ポート番号選択肢
      */
-    private static ComboBoxModel buildPortRecommender(){
-        DefaultComboBoxModel model = new DefaultComboBoxModel();
-        model.addElement("80");
-        model.addElement("1080");
-        model.addElement("3128");
-        model.addElement("8000");
-        model.addElement("8080");
-        model.addElement("10080");
+    private static ComboBoxModel<Integer> buildPortRecommender(){
+        DefaultComboBoxModel<Integer> model = new DefaultComboBoxModel<>();
+        model.addElement(80);
+        model.addElement(1080);
+        model.addElement(3128);
+        model.addElement(8000);
+        model.addElement(8080);
+        model.addElement(10080);
         return model;
     }
 
