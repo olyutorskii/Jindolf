@@ -191,8 +191,11 @@ public class DaySummary extends JDialog
         String talks = talkCount + " 回";
 
         double average;
-        if(talkCount <= 0) average = 0.0;
-        else               average = (double)totalChars / (double)talkCount;
+        if(talkCount <= 0){
+            average = 0.0;
+        }else{
+            average = (double) totalChars / (double) talkCount;
+        }
         String chars = AVERAGE_FORM.format(average) + " 文字";
 
         Object[] row = {avatar, talks, chars, lastTime};

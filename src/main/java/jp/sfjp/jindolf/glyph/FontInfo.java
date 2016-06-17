@@ -56,7 +56,7 @@ public class FontInfo{
      * デフォルトフォントとそれに適した描画属性が指定される。
      */
     public FontInfo(){
-        this((Font)null, (FontRenderContext)null);
+        this((Font) null, (FontRenderContext) null);
         return;
     }
 

@@ -218,7 +218,7 @@ public class AccountPanel
      * @return 現在選択中のLand
      */
     private Land getSelectedLand(){
-        Land land = (Land)( this.landBox.getSelectedItem() );
+        Land land = (Land) ( this.landBox.getSelectedItem() );
         return land;
     }
 

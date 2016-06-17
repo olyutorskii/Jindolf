@@ -465,7 +465,7 @@ public class WebIPCDialog
          */
         @Override
         public void mousePressed(MouseEvent event){
-            JComponent comp = (JComponent)event.getSource();
+            JComponent comp = (JComponent) event.getSource();
             TransferHandler handler = comp.getTransferHandler();
             handler.exportAsDrag(comp, event, TransferHandler.COPY);
             return;

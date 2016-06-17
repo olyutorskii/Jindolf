@@ -549,7 +549,7 @@ public class Controller
 
         final LookAndFeel lnf;
         try{
-            lnf = (LookAndFeel)( lnfClass.newInstance() );
+            lnf = (LookAndFeel) ( lnfClass.newInstance() );
         }catch(InstantiationException e){
             String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
@@ -1463,13 +1463,13 @@ public class Controller
         Object selObj = path.getLastPathComponent();
 
         if( selObj instanceof Land ){
-            Land land = (Land)selObj;
+            Land land = (Land) selObj;
             setFrameTitle(land.getLandDef().getLandName());
             this.topView.showLandInfo(land);
             this.actionManager.appearVillage(false);
             this.actionManager.appearPeriod(false);
         }else if( selObj instanceof Village ){
-            final Village village = (Village)selObj;
+            final Village village = (Village) selObj;
 
             Executor executor = Executors.newCachedThreadPool();
             executor.execute(new Runnable(){

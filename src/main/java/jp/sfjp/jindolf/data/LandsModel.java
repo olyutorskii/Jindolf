@@ -228,7 +228,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
             return land;
         }
         if(parent instanceof Land){
-            Land land = (Land)parent;
+            Land land = (Land) parent;
             List<VillageSection> sectionList = this.sectionMap.get(land);
             int sectIndex = index;
             if( ! this.ascending) sectIndex = sectionList.size() - index - 1;
@@ -236,7 +236,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
             return section;
         }
         if(parent instanceof VillageSection){
-            VillageSection section = (VillageSection)parent;
+            VillageSection section = (VillageSection) parent;
             int vilIndex = index;
             if( ! this.ascending){
                 vilIndex = section.getVillageCount() - index - 1;
@@ -258,13 +258,13 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
             return getLandList().size();
         }
         if(parent instanceof Land){
-            Land land = (Land)parent;
+            Land land = (Land) parent;
             List<VillageSection> sectionList = this.sectionMap.get(land);
             if(sectionList == null) return 0;
             return sectionList.size();
         }
         if(parent instanceof VillageSection){
-            VillageSection section = (VillageSection)parent;
+            VillageSection section = (VillageSection) parent;
             return section.getVillageCount();
         }
         return 0;
@@ -286,14 +286,14 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
             return index;
         }
         if(parent instanceof Land){
-            Land land = (Land)parent;
+            Land land = (Land) parent;
             List<VillageSection> sectionList = this.sectionMap.get(land);
             int index = sectionList.indexOf(child);
             if( ! this.ascending) index = sectionList.size() - index - 1;
             return index;
         }
         if(parent instanceof VillageSection){
-            VillageSection section = (VillageSection)parent;
+            VillageSection section = (VillageSection) parent;
             int index = section.getIndexOfVillage(child);
             if( ! this.ascending){
                 index = section.getVillageCount() - index - 1;

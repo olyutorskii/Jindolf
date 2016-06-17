@@ -28,7 +28,7 @@ public class SwingDocHandler extends Handler{
 
     private static final int DOCLIMIT = 100 * 1000; // 単位は文字
     private static final float CHOPRATIO = 0.9f;
-    private static final int CHOPPEDLEN = (int)(DOCLIMIT * CHOPRATIO);
+    private static final int CHOPPEDLEN = (int) (DOCLIMIT * CHOPRATIO);
 
     static{
         assert DOCLIMIT > CHOPPEDLEN;

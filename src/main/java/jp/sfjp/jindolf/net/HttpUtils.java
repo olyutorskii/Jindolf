@@ -59,8 +59,8 @@ public final class HttpUtils{
     public static String throughput(long size, long nano){
         if(size <= 0 || nano <= 0) return "";
 
-        double sec = ((double)nano) / (1000.0 * 1000.0 * 1000.0);
-        double rate = ((double)size) / sec;
+        double sec = ((double) nano) / (1000.0 * 1000.0 * 1000.0);
+        double rate = ((double) size) / sec;
 
         String unit = "";
         if(rate >= 1500.0){

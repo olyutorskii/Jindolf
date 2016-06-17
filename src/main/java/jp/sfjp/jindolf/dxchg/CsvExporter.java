@@ -410,7 +410,7 @@ public final class CsvExporter{
         }
         os = new BufferedOutputStream(os, BUFSIZ);
 
-        Charset cs = (Charset)( encodeBox.getSelectedItem() );
+        Charset cs = (Charset) ( encodeBox.getSelectedItem() );
 
         boolean hasIOError = false;
         Writer writer = new OutputStreamWriter(os, cs);

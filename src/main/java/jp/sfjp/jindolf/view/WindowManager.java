@@ -406,7 +406,7 @@ public class WindowManager {
      */
     public static void updateTreeUI(Component comp, boolean isRoot) {
         if(comp instanceof JComponent){
-            JComponent jcomp = (JComponent)comp;
+            JComponent jcomp = (JComponent) comp;
             jcomp.updateUI();
 
             JPopupMenu popup = jcomp.getComponentPopupMenu();
@@ -416,12 +416,12 @@ public class WindowManager {
         }
 
         if(comp instanceof JMenu){
-            JMenu menu = (JMenu)comp;
+            JMenu menu = (JMenu) comp;
             for(Component child : menu.getMenuComponents()){
                 updateTreeUI(child, false);
             }
         }else if(comp instanceof Container){
-            Container cont = (Container)comp;
+            Container cont = (Container) comp;
             for(Component child : cont.getComponents()){
                 updateTreeUI(child, false);
             }

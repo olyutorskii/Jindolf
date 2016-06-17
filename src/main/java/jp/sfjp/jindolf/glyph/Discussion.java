@@ -518,9 +518,9 @@ public class Discussion extends JComponent
 
         Topic topic;
         if(row instanceof TalkDraw){
-            topic = ((TalkDraw)row).getTalk();
+            topic = ((TalkDraw) row).getTalk();
         }else if(row instanceof SysEventDraw){
-            topic = ((SysEventDraw)row).getSysEvent();
+            topic = ((SysEventDraw) row).getSysEvent();
         }else{
             return false;
         }

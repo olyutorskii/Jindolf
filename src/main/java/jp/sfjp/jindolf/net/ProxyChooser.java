@@ -86,7 +86,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
         Component comp = editor.getEditorComponent();
         GUIUtils.addMargin(comp, 1, 4, 1, 4);
         if(comp instanceof JComponent){
-            ((JComponent)comp).setComponentPopupMenu(new TextPopup());
+            ((JComponent) comp).setComponentPopupMenu(new TextPopup());
         }
         Monodizer.monodize(this.port);
 

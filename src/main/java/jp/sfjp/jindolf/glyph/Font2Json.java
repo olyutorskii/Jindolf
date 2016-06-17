@@ -112,7 +112,7 @@ public final class Font2Json {
             size = number.intValue();
         }
 
-        Font derivedFont = font.deriveFont(style, (float)size);
+        Font derivedFont = font.deriveFont(style, (float) size);
 
         return derivedFont;
     }

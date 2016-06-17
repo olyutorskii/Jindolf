@@ -166,7 +166,7 @@ public class RegexPattern{
         String source;
         value = object.getValue("source");
         if(value instanceof JsString){
-            source = ((JsString)value).toRawString();
+            source = ((JsString) value).toRawString();
         }else{
             source = "";
         }
@@ -174,7 +174,7 @@ public class RegexPattern{
         boolean isRegex;
         value = object.getValue("isRegex");
         if(value instanceof JsBoolean){
-            isRegex = ((JsBoolean)value).booleanValue();
+            isRegex = ((JsBoolean) value).booleanValue();
         }else{
             isRegex = false;
         }
@@ -182,19 +182,19 @@ public class RegexPattern{
         int regexFlag = 0x00000000;
         value = object.getValue("dotall");
         if(value instanceof JsBoolean){
-            if(((JsBoolean)value).isTrue()){
+            if(((JsBoolean) value).isTrue()){
                 regexFlag |= Pattern.DOTALL;
             }
         }
         value = object.getValue("multiline");
         if(value instanceof JsBoolean){
-            if(((JsBoolean)value).isTrue()){
+            if(((JsBoolean) value).isTrue()){
                 regexFlag |= Pattern.MULTILINE;
             }
         }
         value = object.getValue("ignorecase");
         if(value instanceof JsBoolean){
-            if(((JsBoolean)value).isTrue()){
+            if(((JsBoolean) value).isTrue()){
                 regexFlag |= IGNORECASEFLAG;
             }
         }
@@ -202,7 +202,7 @@ public class RegexPattern{
         String comment;
         value = object.getValue("comment");
         if(value instanceof JsString){
-            comment = ((JsString)value).toRawString();
+            comment = ((JsString) value).toRawString();
         }else{
             comment = "";
         }

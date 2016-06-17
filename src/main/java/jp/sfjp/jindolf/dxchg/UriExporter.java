@@ -65,7 +65,7 @@ public class UriExporter implements Transferable{
         int index = 0;
         for(DataFlavor dataFlavor : URI_FLAVORS){
             try{
-                result[index++] = (DataFlavor)( dataFlavor.clone() );
+                result[index++] = (DataFlavor) ( dataFlavor.clone() );
             }catch(CloneNotSupportedException e){
                 assert false;
                 throw new AssertionError(e);
