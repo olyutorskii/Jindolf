@@ -20,9 +20,9 @@
 
 === 実行環境 ===
 
- - JindolfはJava言語(JLS3)で記述されたプログラムです。
- - JindolfはJRE1.6に準拠したJava実行環境で利用できるように作られています。
-   原則として、JRE1.6に準拠した実行系であれば、プラットフォームを選びません。
+ - JindolfはJava言語(JavaSE7)で記述されたプログラムです。
+ - JindolfはJRE1.7に準拠したJava実行環境で利用できるように作られています。
+   原則として、JRE1.7に準拠した実行系であれば、プラットフォームを選びません。
  - JindolfはGUIを通じて操作するプログラムのため、その実行においては
    ビットマップディスプレイとポインティングデバイスとキーボードへの接続を
    必要とします。
@@ -41,12 +41,12 @@
 
 === 開発プロジェクト運営元 ===
 
-  http://sourceforge.jp/projects/jindolf/devel/ まで。
+  https://osdn.jp/projects/jindolf/devel/ まで。
 
 
 === ソフトウェア利用者向けポータルサイト ===
 
-  http://jindolf.sourceforge.jp/ まで。
+  http://jindolf.osdn.jp/ まで。
 
 
 === ディレクトリ内訳構成 ===

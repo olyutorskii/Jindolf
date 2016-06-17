@@ -34,7 +34,7 @@ import jp.sourceforge.jindolf.corelib.GameRole;
  * まちゅ氏運営のまとめサイト(wolfbbs)に関する諸々。
  * PukiWikiベース。
  * @see <a href="http://wolfbbs.jp/">まとめサイト</a>
- * @see <a href="http://pukiwiki.sourceforge.jp/">PukiWiki</a>
+ * @see <a href="http://pukiwiki.osdn.jp/">PukiWiki</a>
  */
 public final class WolfBBS{
 

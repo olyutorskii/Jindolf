@@ -388,7 +388,7 @@ public final class ConfigFile{
                     + "Jindolfの各種設定が格納されるディレクトリです。");
             writer.println(
                     "Jindolfの詳細は "
-                    + "http://jindolf.sourceforge.jp/"
+                    + "http://jindolf.osdn.jp/"
                     + " を参照してください。");
             writer.println(
                     "このディレクトリを"

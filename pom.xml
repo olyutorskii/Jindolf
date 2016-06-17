@@ -26,18 +26,18 @@
 -->専用クライアントを製作するために発足したオープンソースプロジェクトです。<!--
  --></description>
 
-    <url>http://jindolf.sourceforge.jp/</url>
+    <url>http://jindolf.osdn.jp/</url>
     <inceptionYear>2008</inceptionYear>
 
     <organization>
         <name>Jindolf Partners</name>
-        <url>http://sourceforge.jp/projects/jindolf/devel/</url>
+        <url>https://osdn.jp/projects/jindolf/devel/</url>
     </organization>
 
     <licenses>
         <license>
             <name>The MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <url>https://opensource.org/licenses/mit-license.php</url>
             <distribution>manual</distribution>
         </license>
     </licenses>
@@ -45,9 +45,9 @@
     <developers>
         <developer>
             <id>olyutorskii</id>
-            <url>http://sites.google.com/site/olyutorskiipit/</url>
+            <url>https://sites.google.com/site/olyutorskiipit/</url>
             <organization>Jindolf Partners</organization>
-            <organizationUrl>http://sourceforge.jp/projects/jindolf/devel/</organizationUrl>
+            <organizationUrl>https://osdn.jp/projects/jindolf/devel/</organizationUrl>
             <roles>
                 <role>Project Founder</role>
                 <role>Java Developer</role>
@@ -65,14 +65,14 @@
     <modules/>
 
     <scm>
-        <connection>scm:hg:http://hg.sourceforge.jp/view/jindolf/Jindolf</connection>
-        <developerConnection>scm:hg:ssh://hg.sourceforge.jp//hgroot/jindolf/Jindolf</developerConnection>
-        <url>http://hg.sourceforge.jp/view/jindolf/Jindolf/</url>
+        <connection>scm:hg:http://hg.osdn.jp/view/jindolf/Jindolf</connection>
+        <developerConnection>scm:hg:ssh://hg.osdn.jp//hgroot/jindolf/Jindolf</developerConnection>
+        <url>https://osdn.jp/projects/jindolf/scm/hg/Jindolf/</url>
     </scm>
 
     <issueManagement>
-        <system>SourceForge.JP</system>
-        <url>http://sourceforge.jp/projects/jindolf/ticket/</url>
+        <system>OSDN.JP</system>
+        <url>https://osdn.jp/projects/jindolf/ticket/</url>
     </issueManagement>
 
     <ciManagement/>
