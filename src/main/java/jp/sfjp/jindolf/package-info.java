@@ -8,7 +8,7 @@
 /**
  * これはSwingアプリケーション「Jindolf」を構成するパッケージです。
  *
- * Jindolf プロジェクトは、
+ * <p>Jindolf プロジェクトは、
  * CGIゲーム
  * 「<a href="http://ninjinix.com/">人狼BBS</a>」
  * を快適にプレイするための専用クライアントを製作するために発足した

@@ -76,6 +76,7 @@ public final class VerInfo {
 
     /**
      * プロパティからルートパッケージのパッケージ情報を取得する。
+     *
      * @param prop プロパティ
      * @param prefix 接頭辞
      * @param defValue 見つからなかった場合のデフォルト値
@@ -92,6 +93,7 @@ public final class VerInfo {
 
     /**
      * プロパティからパッケージに紐づけられたパッケージ情報を取得する。
+     *
      * @param prop プロパティ
      * @param prefix 接頭辞
      * @param pkg 任意のパッケージ
@@ -115,8 +117,11 @@ public final class VerInfo {
 
     /**
      * 文字列がMavenのマクロフィルタ置換子でありうるか判定する。
+     *
      * <p>「${」で始まり「}」で終わる文字列を置換子とみなす。
+     *
      * <p>マクロ展開結果がさらに偶然引っかかった場合はあきらめる。
+     *
      * @param text 文字列
      * @return 置換子でありうるならtrue
      */
@@ -129,8 +134,10 @@ public final class VerInfo {
 
     /**
      * ウィンドウタイトル名を生成する。
+     *
      * <p>各ウィンドウタイトルには、他のアプリとの区別のため
      * アプリ名が付加される。
+     *
      * @param base タイトル基本部
      * @return アプリ名が付加されたウィンドウタイトル。
      */

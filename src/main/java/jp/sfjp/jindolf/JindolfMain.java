@@ -34,6 +34,7 @@ import jp.sfjp.jindolf.view.WindowManager;
 
 /**
  * Jindolf スタートアップクラス。
+ *
  * <p>{@link JindolfJre17}の下請けとして本格的なJindolf起動処理に入る。
  */
 public final class JindolfMain {
@@ -114,7 +115,9 @@ public final class JindolfMain {
 
     /**
      * スプラッシュウィンドウを表示する。
+     *
      * <p>JRE1.6以降では何も表示しない。
+     *
      * @return スプラッシュウィンドウ。JRE1.6以降ならnullを返す。
      */
     @SuppressWarnings("CallToThreadYield")
@@ -282,8 +285,10 @@ public final class JindolfMain {
 
     /**
      * JindolfMain のスタートアップエントリ。
+     *
      * <p>スプラッシュウィンドウが出ている状態。
      * 時間のかかる初期化処理はなるべくこの中へ。
+     *
      * @param optinfo コマンドライン引数情報
      * @return 起動に成功すれば0。失敗したら0以外。
      */

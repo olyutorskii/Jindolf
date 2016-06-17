@@ -15,6 +15,7 @@ import javax.swing.event.ListDataListener;
 
 /**
  * フォント選択リスト。
+ *
  * <p>フォント一覧の遅延読み込みに対応。
  */
 @SuppressWarnings("serial")

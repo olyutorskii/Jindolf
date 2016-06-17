@@ -16,9 +16,12 @@ import javax.swing.JOptionPane;
 
 /**
  * JRE1.7の利用が解禁されたJindolfエントリ。
+ *
  * <p>起動クラスJindolfの下請けとしての機能が想定される。
+ *
  * <p>必ずしも必要ないが、異常系切り分けに有用な、
  * 実行環境やビルドの成否に関する各種診断を行う。
+ *
  * <p>各種診断を通過した後、JindolfMainに制御を渡す。
  */
 public final class JindolfJre17 {
@@ -117,7 +120,9 @@ public final class JindolfJre17 {
 
     /**
      * ビルド時のエンコーディングミスを判定する。
+     *
      * <p>※ 非Unicode系の開発環境を使いたい人は適当に無視してね。
+     *
      * @return 成功すれば0。失敗したら0以外。
      */
     private static int checkSourceEncoding(){
@@ -178,7 +183,9 @@ public final class JindolfJre17 {
 
     /**
      * JVM内で多重起動していないかチェックする。
+     *
      * <p>多重起動を確認した場合は、GUIにダイアログを出力する。
+     *
      * @return 成功すれば0。失敗したら0以外。
      */
     private static int checkHasInvoked(){
@@ -192,8 +199,11 @@ public final class JindolfJre17 {
 
     /**
      * Jindolf のスタートアップエントリ。
+     *
      * <p>ここからJRE1.7の利用が解禁される。
+     *
      * <p>最終的に{@link JindolfMain}へ制御が渡される。
+     *
      * @param args コマンドライン引数
      * @return 起動に成功すれば0。失敗したら0以外。
      */

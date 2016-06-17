@@ -155,7 +155,9 @@ public final class FileUtils{
      * ファイルの読み込みパーミッションを操作する。
      * JRE1.6の{@link java.io.File#setReadable(boolean,boolean)}
      * の代用品。
+     *
      * <p>JRE1.6でなければなにもせずにfalseを返す。
+     *
      * @param file ファイルorディレクトリ
      * @param flag 操作フラグ
      * @param ownerOnly 対象は所有者のみか否か
@@ -177,7 +179,9 @@ public final class FileUtils{
      * ファイルの書き込みパーミッションを操作する。
      * JRE1.6の{@link java.io.File#setWritable(boolean,boolean)}
      * の代用品。
+     *
      * <p>JRE1.6でなければなにもせずにfalseを返す。
+     *
      * @param file ファイルorディレクトリ
      * @param flag 操作フラグ
      * @param ownerOnly 対象は所有者のみか否か
@@ -347,7 +351,7 @@ public final class FileUtils{
      * その格納ディレクトリを返す。
      * @param klass 任意のクラス
      * @return ロード元JARファイルの格納ディレクトリ。
-     * JARが見つからない、もしくはロード元がJARファイルでなければnull。
+     *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
     public static File getJarDirectory(Class<?> klass){
         File jarFile = getClassSourceFile(klass);
@@ -364,7 +368,7 @@ public final class FileUtils{
      * このクラスがローカルJARファイルからロードされたのであれば
      * その格納ディレクトリを返す。
      * @return ロード元JARファイルの格納ディレクトリ。
-     * JARが見つからない、もしくはロード元がJARファイルでなければnull。
+     *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
     public static File getJarDirectory(){
         return getJarDirectory(THISKLASS);
@@ -441,9 +445,11 @@ public final class FileUtils{
     /**
      * アプリケーション設定ディレクトリを返す。
      * 存在の有無、アクセスの可否は関知しない。
+     *
      * <p>WindowsやLinuxではホームディレクトリ。
      * Mac OS X ではさらにホームディレクトリの下の
      * "Library/Application Support/"
+     *
      * @return アプリケーション設定ディレクトリ
      */
     public static File getAppSetDir(){

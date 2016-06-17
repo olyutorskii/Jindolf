@@ -73,7 +73,9 @@ public class OptionInfo{
 
     /**
      * 文字列が可変引数のいずれかと英字大小無視で等しいか判定する。
+     *
      * <p>※ JRE1.6のString#equalsIgnoreCase の代替も兼ねる。
+     *
      * @param text 文字列
      * @param names 文字列の可変引数
      * @return 等しい物があればtrue
@@ -117,7 +119,9 @@ public class OptionInfo{
 
     /**
      * ウィンドウジオメトリオプション解析。
+     *
      * <p>例) WIDTHxHEIGHT+XPOS+YPOS
+     *
      * @param info オプション情報格納先
      * @param optTxt オプション名文字列
      * @param geometry オプション引数

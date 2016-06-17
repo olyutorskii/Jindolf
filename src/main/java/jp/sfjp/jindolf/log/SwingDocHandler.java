@@ -21,7 +21,9 @@ import javax.swing.text.Document;
  * Swingテキストコンポーネント用データモデル
  * {@link javax.swing.text.Document}
  * に出力する{@link java.util.logging.Handler}。
+ *
  * <p>スレッド間競合はEDTで解決される。
+ *
  * <p>一定の文字数を超えないよう、古い記録は消去される。
  */
 public class SwingDocHandler extends Handler{
@@ -55,7 +57,9 @@ public class SwingDocHandler extends Handler{
 
     /**
      * ドキュメント末尾に文字列を追加する。
+     *
      * <p>EDTから呼ばなければならない。
+     *
      * @param logMessage 文字列
      */
     private void appendLog(String logMessage){
@@ -71,6 +75,7 @@ public class SwingDocHandler extends Handler{
 
     /**
      * ドキュメント先頭部をチョップして最大長に納める。
+     *
      * <p>EDTから呼ばなければならない。
      */
     private void chopHead(){

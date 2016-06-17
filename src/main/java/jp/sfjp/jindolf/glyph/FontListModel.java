@@ -14,8 +14,10 @@ import javax.swing.AbstractListModel;
 
 /**
  * フォントファミリ名一覧表示用リストのデータモデル。
+ *
  * <p>環境によってはフォントリストを完成させるのに
  * 数千msかかる場合があるので、その対策として非同期に一覧を読み込む。
+ *
  * <p>実際のリスト作成はEDTにより行われ、
  * リスト完成の暁にはEDTによりリスナに通知される。
  * 一般的なリストモデルと同様、
@@ -30,6 +32,7 @@ public class FontListModel extends AbstractListModel<String> {
 
     /**
      * コンストラクタ。
+     *
      * <p>リスト埋めタスクがEDTで走り始める。
      */
     public FontListModel(){

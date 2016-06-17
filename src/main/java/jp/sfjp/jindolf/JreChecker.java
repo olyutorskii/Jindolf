@@ -13,15 +13,20 @@ import javax.swing.JOptionPane;
 
 /**
  * JRE互換性のチェックを行う。
+ *
  * <p>JREのバージョンと、
  * JREに含まれるjava.langパッケージ仕様のバージョンは互換性があるものとする。
+ *
  * <p>なるべく昔のJREでも動くように。
  * 少なくとも1.2以降。できれば1.0以降。
  * 原則、1.3以降の新設ライブラリは利用禁止。
+ *
  * <p>なるべく昔のコンパイラでもコンパイルできるように。
  * 少なくとも1.2以降。できれば1.0以降。
  * 原則、assert文、総称ジェネリクス、アノテーションは禁止。
+ *
  * <p>できればBasic-Latinに入らない文字(日本語)の出力も禁止。
+ *
  * <p>ランタイム存在検査用のクラスは、ロードや初期化が軽いほうが望ましい。
  * そしていずれJindolfの実行に必要なものであるのが望ましい。
  * もしそうでない場合でも、
@@ -47,6 +52,7 @@ public final class JreChecker {
 
     /**
      * 隠しコンストラクタ。
+     *
      * <p><code>assert false;</code> 書きたいけど書いちゃだめ。
      */
     private JreChecker(){
@@ -239,7 +245,9 @@ public final class JreChecker {
 
     /**
      * 指定された文字数で行の長さを改行文字で揃える。
+     *
      * <p>サロゲートペアは無視される。
+     *
      * @param text 文字列
      * @param limit 行ごとの最大文字数
      * @return 改行済みの文字列
@@ -270,7 +278,9 @@ public final class JreChecker {
 
     /**
      * JRE環境をチェックする。(JRE1.7)
+     *
      * <p>もしJREの非互換性が検出されたらエラーメッセージを報告する。
+     *
      * @return 互換性があれば0、無ければ非0
      */
     public static int checkJre(){
@@ -288,8 +298,11 @@ public final class JreChecker {
 
     /**
      * Swingダイアログでエラーを報告する。
+     *
      * <p>ボタンを押すまでの間、実行はブロックされる。
+     *
      * <p>GUIに接続できなければ何か例外を投げるかもしれない。
+     *
      * @param text エラー文面
      */
     public static void showErrorDialog(String text){

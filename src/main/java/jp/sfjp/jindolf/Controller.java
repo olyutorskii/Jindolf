@@ -230,7 +230,9 @@ public class Controller
 
     /**
      * ビジー状態を設定する。
+     *
      * <p>EDT以外から呼ばれると実際の処理が次回のEDT移行に遅延される。
+     *
      * @param isBusy ビジーならtrue
      * @param message ステータスバー表示。nullなら変更なし
      */
@@ -252,9 +254,12 @@ public class Controller
 
     /**
      * 軽量タスクをEDTで実行する。
+     *
      * <p>タスク実行中はビジー状態となる。
+     *
      * <p>軽量タスク実行中はイベントループが停止するので、
      * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
+     *
      * @param task 軽量タスク
      * @param beforeMsg ビジー中ステータス文字列
      * @param afterMsg ビジー復帰時のステータス文字列
@@ -271,13 +276,17 @@ public class Controller
 
     /**
      * 軽量タスクをEDTで実行する。
+     *
      * <p>タスク実行中はビジー状態となる。
+     *
      * <p>軽量タスク実行中はイベントループが停止するので、
      * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
+     *
      * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
+     *
      * @param task 軽量タスク
      * @param beforeMsg ビジー中ステータス文字列。
-     * ビジー復帰時は元のステータス文字列に戻る。
+     *     ビジー復帰時は元のステータス文字列に戻る。
      */
     public void submitLightBusyTask(Runnable task, String beforeMsg){
         String afterMsg = this.topView.getSysMessage();
@@ -287,7 +296,9 @@ public class Controller
 
     /**
      * 重量級タスクをEDTとは別のスレッドで実行する。
+     *
      * <p>タスク実行中はビジー状態となる。
+     *
      * @param heavyTask 重量級タスク
      * @param beforeMsg ビジー中ステータス文字列
      * @param afterMsg ビジー復帰時のステータス文字列
@@ -327,11 +338,14 @@ public class Controller
 
     /**
      * 重量級タスクをEDTとは別のスレッドで実行する。
+     *
      * <p>タスク実行中はビジー状態となる。
+     *
      * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
+     *
      * @param task 重量級タスク
      * @param beforeMsg ビジー中ステータス文字列。
-     * ビジー復帰時は元のステータス文字列に戻る。
+     *     ビジー復帰時は元のステータス文字列に戻る。
      */
     public void submitHeavyBusyTask(Runnable task, String beforeMsg){
         String afterMsg = this.topView.getSysMessage();
@@ -1204,7 +1218,7 @@ public class Controller
     }
 
     /**
-     * 指定した国の村一覧を読み込む。(ヘビータスク本体)
+     * 指定した国の村一覧を読み込む。(ヘビータスク本体).
      * @param land 国
      */
     private void taskReloadVillageList(Land land){

@@ -382,13 +382,15 @@ public class WindowManager {
 
     /**
      * 再帰的に下層コンポーネントのLaFを更新する。
+     *
      * <p>{@link javax.swing.SwingUtilities#updateComponentTreeUI(Component)}
      * がポップアップメニューのLaF更新を正しく行わないSun製JREのバグ
      * [BugID:6299213]
      * を回避するために作られた。
+     *
      * @param comp 開始コンポーネント
      * @see <a href="http://bugs.sun.com/view_bug.do?bug_id=6299213">
-     * BugID:6299213
+     *     BugID:6299213
      * </a>
      */
     public static void updateTreeUI(Component comp) {
@@ -400,9 +402,10 @@ public class WindowManager {
      * 再帰的に下層コンポーネントのLaFを更新する。
      * @param comp 開始コンポーネント
      * @param isRoot このコンポーネントが最上位か否か指定する。
-     * trueが指定された場合、LaF更新作業の後に再レイアウトを促す。
-     * パフォーマンスの観点から、ポップアップ以外の下層コンポーネントには
-     * 必要のない限りfalse指定を推奨。
+     *     trueが指定された場合、LaF更新作業の後に再レイアウトを促す。
+     *     パフォーマンスの観点から、
+     *     ポップアップ以外の下層コンポーネントには
+     *     必要のない限りfalse指定を推奨。
      */
     public static void updateTreeUI(Component comp, boolean isRoot) {
         if(comp instanceof JComponent){

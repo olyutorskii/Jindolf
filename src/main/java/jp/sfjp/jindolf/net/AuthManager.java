@@ -20,7 +20,9 @@ import java.util.List;
 
 /**
  * Cookieを用いた人狼BBSサーバとの認証管理を行う。
+ *
  * <p>2012-10現在、サポートするのはG国のみ。
+ *
  * <p>2012-10より、Cookie "uniqID" の送出も必要になった模様。
  */
 public class AuthManager{
@@ -95,10 +97,13 @@ public class AuthManager{
     /**
      * 与えられた文字列に対し
      * 「application/x-www-form-urlencoded」符号化を行う。
+     *
      * <p>この符号化はHTTPのPOSTメソッドで必要になる。
      * この処理は、一般的なPC用Webブラウザにおける、
      * HTML文書のFORMタグに伴うsubmit処理を模倣する。
+     *
      * <p>生成文字列はUS-ASCIIの範疇に収まる。はず。
+     *
      * @param formData 元の文字列
      * @return 符号化された文字列
      * @see java.net.URLEncoder
@@ -182,8 +187,11 @@ public class AuthManager{
 
     /**
      * 認証Cookieを取得する。
+     *
      * <p>G国での認証Cookie名は"login"。
+     *
      * <p>※ 2012-10より"uniqID"も増えた模様だが判定には使わない。
+     *
      * @param cookieStore Cookie記憶域
      * @return 認証Cookie。認証された状態に無いときはnull。
      */

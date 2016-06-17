@@ -40,7 +40,7 @@ import jp.sourceforge.jindolf.parser.SeqRange;
  * いわゆる「日」。
  * 村の進行の一区切り。プロローグやエピローグも含まれる。
  *
- * 将来、24時間更新でなくなる可能性の考慮が必要。
+ * <p>将来、24時間更新でなくなる可能性の考慮が必要。
  * 人気のないプロローグなどで、
  * 24時間以上の期間を持つPeriodが生成される可能性の考慮が必要。
  */
@@ -147,7 +147,7 @@ public class Period{
      * Periodを更新する。Topicのリストが更新される。
      * @param period 日
      * @param force trueなら強制再読み込み。
-     * falseならまだ読み込んで無い時のみ読み込み。
+     *     falseならまだ読み込んで無い時のみ読み込み。
      * @throws IOException ネットワーク入力エラー
      */
     public static void parsePeriod(Period period, boolean force)

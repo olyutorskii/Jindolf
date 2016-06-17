@@ -19,7 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ロックファイルを用いたVM間ロックオブジェクト。
+ *
  * <p>大昔のNFSではうまく動かないかも。
+ *
  * <p>一度でもロックに成功したロックファイルは、
  * VM終了時に消されてしまうので注意。
  */
@@ -110,7 +112,9 @@ public class InterVMLock{
 
     /**
      * ロック対象のファイルを返す。
+     *
      * <p>勝手に作ったり消したりしないように。
+     *
      * @return ロック対象ファイル
      */
     public File getLockFile(){
@@ -243,8 +247,11 @@ public class InterVMLock{
 
     /**
      * ロックを解除する。
+     *
      * <p>自分が作者であるロックファイルは閉じられ削除される。
+     *
      * <p>削除に失敗しても無視。
+     *
      * <p>シャットダウン処理進行中の場合は何もしない。
      */
     public void release(){
@@ -261,8 +268,11 @@ public class InterVMLock{
 
     /**
      * ロックを解除する。{@link #release()}の下請け。
+     *
      * <p>自分が作者であるロックファイルは閉じられ削除される。
+     *
      * <p>削除に失敗しても無視。
+     *
      * <p>シャットダウン処理進行中か否かは無視される。
      */
     protected void releaseImpl(){

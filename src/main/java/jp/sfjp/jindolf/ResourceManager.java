@@ -23,10 +23,13 @@ import javax.swing.ImageIcon;
 
 /**
  * 各種リソースファイルの管理。
+ *
  * <p>{@link Class}用と{@link ClassLoader}用とでは
  * 微妙に絶対リソース名の形式が異なることに留意せよ。
+ *
  * <p>基本的に、リソースファイルへのアクセスにおける異常系は
  * リカバリの対象外とする。(ビルド工程の不手際扱い。)
+ *
  * @see java.lang.Class#getResource
  */
 public final class ResourceManager {
@@ -71,9 +74,12 @@ public final class ResourceManager {
 
     /**
      * リソース名が絶対パスか否か判定する。
+     *
      * <p>リソース名が「/」で始まる場合絶対パスとみなされる。
+     *
      * <p>このリソース名は{@link Class}用であって
      * {@link ClassLoader}用ではない。
+     *
      * @param resPath リソース名
      * @return 絶対パスならtrueを返す。
      * @see java.lang.Class#getResource
@@ -85,12 +91,15 @@ public final class ResourceManager {
 
     /**
      * パッケージ情報を反映するリソース名前置詞を返す。
+     *
      * <p>パッケージ名のセパレータ「.」は「/」に置き換えられる。
      * 無名パッケージの場合は長さゼロの空文字列を返す。
      * 無名パッケージを除き、リソース名前置詞は必ず「/」で終わる。
+     *
      * <p>この前置詞は{@link ClassLoader}用であって
      * {@link Class}用ではないので、
      * 頭に「/」が付かない。
+     *
      * @param pkg パッケージ設定。nullは無名パッケージと認識される。
      * @return リソース名前置詞。無名パッケージの場合は空文字列が返る。
      * @see java.lang.Class#getResource
@@ -122,7 +131,7 @@ public final class ResourceManager {
      * 任意のルートパッケージと相対リソース名を用いて、
      * デフォルトのクラスローダからリソースのURLを取得する。
      * @param rootPkg ルートパッケージ情報。
-     * 「/」で始まる絶対リソース名が指定された場合は無視される。
+     *     「/」で始まる絶対リソース名が指定された場合は無視される。
      * @param resPath リソース名
      * @return リソースのURL。リソースが見つからなければnull。
      */
@@ -135,7 +144,7 @@ public final class ResourceManager {
      * 任意のクラスローダからリソースのURLを取得する。
      * @param loader クラスローダ
      * @param rootPkg ルートパッケージ情報。
-     * 「/」で始まる絶対リソース名が指定された場合は無視される。
+     *     「/」で始まる絶対リソース名が指定された場合は無視される。
      * @param resPath リソース名
      * @return リソースのURL。リソースが見つからなければnull。
      */
@@ -170,7 +179,7 @@ public final class ResourceManager {
      * 任意のルートパッケージと相対リソース名を用いて、
      * デフォルトのクラスローダからリソースの入力ストリームを取得する。
      * @param rootPkg ルートパッケージ情報。
-     * 「/」で始まる絶対リソース名が指定された場合は無視される。
+     *     「/」で始まる絶対リソース名が指定された場合は無視される。
      * @param resPath リソース名
      * @return リソースの入力ストリーム。リソースが見つからなければnull。
      */
@@ -184,7 +193,7 @@ public final class ResourceManager {
      * 任意のクラスローダからリソースの入力ストリームを取得する。
      * @param loader クラスローダ
      * @param rootPkg ルートパッケージ情報。
-     * 「/」で始まる絶対リソース名が指定された場合は無視される。
+     *     「/」で始まる絶対リソース名が指定された場合は無視される。
      * @param resPath リソース名
      * @return リソースの入力ストリーム。リソースが見つからなければnull。
      */
@@ -266,7 +275,9 @@ public final class ResourceManager {
 
     /**
      * リソース名を用いてUTF-8テキストファイルの内容を取得する。
+     *
      * <p>「#」で始まる行はコメント行として無視される。
+     *
      * @param resPath テキストファイルのリソース名
      * @return テキスト。リソースが読み込めなければnull。
      */

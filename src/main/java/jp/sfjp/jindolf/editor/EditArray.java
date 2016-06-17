@@ -152,7 +152,7 @@ public class EditArray extends JPanel
      * 指定したエディタの前の通し番号を持つエディタを返す。
      * @param editor エディタ
      * @return 前のエディタ。
-     * 最初のエディタ(通し番号1)が指定されればnullを返す。
+     *     最初のエディタ(通し番号1)が指定されればnullを返す。
      */
     private TalkEditor prevEditor(TalkEditor editor){
         int sequenceNumber = editor.getSequenceNumber();

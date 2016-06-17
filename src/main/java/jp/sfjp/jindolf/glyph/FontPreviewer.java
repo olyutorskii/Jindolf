@@ -16,6 +16,7 @@ import javax.swing.JComponent;
 
 /**
  * フォントプレビュー用コンポーネント。
+ *
  * <p>発言表示部と同じビジュアルを再現する必要のため、GlyphDrawで描画する。
  */
 @SuppressWarnings("serial")

@@ -245,8 +245,9 @@ public class Land {
      * 古国の場合は村一覧にアクセスせずトップページのみ。
      * 古国以外で村建てをやめた国はトップページにアクセスしない。
      * 村リストはVillageの実装に従いソートされる。重複する村は排除。
-     * @throws java.io.IOException ネットワーク入出力の異常
+     *
      * @return ソートされた村一覧
+     * @throws java.io.IOException ネットワーク入出力の異常
      */
     public SortedSet<Village> downloadVillageList() throws IOException {
         LandDef thisLand = getLandDef();
@@ -334,7 +335,7 @@ public class Land {
          * 再度パースを行うまで呼んではいけない。
          * @return 村一覧
          * @throws IllegalStateException パース前に呼び出された。
-         * あるいはパース後すでにリセットされている。
+         *     あるいはパース後すでにリセットされている。
          */
         public List<Village> getVillageList() throws IllegalStateException{
             if(this.villageList == null){

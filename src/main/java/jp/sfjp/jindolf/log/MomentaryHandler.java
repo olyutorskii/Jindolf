@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 /**
  * なにもしない一時的なロギングハンドラ。
  * なにがロギングされたのかあとから一括して取得することができる。
+ *
  * <p>知らないうちにメモリを圧迫しないよう注意。
  */
 public class MomentaryHandler extends Handler{

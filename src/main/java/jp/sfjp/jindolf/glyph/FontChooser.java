@@ -332,6 +332,7 @@ public class FontChooser extends JPanel
 
     /**
      * フォント設定に合わせてGUIを更新する。
+     *
      * <p>イベント発火は抑止される。
      */
     private void updateControlls(){

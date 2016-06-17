@@ -62,7 +62,7 @@ public class ConfigStore {
      * コンストラクタ。
      * @param useStoreFile 設定ディレクトリへの永続化機能を使うならtrue
      * @param configPath 設定ディレクトリ。
-     * 設定ディレクトリを使わない場合は無視され、nullとして扱われる。
+     *     設定ディレクトリを使わない場合は無視され、nullとして扱われる。
      */
     public ConfigStore(boolean useStoreFile, File configPath ){
         this(useStoreFile, true, configPath);
@@ -74,7 +74,7 @@ public class ConfigStore {
      * @param useStoreFile 設定ディレクトリへの永続化機能を使うならtrue
      * @param isImplicitPath コマンドラインで指定されたディレクトリならfalse
      * @param configPath 設定ディレクトリ。
-     * 設定ディレクトリを使わない場合は無視され、nullとして扱われる。
+     *     設定ディレクトリを使わない場合は無視され、nullとして扱われる。
      */
     public ConfigStore(boolean useStoreFile,
                          boolean isImplicitPath,
@@ -120,6 +120,7 @@ public class ConfigStore {
 
     /**
      * 設定ディレクトリの存在を確認し、なければ作る。
+     *
      * <p>設定ディレクトリを使わない場合は何もしない。
      */
     public void prepareConfigDir(){
@@ -163,10 +164,10 @@ public class ConfigStore {
      * 設定ディレクトリ上のOBJECT型JSONファイルを読み込む。
      * @param file JSONファイルの相対パス。
      * @return JSON object。
-     * 設定ディレクトリを使わない設定、
-     * もしくはJSONファイルが存在しない、
-     * もしくはOBJECT型でなかった、
-     * もしくは入力エラーがあればnull
+     *     設定ディレクトリを使わない設定、
+     *     もしくはJSONファイルが存在しない、
+     *     もしくはOBJECT型でなかった、
+     *     もしくは入力エラーがあればnull
      */
     public JsObject loadJsObject(File file){
         JsComposition<?> root = loadJson(file);
@@ -179,9 +180,9 @@ public class ConfigStore {
      * 設定ディレクトリ上のJSONファイルを読み込む。
      * @param file JSONファイルの相対パス
      * @return JSON objectまたはarray。
-     * 設定ディレクトリを使わない設定、
-     * もしくはJSONファイルが存在しない、
-     * もしくは入力エラーがあればnull
+     *     設定ディレクトリを使わない設定、
+     *     もしくはJSONファイルが存在しない、
+     *     もしくは入力エラーがあればnull
      */
     public JsComposition<?> loadJson(File file){
         if( ! this.useStoreFile ) return null;
@@ -238,7 +239,9 @@ public class ConfigStore {
 
     /**
      * バイトストリーム上のJSONデータを読み込む。
+     *
      * <p>バイトストリームはUTF-8と解釈される。
+     *
      * @param is バイトストリーム
      * @return JSON objectまたはarray。
      * @throws IOException 入力エラー
@@ -270,7 +273,7 @@ public class ConfigStore {
      * @param file JSONファイルの相対パス
      * @param root JSON objectまたはarray
      * @return 正しくセーブが行われればtrue。
-     * 何らかの理由でセーブが完了できなければfalse
+     *     何らかの理由でセーブが完了できなければfalse
      */
     public boolean saveJson(File file, JsComposition<?> root){
         if( ! this.useStoreFile ) return false;
@@ -330,7 +333,9 @@ public class ConfigStore {
 
     /**
      * バイトストリームにJSONデータを書き込む。
+     *
      * <p>バイトストリームはUTF-8と解釈される。
+     *
      * @param os バイトストリーム出力
      * @param root JSON objectまたはarray
      * @throws IOException 出力エラー
@@ -378,7 +383,7 @@ public class ConfigStore {
     /**
      * ネットワーク設定ファイルを読み込む。
      * @return ネットワーク設定データ。
-     * 設定を読まないもしくは読めない場合はnull
+     *     設定を読まないもしくは読めない場合はnull
      */
     public JsObject loadNetConfig(){
         JsObject result = loadJsObject(NETCONFIG_FILE);
@@ -388,7 +393,7 @@ public class ConfigStore {
     /**
      * 台詞表示設定ファイルを読み込む。
      * @return 台詞表示設定データ。
-     * 設定を読まないもしくは読めない場合はnull
+     *     設定を読まないもしくは読めない場合はnull
      */
     public JsObject loadTalkConfig(){
         JsObject result = loadJsObject(TALKCONFIG_FILE);

@@ -95,11 +95,11 @@ public final class StringUtils{
 
     /**
      * ある文字列の末尾が別の文字列に一致するか判定する。
-     * @see String#endsWith(String)
      * @param target 判定対象
      * @param term 末尾文字
      * @return 一致すればtrue
      * @throws java.lang.NullPointerException 引数がnull
+     * @see String#endsWith(String)
      */
     public static boolean isTerminated(CharSequence target,
                                          CharSequence term)
@@ -123,7 +123,6 @@ public final class StringUtils{
 
     /**
      * サブシーケンス同士を比較する。
-     * @see CharSequence#subSequence(int,int)
      * @param seq1 サブシーケンス1
      * @param start1 開始インデックス1
      * @param end1 終了インデックス1
@@ -132,6 +131,7 @@ public final class StringUtils{
      * @param end2 終了インデックス2
      * @return サブシーケンス1の方が小さければ負、大きければ正、等しければ0
      * @throws IndexOutOfBoundsException 不正なインデックス指定
+     * @see CharSequence#subSequence(int,int)
      */
     public static int compareSubSequence(
             CharSequence seq1, int start1, int end1,
@@ -161,13 +161,13 @@ public final class StringUtils{
 
     /**
      * 文字シーケンスとサブシーケンスを比較する。
-     * @see CharSequence#subSequence(int,int)
      * @param seq1 文字シーケンス
      * @param seq2 サブシーケンス
      * @param start2 開始インデックス
      * @param end2 終了インデックス
      * @return 文字シーケンスの方が小さければ負、大きければ正、等しければ0
      * @throws IndexOutOfBoundsException 不正なインデックス指定
+     * @see CharSequence#subSequence(int,int)
      */
     public static int compareSubSequence(
             CharSequence seq1,

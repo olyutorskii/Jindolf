@@ -58,7 +58,7 @@ import jp.sfjp.jindolf.view.TopicFilter;
 /**
  * 発言表示画面。
  *
- * 表示に影響する要因は、Periodの中身、LayoutManagerによるサイズ変更、
+ * <p>表示に影響する要因は、Periodの中身、LayoutManagerによるサイズ変更、
  * フォント属性の指定、フィルタリング操作、ドラッギングによる文字列選択操作、
  * 文字列検索および検索ナビゲーション。
  */
