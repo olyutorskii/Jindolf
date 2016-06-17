@@ -320,7 +320,7 @@ public final class WolfBBS{
 
     /**
      * 数値参照文字に変換された文字を追加する。
-     * 例）'D' => "&#x44;"
+     * 例）{@literal 'D' => "&#x44;}"
      * @param app 追加対象
      * @param ch 1文字
      * @return 引数と同じ
@@ -341,7 +341,7 @@ public final class WolfBBS{
 
     /**
      * 任意の文字を数値参照文字列に変換する。
-     * 例）'D' => "&#x44;"
+     * 例）{@literal 'D' => "&#x44;"}
      * @param ch 文字
      * @return 変換後の文字列
      */

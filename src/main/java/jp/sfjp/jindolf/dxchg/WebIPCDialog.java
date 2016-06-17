@@ -373,7 +373,7 @@ public class WebIPCDialog
     }
 
     /**
-     * Drag&Dropの転送処理を管理。
+     * Drag&amp;Dropの転送処理を管理。
      */
     private class DnDHandler extends TransferHandler{
 

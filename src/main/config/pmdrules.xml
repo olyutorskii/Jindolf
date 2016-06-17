@@ -3,9 +3,9 @@
 <!--
     PMD用ルールセット定義
 
-    PMD [ http://pmd.sourceforge.net/ ] 5.0 以降用に記述されています。
+    PMD [ https://pmd.github.io/ ] 5.3 以降用に記述されています。
 
-    Copyright(c) 2010 olyutorskii
+    Copyright(c) 2016 olyutorskii
 -->
 
 <ruleset
@@ -43,7 +43,13 @@
     </rule>
 
     <rule ref="rulesets/java/comments.xml">
+        <exclude name="CommentRequired" />
         <exclude name="CommentSize" />
+    </rule>
+    <rule ref="rulesets/java/comments.xml/CommentRequired" >
+        <properties>
+            <property name="fieldCommentRequirement" value="Ignored"/>
+        </properties>
     </rule>
     <rule ref="rulesets/java/comments.xml/CommentSize" >
         <properties>
@@ -62,11 +68,12 @@
     </rule>
 
     <rule ref="rulesets/java/coupling.xml">
+        <exclude name="LoosePackageCoupling" />
         <exclude name="LawOfDemeter" />
-        <exclude name="LoosePackageCoupling" /> <!-- 3.0.1 では読めない -->
     </rule>
 
     <rule ref="rulesets/java/design.xml">
+        <exclude name="SimplifyBooleanReturns" />
         <exclude name="ConfusingTernary" />
         <exclude name="UnnecessaryLocalBeforeReturn" />
         <exclude name="FieldDeclarationsShouldBeAtStartOfClass" />

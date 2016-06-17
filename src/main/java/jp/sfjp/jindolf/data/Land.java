@@ -77,7 +77,7 @@ public class Land {
 
     /**
      * クエリー文字列から特定キーの値を得る。
-     * クエリーの書式例：「a=b&c=d&e=f」この場合キーcの値はd
+     * クエリーの書式例：「{@literal a=b&c=d&e=f}」この場合キーcの値はd
      * @param key キー
      * @param allQuery クエリー
      * @return 値

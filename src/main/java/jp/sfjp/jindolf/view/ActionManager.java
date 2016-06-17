@@ -366,8 +366,8 @@ public class ActionManager{
     }
 
     /**
-     * 現在メニューで選択中のL&Fのクラス名を返す。
-     * @return L&F クラス名
+     * 現在メニューで選択中のL&amp;Fのクラス名を返す。
+     * @return L&amp;F クラス名
      */
     public String getSelectedLookAndFeel(){
         ButtonModel selected = this.landfGroup.getSelection();

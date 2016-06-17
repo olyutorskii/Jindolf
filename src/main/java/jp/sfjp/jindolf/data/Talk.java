@@ -226,7 +226,7 @@ public class Talk implements Topic{
 
     /**
      * この会話を識別するためのG国用アンカー文字列を発言番号から生成する。
-     * 例えば「>>172」など。
+     * 例えば「{@literal >>172}」など。
      * @return アンカー文字列。発言番号がなければ空文字列。
      */
     public String getAnchorNotation_G(){

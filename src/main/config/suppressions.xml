@@ -18,20 +18,26 @@
 
     <suppress files="Jindolf.java" checks="UncommentedMain" />
 
-<!--
-    <suppress files="" checks="ExecutableStatementCount" />
+    <!-- Class Design -->
+    <suppress files="" checks="DesignForExtension" />
 
-    <suppress files="" checks="ClassDataAbstractionCoupling" />
-    <suppress files="" checks="ClassFanOutComplexity" />
-    <suppress files="" checks="CyclomaticComplexity" />
-    <suppress files="" checks="NPathComplexity" />
-    <suppress files="" checks="JavaNCSS" />
--->
-
-<!--
+    <!-- Coding -->
+    <suppress files="" checks="ExplicitInitialization" />
+    <suppress files="" checks="FinalLocalVariable" />
     <suppress files="" checks="MagicNumber" />
-    <suppress files="" checks="MultipleStringLiterals" />
--->
+
+    <!-- Imports -->
+    <suppress files="" checks="ImportControl" />
+
+    <!-- Javadoc Comments -->
+    <suppress files="" checks="SummaryJavadocCheck" />
+        <!-- 句読点対応待ち -->
+    <suppress files="" checks="SingleLineJavadoc" />
+        <!-- ignoredTagsプロパティ対応待ち -->
+
+    <!-- Miscellaneous -->
+    <suppress files="" checks="FinalParameters" />
+    <suppress files="" checks="TrailingComment" />
 
 </suppressions>
 

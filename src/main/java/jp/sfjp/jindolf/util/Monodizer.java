@@ -21,13 +21,13 @@ import javax.swing.text.JTextComponent;
 
 /**
  * Swingコンポーネントのフォント等幅化。
- * L&F変更にも対処。
+ * L&amp;F変更にも対処。
  */
 public final class Monodizer implements PropertyChangeListener{
 
     /** フォント変更時のプロパティ名。 */
     public static final String PROPNAME_FONT = "font";
-    /** L&F変更時のプロパティ名。 */
+    /** L&amp;F変更時のプロパティ名。 */
     public static final String PROPNAME_UI = "UI";
     /** Font.MONOSPACED代替品。 */
     public static final String FAMILY_MONO = "Monospaced";
@@ -77,7 +77,7 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * 任意のコンポーネントをフォント等幅化する。
-     * L&F変更に対処するためのリスナ組み込みも行われる。
+     * L&amp;F変更に対処するためのリスナ組み込みも行われる。
      * @param comp コンポーネント
      */
     public static void monodize(JComponent comp){
