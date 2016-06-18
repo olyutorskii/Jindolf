@@ -1171,7 +1171,7 @@ public class Discussion extends JComponent
 
             return;
         }
-    };
+    }
 
     /**
      * ポップアップメニュー。

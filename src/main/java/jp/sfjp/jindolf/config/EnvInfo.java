@@ -32,13 +32,13 @@ public final class EnvInfo{
     /** 最大ヒープメモリ。 */
     public static final long MAX_MEMORY;
 
-    private static final SortedMap<String, String> propertyMap =
+    private static final SortedMap<String, String> PROPERTY_MAP =
             new TreeMap<>();
 
-    private static final SortedMap<String, String> environmentMap =
+    private static final SortedMap<String, String> ENVIRONMENT_MAP =
             new TreeMap<>();
 
-    private static final String[] classpaths;
+    private static final String[] CLASSPATHS;
 
     static{
         OS_NAME      = getSecureProperty("os.name");
@@ -60,7 +60,7 @@ public final class EnvInfo{
         }else{
             pathVec = new String[0];
         }
-        classpaths = pathVec;
+        CLASSPATHS = pathVec;
 
     }
 
@@ -82,7 +82,7 @@ public final class EnvInfo{
         String result;
         try{
             result = System.getProperty(key);
-            if(result != null) propertyMap.put(key, result);
+            if(result != null) PROPERTY_MAP.put(key, result);
         }catch(SecurityException e){
             result = null;
         }
@@ -98,7 +98,7 @@ public final class EnvInfo{
         String result;
         try{
             result = System.getenv(name);
-            if(result != null) environmentMap.put(name, result);
+            if(result != null) ENVIRONMENT_MAP.put(name, result);
         }catch(SecurityException e){
             result = null;
         }
@@ -120,10 +120,10 @@ public final class EnvInfo{
         result.append("\n");
 
         result.append("主要システムプロパティ:\n");
-        Set<String> propKeys = propertyMap.keySet();
+        Set<String> propKeys = PROPERTY_MAP.keySet();
         for(String propKey : propKeys){
             if(propKey.equals("java.class.path")) continue;
-            String value = propertyMap.get(propKey);
+            String value = PROPERTY_MAP.get(propKey);
             result.append("  ");
             result.append(propKey).append("=").append(value).append("\n");
         }
@@ -131,9 +131,9 @@ public final class EnvInfo{
         result.append("\n");
 
         result.append("主要環境変数:\n");
-        Set<String> envKeys = environmentMap.keySet();
+        Set<String> envKeys = ENVIRONMENT_MAP.keySet();
         for(String envKey : envKeys){
-            String value = environmentMap.get(envKey);
+            String value = ENVIRONMENT_MAP.get(envKey);
             result.append("  ");
             result.append(envKey).append("=").append(value).append("\n");
         }
@@ -141,7 +141,7 @@ public final class EnvInfo{
         result.append("\n");
 
         result.append("クラスパス:\n");
-        for(String path : classpaths){
+        for(String path : CLASSPATHS){
             result.append("  ");
             result.append(path).append("\n");
         }

@@ -245,6 +245,15 @@ public class FontEnv {
      * フォントリスト収集タスク。
      */
     protected final class FontListLoader implements Callable<List<String>> {
+
+        /**
+         * コンストラクタ。
+         */
+        private FontListLoader(){
+            super();
+            return;
+        }
+
         /**
          * {@inheritDoc}
          * @return {@inheritDoc}
@@ -269,6 +278,15 @@ public class FontEnv {
      * フォント選択タスク。
      */
     protected final class FontSelector implements Callable<String> {
+
+        /**
+         * コンストラクタ。
+         */
+        private FontSelector(){
+            super();
+            return;
+        }
+
         /**
          * {@inheritDoc}
          * @return {@inheritDoc}

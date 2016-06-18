@@ -147,6 +147,7 @@ public final class JindolfMain {
         if(splashWindow == null) return;
 
         EventQueue.invokeLater(new Runnable(){
+            /** {@inheritDoc} */
             @Override
             public void run(){
                 splashWindow.setVisible(false);
@@ -312,6 +313,7 @@ public final class JindolfMain {
 
         final Runtime runtime = Runtime.getRuntime();
         runtime.addShutdownHook(new Thread(){
+            /** {@inheritDoc} */
             @Override
             @SuppressWarnings("CallToThreadYield")
             public void run(){
@@ -330,6 +332,7 @@ public final class JindolfMain {
         int exitCode = 0;
         try{
             EventQueue.invokeAndWait(new Runnable(){
+                /** {@inheritDoc} */
                 @Override
                 public void run(){
                     startGUI(appSetting);

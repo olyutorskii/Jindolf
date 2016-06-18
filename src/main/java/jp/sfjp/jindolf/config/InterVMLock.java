@@ -38,6 +38,7 @@ public class InterVMLock{
     static{
         Runtime runtime = Runtime.getRuntime();
         runtime.addShutdownHook(new Thread(){
+            /** {@inheritDoc} */
             @Override
             public void run(){
                 shutdown();

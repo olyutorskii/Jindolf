@@ -364,7 +364,7 @@ public class PeriodView extends JPanel implements ItemListener{
                           .append(talk.getAvatar().getName())
                           .toString();
             }else{
-                newValue=" ";
+                newValue = " ";
             }
 
             Component superResult =

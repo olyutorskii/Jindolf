@@ -602,7 +602,7 @@ public class FindPanel extends JDialog
     /**
      * コンボボックスの独自データモデル。
      */
-    private static class CustomModel implements ComboBoxModel<Object>{
+    private static class CustomModel implements ComboBoxModel<Object> {
 
         private static final int HISTORY_MAX = 7;
         private static final RegexPattern INITITEM =

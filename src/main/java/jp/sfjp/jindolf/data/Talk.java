@@ -83,7 +83,9 @@ public class Talk implements Topic{
         case PRIVATE:  result = "灰"; break;
         case WOLFONLY: result = "赤"; break;
         case GRAVE:    result = "青"; break;
-        default: assert false; return null;
+        default:
+            assert false;
+            return null;
         }
 
         return result;
