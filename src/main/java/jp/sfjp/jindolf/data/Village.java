@@ -245,8 +245,8 @@ public class Village implements Comparable<Village> {
      */
     public Period getProgress(int day){
         for(Period period : this.periodList){
-            if(   period.isProgress()
-               && period.getDay() == day ) return period;
+            if(    period.isProgress()
+                && period.getDay() == day ) return period;
         }
         return null;
     }

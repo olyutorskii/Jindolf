@@ -91,8 +91,8 @@ public class GameSummary{
         super();
 
         VillageState state = village.getState();
-        if(   state != VillageState.EPILOGUE
-           && state != VillageState.GAMEOVER){
+        if(    state != VillageState.EPILOGUE
+            && state != VillageState.GAMEOVER){
             throw new IllegalStateException();
         }
 
@@ -922,8 +922,8 @@ public class GameSummary{
 
         Period period = this.village.getPeriod(day);
 
-        if(   period.isPrologue()
-           || (period.isProgress() && day == 1) ){
+        if(    period.isPrologue()
+            || (period.isProgress() && day == 1) ){
             result.addAll(this.playerList);
             return result;
         }

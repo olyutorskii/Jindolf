@@ -107,9 +107,9 @@ public final class WolfBBS{
     private static void loadFaceIconSet(Properties properties)
             throws FileNotFoundException {
         String codeCheck = properties.getProperty("codeCheck");
-        if(   codeCheck == null
-           || codeCheck.length() != 1
-           || codeCheck.charAt(0) != '\u72fc'){  // 「狼」
+        if(    codeCheck == null
+            || codeCheck.length() != 1
+            || codeCheck.charAt(0) != '\u72fc'){  // 「狼」
             LOGGER.severe(
                     "顔アイコンセットプロパティファイルの"
                     +"文字コードがおかしいようです。"

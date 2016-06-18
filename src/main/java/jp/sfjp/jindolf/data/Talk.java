@@ -44,11 +44,11 @@ public class Talk implements Topic{
                  String messageID,
                  int hour, int minute,
                  CharSequence dialog ){
-        if(   homePeriod == null
-           || talkType   == null
-           || avatar     == null
-           || messageID  == null
-           || dialog     == null ) throw new NullPointerException();
+        if(    homePeriod == null
+            || talkType   == null
+            || avatar     == null
+            || messageID  == null
+            || dialog     == null ) throw new NullPointerException();
         if(hour   < 0 || 23 < hour  ) throw new IllegalArgumentException();
         if(minute < 0 || 59 < minute) throw new IllegalArgumentException();
         if(talkType != TalkType.PUBLIC){

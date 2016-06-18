@@ -450,8 +450,8 @@ public class Controller
         StringBuilder url = new StringBuilder("http://hon5.com/jinro/");
 
         try{
-            url.append("?u=")
-               .append(URLEncoder.encode(villageUrl.toString(), "UTF-8"));
+            url .append("?u=")
+                .append(URLEncoder.encode(villageUrl.toString(), "UTF-8"));
         }catch(UnsupportedEncodingException e){
             return;
         }
@@ -748,9 +748,9 @@ public class Controller
         if(village == null) return;
 
         VillageState villageState = village.getState();
-        if((   villageState != VillageState.EPILOGUE
-            && villageState != VillageState.GAMEOVER
-           ) || ! village.isValid() ){
+        if( (   villageState != VillageState.EPILOGUE
+             && villageState != VillageState.GAMEOVER
+            ) || ! village.isValid() ){
             String message = "エピローグを正常に迎えていない村は\n"
                             +"ダイジェスト機能を利用できません";
             String title = VerInfo.getFrameTitle("ダイジェスト不可");
@@ -1018,7 +1018,7 @@ public class Controller
                     +"心がけましょう",
                     "長大エピローグ警告",
                     JOptionPane.WARNING_MESSAGE
-                    );
+            );
         }
 
         return;

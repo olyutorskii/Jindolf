@@ -420,8 +420,8 @@ public class TalkDraw extends AbstractTextRow{
             totalHeight += anchorDraw.getHeight();
         }
 
-        if(   this.dialogPref.isSimpleMode()
-           || this.dialogPref.alignBaloonWidth() ){
+        if(    this.dialogPref.isSimpleMode()
+            || this.dialogPref.alignBaloonWidth() ){
             this.bounds.width = newWidth;
         }else{
             this.bounds.width = totalWidth;

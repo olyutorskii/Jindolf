@@ -143,39 +143,39 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
         int from = iterator.getIndex();
         int to = from;
         for(;;){
-           char ch =  iterator.current();
+            char ch =  iterator.current();
 
-           if(ch == CharacterIterator.DONE){
-               if(from < to){
-                   createLine(from, to - 1);
-               }
-               break;
-           }
+            if(ch == CharacterIterator.DONE){
+                if(from < to){
+                    createLine(from, to - 1);
+                }
+                break;
+            }
 
-           if(ch == '\n'){
-               createLine(from, to);
-               to++;
-               from = to;
-               iterator.next();
-               continue;
-           }
+            if(ch == '\n'){
+                createLine(from, to);
+                to++;
+                from = to;
+                iterator.next();
+                continue;
+            }
 
-           float fwidth = getSpan(from, to);
-           if(fwidth > newWidth){
-               if(from < to){
-                   createLine(from, to - 1);
-                   from = to;
-               }else{
-                   createLine(from, to);
-                   to++;
-                   from = to;
-                   iterator.next();
-               }
-               continue;
-           }
+            float fwidth = getSpan(from, to);
+            if(fwidth > newWidth){
+                if(from < to){
+                    createLine(from, to - 1);
+                    from = to;
+                }else{
+                    createLine(from, to);
+                    to++;
+                    from = to;
+                    iterator.next();
+                }
+                continue;
+            }
 
-           to++;
-           iterator.next();
+            to++;
+            iterator.next();
         }
 
         int totalWidth = 0;
@@ -307,8 +307,8 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
         int toDirection   = GUIUtils.getDirection(this.bounds, toPt);
 
         if(fromDirection == toDirection){
-            if(   fromDirection == NORTH
-               || fromDirection == SOUTH){
+            if(    fromDirection == NORTH
+                || fromDirection == SOUTH){
                 clearSelect();
                 return;
             }
@@ -347,8 +347,8 @@ public class GlyphDraw extends AbstractTextRow implements SwingConstants{
             rect.x += xPos;
             rect.y = yPos;
 
-            if(   fromIndex < 0
-               && GUIUtils.getDirection(rect, fromPt) == SOUTH){
+            if(    fromIndex < 0
+                && GUIUtils.getDirection(rect, fromPt) == SOUTH){
                 yPos += rect.height;
                 accumPos = glyphLast + 1;
                 continue;

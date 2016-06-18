@@ -166,7 +166,7 @@ public final class VerInfo {
                 + "ライセンス: {3}\n"
                 + "連絡先: {4}",
                 TITLE, VERSION, COPYRIGHT, LICENSE, CONTACT )
-                );
+        );
 
         if(COMMENT.length() > 0){
             result.append('\n').append(COMMENT);

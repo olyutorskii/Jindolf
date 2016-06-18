@@ -379,8 +379,8 @@ public class Land {
          */
         @Override
         public void pageType(PageType type) throws HtmlParseException{
-            if(   type != PageType.VILLAGELIST_PAGE
-               && type != PageType.TOP_PAGE ){
+            if(    type != PageType.VILLAGELIST_PAGE
+                && type != PageType.TOP_PAGE ){
                 throw new HtmlParseException(
                         "トップページか村一覧ページが必要です。");
             }
@@ -409,11 +409,11 @@ public class Land {
 
             CharSequence href = anchorRange.sliceSequence(content);
             String villageID = getVillageIDFromHREF(href);
-            if(   villageID == null
-               || villageID.length() <= 0 ){
+            if(    villageID == null
+                || villageID.length() <= 0 ){
                 LOGGER.warning(
                         "認識できないURL[" + href + "]に遭遇しました。");
-                 return;
+                return;
             }
 
             CharSequence fullVillageName =

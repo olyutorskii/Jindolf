@@ -491,10 +491,10 @@ public class FontChooser extends JPanel
 
         Object source = event.getSource();
 
-        if(   source != this.isBoldCheck
-           && source != this.isItalicCheck
-           && source != this.useTextAntiAliaseCheck
-           && source != this.useFractionalCheck     ){
+        if(    source != this.isBoldCheck
+            && source != this.isItalicCheck
+            && source != this.useTextAntiAliaseCheck
+            && source != this.useFractionalCheck     ){
             return;
         }
 

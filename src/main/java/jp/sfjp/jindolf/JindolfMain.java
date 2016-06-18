@@ -200,8 +200,8 @@ public final class JindolfMain {
             LOGGER.info(LOG_NOCONF);
         }
 
-        if(   JreChecker.has16Runtime()
-           && optinfo.hasOption(CmdOption.OPT_NOSPLASH) ){
+        if(    JreChecker.has16Runtime()
+            && optinfo.hasOption(CmdOption.OPT_NOSPLASH) ){
             LOGGER.warning(WARNMSG_SPLASH);
         }
 
@@ -368,8 +368,8 @@ public final class JindolfMain {
                               appSetting.initialFrameHeight());
         topFrame.setSize(initGeometry);
 
-        if(   appSetting.initialFrameXpos() <= Integer.MIN_VALUE
-           || appSetting.initialFrameYpos() <= Integer.MIN_VALUE ){
+        if(    appSetting.initialFrameXpos() <= Integer.MIN_VALUE
+            || appSetting.initialFrameYpos() <= Integer.MIN_VALUE ){
             topFrame.setLocationByPlatform(true);
         }else{
             topFrame.setLocation(appSetting.initialFrameXpos(),

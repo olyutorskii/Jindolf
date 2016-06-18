@@ -244,8 +244,8 @@ public class Discussion extends JComponent
             return;
         }
 
-        if(   this.period == period
-           && period.getTopics() == this.rowList.size() ){
+        if(    this.period == period
+            && period.getTopics() == this.rowList.size() ){
             filterTopics();
             return;
         }
@@ -300,8 +300,8 @@ public class Discussion extends JComponent
      * 発言フィルタを適用する。
      */
     public void filtering(){
-        if(   this.topicFilter != null
-           && this.topicFilter.isSame(this.filterContext)){
+        if(    this.topicFilter != null
+            && this.topicFilter.isSame(this.filterContext)){
             return;
         }
 
@@ -700,8 +700,8 @@ public class Discussion extends JComponent
      * @return 領域
      */
     public Rectangle getTalkBounds(Talk talk){
-        if(   this.topicFilter != null
-           && this.topicFilter.isFiltered(talk)) return null;
+        if(    this.topicFilter != null
+            && this.topicFilter.isFiltered(talk)) return null;
 
         for(TalkDraw talkDraw : this.talkDrawList){
             if(talkDraw.getTalk() == talk){
@@ -922,8 +922,8 @@ public class Discussion extends JComponent
         if(width != this.lastWidth){
             setWidth(width);
         }
-        if(   this.idealSize.width != width
-           || this.idealSize.height != height ){
+        if(    this.idealSize.width != width
+            || this.idealSize.height != height ){
             revalidate();
         }
         return;

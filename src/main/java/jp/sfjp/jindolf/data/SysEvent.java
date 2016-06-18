@@ -226,8 +226,8 @@ public class SysEvent implements Topic{
         if(set == null) result = new HashSet<>();
         else            result = set;
 
-        if(   this.sysEventType != SysEventType.COUNTING
-           && this.sysEventType != SysEventType.COUNTING2 ){
+        if(    this.sysEventType != SysEventType.COUNTING
+            && this.sysEventType != SysEventType.COUNTING2 ){
             return result;
         }
 

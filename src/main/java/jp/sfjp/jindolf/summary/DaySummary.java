@@ -280,8 +280,8 @@ public class DaySummary extends JDialog
             if( ! (topic instanceof Talk)) continue;
             Talk talk = (Talk) topic;
             if(talk.getTalkCount() <= 0) continue;
-            if(   this.talkFilter != null
-               && talk.getTalkType() != this.talkFilter) continue;
+            if(    this.talkFilter != null
+                && talk.getTalkType() != this.talkFilter) continue;
 
             Avatar avatar = talk.getAvatar();
 
@@ -468,8 +468,8 @@ public class DaySummary extends JDialog
                 }
 
                 int cellWidth = HORIZONTAL_GAP * 2 + prefSize.width;
-                if(  DaySummary.this.avatarColumn.getPreferredWidth()
-                   < cellWidth ){
+                if(   DaySummary.this.avatarColumn.getPreferredWidth()
+                    < cellWidth ){
                     DaySummary.this.avatarColumn.setPreferredWidth(cellWidth);
                 }
 

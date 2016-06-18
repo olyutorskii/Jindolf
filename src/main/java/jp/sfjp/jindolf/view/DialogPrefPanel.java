@@ -46,6 +46,8 @@ public class DialogPrefPanel
      */
     @SuppressWarnings("LeakingThisInConstructor")
     public DialogPrefPanel(){
+        super();
+
         this.resetDefault.addActionListener(this);
         this.isSimpleMode.addItemListener(this);
 

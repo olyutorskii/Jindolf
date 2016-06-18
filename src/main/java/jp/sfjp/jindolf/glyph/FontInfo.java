@@ -302,8 +302,8 @@ public class FontInfo{
               .append('-').append(style)
               .append('-').append(fontSize);
 
-        if(   result.indexOf("\u0020") >= 0
-           || result.indexOf("\u3000") >= 0 ){
+        if(    result.indexOf("\u0020") >= 0
+            || result.indexOf("\u3000") >= 0 ){
             result.insert(0, DQ).append(DQ);
         }
 

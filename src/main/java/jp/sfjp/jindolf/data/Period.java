@@ -113,8 +113,8 @@ public class Period{
                     int day,
                     boolean isHot)
                     throws NullPointerException{
-        if(   homeVillage == null
-           || periodType  == null ) throw new NullPointerException();
+        if(    homeVillage == null
+            || periodType  == null ) throw new NullPointerException();
         if(day < 0){
             throw new IllegalArgumentException("Period day is too small !");
         }
@@ -687,8 +687,8 @@ public class Period{
 
             if(this.period.getType() != periodType) return;
 
-            if(   periodType == PeriodType.PROGRESS
-               && this.period.getDay() != day ){
+            if(    periodType == PeriodType.PROGRESS
+                && this.period.getDay() != day ){
                 return;
             }
 
@@ -1207,8 +1207,8 @@ public class Period{
 
             this.period.addTopic(event);
 
-            if(   this.sysEventType == SysEventType.MURDERED
-               || this.sysEventType == SysEventType.NOMURDER ){
+            if(    this.sysEventType == SysEventType.MURDERED
+                || this.sysEventType == SysEventType.NOMURDER ){
                 for(Topic topic : this.period.topicList){
                     if( ! (topic instanceof Talk) ) continue;
                     Talk talk = (Talk) topic;

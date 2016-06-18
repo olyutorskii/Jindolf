@@ -128,14 +128,14 @@ public final class CsvExporter{
         }
 
         Charset defcs = Charset.defaultCharset();
-        if(   defcs.name().equals("windows-31j")
-           && Charset.isSupported("Shift_JIS") ){
+        if(    defcs.name().equals("windows-31j")
+            && Charset.isSupported("Shift_JIS") ){
             defcs = Charset.forName("Shift_JIS");
         }
 
         if( hasJPencoder(defcs) || csList.size() <= 0 ){
             if(csList.contains(defcs)){
-               csList.remove(defcs);
+                csList.remove(defcs);
             }
             csList.add(0, defcs);
         }

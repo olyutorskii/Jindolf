@@ -179,8 +179,8 @@ public class WebIPCDialog
 
         String scheme = uri.getScheme();
         if(scheme == null) return false;
-        if(   ! scheme.equalsIgnoreCase("http")
-           && ! scheme.equalsIgnoreCase("https") ) return false;
+        if(    ! scheme.equalsIgnoreCase("http")
+            && ! scheme.equalsIgnoreCase("https") ) return false;
 
         String host = uri.getHost();
         if(host == null) return false;
