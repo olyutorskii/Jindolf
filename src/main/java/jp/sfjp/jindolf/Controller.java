@@ -18,10 +18,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.SortedSet;
@@ -60,7 +58,9 @@ import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
+import jp.sfjp.jindolf.dxchg.Hon5;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
+import jp.sfjp.jindolf.dxchg.WolfBBS;
 import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.glyph.AnchorHitEvent;
 import jp.sfjp.jindolf.glyph.AnchorHitListener;
@@ -105,6 +105,7 @@ public class Controller
     private static final String ERRTITLE_LAF = "Look&Feel";
     private static final String ERRFORM_LAF =
             "このLook&Feel[{0}]を生成する事ができません。";
+
 
     private final LandsModel model;
     private final WindowManager windowManager;
@@ -171,6 +172,7 @@ public class Controller
         topFrame.setDefaultCloseOperation(
                 WindowConstants.DISPOSE_ON_CLOSE);
         topFrame.addWindowListener(new WindowAdapter(){
+            /** {@inheritDoc} */
             @Override
             public void windowClosed(WindowEvent event){
                 shutdown();
@@ -238,6 +240,7 @@ public class Controller
      */
     public void submitBusyStatus(final boolean isBusy, final String message){
         Runnable task = new Runnable(){
+            /** {@inheritDoc} */
             @Override
             public void run(){
                 if(isBusy) setBusy(true);
@@ -309,6 +312,7 @@ public class Controller
         submitBusyStatus(true, beforeMsg);
 
         final Runnable busyManager = new Runnable(){
+            /** {@inheritDoc} */
             @Override
             @SuppressWarnings("CallToThreadYield")
             public void run(){
@@ -323,6 +327,7 @@ public class Controller
         };
 
         Runnable forkLauncher = new Runnable(){
+            /** {@inheritDoc} */
             @Override
             public void run(){
                 Executor executor = Executors.newCachedThreadPool();
@@ -421,15 +426,8 @@ public class Controller
         Village village = browser.getVillage();
         if(village == null) return;
 
-        String villageName = village.getVillageName();
-
-        StringBuilder url =
-                new StringBuilder()
-                .append("http://wolfbbs.jp/")
-                .append(villageName)
-                .append("%C2%BC.html");
-
-        WebIPCDialog.showDialog(getTopFrame(), url.toString());
+        String urlTxt = WolfBBS.getCastGeneratorUrl(village);
+        WebIPCDialog.showDialog(getTopFrame(), urlTxt);
 
         return;
     }
@@ -442,23 +440,8 @@ public class Controller
         Village village = browser.getVillage();
         if(village == null) return;
 
-        Land land = village.getParentLand();
-        ServerAccess server = land.getServerAccess();
-
-        URL villageUrl = server.getVillageURL(village);
-
-        StringBuilder url = new StringBuilder("http://hon5.com/jinro/");
-
-        try{
-            url .append("?u=")
-                .append(URLEncoder.encode(villageUrl.toString(), "UTF-8"));
-        }catch(UnsupportedEncodingException e){
-            return;
-        }
-
-        url.append("&s=1");
-
-        WebIPCDialog.showDialog(getTopFrame(), url.toString());
+        String urlTxt = Hon5.getCastGeneratorUrl(village);
+        WebIPCDialog.showDialog(getTopFrame(), urlTxt);
 
         return;
     }

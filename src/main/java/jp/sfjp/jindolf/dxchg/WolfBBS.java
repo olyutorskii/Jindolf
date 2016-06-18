@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.sfjp.jindolf.ResourceManager;
 import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.Village;
 import jp.sourceforge.jindolf.corelib.Destiny;
 import jp.sourceforge.jindolf.corelib.GameRole;
 
@@ -517,6 +518,23 @@ public final class WolfBBS{
 
         String result = WOLFBBS_URL + encodedId + ".html";
 
+        return result;
+    }
+
+    /**
+     * キャスト紹介ジェネレータ出力のURLを得る。
+     * @param village 村
+     * @return ジェネレータ出力URL
+     */
+    public static String getCastGeneratorUrl(Village village){
+        String villageName = village.getVillageName();
+
+        StringBuilder txt = new StringBuilder();
+        txt.append(WOLFBBS_URL);
+        txt.append(villageName);
+        txt.append("%C2%BC.html");
+
+        String result = txt.toString();
         return result;
     }
 
