@@ -6,14 +6,15 @@
 
 package jp.sfjp.jindolf.config;
 
-import java.util.List;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -53,7 +54,7 @@ public class CmdOptionTest {
 
         List<CmdOption> list = Arrays.asList(values);
 
-        List<CmdOption> testList = new LinkedList<CmdOption>();
+        List<CmdOption> testList = new LinkedList<>();
         testList.add(CmdOption.OPT_HELP);
         testList.add(CmdOption.OPT_VERSION);
         testList.add(CmdOption.OPT_BOLDMETAL);

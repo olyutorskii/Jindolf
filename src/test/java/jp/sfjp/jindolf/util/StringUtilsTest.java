@@ -13,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -63,13 +64,13 @@ public class StringUtilsTest {
         assertEquals(456, result);
 
         try{
-            result = StringUtils.parseInt(null, matcher, 1);
+            StringUtils.parseInt(null, matcher, 1);
             fail();
         }catch(NullPointerException e){
         }
 
         try{
-            result = StringUtils.parseInt(input, null, 1);
+            StringUtils.parseInt(input, null, 1);
             fail();
         }catch(NullPointerException e){
         }
@@ -87,7 +88,7 @@ public class StringUtilsTest {
         int result;
 
         try{
-            result = StringUtils.parseInt(null);
+            StringUtils.parseInt(null);
             fail();
         }catch(NullPointerException e){
         }
@@ -120,7 +121,7 @@ public class StringUtilsTest {
         int result;
 
         try{
-            result = StringUtils.parseInt(null, 1, 3);
+            StringUtils.parseInt(null, 1, 3);
             fail();
         }catch(NullPointerException e){
         }
@@ -141,13 +142,13 @@ public class StringUtilsTest {
         assertEquals(0, result);
 
         try{
-            result = StringUtils.parseInt("1234567", 2, 999);
+            StringUtils.parseInt("1234567", 2, 999);
             fail();
         }catch(StringIndexOutOfBoundsException e){
         }
 
         try{
-            result = StringUtils.parseInt("1234567", -1, 5);
+            StringUtils.parseInt("1234567", -1, 5);
             fail();
         }catch(StringIndexOutOfBoundsException e){
         }
@@ -165,7 +166,7 @@ public class StringUtilsTest {
         CharSequence result;
 
         try{
-            result = StringUtils.suppressString(null);
+            StringUtils.suppressString(null);
             fail();
         }catch(NullPointerException e){
         }

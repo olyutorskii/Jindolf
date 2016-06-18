@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -61,7 +62,7 @@ public class OptionInfoTest {
         assertNotNull(result);
 
         try{
-            result = OptionInfo.parseOptions("X");
+            OptionInfo.parseOptions("X");
             fail();
         }catch(IllegalArgumentException e){
             assertEquals("未定義の起動オプション[X]が指定されました。",
@@ -69,7 +70,7 @@ public class OptionInfoTest {
         }
 
         try{
-            result = OptionInfo.parseOptions("");
+            OptionInfo.parseOptions("");
             fail();
         }catch(IllegalArgumentException e){
             assertEquals("未定義の起動オプション[]が指定されました。",
@@ -146,7 +147,7 @@ public class OptionInfoTest {
         OptionInfo result;
 
         try{
-            result = OptionInfo.parseOptions("-antialias");
+            OptionInfo.parseOptions("-antialias");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -155,7 +156,7 @@ public class OptionInfoTest {
         }
 
         try{
-            result = OptionInfo.parseOptions("-fractional");
+            OptionInfo.parseOptions("-fractional");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -198,7 +199,7 @@ public class OptionInfoTest {
         }
 
         try{
-            result = OptionInfo.parseOptions("-antialias", "X");
+            OptionInfo.parseOptions("-antialias", "X");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -209,7 +210,7 @@ public class OptionInfoTest {
         }
 
         try{
-            result = OptionInfo.parseOptions("-fractional", "X");
+            OptionInfo.parseOptions("-fractional", "X");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -236,7 +237,7 @@ public class OptionInfoTest {
         OptionInfo result;
 
         try{
-            result = OptionInfo.parseOptions("-initfont");
+            OptionInfo.parseOptions("-initfont");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -245,7 +246,7 @@ public class OptionInfoTest {
         }
 
         try{
-            result = OptionInfo.parseOptions("-confdir");
+            OptionInfo.parseOptions("-confdir");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -334,7 +335,7 @@ public class OptionInfoTest {
         assertNull(result.initialFrameYpos());
 
         try{
-            result = OptionInfo.parseOptions("-geometry");
+            OptionInfo.parseOptions("-geometry");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
@@ -343,7 +344,7 @@ public class OptionInfoTest {
         }
 
         try{
-            result = OptionInfo.parseOptions("-geometry", "Q");
+            OptionInfo.parseOptions("-geometry", "Q");
             fail();
         }catch(IllegalArgumentException e){
             String expMsg =
