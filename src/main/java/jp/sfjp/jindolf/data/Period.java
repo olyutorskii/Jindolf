@@ -524,7 +524,8 @@ public class Period{
         private static final int TALKTYPE_NUM = TalkType.values().length;
 
         private final EntityConverter converter =
-                new EntityConverter();
+                new EntityConverter(true);
+        // TODO: SMP面文字に彩色対応するまでの暫定措置
 
         private final Map<Avatar, int[]> countMap =
                 new HashMap<>();
@@ -1049,8 +1050,8 @@ public class Period{
                                        .convert(content, loginRange);
 
             Integer liveOrDead;
-            if(isLiving) liveOrDead = Integer.valueOf(1);
-            else         liveOrDead = Integer.valueOf(0);
+            if(isLiving) liveOrDead = 1;
+            else         liveOrDead = 0;
 
             this.avatarList.add(who);
             this.charseqList.add(anchor);
