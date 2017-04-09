@@ -296,7 +296,7 @@
                         <manifest>
                             <mainClass>${project.mainentry}</mainClass>
                             <addDefaultImplementationEntries>
-                                true
+                                false
                             </addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
@@ -310,7 +310,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -319,16 +319,6 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <artifactSet>
-                                <includes>
-                                    <include>jp.sourceforge.jindolf:jincore</include>
-                                    <include>jp.sourceforge.jindolf:jinparser</include>
-                                    <include>jp.sourceforge.jovsonz:jovsonz</include>
-                                </includes>
-                                <excludes>
-                                    <exclude>junit:junit</exclude>
-                                </excludes>
-                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
