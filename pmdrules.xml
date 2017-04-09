@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!--
-    PMD用ルールセット定義
-
-    PMD [ https://pmd.github.io/ ] 5.3 以降用に記述されています。
+    Custom rule set
+    for PMD [ https://pmd.github.io/ ] 5.5.2 or later
 
     Copyright(c) 2016 olyutorskii
 -->
@@ -17,12 +16,10 @@
 >
 
     <description>
-        custom rulesets for project
+        custom rulesets
     </description>
 
-<!--
     <rule ref="rulesets/java/android.xml" />
--->
 
     <rule ref="rulesets/java/basic.xml" />
 
@@ -33,18 +30,10 @@
 
     <rule ref="rulesets/java/clone.xml" />
 
-    <rule ref="rulesets/java/codesize.xml">
-        <exclude name="TooManyMethods" />
-    </rule>
-    <rule ref="rulesets/java/codesize.xml/TooManyMethods">
-        <properties>
-            <property name="maxmethods" value="25"/>
-        </properties>
-    </rule>
+    <rule ref="rulesets/java/codesize.xml" />
 
     <rule ref="rulesets/java/comments.xml">
-        <exclude name="CommentRequired" />
-        <exclude name="CommentSize" />
+        <exclude name="CommentDefaultAccessModifier" />
     </rule>
     <rule ref="rulesets/java/comments.xml/CommentRequired" >
         <properties>
@@ -58,13 +47,10 @@
     </rule>
 
     <rule ref="rulesets/java/controversial.xml">
-        <exclude name="NullAssignment" />
-        <exclude name="OnlyOneReturn" />
         <exclude name="DefaultPackage" />
+        <exclude name="OnlyOneReturn" />
         <exclude name="DataflowAnomalyAnalysis" />
-        <exclude name="AvoidUsingShortType" />
         <exclude name="AvoidLiteralsInIfCondition" />
-        <exclude name="UseConcurrentHashMap" />
     </rule>
 
     <rule ref="rulesets/java/coupling.xml">
@@ -73,8 +59,6 @@
     </rule>
 
     <rule ref="rulesets/java/design.xml">
-        <exclude name="SimplifyBooleanReturns" />
-        <exclude name="ConfusingTernary" />
         <exclude name="UnnecessaryLocalBeforeReturn" />
         <exclude name="FieldDeclarationsShouldBeAtStartOfClass" />
     </rule>
@@ -85,33 +69,25 @@
 
     <rule ref="rulesets/java/imports.xml" />
 
-<!--
-    <rule ref="rulesets/java/j2ee.xml" />
-    <rule ref="rulesets/java/javabeans.xml" />
--->
+    <rule ref="rulesets/java/j2ee.xml">
+        <exclude name="DoNotUseThreads" />
+    </rule>
 
-    <rule ref="rulesets/java/junit.xml" />
-
-<!--
     <rule ref="rulesets/java/logging-jakarta-commons.xml" />
--->
+
+    <rule ref="rulesets/java/javabeans.xml">
+        <exclude name="BeanMembersShouldSerialize" />
+    </rule>
 
     <rule ref="rulesets/java/logging-java.xml" />
 
+    <rule ref="rulesets/java/junit.xml" />
+
     <rule ref="rulesets/java/migrating.xml" />
-<!--
-    <rule ref="rulesets/java/migrating_to_XX.xml" />
--->
 
     <rule ref="rulesets/java/naming.xml">
         <exclude name="ShortVariable" />
         <exclude name="LongVariable" />
-        <exclude name="AvoidFieldNameMatchingMethodName" />
-    </rule>
-    <rule ref="rulesets/java/naming.xml/LongVariable">
-        <properties>
-            <property name="minimum" value="25"/>
-        </properties>
     </rule>
 
     <rule ref="rulesets/java/optimizations.xml">
@@ -120,11 +96,11 @@
         <exclude name="RedundantFieldInitializer" />
     </rule>
 
-    <rule ref="rulesets/java/strictexception.xml">
-        <exclude name="AvoidThrowingNullPointerException" />
-    </rule>
+    <rule ref="rulesets/java/strictexception.xml" />
 
-    <rule ref="rulesets/java/strings.xml" />
+    <rule ref="rulesets/java/strings.xml">
+        <exclude name="ConsecutiveAppendsShouldReuse" />
+    </rule>
 
     <rule ref="rulesets/java/sunsecure.xml" />
 
@@ -132,7 +108,6 @@
 
     <rule ref="rulesets/java/unnecessary.xml">
         <exclude name="UnnecessaryReturn" />
-        <exclude name="UselessParentheses" />
     </rule>
 
     <rule ref="rulesets/java/unusedcode.xml" />

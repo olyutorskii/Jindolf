@@ -10,10 +10,10 @@
 
   このアーカイブの原本は、Mercurial(hg)でバージョン管理されています。
   このアーカイブの原本となる開発資産は、
-      https://osdn.jp/projects/jindolf/scm/hg/Jindolf/
+      https://ja.osdn.net/projects/jindolf/scm/hg/Jindolf/
   を上位に持つMercurialリポジトリで管理されています。
   アーカイブの代わりにMercurialを通じての開発資産へのアクセスが可能です。
-  # hg clone http://hg.osdn.jp/view/jindolf/Jindolf
+  # hg clone http://hg.osdn.net/view/jindolf/Jindolf
 
 
 === 各種設定ファイル ===
@@ -42,7 +42,7 @@ EOL Extensionを有効にしないと設定が反映されません。
 ・https://www.mercurial-scm.org/wiki/.hgignore
 ・https://www.selenic.com/mercurial/hgignore.5.html
 ・https://www.mercurial-scm.org/wiki/EolExtension
-・http://tortoisehg.bitbucket.org/
+・https://tortoisehg.bitbucket.io/
 
 
 --- EOF ---
