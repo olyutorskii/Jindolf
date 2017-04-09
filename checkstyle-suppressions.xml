@@ -5,8 +5,8 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <!--
-    Checkstyle用警告抑止設定
-    ※ SuppressionFilter モジュール用
+    Checkstyle suppressions
+    for Checkstyle 6.19(7.4) or later
 
     [ http://checkstyle.sourceforge.net/ ]
 
@@ -31,13 +31,13 @@
 
     <!-- Javadoc Comments -->
     <suppress files="" checks="SummaryJavadocCheck" />
-        <!-- 句読点対応待ち -->
-    <suppress files="" checks="SingleLineJavadoc" />
-        <!-- ignoredTagsプロパティ対応待ち -->
 
     <!-- Miscellaneous -->
     <suppress files="" checks="FinalParameters" />
     <suppress files="" checks="TrailingComment" />
+
+    <!-- Whitespace -->
+    <suppress files="" checks="SingleSpaceSeparator" />
 
 </suppressions>
 
