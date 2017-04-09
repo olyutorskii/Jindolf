@@ -27,7 +27,7 @@ syntax: regexp
 syntax: glob
 
 .DS_Store
-_MACOSX
+__MACOSX
 [Tt]humbs.db
 [Dd]esktop.ini
 core
