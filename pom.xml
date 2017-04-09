@@ -555,7 +555,7 @@
                 <version>${pmd-plugin.version}</version>
                 <configuration>
                     <rulesets>
-                        <ruleset>${project.mainconf}/pmdrules.xml</ruleset>
+                        <ruleset>${project.basedir}/pmdrules.xml</ruleset>
                     </rulesets>
                 </configuration>
                 <reportSets>
