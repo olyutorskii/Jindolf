@@ -31,7 +31,7 @@
 
     <organization>
         <name>Jindolf Partners</name>
-        <url>https://osdn.jp/projects/jindolf/devel/</url>
+        <url>https://ja.osdn.net/projects/jindolf/devel/</url>
     </organization>
 
     <licenses>
@@ -47,7 +47,7 @@
             <id>olyutorskii</id>
             <url>https://sites.google.com/site/olyutorskiipit/</url>
             <organization>Jindolf Partners</organization>
-            <organizationUrl>https://osdn.jp/projects/jindolf/devel/</organizationUrl>
+            <organizationUrl>https://ja.osdn.net/projects/jindolf/devel/</organizationUrl>
             <roles>
                 <role>Project Founder</role>
                 <role>Java Developer</role>
@@ -65,14 +65,14 @@
     <modules/>
 
     <scm>
-        <connection>scm:hg:http://hg.osdn.jp/view/jindolf/Jindolf</connection>
-        <developerConnection>scm:hg:ssh://hg.osdn.jp//hgroot/jindolf/Jindolf</developerConnection>
-        <url>https://osdn.jp/projects/jindolf/scm/hg/Jindolf/</url>
+        <connection>scm:hg:http://hg.osdn.net/view/jindolf/Jindolf</connection>
+        <developerConnection>scm:hg:ssh://hg.osdn.net//hgroot/jindolf/Jindolf</developerConnection>
+        <url>https://osdn.net/projects/jindolf/scm/hg/Jindolf/</url>
     </scm>
 
     <issueManagement>
-        <system>OSDN.JP</system>
-        <url>https://osdn.jp/projects/jindolf/ticket/</url>
+        <system>OSDN.NET</system>
+        <url>https://ja.osdn.net/projects/jindolf/ticket/</url>
     </issueManagement>
 
     <ciManagement/>
@@ -97,8 +97,18 @@
 
         <project.mainconf>${project.basedir}/src/main/config</project.mainconf>
 
+        <checkstyle-plugin.version>2.17</checkstyle-plugin.version>
+        <checkstyleruntime.version>6.19</checkstyleruntime.version>
         <checkstyle.config.location>${project.mainconf}/checks.xml</checkstyle.config.location>
         <checkstyle.enable.rss>false</checkstyle.enable.rss>
+
+        <pmd-plugin.version>3.7</pmd-plugin.version>
+
+        <findbugs-plugin.version>3.0.4</findbugs-plugin.version>
+        <findbugs.effort>Max</findbugs.effort>
+        <findbugs.threshold>Low</findbugs.threshold>
+        <!-- for Jenkins -->
+        <findbugs.xmlOutput>true</findbugs.xmlOutput>
 
         <project.mainentry>jp.sfjp.jindolf.Jindolf</project.mainentry>
         <project.splash>jp/sfjp/jindolf/resources/image/logo.png</project.splash>
@@ -136,9 +146,33 @@
     <pluginRepositories/>
 
     <build>
-        <pluginManagement/>
+
+        <pluginManagement>
+
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${checkstyle-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <!--artifactId>checkstyle-backport-jre6</artifactId-->
+                            <version>${checkstyleruntime.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+            </plugins>
+
+        </pluginManagement>
 
         <plugins>
+
+
+            <!-- clean lifecycle -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -262,6 +296,9 @@
                     <archive>
                         <manifest>
                             <mainClass>${project.mainentry}</mainClass>
+                            <addDefaultImplementationEntries>
+                                true
+                            </addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
                             <SplashScreen-Image>${project.splash}</SplashScreen-Image>
@@ -363,8 +400,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.15</version>
-                <!-- config from property value -->
+                <version>${checkstyle-plugin.version}</version>
             </plugin>
 
         </plugins>
@@ -504,7 +540,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.15</version>
+                <version>${checkstyle-plugin.version}</version>
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -517,7 +553,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.6</version>
+                <version>${pmd-plugin.version}</version>
                 <configuration>
                     <rulesets>
                         <ruleset>${project.mainconf}/pmdrules.xml</ruleset>
@@ -536,17 +572,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
-                <configuration>
-                    <skip>false</skip>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <!-- for Jenkins -->
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                    <xmlOutput>true</xmlOutput>
-                    <!-- excludeFilterFile/ -->
-                </configuration>
+                <version>${findbugs-plugin.version}</version>
             </plugin>
 
         </plugins>
