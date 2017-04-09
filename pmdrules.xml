@@ -69,7 +69,9 @@
 
     <rule ref="rulesets/java/imports.xml" />
 
-    <rule ref="rulesets/java/j2ee.xml" />
+    <rule ref="rulesets/java/j2ee.xml">
+        <exclude name="DoNotUseThreads" />
+    </rule>
 
     <rule ref="rulesets/java/logging-jakarta-commons.xml" />
 
