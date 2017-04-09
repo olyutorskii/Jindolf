@@ -95,11 +95,10 @@
 
         <jacoco-plugin.version>0.7.9</jacoco-plugin.version>
 
-        <project.mainconf>${project.basedir}/src/main/config</project.mainconf>
-
         <checkstyle-plugin.version>2.17</checkstyle-plugin.version>
         <checkstyleruntime.version>6.19</checkstyleruntime.version>
-        <checkstyle.config.location>${project.mainconf}/checks.xml</checkstyle.config.location>
+        <checkstyle.config.location>${project.basedir}/checkstyle.xml</checkstyle.config.location>
+        <checkstyle.suppressions.location>${project.basedir}/checkstyle-suppressions.xml</checkstyle.suppressions.location>
         <checkstyle.enable.rss>false</checkstyle.enable.rss>
 
         <pmd-plugin.version>3.7</pmd-plugin.version>
