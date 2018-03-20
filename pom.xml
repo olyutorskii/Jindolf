@@ -128,7 +128,7 @@
         <dependency>
             <groupId>jp.sourceforge.jindolf</groupId>
             <artifactId>jinparser</artifactId>
-            <version>1.409.4</version>
+            <version>1.409.5-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 

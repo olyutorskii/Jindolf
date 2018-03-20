@@ -7,6 +7,8 @@
 
 package jp.sfjp.jindolf.net;
 
+import io.bitbucket.olyutorskii.jiocema.DecodeBreakException;
+import io.bitbucket.olyutorskii.jiocema.DecodeNotifier;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,11 +28,8 @@ import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Village;
 import jp.sourceforge.jindolf.parser.ContentBuilder;
 import jp.sourceforge.jindolf.parser.ContentBuilderSJ;
-import jp.sourceforge.jindolf.parser.ContentBuilderUCS2;
-import jp.sourceforge.jindolf.parser.DecodeException;
 import jp.sourceforge.jindolf.parser.DecodedContent;
-import jp.sourceforge.jindolf.parser.SjisDecoder;
-import jp.sourceforge.jindolf.parser.StreamDecoder;
+import jp.sourceforge.jindolf.parser.SjisNotifier;
 
 /**
  * 国ごとの人狼BBSサーバとの通信を一手に引き受ける。
@@ -179,26 +178,26 @@ public class ServerAccess{
      */
     public DecodedContent downloadHTMLStream(InputStream istream)
             throws IOException{
-        StreamDecoder decoder;
+        DecodeNotifier decoder;
         ContentBuilder builder;
         if(this.charset.name().equalsIgnoreCase("Shift_JIS")){
-            decoder = new SjisDecoder();
+            decoder = new SjisNotifier();
             builder = new ContentBuilderSJ(200 * 1024);
         }else if(this.charset.name().equalsIgnoreCase("UTF-8")){
-            decoder = new StreamDecoder(this.charset.newDecoder());
-            builder = new ContentBuilderUCS2(200 * 1024);
+            decoder = new DecodeNotifier(this.charset.newDecoder());
+            builder = new ContentBuilder(200 * 1024);
         }else{
             assert false;
             return null;
         }
-        decoder.setDecodeHandler(builder);
+        decoder.setCharDecodeListener(builder);
 
         // TODO デコーダをインスタンス変数にできないか。
         // TODO DecodedContentのキャッシュ管理。
 
         try{
             decoder.decode(istream);
-        }catch(DecodeException e){
+        }catch(DecodeBreakException e){
             return null;
         }
 
