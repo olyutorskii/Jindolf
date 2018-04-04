@@ -17,6 +17,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jp.osdn.jindolf.parser.EntityConverter;
+import jp.osdn.jindolf.parser.HtmlAdapter;
+import jp.osdn.jindolf.parser.HtmlParseException;
+import jp.osdn.jindolf.parser.HtmlParser;
+import jp.osdn.jindolf.parser.PageType;
+import jp.osdn.jindolf.parser.SeqRange;
+import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.StringUtils;
@@ -28,13 +35,6 @@ import jp.sourceforge.jindolf.corelib.SysEventType;
 import jp.sourceforge.jindolf.corelib.TalkType;
 import jp.sourceforge.jindolf.corelib.Team;
 import jp.sourceforge.jindolf.corelib.VillageState;
-import jp.sourceforge.jindolf.parser.DecodedContent;
-import jp.sourceforge.jindolf.parser.EntityConverter;
-import jp.sourceforge.jindolf.parser.HtmlAdapter;
-import jp.sourceforge.jindolf.parser.HtmlParseException;
-import jp.sourceforge.jindolf.parser.HtmlParser;
-import jp.sourceforge.jindolf.parser.PageType;
-import jp.sourceforge.jindolf.parser.SeqRange;
 
 /**
  * いわゆる「日」。

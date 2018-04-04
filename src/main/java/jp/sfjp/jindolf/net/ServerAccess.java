@@ -24,12 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import jp.osdn.jindolf.parser.content.ContentBuilder;
+import jp.osdn.jindolf.parser.content.ContentBuilderSJ;
+import jp.osdn.jindolf.parser.content.DecodedContent;
+import jp.osdn.jindolf.parser.content.SjisNotifier;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Village;
-import jp.sourceforge.jindolf.parser.ContentBuilder;
-import jp.sourceforge.jindolf.parser.ContentBuilderSJ;
-import jp.sourceforge.jindolf.parser.DecodedContent;
-import jp.sourceforge.jindolf.parser.SjisNotifier;
 
 /**
  * 国ごとの人狼BBSサーバとの通信を一手に引き受ける。

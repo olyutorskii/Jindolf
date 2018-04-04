@@ -12,10 +12,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.SysEventType;
-import jp.sourceforge.jindolf.parser.DecodedContent;
 
 /**
  * 人狼BBSシステムが生成する各種メッセージ。

@@ -18,6 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jp.osdn.jindolf.parser.HtmlAdapter;
+import jp.osdn.jindolf.parser.HtmlParseException;
+import jp.osdn.jindolf.parser.HtmlParser;
+import jp.osdn.jindolf.parser.PageType;
+import jp.osdn.jindolf.parser.SeqRange;
+import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.GUIUtils;
@@ -25,12 +31,6 @@ import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.LandState;
 import jp.sourceforge.jindolf.corelib.PeriodType;
 import jp.sourceforge.jindolf.corelib.VillageState;
-import jp.sourceforge.jindolf.parser.DecodedContent;
-import jp.sourceforge.jindolf.parser.HtmlAdapter;
-import jp.sourceforge.jindolf.parser.HtmlParseException;
-import jp.sourceforge.jindolf.parser.HtmlParser;
-import jp.sourceforge.jindolf.parser.PageType;
-import jp.sourceforge.jindolf.parser.SeqRange;
 
 /**
  * いわゆる「村」。
