@@ -22,6 +22,8 @@ syntax: regexp
 ^nbproject/
 ^\.settings/
 
+\.iml$
+
 
 #####################
 syntax: glob
@@ -31,6 +33,8 @@ __MACOSX
 [Tt]humbs.db
 [Dd]esktop.ini
 core
+
+.idea
 
 
 ### EOF ###
