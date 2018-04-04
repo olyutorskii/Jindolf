@@ -6,7 +6,7 @@
 
 <!--
     Checkstyle modules
-    for Checkstyle 6.19(7.4) or later
+    for Checkstyle 6.18 or later
 
     [ http://checkstyle.sourceforge.net/ ]
 
@@ -82,6 +82,8 @@
 
         <property name="tabWidth" value="8"/>
         <property name="fileExtensions" value="java"/>
+
+        <module name="SuppressWarningsHolder" />
 
 
     <!-- Annotations -->
@@ -349,7 +351,7 @@
             <property name="tokens" value="DOT" />
             <property name="option" value="nl" />
         </module>
-        <module name="SingleSpaceSeparator" />
+        <!-- *6.19* module name="SingleSpaceSeparator" /-->
         <module name="TypecastParenPad" />
         <module name="WhitespaceAfter" >
             <property name="tokens" value="COMMA, SEMI,"/>
