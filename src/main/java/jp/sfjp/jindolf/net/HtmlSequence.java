@@ -8,7 +8,7 @@
 package jp.sfjp.jindolf.net;
 
 import java.net.URL;
-import jp.sourceforge.jindolf.parser.DecodedContent;
+import jp.osdn.jindolf.parser.content.DecodedContent;
 
 /**
  * HTML本文。

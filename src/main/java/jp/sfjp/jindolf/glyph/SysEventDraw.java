@@ -12,9 +12,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.IOException;
+import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.data.SysEvent;
-import jp.sourceforge.jindolf.parser.DecodedContent;
 
 /**
  * システムイベントメッセージの描画。
