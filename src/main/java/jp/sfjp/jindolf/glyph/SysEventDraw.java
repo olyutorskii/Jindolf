@@ -215,7 +215,13 @@ public class SysEventDraw extends AbstractTextRow{
         RenderingHints.Key aaHintKey = RenderingHints.KEY_ANTIALIASING;
         Object aaHintTemp = RenderingHints.VALUE_ANTIALIAS_OFF;
         Object aaHintOrig = g.getRenderingHint(aaHintKey);
+
+        RenderingHints.Key strokeHintKey = RenderingHints.KEY_STROKE_CONTROL;
+        Object strokeHintTemp = RenderingHints.VALUE_STROKE_NORMALIZE;
+        Object strokeHintOrig = g.getRenderingHint(strokeHintKey);
+
         g.setRenderingHint(aaHintKey, aaHintTemp);
+        g.setRenderingHint(strokeHintKey, strokeHintTemp);
 
         if(this.dialogPref.isSimpleMode()){
             g.drawLine(this.bounds.x,                     this.bounds.y,
@@ -228,6 +234,7 @@ public class SysEventDraw extends AbstractTextRow{
         }
 
         g.setRenderingHint(aaHintKey, aaHintOrig);
+        g.setRenderingHint(strokeHintKey, strokeHintOrig);
 
         this.sysMessage.paint(g);
 
