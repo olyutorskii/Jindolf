@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.io.IOException;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.DialogPref;
@@ -211,6 +212,17 @@ public class SysEventDraw extends AbstractTextRow{
     public void paint(Graphics2D g){
         g.setColor(this.fgColor);
 
+        RenderingHints.Key aaHintKey = RenderingHints.KEY_ANTIALIASING;
+        Object aaHintTemp = RenderingHints.VALUE_ANTIALIAS_OFF;
+        Object aaHintOrig = g.getRenderingHint(aaHintKey);
+
+        RenderingHints.Key strokeHintKey = RenderingHints.KEY_STROKE_CONTROL;
+        Object strokeHintTemp = RenderingHints.VALUE_STROKE_NORMALIZE;
+        Object strokeHintOrig = g.getRenderingHint(strokeHintKey);
+
+        g.setRenderingHint(aaHintKey, aaHintTemp);
+        g.setRenderingHint(strokeHintKey, strokeHintTemp);
+
         if(this.dialogPref.isSimpleMode()){
             g.drawLine(this.bounds.x,                     this.bounds.y,
                        this.bounds.x + this.bounds.width, this.bounds.y );
@@ -220,6 +232,9 @@ public class SysEventDraw extends AbstractTextRow{
                        this.bounds.width  - 1,
                        this.bounds.height - UNDER_MARGIN);
         }
+
+        g.setRenderingHint(aaHintKey, aaHintOrig);
+        g.setRenderingHint(strokeHintKey, strokeHintOrig);
 
         this.sysMessage.paint(g);
 

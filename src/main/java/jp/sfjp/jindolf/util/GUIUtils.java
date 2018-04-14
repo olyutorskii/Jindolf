@@ -201,7 +201,7 @@ public final class GUIUtils{
             return wwwIcon;
         }
 
-        wwwIcon = ResourceManager.getImageIcon(RES_WWWICON);
+        wwwIcon = ResourceManager.getSquareIcon(RES_WWWICON, 16);
 
         return wwwIcon;
     }

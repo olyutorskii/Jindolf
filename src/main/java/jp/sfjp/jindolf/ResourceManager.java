@@ -19,7 +19,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Properties;
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import jp.sfjp.jindolf.view.FlexiIcon;
 
 /**
  * 各種リソースファイルの管理。
@@ -55,6 +57,8 @@ public final class ResourceManager {
     public static final ClassLoader DEF_LOADER;
 
     private static final Charset CS_UTF8 = Charset.forName("UTF-8");
+
+    private static final int BTN_SZ = 24;
 
     static{
         Class<?> rootKlass = Jindolf.class;
@@ -243,6 +247,30 @@ public final class ResourceManager {
 
         ImageIcon result = new ImageIcon(url);
 
+        return result;
+    }
+
+    /**
+     * リソース名を用いて正方形ボタン用アイコン画像を取得する。
+     *
+     * @param resPath アイコン画像リソース名
+     * @return アイコン画像。リソースが見つからなければnull。
+     */
+    public static Icon getButtonIcon(String resPath){
+        Icon result = getSquareIcon(resPath, BTN_SZ);
+        return result;
+    }
+
+    /**
+     * リソース名を用いて正方形アイコン画像を取得する。
+     *
+     * @param resPath アイコン画像リソース名
+     * @param sz 正方形アイコン寸法
+     * @return アイコン画像。リソースが見つからなければnull。
+     */
+    public static Icon getSquareIcon(String resPath, int sz){
+        BufferedImage image = getBufferedImage(resPath);
+        Icon result = new FlexiIcon(image, sz, sz);
         return result;
     }
 
