@@ -122,22 +122,22 @@ public class ActionManager{
 
     static{
         ICON_FIND =
-            ResourceManager.getImageIcon("resources/image/tb_find.png");
+            ResourceManager.getButtonIcon("resources/image/tb_find.png");
 
         ICON_SEARCH_PREV =
-            ResourceManager.getImageIcon("resources/image/tb_findprev.png");
+            ResourceManager.getButtonIcon("resources/image/tb_findprev.png");
 
         ICON_SEARCH_NEXT =
-            ResourceManager.getImageIcon("resources/image/tb_findnext.png");
+            ResourceManager.getButtonIcon("resources/image/tb_findnext.png");
 
         ICON_RELOAD =
-            ResourceManager.getImageIcon("resources/image/tb_reload.png");
+            ResourceManager.getButtonIcon("resources/image/tb_reload.png");
 
         ICON_FILTER =
-            ResourceManager.getImageIcon("resources/image/tb_filter.png");
+            ResourceManager.getButtonIcon("resources/image/tb_filter.png");
 
         ICON_EDITOR =
-            ResourceManager.getImageIcon("resources/image/tb_editor.png");
+            ResourceManager.getButtonIcon("resources/image/tb_editor.png");
     }
 
     private final Set<AbstractButton> actionItems =

@@ -13,7 +13,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -41,14 +41,14 @@ public class LandsTree
     private static final String TIP_ASCEND = "押すと降順に";
     private static final String TIP_DESCEND = "押すと昇順に";
     private static final String TIP_ORDER = "選択中の国の村一覧を読み込み直す";
-    private static final ImageIcon ICON_ASCEND;
-    private static final ImageIcon ICON_DESCEND;
+    private static final Icon ICON_ASCEND;
+    private static final Icon ICON_DESCEND;
 
     static{
         ICON_ASCEND =
-            ResourceManager.getImageIcon("resources/image/tb_ascend.png");
+            ResourceManager.getButtonIcon("resources/image/tb_ascend.png");
         ICON_DESCEND =
-            ResourceManager.getImageIcon("resources/image/tb_descend.png");
+            ResourceManager.getButtonIcon("resources/image/tb_descend.png");
     }
 
     private final JButton orderButton = new JButton();
@@ -72,8 +72,8 @@ public class LandsTree
         this.orderButton.setActionCommand(ActionManager.CMD_SWITCHORDER);
         this.orderButton.addActionListener(this);
 
-        ImageIcon icon =
-                ResourceManager.getImageIcon("resources/image/tb_reload.png");
+        Icon icon = ResourceManager
+                .getButtonIcon("resources/image/tb_reload.png");
         this.reloadButton.setIcon(icon);
         this.reloadButton.setToolTipText(TIP_ORDER);
         this.reloadButton.setMargin(new Insets(1, 1, 1, 1));
