@@ -1,5 +1,5 @@
 /*
- * Dialog for WebIPC
+ * Dialog for Desktop
  *
  * License : The MIT License
  * Copyright(c) 2009 olyutorskii
@@ -8,6 +8,7 @@
 package jp.sfjp.jindolf.dxchg;
 
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,7 +37,6 @@ import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import jp.sfjp.jindolf.JreChecker;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.Monodizer;
@@ -45,15 +45,16 @@ import jp.sfjp.jindolf.util.Monodizer;
  * Webブラウザ起動用の専用ダイアログ。
  */
 @SuppressWarnings("serial")
-public class WebIPCDialog
-        extends JDialog
-        implements ActionListener {
+public class WebIPCDialog extends JDialog {
+
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
+
+    private static final String CMD_BROWSE   = "browse";
+    private static final String CMD_CLIPCOPY = "clipcopy";
+    private static final String CMD_CANCEL   = "cancel";
 
     private static final String TITLE_WWW =
             VerInfo.getFrameTitle("URLへのアクセス確認");
-
-
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     private final String warnMessage;
@@ -71,7 +72,7 @@ public class WebIPCDialog
     private final JButton cancel =
             new JButton("閉じる");
 
-    private final WebIPC ipc;
+    private final Desktop desktop;
 
     private URI uri;
 
@@ -86,55 +87,30 @@ public class WebIPCDialog
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
 
-        WebIPC webipc = null;
-        if(WebIPC.isDesktopSupported()){
-            webipc = WebIPC.getWebIPC();
-            if( ! webipc.isSupported(WebIPC.Action.BROWSE) ){
+        Desktop webipc = null;
+        if(Desktop.isDesktopSupported()){
+            webipc = Desktop.getDesktop();
+            if( ! webipc.isSupported(Desktop.Action.BROWSE) ){
                 webipc = null;
             }
         }
-        this.ipc = webipc;
+        this.desktop = webipc;
 
-        if(this.ipc == null){
-            if( ! JreChecker.has16Runtime() ){
-                this.warnMessage =
-                        "この機能を利用するには、JRE1.6以上が必要です";
-            }else{
-                this.warnMessage =
-                        "何らかの理由でこの機能は利用不可になっています";
-            }
+        if(this.desktop == null){
+            this.warnMessage =
+                    "何らかの理由でこの機能は利用不可になっています";
         }else{
             this.warnMessage = "";
         }
 
-        Border inside =
-                BorderFactory.createEmptyBorder(1, 4, 1, 4);
-        Border outside =
-                BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-        Border border =
-                BorderFactory.createCompoundBorder(outside, inside);
-        this.urltext.setBorder(border);
-        this.urltext.setEditable(false);
-        this.urltext.setLineWrap(true);
-        this.urltext.setComponentPopupMenu(new TextPopup());
-        Monodizer.monodize(this.urltext);
-
-        this.dndLabel.setIcon(GUIUtils.getWWWIcon());
-        this.dndLabel.setHorizontalTextPosition(SwingConstants.LEFT);
-        this.dndLabel.setTransferHandler(new DnDHandler());
-        this.dndLabel.addMouseListener(new DragIgniter());
+        buildDnDIcon();
+        buildUrlLabel();
+        buildButton();
 
         Container container = getContentPane();
         design(container);
 
-        this.browse  .addActionListener(this);
-        this.clipcopy.addActionListener(this);
-        this.cancel  .addActionListener(this);
-
-        getRootPane().setDefaultButton(this.browse);
-        this.browse.requestFocusInWindow();
-
-        if(this.ipc == null){
+        if(this.desktop == null){
             this.browse.setToolTipText(this.warnMessage);
         }
 
@@ -149,6 +125,7 @@ public class WebIPCDialog
 
         return;
     }
+
 
     /**
      * Webブラウザ起動用のモーダルダイアログを表示する。
@@ -186,6 +163,59 @@ public class WebIPCDialog
         if(host == null) return false;
 
         return true;
+    }
+
+
+    /**
+     * DragAndDropアイコンを構成する。
+     */
+    private void buildDnDIcon(){
+        this.dndLabel.setIcon(GUIUtils.getWWWIcon());
+        this.dndLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+        this.dndLabel.setTransferHandler(new DnDHandler());
+        this.dndLabel.addMouseListener(new DragIgniter());
+        return;
+    }
+
+    /**
+     * URL表示部を構成する。
+     */
+    private void buildUrlLabel(){
+        Border inside =
+                BorderFactory.createEmptyBorder(1, 4, 1, 4);
+        Border outside =
+                BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+        Border border =
+                BorderFactory.createCompoundBorder(outside, inside);
+
+        this.urltext.setBorder(border);
+
+        this.urltext.setEditable(false);
+        this.urltext.setLineWrap(true);
+        this.urltext.setComponentPopupMenu(new TextPopup());
+
+        Monodizer.monodize(this.urltext);
+
+        return;
+    }
+
+    /**
+     * ボタンを構成する。
+     */
+    private void buildButton(){
+        this.browse  .setActionCommand(CMD_BROWSE);
+        this.clipcopy.setActionCommand(CMD_CLIPCOPY);
+        this.cancel  .setActionCommand(CMD_CANCEL);
+
+        ActionListener btnListsner = new ButtonListener();
+        this.browse  .addActionListener(btnListsner);
+        this.clipcopy.addActionListener(btnListsner);
+        this.cancel  .addActionListener(btnListsner);
+
+        getRootPane().setDefaultButton(this.browse);
+        this.browse.requestFocusInWindow();
+
+        return;
     }
 
     /**
@@ -268,23 +298,6 @@ public class WebIPCDialog
     }
 
     /**
-     * ボタン押下リスナ。
-     * @param event ボタン押下イベント
-     */
-    @Override
-    public void actionPerformed(ActionEvent event){
-        Object source = event.getSource();
-        if(source == this.browse){
-            actionBrowse();
-        }else if(source == this.clipcopy){
-            actionClipboardCopy();
-        }else if(source == this.cancel){
-            actionCancel();
-        }
-        return;
-    }
-
-    /**
      * WebブラウザでURLを表示。
      */
     private void actionBrowse(){
@@ -293,13 +306,8 @@ public class WebIPCDialog
             return;
         }
 
-        if(this.ipc == null){
-            String title;
-            if( ! JreChecker.has16Runtime() ){
-                title = "新しいJavaを入手しましょう";
-            }else{
-                title = "報告";
-            }
+        if(this.desktop == null){
+            String title = "報告";
             JOptionPane.showMessageDialog(
                     this,
                     this.warnMessage, title,
@@ -309,16 +317,14 @@ public class WebIPCDialog
 
         try{
             try{
-                this.ipc.browse(this.uri);
+                this.desktop.browse(this.uri);
             }catch(NullPointerException e){
                 assert false;
-            }catch(UnsupportedOperationException e){
-                // NOTHING
-            }catch(IOException e){
-                // NOTHING
-            }catch(SecurityException e){
-                // NOTHING
-            }catch(IllegalArgumentException e){
+            }catch(   UnsupportedOperationException
+                    | IOException
+                    | SecurityException
+                    | IllegalArgumentException e
+                    ){
                 // NOTHING
             }
             String logmsg =   "URL "
@@ -371,6 +377,32 @@ public class WebIPCDialog
         setVisible(false);
         return;
     }
+
+
+    /**
+     * ボタンリスナ。
+     */
+    private class ButtonListener implements ActionListener{
+
+        /**
+         * ボタン押下リスナ。
+         * @param event ボタン押下イベント
+         */
+        @Override
+        public void actionPerformed(ActionEvent event){
+            String cmd = event.getActionCommand();
+            if(CMD_BROWSE.equals(cmd)){
+                actionBrowse();
+            }else if(CMD_CLIPCOPY.equals(cmd)){
+                actionClipboardCopy();
+            }else if(CMD_CANCEL.equals(cmd)){
+                actionCancel();
+            }
+            return;
+        }
+
+    }
+
 
     /**
      * Drag&amp;Dropの転送処理を管理。
@@ -444,6 +476,7 @@ public class WebIPCDialog
         }
 
     }
+
 
     /**
      * ドラッグ開始イベント処理。
