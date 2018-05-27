@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 
 /**
  * コマンドラインオプション情報。
- * public static void main()の引数から展開される。
+ *
+ * <p>public static void main()の引数から展開される。
  */
 public class OptionInfo{
 
@@ -74,21 +75,20 @@ public class OptionInfo{
     /**
      * 文字列が可変引数のいずれかと英字大小無視で等しいか判定する。
      *
-     * <p>※ JRE1.6のString#equalsIgnoreCase の代替も兼ねる。
-     *
      * @param text 文字列
      * @param names 文字列の可変引数
      * @return 等しい物があればtrue
      */
     private static boolean equalsIgnoreCase(String text, String ... names){
         for(String name : names){
-            if(text.compareToIgnoreCase(name) == 0) return true;
+            if(text.equalsIgnoreCase(name)) return true;
         }
         return false;
     }
 
     /**
      * 真偽二値をとるオプション解析の下請け。
+     *
      * @param info オプション情報格納先
      * @param option オプション種別
      * @param optTxt オプション名文字列
@@ -168,6 +168,7 @@ public class OptionInfo{
 
     /**
      * 引数付きオプションを解析する。
+     *
      * @param info オプション情報
      * @param optTxt オプション文字列
      * @param option オプション種別
@@ -203,6 +204,7 @@ public class OptionInfo{
 
     /**
      * オプション文字列を解析する。
+     *
      * @param args main()に渡されるオプション文字列
      * @return 解析済みのオプション情報。
      * @throws IllegalArgumentException 構文エラー
@@ -238,6 +240,7 @@ public class OptionInfo{
 
     /**
      * 全引数のリストを返す。
+     *
      * @return 全引数のリスト
      */
     public List<String> getInvokeArgList(){
@@ -246,6 +249,7 @@ public class OptionInfo{
 
     /**
      * オプションが指定されていたか否か判定する。
+     *
      * @param option オプション
      * @return 指定されていたらtrue
      */
@@ -256,7 +260,9 @@ public class OptionInfo{
 
     /**
      * 真偽値をとるオプション値を返す。
-     * 複数回指定された場合は最後の値。
+     *
+     * <p>複数回指定された場合は最後の値。
+     *
      * @param option オプション
      * @return 真偽値。オプション指定がなかった場合はnull
      * @throws IllegalArgumentException 真偽値を取るオプションではない。
@@ -274,7 +280,9 @@ public class OptionInfo{
 
     /**
      * 文字列引数をとるオプション値を返す。
-     * 複数回指定された場合は最後の値。
+     *
+     * <p>複数回指定された場合は最後の値。
+     *
      * @param option オプション
      * @return 文字列。オプション指定がなかった場合はnull
      */
@@ -285,7 +293,9 @@ public class OptionInfo{
 
     /**
      * 排他的オプションのいずれかが指定されたか判定する。
-     * 後から指定された方が有効となる。
+     *
+     * <p>後から指定された方が有効となる。
+     *
      * @param options 排他的オプション群
      * @return いずれかのオプション。どれも指定されなければnull
      */
@@ -304,6 +314,7 @@ public class OptionInfo{
 
     /**
      * 初期のフレーム幅を返す。
+     *
      * @return 初期のフレーム幅。オプション指定されてなければnull
      */
     public Integer initialFrameWidth(){
@@ -312,6 +323,7 @@ public class OptionInfo{
 
     /**
      * 初期のフレーム高を返す。
+     *
      * @return 初期のフレーム高。オプション指定されてなければnull
      */
     public Integer initialFrameHeight(){
@@ -320,6 +332,7 @@ public class OptionInfo{
 
     /**
      * 初期のフレーム位置のX座標を返す。
+     *
      * @return 初期のフレーム位置のX座標。オプション指定されてなければnull
      */
     public Integer initialFrameXpos(){
@@ -328,6 +341,7 @@ public class OptionInfo{
 
     /**
      * 初期のフレーム位置のY座標を返す。
+     *
      * @return 初期のフレーム位置のY座標。オプション指定されてなければnull
      */
     public Integer initialFrameYpos(){

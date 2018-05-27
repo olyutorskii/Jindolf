@@ -31,8 +31,6 @@ public class FontInfo{
     /** デフォルトのフォントスタイル。 */
     public static final int DEF_STYLE = 0x00 | Font.PLAIN;
 
-    /** {@link java.util.Locale#ROOT}代替品。 */
-    private static final Locale LOCALE_ROOT = new Locale("", "", "");
     /** MSリコー系日本語ベクトルフォント下限ポイントサイズ。 */
     private static final int MS_VEC_LIMIT = 24;
     /** 二重引用符。 */
@@ -53,7 +51,8 @@ public class FontInfo{
 
     /**
      * コンストラクタ。
-     * デフォルトフォントとそれに適した描画属性が指定される。
+     *
+     * <p>デフォルトフォントとそれに適した描画属性が指定される。
      */
     public FontInfo(){
         this((Font) null, (FontRenderContext) null);
@@ -62,6 +61,7 @@ public class FontInfo{
 
     /**
      * コンストラクタ。
+     *
      * @param font フォント
      * @param context 描画設定
      */
@@ -86,7 +86,7 @@ public class FontInfo{
      * @return 見当が付けばtrue
      */
     protected static boolean isMsRicohJpFont(Font font){
-        String rootFamilyName = font.getFamily(LOCALE_ROOT);
+        String rootFamilyName = font.getFamily(Locale.ROOT);
         if(rootFamilyName.startsWith("MS")){
             if(rootFamilyName.contains("Gothic")) return true;
             if(rootFamilyName.contains("Mincho")) return true;
@@ -145,6 +145,7 @@ public class FontInfo{
 
     /**
      * ファミリ名を返す。
+     *
      * @return ファミリ名
      */
     private String getFamilyName(){
@@ -161,6 +162,7 @@ public class FontInfo{
 
     /**
      * フォントを返す。
+     *
      * @return フォント
      */
     public Font getFont(){
@@ -173,6 +175,7 @@ public class FontInfo{
 
     /**
      * 描画属性を返す。
+     *
      * @return 描画属性
      */
     public FontRenderContext getFontRenderContext(){
@@ -185,6 +188,7 @@ public class FontInfo{
 
     /**
      * アンチエイリアス機能を使うか判定する。
+     *
      * @return アンチエイリアス機能を使うならtrue
      */
     public boolean isAntiAliased(){
@@ -195,6 +199,7 @@ public class FontInfo{
 
     /**
      * サブピクセル精度を使うか判定する。
+     *
      * @return サブピクセル精度を使うならtrue
      */
     public boolean usesFractionalMetrics(){
@@ -205,6 +210,7 @@ public class FontInfo{
 
     /**
      * フォントの最大寸法を返す。
+     *
      * @return 最大寸法
      * @see java.awt.Font#getMaxCharBounds(FontRenderContext)
      */
@@ -218,6 +224,7 @@ public class FontInfo{
 
     /**
      * フォントのみ異なる設定を派生させる。
+     *
      * @param newFont 新フォント
      * @return 新設定
      */
@@ -228,6 +235,7 @@ public class FontInfo{
 
     /**
      * 描画属性のみ異なる設定を派生させる。
+     *
      * @param newContext 新描画設定
      * @return 新設定
      */
@@ -238,6 +246,7 @@ public class FontInfo{
 
     /**
      * 描画属性のみ異なる設定を派生させる。
+     *
      * @param isAntiAliases アンチエイリアス設定
      * @param useFractional サブピクセル精度設定
      * @return 新設定
@@ -257,6 +266,7 @@ public class FontInfo{
 
     /**
      * 文字列からグリフ集合を生成する。
+     *
      * @param iterator 文字列
      * @return グリフ集合
      */
@@ -269,19 +279,23 @@ public class FontInfo{
 
     /**
      * ロケール中立なフォントファミリ名を返す。
-     * JRE1.5対策
+     *
+     * <p>JRE1.5対策
+     *
      * @return ファミリ名
      * @see Font#getFamily(Locale)
      */
     public String getRootFamilyName(){
         Font thisFont = getFont();
-        String result = thisFont.getFamily(LOCALE_ROOT);
+        String result = thisFont.getFamily(Locale.ROOT);
         return result;
     }
 
     /**
      * Font#decode()用の名前を返す。
-     * 空白が含まれる場合は二重引用符で囲まれる。
+     *
+     * <p>空白が含まれる場合は二重引用符で囲まれる。
+     *
      * @return {@link java.awt.Font#decode(String)}用の名前
      * @see java.awt.Font#decode(String)
      */
@@ -312,6 +326,7 @@ public class FontInfo{
 
     /**
      * {@inheritDoc}
+     *
      * @param obj {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -337,6 +352,7 @@ public class FontInfo{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
