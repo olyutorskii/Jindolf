@@ -234,11 +234,10 @@ public final class GUIUtils{
 
         try{
             SwingUtilities.invokeAndWait(TASK_NOTHING);
-        }catch(InterruptedException e){
-            // IGNORE
-        }catch(InvocationTargetException e){
+        }catch(InterruptedException | InvocationTargetException e){
             // IGNORE
         }
+        // IGNORE
 
         return;
     }

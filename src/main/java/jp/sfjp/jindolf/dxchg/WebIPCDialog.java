@@ -1,5 +1,5 @@
 /*
- * Dialog for WebIPC
+ * Dialog for Desktop
  *
  * License : The MIT License
  * Copyright(c) 2009 olyutorskii
@@ -8,6 +8,7 @@
 package jp.sfjp.jindolf.dxchg;
 
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,21 +23,21 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.MessageFormat;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import jp.sfjp.jindolf.JreChecker;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.Monodizer;
@@ -45,18 +46,42 @@ import jp.sfjp.jindolf.util.Monodizer;
  * Webブラウザ起動用の専用ダイアログ。
  */
 @SuppressWarnings("serial")
-public class WebIPCDialog
-        extends JDialog
-        implements ActionListener {
+public class WebIPCDialog extends JDialog {
+
+    /** logger. */
+    protected static final Logger LOGGER = Logger.getAnonymousLogger();
+
+    /** browse command. */
+    protected static final String CMD_BROWSE   = "browse";
+    /** clipboard copy command. */
+    protected static final String CMD_CLIPCOPY = "clipcopy";
+    /** cancel command. */
+    protected static final String CMD_CANCEL   = "cancel";
+
+    private static final String MSG_NODESKTOP =
+            "何らかの理由でこの機能は利用不可になっています";
+    private static final String MSG_DND =
+            "URL {0} がどこかへドラッグ&ドロップされました";
+    private static final String MSG_CLIPCOPY =
+            "文字列「{0}」をクリップボードにコピーしました";
+    private static final String MSG_BROWSE =
+            "URL {0} へのアクセスをWebブラウザに指示しました";
 
     private static final String TITLE_WWW =
             VerInfo.getFrameTitle("URLへのアクセス確認");
 
+    private static final DragIgniter DNDIGNITER = new DragIgniter();
 
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
+    private static final URI URI_EMPTY;
 
+    static{
+        try{
+            URI_EMPTY = new URI("");
+        }catch(URISyntaxException e){
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
-    private final String warnMessage;
 
     private final JLabel info =
             new JLabel("以下のURLへのアクセスが指示されました。");
@@ -71,104 +96,102 @@ public class WebIPCDialog
     private final JButton cancel =
             new JButton("閉じる");
 
-    private final WebIPC ipc;
+    private final Desktop desktop;
 
     private URI uri;
 
 
     /**
      * コンストラクタ。
+     *
      * @param owner オーナーフレーム
      */
-    public WebIPCDialog(Frame owner){
+    protected WebIPCDialog(Frame owner){
         super(owner);
-        setModal(true);
 
-        GUIUtils.modifyWindowAttributes(this, true, false, true);
-
-        WebIPC webipc = null;
-        if(WebIPC.isDesktopSupported()){
-            webipc = WebIPC.getWebIPC();
-            if( ! webipc.isSupported(WebIPC.Action.BROWSE) ){
-                webipc = null;
-            }
-        }
-        this.ipc = webipc;
-
-        if(this.ipc == null){
-            if( ! JreChecker.has16Runtime() ){
-                this.warnMessage =
-                        "この機能を利用するには、JRE1.6以上が必要です";
-            }else{
-                this.warnMessage =
-                        "何らかの理由でこの機能は利用不可になっています";
-            }
-        }else{
-            this.warnMessage = "";
+        this.desktop = getBrowserCntl();
+        if(this.desktop == null){
+            this.browse.setEnabled(false);
         }
 
-        Border inside =
-                BorderFactory.createEmptyBorder(1, 4, 1, 4);
-        Border outside =
-                BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-        Border border =
-                BorderFactory.createCompoundBorder(outside, inside);
-        this.urltext.setBorder(border);
-        this.urltext.setEditable(false);
-        this.urltext.setLineWrap(true);
-        this.urltext.setComponentPopupMenu(new TextPopup());
-        Monodizer.monodize(this.urltext);
-
-        this.dndLabel.setIcon(GUIUtils.getWWWIcon());
-        this.dndLabel.setHorizontalTextPosition(SwingConstants.LEFT);
-        this.dndLabel.setTransferHandler(new DnDHandler());
-        this.dndLabel.addMouseListener(new DragIgniter());
+        buildUrlLabel();
+        buildEventCatcher();
+        buildDnDLabel();
 
         Container container = getContentPane();
         design(container);
 
-        this.browse  .addActionListener(this);
-        this.clipcopy.addActionListener(this);
-        this.cancel  .addActionListener(this);
-
-        getRootPane().setDefaultButton(this.browse);
-        this.browse.requestFocusInWindow();
-
-        if(this.ipc == null){
-            this.browse.setToolTipText(this.warnMessage);
-        }
-
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter(){
-            @Override
-            public void windowClosing(WindowEvent event){
-                actionCancel();
-                return;
-            }
-        });
-
         return;
+    }
+
+
+    /**
+     * ブラウザ制御オブジェクトを返す。
+     *
+     * @return ブラウザ制御オブジェクト。サポートされなければnull。
+     */
+    private static Desktop getBrowserCntl(){
+        if( ! Desktop.isDesktopSupported()) return null;
+
+        Desktop result = Desktop.getDesktop();
+        assert result != null;
+
+        if( ! result.isSupported(Desktop.Action.BROWSE) ) return null;
+
+        return result;
     }
 
     /**
      * Webブラウザ起動用のモーダルダイアログを表示する。
+     *
      * @param owner オーナーフレーム
      * @param url URL文字列
      */
     public static void showDialog(Frame owner, String url){
-        WebIPCDialog dialog = new WebIPCDialog(owner);
+        WebIPCDialog dialog = createDialog(owner);
 
-        dialog.setTitle(TITLE_WWW);
         dialog.setUrlText(url);
+
         dialog.pack();
-        dialog.setLocationRelativeTo(owner);
         dialog.setVisible(true);
 
         return;
     }
 
     /**
+     * ダイアログを生成する。
+     *
+     * @param owner オーナーフレーム
+     * @return ダイアログ
+     */
+    protected static WebIPCDialog createDialog(Frame owner){
+        WebIPCDialog dialog = new WebIPCDialog(owner);
+
+        decorateDialog(dialog);
+        dialog.setLocationRelativeTo(owner);
+
+        return dialog;
+    }
+
+    /**
+     * ダイアログを装飾する。
+     *
+     * @param dialog ダイアログ
+     */
+    protected static void decorateDialog(WebIPCDialog dialog){
+        dialog.setResizable(true);
+        dialog.setLocationByPlatform(true);
+
+        dialog.setTitle(TITLE_WWW);
+
+        dialog.setModalityType(ModalityType.APPLICATION_MODAL);
+
+        return;
+    }
+
+    /**
      * 有効なURIか判定する。
+     *
      * @param uri URI
      * @return 有効ならtrue
      */
@@ -178,9 +201,8 @@ public class WebIPCDialog
         if( ! uri.isAbsolute() ) return false;
 
         String scheme = uri.getScheme();
-        if(scheme == null) return false;
-        if(    ! scheme.equalsIgnoreCase("http")
-            && ! scheme.equalsIgnoreCase("https") ) return false;
+        if(    ! "http".equalsIgnoreCase(scheme)
+            && ! "https".equalsIgnoreCase(scheme) ) return false;
 
         String host = uri.getHost();
         if(host == null) return false;
@@ -188,31 +210,94 @@ public class WebIPCDialog
         return true;
     }
 
+
+    /**
+     * URL表示部を構成する。
+     */
+    private void buildUrlLabel(){
+        Border inside =
+                BorderFactory.createEmptyBorder(1, 4, 1, 4);
+        Border outside =
+                BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+        Border border =
+                BorderFactory.createCompoundBorder(outside, inside);
+
+        this.urltext.setBorder(border);
+
+        this.urltext.setEditable(false);
+        this.urltext.setLineWrap(true);
+        this.urltext.setComponentPopupMenu(new TextPopup());
+
+        Monodizer.monodize(this.urltext);
+
+        return;
+    }
+
+    /**
+     * ボタンを構成する。
+     */
+    private void buildEventCatcher(){
+        this.browse  .setActionCommand(CMD_BROWSE);
+        this.clipcopy.setActionCommand(CMD_CLIPCOPY);
+        this.cancel  .setActionCommand(CMD_CANCEL);
+
+        EventCatcher catcher = new EventCatcher();
+        this.browse  .addActionListener(catcher);
+        this.clipcopy.addActionListener(catcher);
+        this.cancel  .addActionListener(catcher);
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(catcher);
+
+        JRootPane pane = getRootPane();
+        pane.setDefaultButton(this.browse);
+        this.browse.requestFocusInWindow();
+
+        if(this.desktop == null){
+            this.browse.setToolTipText(MSG_NODESKTOP);
+        }
+
+        return;
+    }
+
+    /**
+     * DragAndDropラベルを構成する。
+     */
+    private void buildDnDLabel(){
+        this.dndLabel.setIcon(GUIUtils.getWWWIcon());
+        this.dndLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+        this.dndLabel.setTransferHandler(new DnDHandler());
+        this.dndLabel.addMouseListener(DNDIGNITER);
+        return;
+    }
+
     /**
      * レイアウトを行う。
+     *
      * @param container レイアウトコンテナ
      */
     private void design(Container container){
         GridBagLayout layout = new GridBagLayout();
-        GridBagConstraints constraints = new GridBagConstraints();
         container.setLayout(layout);
 
-        JComponent buttonPanel = buildButtonPanel();
-
+        GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill      = GridBagConstraints.HORIZONTAL;
         constraints.insets    = new Insets(5, 5, 5, 5);
 
-        container.add(this.info,   constraints);
+        JComponent buttonPanel = buildButtonPanel();
+
+        container.add(this.info,    constraints);
         container.add(this.urltext, constraints);
-        container.add(buttonPanel,    constraints);
-        container.add(this.cancel,   constraints);
+        container.add(buttonPanel,  constraints);
+        container.add(this.cancel,  constraints);
 
         return;
     }
 
     /**
      * ボタンパネルを生成する。
+     *
      * @return ボタンパネル
      */
     private JComponent buildButtonPanel(){
@@ -224,8 +309,9 @@ public class WebIPCDialog
         buttonPanel.setBorder(border);
 
         GridBagLayout layout = new GridBagLayout();
-        GridBagConstraints constraints = new GridBagConstraints();
         buttonPanel.setLayout(layout);
+
+        GridBagConstraints constraints = new GridBagConstraints();
 
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.fill      = GridBagConstraints.HORIZONTAL;
@@ -243,20 +329,33 @@ public class WebIPCDialog
 
     /**
      * URL文字列を設定する。
+     *
      * @param url URL文字列
      */
     public void setUrlText(String url){
-        URI uriarg = null;
+        URI argUri;
         try{
-            uriarg = new URI(url);
+            argUri = new URI(url);
         }catch(URISyntaxException e){
-            // NOTHING
+            argUri = null;
         }
 
-        this.uri = uriarg;
-        if(this.uri == null) return;
+        setUri(argUri);
 
-        if( ! isValidURI(this.uri) ) return;
+        return;
+    }
+
+    /**
+     * URIを設定する。
+     *
+     * @param uriArg URI
+     */
+    public void setUri(URI uriArg){
+        if(isValidURI(uriArg)){
+            this.uri = uriArg;
+        }else{
+            this.uri = URI_EMPTY;
+        }
 
         String uriText = this.uri.toASCIIString();
         this.urltext.setText(uriText);
@@ -268,66 +367,54 @@ public class WebIPCDialog
     }
 
     /**
-     * ボタン押下リスナ。
-     * @param event ボタン押下イベント
+     * URIを返す。
+     *
+     * @return URI
      */
-    @Override
-    public void actionPerformed(ActionEvent event){
-        Object source = event.getSource();
-        if(source == this.browse){
-            actionBrowse();
-        }else if(source == this.clipcopy){
-            actionClipboardCopy();
-        }else if(source == this.cancel){
-            actionCancel();
+    public URI getURI(){
+        return this.uri;
+    }
+
+    /**
+     * WebブラウザでURLを表示。
+     *
+     * <p>ダイアログは必ず閉じられる。
+     */
+    protected void actionBrowse(){
+        try{
+            actionBrowseImpl();
+        }finally{
+            closeDialog();
         }
-        return;
     }
 
     /**
      * WebブラウザでURLを表示。
      */
-    private void actionBrowse(){
-        if(this.uri == null){
-            close();
+    private void actionBrowseImpl(){
+        if( ! isValidURI(this.uri) ){
             return;
         }
 
-        if(this.ipc == null){
-            String title;
-            if( ! JreChecker.has16Runtime() ){
-                title = "新しいJavaを入手しましょう";
-            }else{
-                title = "報告";
-            }
+        if(this.desktop == null){
+            String title = "報告";
             JOptionPane.showMessageDialog(
                     this,
-                    this.warnMessage, title,
+                    MSG_NODESKTOP, title,
                     JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         try{
-            try{
-                this.ipc.browse(this.uri);
-            }catch(NullPointerException e){
-                assert false;
-            }catch(UnsupportedOperationException e){
-                // NOTHING
-            }catch(IOException e){
-                // NOTHING
-            }catch(SecurityException e){
-                // NOTHING
-            }catch(IllegalArgumentException e){
-                // NOTHING
-            }
-            String logmsg =   "URL "
-                            + this.uri.toASCIIString()
-                            + " へのアクセスをWebブラウザに指示しました";
-            LOGGER.info(logmsg);
-        }finally{
-            close();
+            this.desktop.browse(this.uri);
+        }catch(IOException e){
+            return;
         }
+
+        String uriText = this.uri.toASCIIString();
+        String logMessage =
+                MessageFormat.format(MSG_BROWSE, uriText);
+        LOGGER.info(logMessage);
 
         return;
     }
@@ -335,22 +422,21 @@ public class WebIPCDialog
     /**
      * URLをクリップボードにコピーする。
      */
-    private void actionClipboardCopy(){
-        if(this.uri == null){
-            close();
+    protected void actionClipboardCopy(){
+        if( ! isValidURI(this.uri) ){
+            closeDialog();
             return;
         }
 
-        String uristring = this.uri.toASCIIString();
+        String uriText = this.uri.toASCIIString();
 
         try{
-            ClipboardAction.copyToClipboard(uristring);
-            String logmsg =  "文字列「"
-                           + uristring
-                           + "」をクリップボードにコピーしました";
-            LOGGER.info(logmsg);
+            ClipboardAction.copyToClipboard(uriText);
+            String logMessage =
+                    MessageFormat.format(MSG_CLIPCOPY, uriText);
+            LOGGER.info(logMessage);
         }finally{
-            close();
+            closeDialog();
         }
 
         return;
@@ -359,18 +445,80 @@ public class WebIPCDialog
     /**
      * 何もせずダイアログを閉じる。
      */
-    private void actionCancel(){
-        close();
+    protected void actionCancel(){
+        closeDialog();
         return;
     }
 
     /**
      * ダイアログを閉じる。
      */
-    private void close(){
+    protected void closeDialog(){
         setVisible(false);
+        dispose();
         return;
     }
+
+
+    /**
+     * イベント受信リスナ。
+     */
+    private class EventCatcher
+            extends WindowAdapter
+            implements ActionListener {
+
+        /**
+         * コンストラクタ。
+         */
+        EventCatcher(){
+            super();
+            return;
+        }
+
+        /**
+         * ボタン押下受信。
+         *
+         * <p>{@inheritDoc}
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void actionPerformed(ActionEvent event){
+            String cmd = event.getActionCommand();
+            if(cmd == null) return;
+
+            switch(cmd){
+            case CMD_BROWSE:
+                actionBrowse();
+                break;
+            case CMD_CLIPCOPY:
+                actionClipboardCopy();
+                break;
+            case CMD_CANCEL:
+                actionCancel();
+                break;
+            default:
+                break;
+            }
+
+            return;
+        }
+
+        /**
+         * ウィンドウクローズ受信。
+         *
+         * <p>{@inheritDoc}
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void windowClosing(WindowEvent event){
+            actionCancel();
+            return;
+        }
+
+    }
+
 
     /**
      * Drag&amp;Dropの転送処理を管理。
@@ -380,14 +528,16 @@ public class WebIPCDialog
         /**
          * コンストラクタ。
          */
-        public DnDHandler(){
+        DnDHandler(){
             super();
             return;
         }
 
         /**
-         * {@inheritDoc}
          * コピー動作のみをサポートすることを伝える。
+         *
+         * <p>{@inheritDoc}
+         *
          * @param comp {@inheritDoc}
          * @return {@inheritDoc}
          */
@@ -397,53 +547,47 @@ public class WebIPCDialog
         }
 
         /**
-         * {@inheritDoc}
          * URIエクスポータを生成する。
-         * URIも指定される。
+         *
+         * <p>URIも指定される。
+         *
+         * <p>{@inheritDoc}
+         *
          * @param comp {@inheritDoc}
          * @return {@inheritDoc}
          */
         @Override
         protected Transferable createTransferable(JComponent comp){
-            UriExporter result = new UriExporter(WebIPCDialog.this.uri);
+            UriExporter result = new UriExporter(getURI());
             return result;
         }
 
         /**
-         * {@inheritDoc}
          * D&Dに成功したらダイアログを閉じる。
+         *
+         * <p>{@inheritDoc}
+         *
          * @param source {@inheritDoc}
          * @param data {@inheritDoc}
          * @param action {@inheritDoc}
          */
         @Override
         protected void exportDone(JComponent source,
-                                   Transferable data,
-                                   int action ){
+                                  Transferable data,
+                                  int action ){
             if(action == NONE) return;
 
-            String logmsg =   "URL "
-                            + WebIPCDialog.this.uri.toASCIIString()
-                            + " がどこかへドラッグ&ドロップされました";
+            String uriAscii = getURI().toASCIIString();
+            String logmsg = MessageFormat.format(MSG_DND, uriAscii);
             LOGGER.info(logmsg);
 
-            close();
+            closeDialog();
 
             return;
         }
 
-        /**
-         * {@inheritDoc}
-         * ※ SunのJRE1.6.0_11前後では、BugID 4816922のため決して呼ばれない。
-         * @param tx {@inheritDoc}
-         * @return {@inheritDoc}
-         */
-        @Override
-        public Icon getVisualRepresentation(Transferable tx){
-            return GUIUtils.getWWWIcon();
-        }
-
     }
+
 
     /**
      * ドラッグ開始イベント処理。
@@ -453,21 +597,27 @@ public class WebIPCDialog
         /**
          * コンストラクタ。
          */
-        public DragIgniter(){
+        DragIgniter(){
             super();
             return;
         }
 
         /**
-         * {@inheritDoc}
          * ドラッグ開始イベント受信。
+         *
+         * <p>{@inheritDoc}
+         *
          * @param event {@inheritDoc}
          */
         @Override
         public void mousePressed(MouseEvent event){
-            JComponent comp = (JComponent) event.getSource();
+            Object source = event.getSource();
+            assert source instanceof JComponent;
+            JComponent comp = (JComponent) source;
+
             TransferHandler handler = comp.getTransferHandler();
             handler.exportAsDrag(comp, event, TransferHandler.COPY);
+
             return;
         }
 
