@@ -708,9 +708,7 @@ public class GameSummary{
                 URL url = new URL(urlText);
                 URI uri = url.toURI();
                 urlText = uri.toASCIIString();
-            }catch(MalformedURLException e){
-                // NOTHING
-            }catch(URISyntaxException e){
+            }catch(MalformedURLException | URISyntaxException e){
                 // NOTHING
             }
             // PukiWikiではURL内の&のエスケープは不要?

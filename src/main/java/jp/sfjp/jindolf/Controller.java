@@ -547,15 +547,10 @@ public class Controller
         final LookAndFeel lnf;
         try{
             lnf = (LookAndFeel) ( lnfClass.newInstance() );
-        }catch(InstantiationException e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }catch(IllegalAccessException e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }catch(ClassCastException e){
+        }catch(   InstantiationException
+                | IllegalAccessException
+                | ClassCastException
+                e){
             String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
@@ -1291,10 +1286,7 @@ public class Controller
                             return;
                         }
                     });
-                }catch(InvocationTargetException e){
-                    LOGGER.log(Level.SEVERE,
-                            "タブ操作で致命的な障害が発生しました", e);
-                }catch(InterruptedException e){
+                }catch(InvocationTargetException | InterruptedException e){
                     LOGGER.log(Level.SEVERE,
                             "タブ操作で致命的な障害が発生しました", e);
                 }
@@ -1314,11 +1306,9 @@ public class Controller
                                 return;
                             }
                         });
-                    }catch(InvocationTargetException e){
-                        LOGGER.log(Level.SEVERE,
-                                "ブラウザ表示で致命的な障害が発生しました",
-                                e );
-                    }catch(InterruptedException e){
+                    }catch(   InvocationTargetException
+                            | InterruptedException
+                            e){
                         LOGGER.log(Level.SEVERE,
                                 "ブラウザ表示で致命的な障害が発生しました",
                                 e );
@@ -1726,9 +1716,7 @@ public class Controller
         }else{
             try{
                 SwingUtilities.invokeAndWait(microJob);
-            }catch(InvocationTargetException e){
-                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
-            }catch(InterruptedException e){
+            }catch(InvocationTargetException | InterruptedException e){
                 LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
             }
         }

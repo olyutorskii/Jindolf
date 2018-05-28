@@ -210,9 +210,7 @@ public class InterVMLock{
             boolean created = false;
             try{
                 created = this.lockFile.createNewFile();
-            }catch(IOException e){
-                assert true;   // IGNORE
-            }catch(SecurityException e){
+            }catch(IOException | SecurityException e){
                 assert true;   // IGNORE
             }finally{
                 if(created){

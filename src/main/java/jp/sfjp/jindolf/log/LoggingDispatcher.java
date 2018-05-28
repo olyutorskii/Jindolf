@@ -64,14 +64,11 @@ public class LoggingDispatcher extends EventQueue{
     protected void dispatchEvent(AWTEvent event){
         try{
             super.dispatchEvent(event);
-        }catch(RuntimeException e){
+        }catch(RuntimeException | Error e){
             logThrowable(e);
             throw e;
         }catch(Exception e){
             logThrowable(e);
-        }catch(Error e){
-            logThrowable(e);
-            throw e;
         }
         // TODO Toolkit#beep()もするべきか
         // TODO モーダルダイアログを出すべきか

@@ -99,16 +99,11 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
         try{
             DocumentBuilder builder = XmlUtils.createDocumentBuilder();
             landDefList = LandDef.buildLandDefList(builder);
-        }catch(IOException e){
-            LOGGER.log(Level.SEVERE, "failed to load land list", e);
-            return;
-        }catch(SAXException e){
-            LOGGER.log(Level.SEVERE, "failed to load land list", e);
-            return;
-        }catch(URISyntaxException e){
-            LOGGER.log(Level.SEVERE, "failed to load land list", e);
-            return;
-        }catch(ParserConfigurationException e){
+        }catch(   IOException
+                | SAXException
+                | URISyntaxException
+                | ParserConfigurationException
+                e){
             LOGGER.log(Level.SEVERE, "failed to load land list", e);
             return;
         }
