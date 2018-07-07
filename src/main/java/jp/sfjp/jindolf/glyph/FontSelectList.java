@@ -40,7 +40,7 @@ public class FontSelectList extends JList<String>
     }
 
     /**
-     * {@link setModel(ListModel)} の下請けメソッド。
+     * {@link #setModel(ListModel)} の下請けメソッド。
      * 与えられたモデルの更新は監視対象となる。
      * @param model リストモデル
      */

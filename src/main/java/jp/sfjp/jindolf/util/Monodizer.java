@@ -21,7 +21,8 @@ import javax.swing.text.JTextComponent;
 
 /**
  * Swingコンポーネントのフォント等幅化。
- * L&amp;F変更にも対処。
+ *
+ * <p>L&amp;F変更にも対処。
  */
 public final class Monodizer implements PropertyChangeListener{
 
@@ -29,11 +30,9 @@ public final class Monodizer implements PropertyChangeListener{
     public static final String PROPNAME_FONT = "font";
     /** L&amp;F変更時のプロパティ名。 */
     public static final String PROPNAME_UI = "UI";
-    /** Font.MONOSPACED代替品。 */
-    public static final String FAMILY_MONO = "Monospaced";
 
     private static final Map<TextAttribute, String> TEXTATTR_MONO =
-            Collections.singletonMap(TextAttribute.FAMILY, FAMILY_MONO);
+            Collections.singletonMap(TextAttribute.FAMILY, Font.MONOSPACED);
 
     private static final Monodizer CHANGER = new Monodizer();
 
@@ -49,6 +48,7 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * 等幅フォントか否か判定する。
+     *
      * @param font フォント
      * @return 等幅フォントならtrue
      */
@@ -59,14 +59,16 @@ public final class Monodizer implements PropertyChangeListener{
         if( ! (attr instanceof String) ) return false;
 
         String family = (String) attr;
-        if(family.equals(FAMILY_MONO)) return true;
+        if(family.equals(Font.MONOSPACED)) return true;
 
         return false;
     }
 
     /**
      * 任意のフォントの等幅化を行う。
-     * 等幅以外の属性は可能な限り保持する。
+     *
+     * <p>等幅以外の属性は可能な限り保持する。
+     *
      * @param font 任意のフォント
      * @return 等幅フォント
      */
@@ -77,7 +79,9 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * 任意のコンポーネントをフォント等幅化する。
-     * L&amp;F変更に対処するためのリスナ組み込みも行われる。
+     *
+     * <p>L&amp;F変更に対処するためのリスナ組み込みも行われる。
+     *
      * @param comp コンポーネント
      */
     public static void monodize(JComponent comp){
@@ -97,6 +101,7 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * コンポーネントに微修正を加える。
+     *
      * @param comp コンポーネント
      */
     private static void modifyComponent(JComponent comp){
@@ -113,6 +118,7 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * テキストコンポーネントへの微修正を行う。
+     *
      * @param textComp テキストコンポーネント
      */
     private static void modifyTextComponent(JTextComponent textComp){
@@ -126,6 +132,7 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * コンボボックスのエディタを等幅化する。
+     *
      * @param comboBox コンボボックス
      */
     private static void modifyComboBox(JComboBox<?> comboBox){
@@ -147,6 +154,7 @@ public final class Monodizer implements PropertyChangeListener{
 
     /**
      * フォント変更イベントの受信。
+     *
      * @param event フォント変更イベント
      */
     @Override

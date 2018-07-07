@@ -41,13 +41,11 @@ public class Avatar implements Comparable<Avatar> {
         try{
             DocumentBuilder builder = XmlUtils.createDocumentBuilder();
             predefs = PreDefAvatar.buildPreDefAvatarList(builder);
-        }catch(IOException e){
-            throw new ExceptionInInitializerError(e);
-        }catch(ParserConfigurationException e){
-            throw new ExceptionInInitializerError(e);
-        }catch(SAXException e){
-            throw new ExceptionInInitializerError(e);
-        }catch(URISyntaxException e){
+        }catch(   IOException
+                | ParserConfigurationException
+                | SAXException
+                | URISyntaxException
+                e){
             throw new ExceptionInInitializerError(e);
         }
 

@@ -201,7 +201,7 @@ public final class GUIUtils{
             return wwwIcon;
         }
 
-        wwwIcon = ResourceManager.getImageIcon(RES_WWWICON);
+        wwwIcon = ResourceManager.getSquareIcon(RES_WWWICON, 16);
 
         return wwwIcon;
     }
@@ -234,11 +234,10 @@ public final class GUIUtils{
 
         try{
             SwingUtilities.invokeAndWait(TASK_NOTHING);
-        }catch(InterruptedException e){
-            // IGNORE
-        }catch(InvocationTargetException e){
+        }catch(InterruptedException | InvocationTargetException e){
             // IGNORE
         }
+        // IGNORE
 
         return;
     }

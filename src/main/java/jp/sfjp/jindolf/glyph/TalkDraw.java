@@ -494,8 +494,23 @@ public class TalkDraw extends AbstractTextRow{
         this.caption.paint(g);
 
         if(this.dialogPref.isSimpleMode() ){
+            RenderingHints.Key aaHintKey = RenderingHints.KEY_ANTIALIASING;
+            Object aaHintTemp = RenderingHints.VALUE_ANTIALIAS_OFF;
+            Object aaHintOrig = g.getRenderingHint(aaHintKey);
+
+            RenderingHints.Key strokeHintKey =
+                    RenderingHints.KEY_STROKE_CONTROL;
+            Object strokeHintTemp = RenderingHints.VALUE_STROKE_NORMALIZE;
+            Object strokeHintOrig = g.getRenderingHint(strokeHintKey);
+
+            g.setRenderingHint(aaHintKey, aaHintTemp);
+            g.setRenderingHint(strokeHintKey, strokeHintTemp);
+
             g.drawLine(xPos,                     this.bounds.y,
                        xPos + this.bounds.width, this.bounds.y );
+
+            g.setRenderingHint(aaHintKey, aaHintOrig);
+            g.setRenderingHint(strokeHintKey, strokeHintOrig);
         }else{
             g.drawImage(this.faceImage,
                         xPos + this.imageOrigin.x,
