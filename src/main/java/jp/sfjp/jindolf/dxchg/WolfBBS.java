@@ -228,6 +228,7 @@ public final class WolfBBS{
      *
      * @param seq WikiNameを含むかもしれない文字列
      * @return エスケープされた文字列。
+     * @see <a href="https://pukiwiki.osdn.jp/?WikiName">WikiName</a>
      */
     public static CharSequence escapeWikiName(CharSequence seq){
         StringBuilder result = null;
@@ -254,7 +255,7 @@ public final class WolfBBS{
             pos = matchEnd;
         }
 
-        if(pos == 0) return seq;
+        if(pos == 0 || result == null) return seq;
 
         result.append(seq, pos, seq.length());
 
