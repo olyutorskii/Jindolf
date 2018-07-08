@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.dxchg;
 
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -57,6 +58,12 @@ public final class WolfBBS{
     private static final Charset CHARSET_EUC = Charset.forName("EUC-JP");
 
     private static final String WOLFBBS_URL = "http://wolfbbs.jp/";
+
+    private static final Color COLOR_INNOCENT = new Color(0xb7bad3);
+    private static final Color COLOR_WOLF     = new Color(0xe0b8b8);
+    private static final Color COLOR_HAMSTER  = new Color(0xb9d0be);
+    private static final Color COLOR_DEAD     = new Color(0xaaaaaa);
+    private static final Color COLOR_ALIVE    = new Color(0xffffff);
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
@@ -374,13 +381,60 @@ public final class WolfBBS{
     }
 
     /**
-     * 陣営の色Wiki表記を返す。
+     * ColorのRGB各成分をWikiカラー表記に変換する。
+     *
+     * α成分は無視される。
+     *
+     * @param color 色
+     * @return Wikiカラー表記
+     */
+    public static String cnvWikiColor(Color color){
+        int packRGB = color.getRGB();
+
+        String txtRGB = Integer.toHexString(packRGB);
+        String leadRGB = "00000000" + txtRGB;
+        int chopLen = leadRGB.length() - 6;
+        String fixed = leadRGB.substring(chopLen);
+        String result = "#" + fixed;
+
+        return result;
+    }
+
+    /**
+     * 表の偶数行に色の変化を付ける。
+     *
+     * @param color 色
+     * @return 変化した色
+     */
+    public static Color evenColor(Color color){
+        int red   = color.getRed();
+        int green = color.getGreen();
+        int blue  = color.getBlue();
+
+        float[] hsb = Color.RGBtoHSB(red, green, blue, null);
+        float h = hsb[0];
+        float s = hsb[1];
+        float b = hsb[2];
+
+        if(b < 0.5){
+            b += 0.03;
+        }else{
+            b -= 0.03;
+        }
+
+        Color result = Color.getHSBColor(h, s, b);
+
+        return result;
+    }
+
+    /**
+     * 陣営の色を返す。
      *
      * @param role 役職
-     * @return 色Wiki表記
+     * @return 色
      */
-    public static String getTeamWikiColor(GameRole role){
-        String result;
+    public static Color getTeamColor(GameRole role){
+        Color result;
 
         switch(role){
         case INNOCENT:
@@ -388,14 +442,14 @@ public final class WolfBBS{
         case SHAMAN:
         case HUNTER:
         case FRATER:
-            result = "#b7bad3";
+            result = COLOR_INNOCENT;
             break;
         case WOLF:
         case MADMAN:
-            result = "#e0b8b8";
+            result = COLOR_WOLF;
             break;
         case HAMSTER:
-            result = "#b9d0be";
+            result = COLOR_HAMSTER;
             break;
         default:
             assert false;
@@ -449,15 +503,15 @@ public final class WolfBBS{
     }
 
     /**
-     * 運命に対応する色Wiki表記を返す。
+     * 運命に対応する色を返す。
      *
      * @param destiny 運命
-     * @return 色Wiki表記
+     * @return 色
      */
-    public static String getDestinyColorWiki(Destiny destiny){
-        String result;
-        if(destiny == Destiny.ALIVE) result = "#ffffff";
-        else                         result = "#aaaaaa";
+    public static Color getDestinyColor(Destiny destiny){
+        Color result;
+        if(destiny == Destiny.ALIVE) result = COLOR_ALIVE;
+        else                         result = COLOR_DEAD;
         return result;
     }
 

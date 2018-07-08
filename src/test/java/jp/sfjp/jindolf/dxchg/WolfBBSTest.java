@@ -6,8 +6,7 @@
 
 package jp.sfjp.jindolf.dxchg;
 
-import jp.sourceforge.jindolf.corelib.Destiny;
-import jp.sourceforge.jindolf.corelib.GameRole;
+import java.awt.Color;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -68,64 +67,31 @@ public class WolfBBSTest {
     }
 
     /**
-     * Test of getTeamWikiColor method, of class WolfBBS.
+     * Test of cnvWikiColor method, of class WolfBBS.
      */
     @Test
-    public void testGetTeamWikiColor() {
-        System.out.println("getTeamWikiColor");
+    public void testCnvWikiColor() {
+        System.out.println("cnvWikiColor");
 
         String result;
 
-        result = WolfBBS.getTeamWikiColor(GameRole.INNOCENT);
-        assertEquals("#b7bad3", result);
+        result = WolfBBS.cnvWikiColor(new Color(0x00, 0x00, 0x00));
+        assertEquals("#000000", result);
 
-        result = WolfBBS.getTeamWikiColor(GameRole.FRATER);
-        assertEquals("#b7bad3", result);
+        result = WolfBBS.cnvWikiColor(new Color(0x12, 0x34, 0x56));
+        assertEquals("#123456", result);
 
-        result = WolfBBS.getTeamWikiColor(GameRole.HUNTER);
-        assertEquals("#b7bad3", result);
+        result = WolfBBS.cnvWikiColor(new Color(0x01, 0x00, 0x00));
+        assertEquals("#010000", result);
 
-        result = WolfBBS.getTeamWikiColor(GameRole.SEER);
-        assertEquals("#b7bad3", result);
+        result = WolfBBS.cnvWikiColor(new Color(0x00, 0x00, 0x01));
+        assertEquals("#000001", result);
 
-        result = WolfBBS.getTeamWikiColor(GameRole.SHAMAN);
-        assertEquals("#b7bad3", result);
-
-        result = WolfBBS.getTeamWikiColor(GameRole.WOLF);
-        assertEquals("#e0b8b8", result);
-
-        result = WolfBBS.getTeamWikiColor(GameRole.MADMAN);
-        assertEquals("#e0b8b8", result);
-
-        result = WolfBBS.getTeamWikiColor(GameRole.HAMSTER);
-        assertEquals("#b9d0be", result);
-
-        return;
-    }
-
-    /**
-     * Test of getDestinyColorWiki method, of class WolfBBS.
-     */
-    @Test
-    public void testGetDestinyColorWiki() {
-        System.out.println("getDestinyColorWiki");
-
-        String result;
-
-        result = WolfBBS.getDestinyColorWiki(Destiny.ALIVE);
+        result = WolfBBS.cnvWikiColor(new Color(0xff, 0xff, 0xff));
         assertEquals("#ffffff", result);
 
-        result = WolfBBS.getDestinyColorWiki(Destiny.DISSOLVE);
-        assertEquals("#aaaaaa", result);
-
-        result = WolfBBS.getDestinyColorWiki(Destiny.EATEN);
-        assertEquals("#aaaaaa", result);
-
-        result = WolfBBS.getDestinyColorWiki(Destiny.EXECUTED);
-        assertEquals("#aaaaaa", result);
-
-        result = WolfBBS.getDestinyColorWiki(Destiny.SUDDENDEATH);
-        assertEquals("#aaaaaa", result);
+        result = WolfBBS.cnvWikiColor(new Color(0x12, 0x34, 0x56, 0x78));
+        assertEquals("#123456", result);
 
         return;
     }
