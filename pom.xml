@@ -16,7 +16,7 @@
     <groupId>jp.sourceforge.jindolf</groupId>
     <artifactId>jindolf</artifactId>
 
-    <version>3.302.5-SNAPSHOT</version>
+    <version>3.303.2</version>
 
     <packaging>jar</packaging>
     <name>Jindolf</name>
