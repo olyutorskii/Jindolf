@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.summary;
 
+import java.awt.Color;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,6 +46,8 @@ public class GameSummary{
     /** キャスティング表示用Comparator。 */
     public static final Comparator<Player> COMPARATOR_CASTING =
             new CastingComparator();
+
+    private static final Color COLOR_PLAINTABLE = new Color(0xedf5fe);
 
     private static final String GENERATOR =
             VerInfo.TITLE + "\u0020Ver." + VerInfo.VERSION;
@@ -694,6 +697,8 @@ public class GameSummary{
                 .append('\n');
         wikiText.append(WolfBBS.COMMENTLINE);
 
+        boolean even = true;
+
         for(Player player : getCastingPlayerList()){
             Avatar avatar   = player.getAvatar();
             GameRole role   = player.getRole();
@@ -720,34 +725,48 @@ public class GameSummary{
                     .append("]");
             wikiText.append(" ==========\n");
 
-            String teamColor =  "BGCOLOR("
-                              + WolfBBS.getTeamWikiColor(role)
+            Color teamColor    = WolfBBS.getTeamColor(role);
+            Color destinyColor = WolfBBS.getDestinyColor(destiny);
+            Color plainColor   = COLOR_PLAINTABLE;
+            if(even){
+                teamColor    = WolfBBS.evenColor(teamColor);
+                destinyColor = WolfBBS.evenColor(destinyColor);
+                plainColor   = WolfBBS.evenColor(plainColor);
+            }
+            even = ! even;
+
+            String teamWikiColor =  "BGCOLOR("
+                              + WolfBBS.cnvWikiColor(teamColor)
+                              + "):";
+            String destinyWikiColor = "BGCOLOR("
+                              + WolfBBS.cnvWikiColor(destinyColor)
+                              + "):";
+            String plainWikiColor = "BGCOLOR("
+                              + WolfBBS.cnvWikiColor(plainColor)
                               + "):";
 
             String avatarIcon = iconSet.getAvatarIconWiki(avatar);
 
-            wikiText.append('|').append(teamColor);
+            wikiText.append('|').append(teamWikiColor);
             wikiText.append(avatarIcon).append("&br;");
 
             wikiText.append("[[").append(avatar.getName()).append("]]");
 
-            wikiText.append('|').append(teamColor);
+            wikiText.append('|').append(teamWikiColor);
             wikiText.append("[[").append(WolfBBS.escapeWikiBracket(name));
             if(urlText != null && urlText.length() > 0){
                 wikiText.append('>').append(urlText);
             }
             wikiText.append("]]");
 
-            wikiText.append('|').append(teamColor);
+            wikiText.append('|').append(teamWikiColor);
             wikiText.append(WolfBBS.getRoleIconWiki(role));
             wikiText.append("&br;");
             wikiText.append("[[");
             wikiText.append(role.getRoleName());
             wikiText.append("]]");
 
-            String destinyColor = WolfBBS.getDestinyColorWiki(destiny);
-            wikiText.append('|');
-            wikiText.append("BGCOLOR(").append(destinyColor).append("):");
+            wikiText.append('|').append(destinyWikiColor);
             if(destiny == Destiny.ALIVE){
                 wikiText.append("最後まで&br;生存");
             }else{
@@ -755,7 +774,7 @@ public class GameSummary{
                 wikiText.append(destiny.getMessage());
             }
 
-            wikiText.append('|');
+            wikiText.append('|').append(plainWikiColor);
             wikiText.append(avatar.getJobTitle()).append('。');
 
             if(avatar == Avatar.AVATAR_GERD){
