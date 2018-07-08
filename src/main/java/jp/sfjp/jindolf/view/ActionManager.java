@@ -122,22 +122,22 @@ public class ActionManager{
 
     static{
         ICON_FIND =
-            ResourceManager.getImageIcon("resources/image/tb_find.png");
+            ResourceManager.getButtonIcon("resources/image/tb_find.png");
 
         ICON_SEARCH_PREV =
-            ResourceManager.getImageIcon("resources/image/tb_findprev.png");
+            ResourceManager.getButtonIcon("resources/image/tb_findprev.png");
 
         ICON_SEARCH_NEXT =
-            ResourceManager.getImageIcon("resources/image/tb_findnext.png");
+            ResourceManager.getButtonIcon("resources/image/tb_findnext.png");
 
         ICON_RELOAD =
-            ResourceManager.getImageIcon("resources/image/tb_reload.png");
+            ResourceManager.getButtonIcon("resources/image/tb_reload.png");
 
         ICON_FILTER =
-            ResourceManager.getImageIcon("resources/image/tb_filter.png");
+            ResourceManager.getButtonIcon("resources/image/tb_filter.png");
 
         ICON_EDITOR =
-            ResourceManager.getImageIcon("resources/image/tb_editor.png");
+            ResourceManager.getButtonIcon("resources/image/tb_editor.png");
     }
 
     private final Set<AbstractButton> actionItems =
@@ -190,8 +190,6 @@ public class ActionManager{
         buildMenuItem(CMD_WEBVILL, "この村をブラウザで表示...", KeyEvent.VK_N);
         buildMenuItem(CMD_WEBWIKI,
                       "まとめサイトの村ページを表示...", KeyEvent.VK_M);
-        buildMenuItem(CMD_WEBCAST, "キャスト紹介表ジェネレータ...",
-                      KeyEvent.VK_H);
         buildMenuItem(CMD_RELOAD, "この日を強制リロード", KeyEvent.VK_R);
         buildMenuItem(CMD_DAYSUMMARY, "この日の発言を集計...", KeyEvent.VK_D);
         buildMenuItem(CMD_DAYEXPCSV, "CSVへエクスポート...", KeyEvent.VK_C);
@@ -214,7 +212,6 @@ public class ActionManager{
         getMenuItem(CMD_SHOWPORTAL).setIcon(ICON_WWW);
         getMenuItem(CMD_WEBVILL)   .setIcon(ICON_WWW);
         getMenuItem(CMD_WEBWIKI)   .setIcon(ICON_WWW);
-        getMenuItem(CMD_WEBCAST)   .setIcon(ICON_WWW);
         getMenuItem(CMD_WEBDAY)    .setIcon(ICON_WWW);
         getMenuItem(CMD_SHOWFIND)  .setIcon(ICON_FIND);
         getMenuItem(CMD_SEARCHPREV).setIcon(ICON_SEARCH_PREV);
@@ -407,7 +404,6 @@ public class ActionManager{
         this.menuVillage.addSeparator();
         this.menuVillage.add(getMenuItem(CMD_WEBVILL));
         this.menuVillage.add(getMenuItem(CMD_WEBWIKI));
-        this.menuVillage.add(getMenuItem(CMD_WEBCAST));
 
         this.menuDay.add(getMenuItem(CMD_RELOAD));
         this.menuDay.add(getMenuItem(CMD_DAYSUMMARY));

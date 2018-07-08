@@ -58,7 +58,6 @@ import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
-import jp.sfjp.jindolf.dxchg.Hon5;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
 import jp.sfjp.jindolf.editor.TalkPreview;
@@ -433,20 +432,6 @@ public class Controller
     }
 
     /**
-     * 村に対応するキャスト紹介表ジェネレーターをWebブラウザで表示する。
-     */
-    private void actionShowWebCast(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
-        if(village == null) return;
-
-        String urlTxt = Hon5.getCastGeneratorUrl(village);
-        WebIPCDialog.showDialog(getTopFrame(), urlTxt);
-
-        return;
-    }
-
-    /**
      * 日(Period)をWebブラウザで表示する。
      */
     private void actionShowWebDay(){
@@ -547,15 +532,10 @@ public class Controller
         final LookAndFeel lnf;
         try{
             lnf = (LookAndFeel) ( lnfClass.newInstance() );
-        }catch(InstantiationException e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }catch(IllegalAccessException e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }catch(ClassCastException e){
+        }catch(   InstantiationException
+                | IllegalAccessException
+                | ClassCastException
+                e){
             String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
@@ -1291,10 +1271,7 @@ public class Controller
                             return;
                         }
                     });
-                }catch(InvocationTargetException e){
-                    LOGGER.log(Level.SEVERE,
-                            "タブ操作で致命的な障害が発生しました", e);
-                }catch(InterruptedException e){
+                }catch(InvocationTargetException | InterruptedException e){
                     LOGGER.log(Level.SEVERE,
                             "タブ操作で致命的な障害が発生しました", e);
                 }
@@ -1314,11 +1291,9 @@ public class Controller
                                 return;
                             }
                         });
-                    }catch(InvocationTargetException e){
-                        LOGGER.log(Level.SEVERE,
-                                "ブラウザ表示で致命的な障害が発生しました",
-                                e );
-                    }catch(InterruptedException e){
+                    }catch(   InvocationTargetException
+                            | InterruptedException
+                            e){
                         LOGGER.log(Level.SEVERE,
                                 "ブラウザ表示で致命的な障害が発生しました",
                                 e );
@@ -1555,8 +1530,6 @@ public class Controller
             actionShowWebVillage();
         }else if(cmd.equals(ActionManager.CMD_WEBWIKI)){
             actionShowWebWiki();
-        }else if(cmd.equals(ActionManager.CMD_WEBCAST)){
-            actionShowWebCast();
         }else if(cmd.equals(ActionManager.CMD_RELOAD)){
             actionReloadPeriod();
         }else if(cmd.equals(ActionManager.CMD_DAYSUMMARY)){
@@ -1726,9 +1699,7 @@ public class Controller
         }else{
             try{
                 SwingUtilities.invokeAndWait(microJob);
-            }catch(InvocationTargetException e){
-                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
-            }catch(InterruptedException e){
+            }catch(InvocationTargetException | InterruptedException e){
                 LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
             }
         }

@@ -50,7 +50,7 @@ public class CmdOptionTest {
 
         CmdOption[] values = CmdOption.values();
 
-        assertEquals(12, values.length);
+        assertEquals(11, values.length);
 
         List<CmdOption> list = Arrays.asList(values);
 
@@ -58,7 +58,6 @@ public class CmdOptionTest {
         testList.add(CmdOption.OPT_HELP);
         testList.add(CmdOption.OPT_VERSION);
         testList.add(CmdOption.OPT_BOLDMETAL);
-        testList.add(CmdOption.OPT_NOSPLASH);
         testList.add(CmdOption.OPT_GEOMETRY);
         testList.add(CmdOption.OPT_VMINFO);
         testList.add(CmdOption.OPT_CONSOLELOG);
@@ -151,7 +150,6 @@ public class CmdOptionTest {
 
         assertTrue(CmdOption.OPT_VERSION.matches("-version"));
         assertTrue(CmdOption.OPT_BOLDMETAL.matches("-boldMetal"));
-        assertTrue(CmdOption.OPT_NOSPLASH.matches("-nosplash"));
         assertTrue(CmdOption.OPT_GEOMETRY.matches("-geometry"));
         assertTrue(CmdOption.OPT_VMINFO.matches("-vminfo"));
         assertTrue(CmdOption.OPT_CONSOLELOG.matches("-consolelog"));
@@ -177,7 +175,6 @@ public class CmdOptionTest {
             case OPT_VERSION:
             case OPT_VMINFO:
             case OPT_BOLDMETAL:
-            case OPT_NOSPLASH:
             case OPT_CONSOLELOG:
             case OPT_NOCONF:
                 assertTrue(opt.isIndepOption());
@@ -223,7 +220,6 @@ public class CmdOptionTest {
         assertEquals("-help", CmdOption.OPT_HELP.toString());
         assertEquals("-version", CmdOption.OPT_VERSION.toString());
         assertEquals("-boldMetal", CmdOption.OPT_BOLDMETAL.toString());
-        assertEquals("-nosplash", CmdOption.OPT_NOSPLASH.toString());
         assertEquals("-geometry", CmdOption.OPT_GEOMETRY.toString());
         assertEquals("-vminfo", CmdOption.OPT_VMINFO.toString());
         assertEquals("-consolelog", CmdOption.OPT_CONSOLELOG.toString());

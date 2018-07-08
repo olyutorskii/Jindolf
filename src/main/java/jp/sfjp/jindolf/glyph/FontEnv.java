@@ -30,13 +30,9 @@ import java.util.concurrent.Future;
  * <li>任意の文字列を表示可能な全フォントを列挙すること
  * </ul>
  *
- * <p>
- * この二つをバックグラウンドで非同期に収集する。
- * </p>
+ * <p>この二つをバックグラウンドで非同期に収集する。
  *
- * <p>
- * 各種フォント環境収集メソッドの遅さをカバーするのが実装目的。
- * </p>
+ * <p>各種フォント環境収集メソッドの遅さをカバーするのが実装目的。
  */
 public class FontEnv {
 
@@ -44,9 +40,6 @@ public class FontEnv {
      * デフォルトのフォント環境。
      */
     public static final FontEnv DEFAULT;
-
-    /** {@link java.awt.Font#DIALOG} 代替品。 */
-    private static final String FAMILY_DIALOG = "Dialog";
 
     /** フォントファミリ選択肢。 */
     private static final String[] INIT_FAMILY_NAMES = {
@@ -61,9 +54,6 @@ public class FontEnv {
 
     /** JIS X0208:1990 表示確認用文字列。 */
     private static final String JPCHECK_CODE = "あ凜熙峠ゑアｱヴヰ┼ЖΩ9A";
-
-    /** {@link java.util.Locale#ROOT} 代替品。 */
-    private static final Locale LOCALE_ROOT = new Locale("", "", "");
 
     private static final int POOL_SZ = 2;
     private static final int STRIDE = 15;
@@ -82,7 +72,9 @@ public class FontEnv {
 
     /**
      * コンストラクタ。
-     * 完了と同時に裏でフォント情報収集タスクが走る。
+     *
+     * <p>完了と同時に裏でフォント情報収集タスクが走る。
+     *
      * @param proveChars 表示判定用文字列
      * @param fontFamilyList フォント候補
      * @throws NullPointerException 引数がnull
@@ -113,7 +105,9 @@ public class FontEnv {
 
     /**
      * コンストラクタ。
-     * 完了と同時に裏でフォント情報収集タスクが走る。
+     *
+     * <p>完了と同時に裏でフォント情報収集タスクが走る。
+     *
      * @param proveChars 表示判定用文字列
      * @param fontFamilyList フォント候補
      * @throws NullPointerException 引数がnull
@@ -166,6 +160,7 @@ public class FontEnv {
 
     /**
      * システムに存在する有効なファミリ名か判定する。
+     *
      * @param familyName フォントファミリ名。
      * @return 存在する有効なファミリ名ならtrue
      */
@@ -174,7 +169,7 @@ public class FontEnv {
         int size = 1;
         Font dummyFont = new Font(familyName, style, size);
 
-        String dummyFamilyName = dummyFont.getFamily(LOCALE_ROOT);
+        String dummyFamilyName = dummyFont.getFamily(Locale.ROOT);
         if(dummyFamilyName.equals(familyName)) return true;
 
         String dummyLocalFamilyName = dummyFont.getFamily();
@@ -185,12 +180,14 @@ public class FontEnv {
 
     /**
      * 複数の候補から利用可能なフォントを一つ選び、生成する。
-     * 候補から適当なファミリが見つからなかったら"Dialog"が選択される。
+     *
+     * <p>候補から適当なファミリが見つからなかったら"Dialog"が選択される。
+     *
      * @param fontList フォントファミリ名候補
      * @return フォント
      */
     protected static String availableFontFamily(Iterable<String> fontList){
-        String defaultFamilyName = FAMILY_DIALOG;
+        String defaultFamilyName = Font.DIALOG;
         for(String familyName : fontList){
             if(isValidFamilyName(familyName)){
                 defaultFamilyName = familyName;
@@ -204,6 +201,7 @@ public class FontEnv {
 
     /**
      * フォントファミリー名のリストを返す。
+     *
      * @return フォントファミリー名のリスト
      * @throws IllegalStateException 収集タスクに異常が発生
      */
@@ -212,9 +210,7 @@ public class FontEnv {
 
         try{
             result = this.listLoadFuture.get();
-        }catch(ExecutionException e){
-            throw new IllegalStateException(e);
-        }catch(InterruptedException e){
+        }catch(ExecutionException | InterruptedException e){
             throw new IllegalStateException(e);
         }
 
@@ -223,6 +219,7 @@ public class FontEnv {
 
     /**
      * 利用可能なフォントファミリ名を返す。
+     *
      * @return フォントファミリー名
      * @throws IllegalStateException 収集タスクに異常が発生
      */
@@ -231,9 +228,7 @@ public class FontEnv {
 
         try{
             result = this.fontSelectFuture.get();
-        }catch(ExecutionException e){
-            throw new IllegalStateException(e);
-        }catch(InterruptedException e){
+        }catch(ExecutionException | InterruptedException e){
             throw new IllegalStateException(e);
         }
 
@@ -256,6 +251,7 @@ public class FontEnv {
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -289,6 +285,7 @@ public class FontEnv {
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override

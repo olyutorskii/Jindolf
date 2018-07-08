@@ -24,8 +24,6 @@ public enum CmdOption {
     OPT_VERSION("-version"),
     /** UI文字制御。 */
     OPT_BOLDMETAL("-boldMetal"),
-    /** スプラッシュ制御。 */
-    OPT_NOSPLASH("-nosplash"),
     /** ウィンドウ位置指定。 */
     OPT_GEOMETRY("-geometry"),
     /** 実行環境出力。 */
@@ -51,7 +49,6 @@ public enum CmdOption {
             OPT_VERSION,
             OPT_VMINFO,
             OPT_BOLDMETAL,
-            OPT_NOSPLASH,
             OPT_CONSOLELOG,
             OPT_NOCONF
             );

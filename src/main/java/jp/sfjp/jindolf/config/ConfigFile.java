@@ -399,9 +399,7 @@ public final class ConfigFile{
                     "コピーすれば、そちらの設定が優先して使われます。");
             writer.println(
                     "「lock」の名前を持つファイルはロックファイルです。");
-        }catch(IOException e){
-            abortCantWrite(file);
-        }catch(SecurityException e){
+        }catch(IOException | SecurityException e){
             abortCantWrite(file);
         }finally{
             if(writer != null){

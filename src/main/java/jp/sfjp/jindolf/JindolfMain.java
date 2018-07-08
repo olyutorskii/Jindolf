@@ -9,16 +9,12 @@ package jp.sfjp.jindolf;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Window;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JWindow;
 import javax.swing.UIManager;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.CmdOption;
@@ -48,10 +44,6 @@ public final class JindolfMain {
     /** ロガー。 */
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
-    /** スプラッシュロゴ。 */
-    private static final String RES_LOGOICON =
-            "resources/image/logo.png";
-
     private static final String LOG_LOADED =
               "{0} は {1,date} {2,time} に"
             + "VM上のクラス {3} としてロードされました。 ";
@@ -63,10 +55,6 @@ public final class JindolfMain {
             "設定格納ディレクトリに[ {0} ]が指定されました。";
     private static final String LOG_NOCONF =
             "設定格納ディレクトリは使いません。";
-    private static final String WARNMSG_SPLASH =
-              "JRE1.6以降では、Jindolfの-nosplashオプションは無効です。"
-            + "Java実行系の方でスプラッシュ画面の非表示を"
-            + "指示してください(おそらく空の-splash:オプション)";
     private static final String FATALMSG_INITFAIL =
             "アプリケーション初期化に失敗しました";
     private static final String ERRMSG_HELP =
@@ -114,52 +102,6 @@ public final class JindolfMain {
     }
 
     /**
-     * スプラッシュウィンドウを表示する。
-     *
-     * <p>JRE1.6以降では何も表示しない。
-     *
-     * @return スプラッシュウィンドウ。JRE1.6以降ならnullを返す。
-     */
-    @SuppressWarnings("CallToThreadYield")
-    private static Window showSplash(){
-        if(JreChecker.has16Runtime()) return null;
-
-        Window splashWindow = new JWindow();
-
-        ImageIcon logo = ResourceManager.getImageIcon(RES_LOGOICON);
-        JLabel splashLabel = new JLabel(logo);
-        splashWindow.add(splashLabel);
-
-        splashWindow.pack();
-        splashWindow.setLocationRelativeTo(null); // locate center
-        splashWindow.setVisible(true);
-
-        Thread.yield();
-
-        return splashWindow;
-    }
-
-    /**
-     * スプラッシュウィンドウを隠す。
-     * @param splashWindow スプラッシュウィンドウ。nullならなにもしない。
-     */
-    private static void hideSplash(final Window splashWindow){
-        if(splashWindow == null) return;
-
-        EventQueue.invokeLater(new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                splashWindow.setVisible(false);
-                splashWindow.dispose();
-                return;
-            }
-        });
-
-        return;
-    }
-
-    /**
      * 起動時の諸々の情報をログ出力する。
      * @param appSetting  アプリ設定
      */
@@ -198,11 +140,6 @@ public final class JindolfMain {
             LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigPath());
         }else{
             LOGGER.info(LOG_NOCONF);
-        }
-
-        if(    JreChecker.has16Runtime()
-            && optinfo.hasOption(CmdOption.OPT_NOSPLASH) ){
-            LOGGER.warning(WARNMSG_SPLASH);
         }
 
         return;
@@ -269,17 +206,7 @@ public final class JindolfMain {
         }
         UIManager.put("swing.boldMetal", boldFlag);
 
-        // JRE1.5用スプラッシュウィンドウ。だけどもういらん。
-        Window splashWindow = null;
-        if( ! optinfo.hasOption(CmdOption.OPT_NOSPLASH) ){
-            splashWindow = showSplash();
-        }
-
-        try{
-            exitCode = splashedMain(optinfo);
-        }finally{
-            hideSplash(splashWindow);
-        }
+        exitCode = splashedMain(optinfo);
 
         return exitCode;
     }
@@ -287,7 +214,8 @@ public final class JindolfMain {
     /**
      * JindolfMain のスタートアップエントリ。
      *
-     * <p>スプラッシュウィンドウが出ている状態。
+     * <p>JRE1.5までの間、
+     * スプラッシュウィンドウが出ている状態として想定されていた。
      * 時間のかかる初期化処理はなるべくこの中へ。
      *
      * @param optinfo コマンドライン引数情報
@@ -339,11 +267,7 @@ public final class JindolfMain {
                     return;
                 }
             });
-        }catch(InvocationTargetException e){
-            LOGGER.log(Level.SEVERE, FATALMSG_INITFAIL, e);
-            e.printStackTrace(STDERR);
-            exitCode = 1;
-        }catch(InterruptedException e){
+        }catch(InvocationTargetException | InterruptedException e){
             LOGGER.log(Level.SEVERE, FATALMSG_INITFAIL, e);
             e.printStackTrace(STDERR);
             exitCode = 1;
