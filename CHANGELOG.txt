@@ -7,6 +7,7 @@ Jindolf 変更履歴
 X.XXX.X (XXXX-XX-XX)
     ・JDK9以降のWindows HiDPI環境に対応。
     ・キャスト表Wiki出力の見栄えを改善。
+    ・キャスト紹介表ジェネレータへのリンクを削除。
     ・JinParser 2.101.4 に対応。
     ・-nosplashオプションの廃止。
 

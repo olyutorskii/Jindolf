@@ -58,7 +58,6 @@ import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
-import jp.sfjp.jindolf.dxchg.Hon5;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
 import jp.sfjp.jindolf.editor.TalkPreview;
@@ -427,20 +426,6 @@ public class Controller
         if(village == null) return;
 
         String urlTxt = WolfBBS.getCastGeneratorUrl(village);
-        WebIPCDialog.showDialog(getTopFrame(), urlTxt);
-
-        return;
-    }
-
-    /**
-     * 村に対応するキャスト紹介表ジェネレーターをWebブラウザで表示する。
-     */
-    private void actionShowWebCast(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
-        if(village == null) return;
-
-        String urlTxt = Hon5.getCastGeneratorUrl(village);
         WebIPCDialog.showDialog(getTopFrame(), urlTxt);
 
         return;
@@ -1545,8 +1530,6 @@ public class Controller
             actionShowWebVillage();
         }else if(cmd.equals(ActionManager.CMD_WEBWIKI)){
             actionShowWebWiki();
-        }else if(cmd.equals(ActionManager.CMD_WEBCAST)){
-            actionShowWebCast();
         }else if(cmd.equals(ActionManager.CMD_RELOAD)){
             actionReloadPeriod();
         }else if(cmd.equals(ActionManager.CMD_DAYSUMMARY)){
