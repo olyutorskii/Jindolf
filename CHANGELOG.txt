@@ -5,8 +5,9 @@ Jindolf 変更履歴
 
 
 X.XXX.X (XXXX-XX-XX)
-    ・JinParser 2.101.4 に対応。
     ・JDK9以降のWindows HiDPI環境に対応。
+    ・キャスト表Wiki出力の見栄えを改善。
+    ・JinParser 2.101.4 に対応。
     ・-nosplashオプションの廃止。
 
 3.302.4 (2017-04-09)

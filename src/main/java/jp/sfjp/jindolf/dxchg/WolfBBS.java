@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.dxchg;
 
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -33,9 +34,11 @@ import jp.sourceforge.jindolf.corelib.GameRole;
 
 /**
  * まちゅ氏運営のまとめサイト(wolfbbs)に関する諸々。
+ *
  * PukiWikiベース。
- * @see <a href="http://wolfbbs.jp/">まとめサイト</a>
- * @see <a href="http://pukiwiki.osdn.jp/">PukiWiki</a>
+ *
+ * @see <a href="https://wolfbbs.jp/">まとめサイト</a>
+ * @see <a href="https://pukiwiki.osdn.jp/">PukiWiki</a>
  */
 public final class WolfBBS{
 
@@ -55,6 +58,12 @@ public final class WolfBBS{
     private static final Charset CHARSET_EUC = Charset.forName("EUC-JP");
 
     private static final String WOLFBBS_URL = "http://wolfbbs.jp/";
+
+    private static final Color COLOR_INNOCENT = new Color(0xb7bad3);
+    private static final Color COLOR_WOLF     = new Color(0xe0b8b8);
+    private static final Color COLOR_HAMSTER  = new Color(0xb9d0be);
+    private static final Color COLOR_DEAD     = new Color(0xaaaaaa);
+    private static final Color COLOR_ALIVE    = new Color(0xffffff);
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
@@ -86,6 +95,7 @@ public final class WolfBBS{
 
     /**
      * アイコンセットのロード。
+     *
      * @throws FileNotFoundException リソースが不明
      */
     private static void loadFaceIconSet() throws FileNotFoundException {
@@ -102,6 +112,7 @@ public final class WolfBBS{
 
     /**
      * アイコンセットのロード。
+     *
      * @param properties プロパティ
      * @throws FileNotFoundException リソースが不明
      */
@@ -146,6 +157,7 @@ public final class WolfBBS{
 
     /**
      * アイコンセットのロード。
+     *
      * @param properties プロパティ
      * @param setName アイコンセット名
      * @return アイコンセット
@@ -171,6 +183,7 @@ public final class WolfBBS{
 
     /**
      * 顔アイコンセットのリストを取得する。
+     *
      * @return 顔アイコンセットのリスト
      */
     public static List<FaceIconSet> getFaceIconSetList(){
@@ -181,6 +194,7 @@ public final class WolfBBS{
 
     /**
      * 任意の文字がWikiの特殊キャラクタか否か判定する。
+     *
      * @param ch 文字
      * @return 特殊キャラクタならtrue
      */
@@ -191,6 +205,7 @@ public final class WolfBBS{
 
     /**
      * Wiki特殊文字を数値参照文字でエスケープする。
+     *
      * @param seq Wiki特殊文字を含むかもしれない文字列。
      * @return エスケープされた文字列
      */
@@ -217,8 +232,10 @@ public final class WolfBBS{
 
     /**
      * WikiNameを数値参照文字でエスケープする。
+     *
      * @param seq WikiNameを含むかもしれない文字列
      * @return エスケープされた文字列。
+     * @see <a href="https://pukiwiki.osdn.jp/?WikiName">WikiName</a>
      */
     public static CharSequence escapeWikiName(CharSequence seq){
         StringBuilder result = null;
@@ -245,7 +262,7 @@ public final class WolfBBS{
             pos = matchEnd;
         }
 
-        if(pos == 0) return seq;
+        if(pos == 0 || result == null) return seq;
 
         result.append(seq, pos, seq.length());
 
@@ -254,6 +271,7 @@ public final class WolfBBS{
 
     /**
      * 任意の文字列をWiki表記へ変換する。
+     *
      * @param seq 任意の文字列
      * @return Wiki用表記
      */
@@ -267,6 +285,7 @@ public final class WolfBBS{
 
     /**
      * ブラケットに入れる文字をエスケープする。
+     *
      * @param seq 文字列。
      * @return エスケープされた文字列
      */
@@ -321,7 +340,9 @@ public final class WolfBBS{
 
     /**
      * 数値参照文字に変換された文字を追加する。
+     *
      * 例）{@literal 'D' => "&#x44;}"
+     *
      * @param app 追加対象
      * @param ch 1文字
      * @return 引数と同じ
@@ -342,7 +363,9 @@ public final class WolfBBS{
 
     /**
      * 任意の文字を数値参照文字列に変換する。
+     *
      * 例）{@literal 'D' => "&#x44;"}
+     *
      * @param ch 文字
      * @return 変換後の文字列
      */
@@ -358,12 +381,60 @@ public final class WolfBBS{
     }
 
     /**
-     * 陣営の色Wiki表記を返す。
-     * @param role 役職
-     * @return 色Wiki表記
+     * ColorのRGB各成分をWikiカラー表記に変換する。
+     *
+     * α成分は無視される。
+     *
+     * @param color 色
+     * @return Wikiカラー表記
      */
-    public static String getTeamWikiColor(GameRole role){
-        String result;
+    public static String cnvWikiColor(Color color){
+        int packRGB = color.getRGB();
+
+        String txtRGB = Integer.toHexString(packRGB);
+        String leadRGB = "00000000" + txtRGB;
+        int chopLen = leadRGB.length() - 6;
+        String fixed = leadRGB.substring(chopLen);
+        String result = "#" + fixed;
+
+        return result;
+    }
+
+    /**
+     * 表の偶数行に色の変化を付ける。
+     *
+     * @param color 色
+     * @return 変化した色
+     */
+    public static Color evenColor(Color color){
+        int red   = color.getRed();
+        int green = color.getGreen();
+        int blue  = color.getBlue();
+
+        float[] hsb = Color.RGBtoHSB(red, green, blue, null);
+        float h = hsb[0];
+        float s = hsb[1];
+        float b = hsb[2];
+
+        if(b < 0.5){
+            b += 0.03;
+        }else{
+            b -= 0.03;
+        }
+
+        Color result = Color.getHSBColor(h, s, b);
+
+        return result;
+    }
+
+    /**
+     * 陣営の色を返す。
+     *
+     * @param role 役職
+     * @return 色
+     */
+    public static Color getTeamColor(GameRole role){
+        Color result;
 
         switch(role){
         case INNOCENT:
@@ -371,14 +442,14 @@ public final class WolfBBS{
         case SHAMAN:
         case HUNTER:
         case FRATER:
-            result = "#b7bad3";
+            result = COLOR_INNOCENT;
             break;
         case WOLF:
         case MADMAN:
-            result = "#e0b8b8";
+            result = COLOR_WOLF;
             break;
         case HAMSTER:
-            result = "#b9d0be";
+            result = COLOR_HAMSTER;
             break;
         default:
             assert false;
@@ -390,6 +461,7 @@ public final class WolfBBS{
 
     /**
      * 各役職のアイコンWikiを返す。
+     *
      * @param role 役職
      * @return アイコンWiki
      */
@@ -431,19 +503,21 @@ public final class WolfBBS{
     }
 
     /**
-     * 運命に対応する色Wiki表記を返す。
+     * 運命に対応する色を返す。
+     *
      * @param destiny 運命
-     * @return 色Wiki表記
+     * @return 色
      */
-    public static String getDestinyColorWiki(Destiny destiny){
-        String result;
-        if(destiny == Destiny.ALIVE) result = "#ffffff";
-        else                         result = "#aaaaaa";
+    public static Color getDestinyColor(Destiny destiny){
+        Color result;
+        if(destiny == Destiny.ALIVE) result = COLOR_ALIVE;
+        else                         result = COLOR_DEAD;
         return result;
     }
 
     /**
      * そのまままとめサイトパス名に使えそうなシンプルな文字か判定する。
+     *
      * @param ch 文字
      * @return まとめサイトパス名に使えそうならtrue
      */
@@ -457,6 +531,7 @@ public final class WolfBBS{
 
     /**
      * プレイヤーIDを構成する文字からパス名を組み立てる。
+     *
      * @param seq パス名
      * @param ch 文字
      * @return 引数と同じもの
@@ -495,6 +570,7 @@ public final class WolfBBS{
 
     /**
      * プレイヤーIDからパス名の一部を予測する。
+     *
      * @param id プレイヤーID
      * @return .htmlを抜いたパス名
      */
@@ -510,6 +586,7 @@ public final class WolfBBS{
 
     /**
      * プレイヤーIDからまとめサイト上の個人ページを推測する。
+     *
      * @param id プレイヤーID
      * @return 個人ページURL文字列
      */
@@ -523,6 +600,7 @@ public final class WolfBBS{
 
     /**
      * キャスト紹介ジェネレータ出力のURLを得る。
+     *
      * @param village 村
      * @return ジェネレータ出力URL
      */
