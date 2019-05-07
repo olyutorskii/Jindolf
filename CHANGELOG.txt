@@ -4,6 +4,12 @@
 Jindolf 変更履歴
 
 
+3.303.106 (2019-05-07)
+    ・必須環境をJavaSE8に引き上げ。
+    ・Mercurial(3.303.5-SNAPSHOT)からGit(3.303.105-SNAPSHOT)へSCMを移行。
+    ・JinParser 2.101.106 に対応。
+    ・Jovsonz 1.101.104 に対応。
+
 3.303.4 (2018-07-09)
     ・JDK9以降のWindows HiDPI環境に対応。
     ・キャスト表Wiki出力の見栄えを改善。
