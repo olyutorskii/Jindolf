@@ -8,7 +8,7 @@
 >
 
 <!--
-    OSDN.NET用リリースファイル構成定義ファイル
+    OSDN.net用リリースファイル構成定義ファイル
     Maven3 assembly用
 -->
 
@@ -24,6 +24,7 @@
             <includes>
                 <include>*.xml</include>
                 <include>*.txt</include>
+                <include>*.md</include>
             </includes>
             <excludes>
                 <exclude>nb-configuration.xml</exclude>
@@ -32,11 +33,11 @@
             <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/config</directory>
+            <directory>${project.basedir}/src</directory>
             <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/src</directory>
+            <directory>${project.basedir}/config</directory>
             <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
     </fileSets>
