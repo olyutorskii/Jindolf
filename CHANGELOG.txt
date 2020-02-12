@@ -4,6 +4,9 @@
 Jindolf 変更履歴
 
 
+3.304.X (2020-XX-XX)
+    ・G国亡国に伴い JinParser 2.102.2 に対応。
+
 3.303.106 (2019-05-07)
     ・必須環境をJavaSE8に引き上げ。
     ・Mercurial(3.303.5-SNAPSHOT)からGit(3.303.105-SNAPSHOT)へSCMを移行。
