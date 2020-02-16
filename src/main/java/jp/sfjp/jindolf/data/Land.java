@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +27,7 @@ import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.LandState;
+import jp.sourceforge.jindolf.corelib.VillageState;
 
 /**
  * いわゆる「国」。
@@ -41,7 +43,7 @@ public class Land {
     private final LandDef landDef;
     private final ServerAccess serverAccess;
     private final HtmlParser parser = new HtmlParser();
-    private final VillageListHandler handler = new VillageListHandler(this);
+    private final VillageListHandler handler = new VillageListHandler();
 
     private final List<Village> villageList = new LinkedList<>();
 
@@ -159,6 +161,35 @@ public class Land {
     }
 
     /**
+     * build Village list.
+     *
+     * @param records village records on HTML
+     * @return village list
+     */
+    private List<Village> buildVillageList(List<VillageRecord> records){
+        List<Village> result = new ArrayList<>(records.size());
+
+        for(VillageRecord record : records){
+            String id = record.getVillageId();
+            String fullVillageName = record.getFullVillageName();
+
+            VillageState status;
+            if(this.landDef.getLandState() == LandState.HISTORICAL){
+                status = VillageState.GAMEOVER;
+            }else{
+                status = record.getVillageStatus();
+            }
+
+            Village village = new Village(this, id, fullVillageName);
+            village.setState(status);
+
+            result.add(village);
+        }
+
+        return result;
+    }
+
+    /**
      * 村一覧情報をダウンロードする。
      * リスト元情報は国のトップページと村一覧ページ。
      * 古国の場合は村一覧にアクセスせずトップページのみ。
@@ -182,30 +213,32 @@ public class Land {
         if(state.equals(LandState.ACTIVE) || isVanillaWolf){
             HtmlSequence html = server.getHTMLTopPage();
             DecodedContent content = html.getContent();
+
             try{
                 this.parser.parseAutomatic(content);
             }catch(HtmlParseException e){
                 LOGGER.log(Level.WARNING, "トップページを認識できない", e);
             }
-            List<Village> list = this.handler.getVillageList();
-            if(list != null){
-                result.addAll(list);
-            }
+            List<VillageRecord> recList = this.handler.getVillageRecords();
+
+            List<Village> list = buildVillageList(recList);
+            result.addAll(list);
         }
 
         // 村一覧ページ
         if( ! isVanillaWolf ){
             HtmlSequence html = server.getHTMLLandList();
             DecodedContent content = html.getContent();
+
             try{
                 this.parser.parseAutomatic(content);
             }catch(HtmlParseException e){
                 LOGGER.log(Level.WARNING, "村一覧ページを認識できない", e);
             }
-            List<Village> list = this.handler.getVillageList();
-            if(list != null){
-                result.addAll(list);
-            }
+            List<VillageRecord> recList = this.handler.getVillageRecords();
+
+            List<Village> list = buildVillageList(recList);
+            result.addAll(list);
         }
 
         this.parser.reset();

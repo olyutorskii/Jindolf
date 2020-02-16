@@ -18,8 +18,6 @@ import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
-import jp.sourceforge.jindolf.corelib.LandDef;
-import jp.sourceforge.jindolf.corelib.LandState;
 import jp.sourceforge.jindolf.corelib.VillageState;
 
 /**
@@ -31,18 +29,14 @@ class VillageListHandler extends HtmlAdapter{
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
-    private final Land land;
-    private List<Village> villageList = null;
+    private final List<VillageRecord> villageRecords = new LinkedList<>();
 
 
     /**
      * コンストラクタ。
-     *
-     * @param land 村の属する国
      */
-    VillageListHandler(final Land land) {
+    VillageListHandler() {
         super();
-        this.land = land;
         return;
     }
 
@@ -133,18 +127,10 @@ class VillageListHandler extends HtmlAdapter{
     /**
      * パース結果の村一覧を返す。
      *
-     * <p>再度パースを行うまで呼んではいけない。
-     *
      * @return 村一覧
-     * @throws IllegalStateException パース前に呼び出された。
-     *     あるいはパース後すでにリセットされている。
      */
-    public List<Village> getVillageList() throws IllegalStateException {
-        if(this.villageList == null){
-            throw new IllegalStateException("パースが必要です。");
-        }
-        List<Village> result = this.villageList;
-        return result;
+    public List<VillageRecord> getVillageRecords(){
+        return this.villageRecords;
     }
 
     /**
@@ -153,7 +139,7 @@ class VillageListHandler extends HtmlAdapter{
      * <p>村一覧リストは空になる。
      */
     public void reset() {
-        this.villageList = null;
+        this.villageRecords.clear();
         return;
     }
 
@@ -168,7 +154,6 @@ class VillageListHandler extends HtmlAdapter{
     @Override
     public void startParse(DecodedContent content) throws HtmlParseException {
         reset();
-        this.villageList = new LinkedList<>();
         return;
     }
 
@@ -220,18 +205,13 @@ class VillageListHandler extends HtmlAdapter{
         }
 
         CharSequence fullVillageName = villageRange.sliceSequence(content);
-        Village village =
-                new Village(this.land, villageID, fullVillageName.toString());
 
-        LandDef landdef = this.land.getLandDef();
-        LandState landState = landdef.getLandState();
-        if(landState == LandState.HISTORICAL){
-            village.setState(VillageState.GAMEOVER);
-        }else{
-            village.setState(villageState);
-        }
+        VillageRecord record =
+                new VillageRecord(villageID,
+                                  fullVillageName.toString(),
+                                  villageState );
 
-        this.villageList.add(village);
+        this.villageRecords.add(record);
 
         return;
     }
