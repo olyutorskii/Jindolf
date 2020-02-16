@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import jp.osdn.jindolf.parser.HtmlAdapter;
 import jp.osdn.jindolf.parser.HtmlParseException;
@@ -101,10 +102,8 @@ class VillageListHandler extends HtmlAdapter{
         try{
             uri = new URI(pureHREF);
         }catch(URISyntaxException e){
-            LOGGER.warning(
-                     "不正なURI["
-                    + hrefValue
-                    + "]を検出しました");
+            LOGGER.log(Level.WARNING,
+                    "不正なURI[{0}]を検出しました", hrefValue);
             return null;
         }
 
@@ -215,7 +214,8 @@ class VillageListHandler extends HtmlAdapter{
         CharSequence href = anchorRange.sliceSequence(content);
         String villageID = getVillageIDFromHREF(href);
         if(villageID == null || villageID.length() <= 0){
-            LOGGER.warning("認識できないURL[" + href + "]に遭遇しました。");
+            LOGGER.log(Level.WARNING,
+                    "認識できないURL[{0}]に遭遇しました。", href);
             return;
         }
 
