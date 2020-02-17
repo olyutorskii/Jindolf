@@ -18,18 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jp.osdn.jindolf.parser.HtmlAdapter;
 import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.HtmlParser;
-import jp.osdn.jindolf.parser.PageType;
-import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.LandState;
-import jp.sourceforge.jindolf.corelib.PeriodType;
 import jp.sourceforge.jindolf.corelib.VillageState;
 
 /**
@@ -43,8 +39,8 @@ public class Village implements Comparable<Village> {
             new VillageComparator();
 
     private static final HtmlParser PARSER = new HtmlParser();
-    private static final VillageHeadHandler HANDLER =
-            new VillageHeadHandler();
+    private static final VillageInfoHandler HANDLER =
+            new VillageInfoHandler();
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
@@ -465,6 +461,22 @@ public class Village implements Comparable<Village> {
     }
 
     /**
+     * 次回更新時を設定する。
+     *
+     * @param month 月
+     * @param day 日
+     * @param hour 時
+     * @param minute 分
+     */
+    public void setLimit(int month, int day, int hour, int minute){
+        this.limitMonth = month;
+        this.limitDay = day;
+        this.limitHour = hour;
+        this.limitMinute = minute;
+        return;
+    }
+
+    /**
      * 次回更新月を返す。
      * @return 更新月(1-12)
      */
@@ -512,7 +524,7 @@ public class Village implements Comparable<Village> {
      * @param period 上書きするPeriod
      * @throws java.lang.IndexOutOfBoundsException インデックスの指定がおかしい
      */
-    private void setPeriod(int index, Period period)
+    public void setPeriod(int index, Period period)
             throws IndexOutOfBoundsException{
         int listSize = this.periodList.size();
         if(index == listSize){
@@ -623,244 +635,6 @@ public class Village implements Comparable<Village> {
     @Override
     public String toString(){
         return getVillageFullName();
-    }
-
-
-    /**
-     * Period一覧取得用ハンドラ。
-     */
-    private static class VillageHeadHandler extends HtmlAdapter{
-
-        private Village village = null;
-
-        private boolean hasPrologue;
-        private boolean hasProgress;
-        private boolean hasEpilogue;
-        private boolean hasDone;
-        private int maxProgress;
-
-        /**
-         * コンストラクタ。
-         */
-        public VillageHeadHandler(){
-            super();
-            return;
-        }
-
-        /**
-         * 更新対象の村を設定する。
-         * @param village 村
-         */
-        public void setVillage(Village village){
-            this.village = village;
-            return;
-        }
-
-        /**
-         * リセットを行う。
-         */
-        public void reset(){
-            this.hasPrologue = false;
-            this.hasProgress = false;
-            this.hasEpilogue = false;
-            this.hasDone = false;
-            this.maxProgress = 0;
-            return;
-        }
-
-        /**
-         * パース結果から村の状態を算出する。
-         * @return 村の状態
-         */
-        public VillageState getVillageState(){
-            if(this.hasDone){
-                return VillageState.GAMEOVER;
-            }else if(this.hasEpilogue){
-                return VillageState.EPILOGUE;
-            }else if(this.hasProgress){
-                return VillageState.PROGRESS;
-            }else if(this.hasPrologue){
-                return VillageState.PROLOGUE;
-            }
-
-            return VillageState.UNKNOWN;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param content {@inheritDoc}
-         * @throws HtmlParseException {@inheritDoc}
-         */
-        @Override
-        public void startParse(DecodedContent content)
-                throws HtmlParseException{
-            reset();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * 自動判定の結果が日ページでなければ例外を投げる。
-         * @param type {@inheritDoc}
-         * @throws HtmlParseException {@inheritDoc} 意図しないページが来た。
-         */
-        @Override
-        public void pageType(PageType type) throws HtmlParseException{
-            if(type != PageType.PERIOD_PAGE){
-                throw new HtmlParseException(
-                        "日ページが必要です。");
-            }
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param month {@inheritDoc}
-         * @param day {@inheritDoc}
-         * @param hour {@inheritDoc}
-         * @param minute {@inheritDoc}
-         * @throws HtmlParseException {@inheritDoc}
-         */
-        @Override
-        public void commitTime(int month, int day,
-                                int hour, int minute)
-                throws HtmlParseException{
-            this.village.limitMonth  = month;
-            this.village.limitDay    = day;
-            this.village.limitHour   = hour;
-            this.village.limitMinute = minute;
-
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param content {@inheritDoc}
-         * @param anchorRange {@inheritDoc}
-         * @param periodType {@inheritDoc}
-         * @param day {@inheritDoc}
-         * @throws HtmlParseException {@inheritDoc}
-         */
-        @Override
-        public void periodLink(DecodedContent content,
-                                SeqRange anchorRange,
-                                PeriodType periodType,
-                                int day)
-                throws HtmlParseException{
-            if(periodType == null){
-                this.hasDone = true;
-                return;
-            }
-
-            switch(periodType){
-            case PROLOGUE:
-                this.hasPrologue = true;
-                break;
-            case PROGRESS:
-                this.hasProgress = true;
-                this.maxProgress = day;
-                break;
-            case EPILOGUE:
-                this.hasEpilogue = true;
-                break;
-            default:
-                assert false;
-                break;
-            }
-
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @throws HtmlParseException {@inheritDoc}
-         */
-        @Override
-        public void endParse() throws HtmlParseException{
-            Land land = this.village.getParentLand();
-            LandDef landDef = land.getLandDef();
-            LandState landState = landDef.getLandState();
-
-            VillageState villageState = getVillageState();
-            if(villageState == VillageState.UNKNOWN){
-                this.village.setState(villageState);
-                this.village.periodList.clear();
-                LOGGER.warning("村の状況を読み取れません");
-                return;
-            }
-
-            if(landState == LandState.ACTIVE){
-                this.village.setState(villageState);
-            }else{
-                this.village.setState(VillageState.GAMEOVER);
-            }
-
-            modifyPeriodList();
-
-            return;
-        }
-
-        /**
-         * 抽出したリンク情報に伴いPeriodリストを更新する。
-         * まだPeriodデータのロードは行われない。
-         * ゲーム進行中の村で更新時刻をまたいで更新が行われた場合、
-         * 既存のPeriodリストが伸張する場合がある。
-         */
-        private void modifyPeriodList(){
-            Period lastPeriod = null;
-
-            if(this.hasPrologue){
-                Period prologue = this.village.getPrologue();
-                if(prologue == null){
-                    lastPeriod = new Period(this.village,
-                                            PeriodType.PROLOGUE, 0);
-                    this.village.setPeriod(0, lastPeriod);
-                }else{
-                    lastPeriod = prologue;
-                }
-            }
-
-            if(this.hasProgress){
-                for(int day = 1; day <= this.maxProgress; day++){
-                    Period progress = this.village.getProgress(day);
-                    if(progress == null){
-                        lastPeriod = new Period(this.village,
-                                                PeriodType.PROGRESS, day);
-                        this.village.setPeriod(day, lastPeriod);
-                    }else{
-                        lastPeriod = progress;
-                    }
-                }
-            }
-
-            if(this.hasEpilogue){
-                Period epilogue = this.village.getEpilogue();
-                if(epilogue == null){
-                    lastPeriod = new Period(this.village,
-                                            PeriodType.EPILOGUE,
-                                            this.maxProgress +1);
-                    this.village.setPeriod(this.maxProgress +1, lastPeriod);
-                }else{
-                    lastPeriod = epilogue;
-                }
-            }
-
-            assert this.village.getPeriodSize() > 0;
-            assert lastPeriod != null;
-
-            // 念のためチョップ。
-            // リロードで村が縮むわけないじゃん。みんな大げさだなあ
-            while(this.village.periodList.getLast() != lastPeriod){
-                this.village.periodList.removeLast();
-            }
-
-            if(this.village.getState() != VillageState.GAMEOVER){
-                lastPeriod.setHot(true);
-            }
-
-            return;
-        }
-
     }
 
 
