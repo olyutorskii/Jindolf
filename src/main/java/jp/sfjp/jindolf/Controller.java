@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
@@ -57,6 +56,7 @@ import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
+import jp.sfjp.jindolf.data.VillageListLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
@@ -1185,9 +1185,9 @@ public class Controller
      * @param land 国
      */
     private void taskReloadVillageList(Land land){
-        SortedSet<Village> villageList;
+        List<Village> villageList;
         try{
-            villageList = land.downloadVillageList();
+            villageList = VillageListLoader.loadVillageList(land);
         }catch(IOException e){
             showNetworkError(land, e);
             return;
