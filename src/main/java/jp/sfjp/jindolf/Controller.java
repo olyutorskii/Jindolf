@@ -1259,7 +1259,7 @@ public class Controller
             private boolean updatePeriodList(){
                 updateStatusBar("村情報を読み直しています…");
                 try{
-                    VillageInfoLoader.updateVillage(village);
+                    VillageInfoLoader.updateVillageInfo(village);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return false;
@@ -1452,7 +1452,7 @@ public class Controller
                     updateStatusBar("村情報を読み込み中…");
 
                     try{
-                        VillageInfoLoader.updateVillage(village);
+                        VillageInfoLoader.updateVillageInfo(village);
                     }catch(IOException e){
                         showNetworkError(village, e);
                         return;

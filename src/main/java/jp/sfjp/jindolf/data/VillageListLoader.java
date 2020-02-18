@@ -9,6 +9,7 @@ package jp.sfjp.jindolf.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -27,12 +28,23 @@ import jp.sourceforge.jindolf.corelib.VillageState;
 /**
  * 人狼各国のHTTPサーバから村一覧リストを取得する。
  */
-public class VillageListLoader {
+public final class VillageListLoader {
+
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     // 古国ID
     private static final String ID_VANILLAWOLF = "wolf";
 
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
+    private static final List<VillageRecord> EMPTY_LIST =
+            Collections.emptyList();
+
+
+    /**
+     * Hidden constructor.
+     */
+    private VillageListLoader() {
+        assert false;
+    }
 
 
     /**
@@ -43,7 +55,7 @@ public class VillageListLoader {
      * <p>古国(wolf)の場合は村一覧にアクセスせずトップページのみ。
      * 古国以外で村建てをやめた国はトップページにアクセスしない。
      *
-     * <p>戻される村一覧リストは重複がない。
+     * <p>戻される村一覧リストはソート済みで重複がない。
      *
      * @param land 国
      * @return 村一覧リスト
@@ -51,9 +63,11 @@ public class VillageListLoader {
      */
     public static List<Village> loadVillageList(Land land)
             throws IOException{
+        List<VillageRecord> records = loadVillageRecords(land);
+
         LandDef landDef = land.getLandDef();
-        ServerAccess server = land.getServerAccess();
-        List<VillageRecord> records = loadVillageRecords(landDef, server);
+        LandState landState = landDef.getLandState();
+        boolean isHistorical = landState == LandState.HISTORICAL;
 
         List<Village> vList = new ArrayList<>(records.size());
 
@@ -62,7 +76,7 @@ public class VillageListLoader {
             String fullVillageName = record.getFullVillageName();
 
             VillageState status;
-            if(landDef.getLandState() == LandState.HISTORICAL){
+            if(isHistorical){
                 status = VillageState.GAMEOVER;
             }else{
                 status = record.getVillageStatus();
@@ -91,55 +105,69 @@ public class VillageListLoader {
      *
      * <p>戻される村一覧リストは順不同で重複もありうる。
      *
-     * @param landDef 国情報
-     * @param server サーバ情報
+     * @param land 国
      * @return 村一覧リスト
      * @throws java.io.IOException ネットワーク入出力の異常
      */
-    public static List<VillageRecord> loadVillageRecords(LandDef landDef,
-                                                         ServerAccess server)
+    public static List<VillageRecord> loadVillageRecords(Land land)
             throws IOException{
-        LandState state = landDef.getLandState();
+        List<VillageRecord> totalList = new LinkedList<>();
+        List<VillageRecord> recList;
+
+        LandDef landDef = land.getLandDef();
         boolean isVanillaWolf = landDef.getLandId().equals(ID_VANILLAWOLF);
+        LandState state = landDef.getLandState();
 
-        List<VillageRecord> result = new LinkedList<>();
+        boolean needTopPage =
+                state.equals(LandState.ACTIVE) || isVanillaWolf;
+        boolean hasVillageList = ! isVanillaWolf;
 
+        ServerAccess server = land.getServerAccess();
+
+        // トップページ
+        if(needTopPage){
+            recList = EMPTY_LIST;
+            HtmlSequence html = server.getHTMLTopPage();
+            try{
+                recList = parseVillageRecords(html);
+            }catch(HtmlParseException e){
+                LOGGER.log(Level.WARNING, "トップページを認識できない", e);
+            }
+            totalList.addAll(recList);
+        }
+
+        // 村一覧ページ
+        if(hasVillageList){
+            recList = EMPTY_LIST;
+            HtmlSequence html = server.getHTMLLandList();
+            try{
+                recList = parseVillageRecords(html);
+            }catch(HtmlParseException e){
+                LOGGER.log(Level.WARNING, "村一覧ページを認識できない", e);
+            }
+            totalList.addAll(recList);
+        }
+
+        return totalList;
+    }
+
+    /**
+     * HTMLをパースし村一覧リストを返す。
+     *
+     * @param html HTML文書
+     * @return 村一覧リスト
+     * @throws HtmlParseException HTMLパースエラーによるパース停止
+     */
+    private static List<VillageRecord> parseVillageRecords(HtmlSequence html)
+            throws HtmlParseException{
         HtmlParser parser = new HtmlParser();
         VillageListHandler handler = new VillageListHandler();
         parser.setBasicHandler(handler);
 
-        // トップページ
-        if(state.equals(LandState.ACTIVE) || isVanillaWolf){
-            HtmlSequence html = server.getHTMLTopPage();
-            DecodedContent content = html.getContent();
+        DecodedContent content = html.getContent();
+        parser.parseAutomatic(content);
 
-            try{
-                parser.parseAutomatic(content);
-            }catch(HtmlParseException e){
-                LOGGER.log(Level.WARNING, "トップページを認識できない", e);
-            }
-
-            List<VillageRecord> topList = handler.getVillageRecords();
-            result.addAll(topList);
-        }
-
-        // 村一覧ページ
-        if( ! isVanillaWolf ){
-            HtmlSequence html = server.getHTMLLandList();
-            DecodedContent content = html.getContent();
-
-            try{
-                parser.parseAutomatic(content);
-            }catch(HtmlParseException e){
-                LOGGER.log(Level.WARNING, "村一覧ページを認識できない", e);
-            }
-
-            List<VillageRecord> recList = handler.getVillageRecords();
-            result.addAll(recList);
-        }
-
-        parser.reset();
-        handler.reset();
+        List<VillageRecord> result = handler.getVillageRecords();
 
         return result;
     }
