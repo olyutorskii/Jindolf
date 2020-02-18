@@ -25,8 +25,21 @@ import jp.sourceforge.jindolf.corelib.SysEventType;
 import jp.sourceforge.jindolf.corelib.TalkType;
 import jp.sourceforge.jindolf.corelib.Team;
 
+
 /**
- * Periodパース用ハンドラ。
+ * 各日(Period)のHTMLをパースし、
+ * 会話やイベントの通知を受け取るためのハンドラ。
+ *
+ * <p>パース終了時には、
+ * あらかじめ指定したPeriodインスタンスに
+ * 会話やイベントのリストが適切に更新される。
+ *
+ * <p>各種ビューが対応するまでの間、Unicodeの非BMP面文字には代替文字で対処。
+ *
+ * <p>※ 人狼BBS:G国におけるG2087村のエピローグが終了した段階で、
+ * 人狼BBSは過去ログの提供しか行っていない。
+ * だがこのクラスには進行中の村の各日をパースするための
+ * 冗長な処理が若干残っている。
  */
 public class PeriodHandler extends HtmlAdapter {
 
@@ -34,8 +47,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     private final EntityConverter converter =
             new EntityConverter(true);
-    // TODO: SMP面文字に彩色対応するまでの暫定措置
+    // TODO: 非BMP面文字に対応するまでの暫定措置
 
+    /** 非別、Avatar別、会話種別の会話通し番号。 */
     private final Map<Avatar, int[]> countMap =
             new HashMap<>();
 
@@ -58,6 +72,7 @@ public class PeriodHandler extends HtmlAdapter {
     private final List<CharSequence>  charseqList =
         new LinkedList<>();
 
+
     /**
      * コンストラクタ。
      */
@@ -66,8 +81,10 @@ public class PeriodHandler extends HtmlAdapter {
         return;
     }
 
+
     /**
-     * パース結果を格納するPeriodを設定する。
+     * 更新対象のPeriodを設定する。
+     *
      * @param period Period
      */
     public void setPeriod(Period period){
@@ -76,8 +93,10 @@ public class PeriodHandler extends HtmlAdapter {
     }
 
     /**
-     * 文字列断片からAvatarを得る。
-     * 村に未登録のAvatarであればついでに登録される。
+     * フルネーム文字列からAvatarインスタンスを得る。
+     *
+     * <p>村に未登録のAvatarであればついでに登録される。
+     *
      * @param content 文字列
      * @param range 文字列内のAvatarフルネームを示す領域
      * @return Avatar
@@ -97,24 +116,8 @@ public class PeriodHandler extends HtmlAdapter {
     }
 
     /**
-     * Avatar別、会話種ごとに発言回数をカウントする。
-     * 1から始まる。
-     * @param targetAvatar 対象Avatar
-     * @param targetType 対象会話種
-     * @return カウント数
-     */
-    private int countUp(Avatar targetAvatar, TalkType targetType){
-        int[] countArray = this.countMap.get(targetAvatar);
-        if(countArray == null){
-            countArray = new int[TALKTYPE_NUM];
-            this.countMap.put(targetAvatar, countArray);
-        }
-        int count = ++countArray[targetType.ordinal()];
-        return count;
-    }
-
-    /**
      * {@inheritDoc}
+     *
      * @param content {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
@@ -129,6 +132,14 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>各PeriodのHTML上部にあるログイン名が通知されたのなら、
+     * それはPOSTやCookieを使ってのログインに成功したと言うこと。
+     *
+     * <p>ログイン名中の文字実体参照は展開される。
+     *
+     * <p>※ 2020-02現在、人狼BBS各国へのログインは無意味。
+     *
      * @param content {@inheritDoc}
      * @param loginRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -146,6 +157,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>受信したHTMLがPeriodページでないのならパースを中止する。
+     *
      * @param type {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
@@ -160,6 +174,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>月日の通知は無視される。
+     *
      * @param month {@inheritDoc}
      * @param day {@inheritDoc}
      * @param hour {@inheritDoc}
@@ -175,12 +192,22 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
-     * 自分へのリンクが無いかチェックする。
+     *
+     * <p>このPeriodが進行中(Hot!)か否か判定する。
+     *
+     * <p>PeriodのHTML内に自分自身へのリンクが無いかチェックする。
      * 自分へのリンクが見つかればこのPeriodを非Hotにする。
      * 自分へのリンクがあるということは、
-     * 今読んでるHTMLは別のPeriodのために書かれたものということ。
-     * 考えられる原因は、HotだったPeriodがゲーム進行に従い
-     * Hotでなくなったこと。
+     * 今受信しているHTMLは別のPeriodから辿るために書かれたものということ。
+     *
+     * <p>原因としては、HotだったPeriodがゲーム進行に従い
+     * Hotでなくなったことなどが考えられる。
+     *
+     * <p>各Periodの種別と日は、
+     * 村情報受信を通じて事前に設定されていなければならない。
+     *
+     * <p>※ 2020-02現在、HotなPeriodを受信する機会はないはず。
+     *
      * @param content {@inheritDoc}
      * @param anchorRange {@inheritDoc}
      * @param periodType {@inheritDoc}
@@ -189,15 +216,15 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void periodLink(DecodedContent content,
-                            SeqRange anchorRange,
-                            PeriodType periodType,
-                            int day)
+                           SeqRange anchorRange,
+                           PeriodType periodType,
+                           int day )
             throws HtmlParseException{
-
         if(this.period.getType() != periodType) return;
 
-        if(    periodType == PeriodType.PROGRESS
-            && this.period.getDay() != day ){
+        boolean isProgress = periodType == PeriodType.PROGRESS;
+        boolean dayMatch = this.period.getDay() == day;
+        if(isProgress && ! dayMatch){
             return;
         }
 
@@ -210,6 +237,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
@@ -227,6 +255,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param type {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
@@ -239,6 +268,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -252,6 +282,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param hour {@inheritDoc}
      * @param minute {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -266,6 +297,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param tno {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
@@ -277,6 +309,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param content {@inheritDoc}
      * @param idRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -292,6 +325,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>会話中の文字実体参照は展開される。
+     *
      * @param content {@inheritDoc}
      * @param textRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -305,6 +341,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
@@ -315,7 +352,30 @@ public class PeriodHandler extends HtmlAdapter {
     }
 
     /**
+     * 日別、Avatar別、会話種ごとに発言回数をインクリメントする。
+     *
+     * @param targetAvatar 対象Avatar
+     * @param targetType 対象会話種
+     * @return 現時点でのカウント数
+     */
+    private int countUp(Avatar targetAvatar, TalkType targetType){
+        int[] countArray = this.countMap.get(targetAvatar);
+        if(countArray == null){
+            countArray = new int[TALKTYPE_NUM];
+            this.countMap.put(targetAvatar, countArray);
+        }
+
+        int typeIdx = targetType.ordinal();
+        int count = ++countArray[typeIdx];
+        return count;
+    }
+
+    /**
      * {@inheritDoc}
+     *
+     * <p>パース中の各種コンテキストから会話を組み立て、
+     * Periodに追加する。
+     *
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
@@ -346,6 +406,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param family {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
@@ -364,6 +425,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @param type {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
@@ -376,13 +438,16 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>イベント文字列中の文字実体参照は展開される。
+     *
      * @param content {@inheritDoc}
      * @param contentRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
     public void sysEventContent(DecodedContent content,
-                                  SeqRange contentRange)
+                                SeqRange contentRange)
             throws HtmlParseException{
         this.converter.append(this.eventContent, content, contentRange);
         return;
@@ -390,6 +455,10 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>イベント文内Aタグ内容の文字実体参照は展開される。
+     * HREF属性値は無視される
+     *
      * @param content {@inheritDoc}
      * @param anchorRange {@inheritDoc}
      * @param contentRange {@inheritDoc}
@@ -397,8 +466,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventContentAnchor(DecodedContent content,
-                                         SeqRange anchorRange,
-                                         SeqRange contentRange)
+                                      SeqRange anchorRange,
+                                      SeqRange contentRange)
             throws HtmlParseException{
         this.converter.append(this.eventContent, content, contentRange);
         return;
@@ -406,6 +475,7 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
@@ -416,6 +486,10 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>Avatarリストの先頭にAvatarが、
+     * intリストの先頭にエントリー番号が入る。
+     *
      * @param content {@inheritDoc}
      * @param entryNo {@inheritDoc}
      * @param avatarRange {@inheritDoc}
@@ -423,8 +497,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventOnStage(DecodedContent content,
-                                  int entryNo,
-                                  SeqRange avatarRange)
+                                int entryNo,
+                                SeqRange avatarRange)
             throws HtmlParseException{
         Avatar newAvatar = toAvatar(content, avatarRange);
         this.integerList.add(entryNo);
@@ -434,6 +508,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>役職者数開示に伴い役職リストとintリストに一件ずつ追加される。
+     *
      * @param role {@inheritDoc}
      * @param num {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -448,13 +525,16 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>噛み及びハム溶けに伴いAvatarリストに1件ずつ追加される。
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
     public void sysEventMurdered(DecodedContent content,
-                                   SeqRange avatarRange)
+                                 SeqRange avatarRange)
             throws HtmlParseException{
         Avatar murdered = toAvatar(content, avatarRange);
         this.avatarList.add(murdered);
@@ -463,13 +543,16 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>生存者表示に伴いAvatarリストに1件ずつ追加される。
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
     public void sysEventSurvivor(DecodedContent content,
-                                   SeqRange avatarRange)
+                                 SeqRange avatarRange)
             throws HtmlParseException{
         Avatar survivor = toAvatar(content, avatarRange);
         this.avatarList.add(survivor);
@@ -478,6 +561,12 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>G国以外での処刑に伴い、
+     * 投票元と投票先の順でAvatarリストに追加される。
+     *
+     * <p>被処刑者がいればAvatarリストの最後に追加される。
+     *
      * @param content {@inheritDoc}
      * @param voteByRange {@inheritDoc}
      * @param voteToRange {@inheritDoc}
@@ -485,8 +574,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventCounting(DecodedContent content,
-                                   SeqRange voteByRange,
-                                   SeqRange voteToRange)
+                                 SeqRange voteByRange,
+                                 SeqRange voteToRange)
             throws HtmlParseException{
         if(voteByRange.isValid()){
             Avatar voteBy = toAvatar(content, voteByRange);
@@ -499,6 +588,10 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>G国処刑に伴い、
+     * 投票元と投票先の順でAvatarリストに追加される。
+     *
      * @param content {@inheritDoc}
      * @param voteByRange {@inheritDoc}
      * @param voteToRange {@inheritDoc}
@@ -506,8 +599,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventCounting2(DecodedContent content,
-                                    SeqRange voteByRange,
-                                    SeqRange voteToRange)
+                                  SeqRange voteByRange,
+                                  SeqRange voteToRange)
             throws HtmlParseException{
         sysEventCounting(content, voteByRange, voteToRange);
         return;
@@ -515,13 +608,16 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>Avatarリストの先頭に突然死者が入る。
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
     public void sysEventSuddenDeath(DecodedContent content,
-                                       SeqRange avatarRange)
+                                    SeqRange avatarRange)
             throws HtmlParseException{
         Avatar suddenDeath = toAvatar(content, avatarRange);
         this.avatarList.add(suddenDeath);
@@ -530,6 +626,13 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>プレイヤー情報開示に伴い、
+     * Avatarリストに1件、
+     * 文字列リストにURLとプレイヤー名の2件、
+     * intリストに生死(1or0)が1件、
+     * Roleリストに役職が1件追加される。
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @param anchorRange {@inheritDoc}
@@ -540,11 +643,11 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventPlayerList(DecodedContent content,
-                                      SeqRange avatarRange,
-                                      SeqRange anchorRange,
-                                      SeqRange loginRange,
-                                      boolean isLiving,
-                                      GameRole role )
+                                   SeqRange avatarRange,
+                                   SeqRange anchorRange,
+                                   SeqRange loginRange,
+                                   boolean isLiving,
+                                   GameRole role )
             throws HtmlParseException{
         Avatar who = toAvatar(content, avatarRange);
 
@@ -572,6 +675,11 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>G国処刑に伴い、Avatarリストに投票先が1件、
+     * intリストに得票数が1件追加される。
+     * 最後に被処刑者がAvatarリストに1件、負の値がintリストに1件追加される。
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @param votes {@inheritDoc}
@@ -579,8 +687,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventExecution(DecodedContent content,
-                                    SeqRange avatarRange,
-                                    int votes )
+                                  SeqRange avatarRange,
+                                  int votes )
             throws HtmlParseException{
         Avatar who = toAvatar(content, avatarRange);
 
@@ -592,6 +700,10 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>エントリー促しに伴い、
+     * intリストに分数、最小メンバ数、最大メンバ数の3件が設定される。
+     *
      * @param hour {@inheritDoc}
      * @param minute {@inheritDoc}
      * @param minLimit {@inheritDoc}
@@ -600,7 +712,7 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventAskEntry(int hour, int minute,
-                                   int minLimit, int maxLimit)
+                                 int minLimit, int maxLimit)
             throws HtmlParseException{
         this.integerList.add(hour * 60 + minute);
         this.integerList.add(minLimit);
@@ -610,6 +722,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>エントリー完了に伴い、分数をintリストに設定する。
+     *
      * @param hour {@inheritDoc}
      * @param minute {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
@@ -623,13 +738,17 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>未発言者一覧に伴い、
+     * 未発言者はAvatarリストへ1件ずつ追加される。
+     *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
     public void sysEventNoComment(DecodedContent content,
-                                    SeqRange avatarRange)
+                                  SeqRange avatarRange)
             throws HtmlParseException{
         Avatar noComAvatar = toAvatar(content, avatarRange);
         this.avatarList.add(noComAvatar);
@@ -638,6 +757,12 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>決着発表に伴い、
+     * Roleリストに勝者が1件、intリスト分数が1件設定される。
+     *
+     * <p>村勝利の場合は素村役職が用いられる。
+     *
      * @param winner {@inheritDoc}
      * @param hour {@inheritDoc}
      * @param minute {@inheritDoc}
@@ -663,6 +788,9 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>護衛に伴い、Avatarリストに護衛元1件と護衛先1件が設定される。
+     *
      * @param content {@inheritDoc}
      * @param guardByRange {@inheritDoc}
      * @param guardToRange {@inheritDoc}
@@ -670,8 +798,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventGuard(DecodedContent content,
-                                SeqRange guardByRange,
-                                SeqRange guardToRange)
+                              SeqRange guardByRange,
+                              SeqRange guardToRange)
             throws HtmlParseException{
         Avatar guardBy = toAvatar(content, guardByRange);
         Avatar guardTo = toAvatar(content, guardToRange);
@@ -682,6 +810,10 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>占いに伴い、
+     * 占い元が1件、占い先が1件Avatarリストに設定される。
+     *
      * @param content {@inheritDoc}
      * @param judgeByRange {@inheritDoc}
      * @param judgeToRange {@inheritDoc}
@@ -689,8 +821,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void sysEventJudge(DecodedContent content,
-                                SeqRange judgeByRange,
-                                SeqRange judgeToRange)
+                              SeqRange judgeByRange,
+                              SeqRange judgeToRange)
             throws HtmlParseException{
         Avatar judgeBy = toAvatar(content, judgeByRange);
         Avatar judgeTo = toAvatar(content, judgeToRange);
@@ -701,6 +833,14 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>パースの完了した1件のイベントインスタンスを
+     * Periodに追加する。
+     *
+     * <p>襲撃もしくは襲撃なしのイベントの前に、
+     * 「今日がお前の命日だ！」で終わる赤ログが出現した場合、
+     * 赤カウントに含めない。
+     *
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
@@ -745,13 +885,12 @@ public class PeriodHandler extends HtmlAdapter {
 
     /**
      * {@inheritDoc}
+     *
      * @throws HtmlParseException {@inheritDoc}
      */
     @Override
     public void endParse() throws HtmlParseException{
         return;
     }
-
-    // TODO 村名のチェックは不要か？
 
 }
