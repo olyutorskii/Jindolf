@@ -56,6 +56,7 @@ import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
+import jp.sfjp.jindolf.data.VillageInfoLoader;
 import jp.sfjp.jindolf.data.VillageListLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
@@ -1258,7 +1259,7 @@ public class Controller
             private boolean updatePeriodList(){
                 updateStatusBar("村情報を読み直しています…");
                 try{
-                    Village.updateVillage(village);
+                    VillageInfoLoader.updateVillage(village);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return false;
@@ -1451,7 +1452,7 @@ public class Controller
                     updateStatusBar("村情報を読み込み中…");
 
                     try{
-                        Village.updateVillage(village);
+                        VillageInfoLoader.updateVillage(village);
                     }catch(IOException e){
                         showNetworkError(village, e);
                         return;

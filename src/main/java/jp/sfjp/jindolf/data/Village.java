@@ -16,16 +16,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jp.osdn.jindolf.parser.HtmlParseException;
-import jp.osdn.jindolf.parser.HtmlParser;
-import jp.osdn.jindolf.parser.content.DecodedContent;
-import jp.sfjp.jindolf.net.HtmlSequence;
-import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sourceforge.jindolf.corelib.LandDef;
-import jp.sourceforge.jindolf.corelib.LandState;
 import jp.sourceforge.jindolf.corelib.VillageState;
 
 /**
@@ -37,18 +29,6 @@ public class Village implements Comparable<Village> {
 
     private static final Comparator<Village> VILLAGE_COMPARATOR =
             new VillageComparator();
-
-    private static final HtmlParser PARSER = new HtmlParser();
-    private static final VillageInfoHandler HANDLER =
-            new VillageInfoHandler();
-
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
-
-    static{
-        PARSER.setBasicHandler   (HANDLER);
-        PARSER.setSysEventHandler(HANDLER);
-        PARSER.setTalkHandler    (HANDLER);
-    }
 
 
     private final Land parentLand;
@@ -109,36 +89,6 @@ public class Village implements Comparable<Village> {
         return VILLAGE_COMPARATOR;
     }
 
-    /**
-     * 人狼BBSサーバからPeriod一覧情報が含まれたHTMLを取得し、
-     * Periodリストを更新する。
-     * @param village 村
-     * @throws java.io.IOException ネットワーク入出力の異常
-     */
-    public static synchronized void updateVillage(Village village)
-            throws IOException{
-        Land land = village.getParentLand();
-        LandDef landDef = land.getLandDef();
-        LandState landState = landDef.getLandState();
-        ServerAccess server = land.getServerAccess();
-
-        HtmlSequence html;
-        if(landState == LandState.ACTIVE){
-            html = server.getHTMLBoneHead(village);
-        }else{
-            html = server.getHTMLVillage(village);
-        }
-
-        DecodedContent content = html.getContent();
-        HANDLER.setVillage(village);
-        try{
-            PARSER.parseAutomatic(content);
-        }catch(HtmlParseException e){
-            LOGGER.log(Level.WARNING, "村の状態が不明", e);
-        }
-
-        return;
-    }
 
     /**
      * 所属する国を返す。
