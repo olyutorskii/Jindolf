@@ -563,7 +563,7 @@ public class WebIPCDialog extends JDialog {
         }
 
         /**
-         * D&Dに成功したらダイアログを閉じる。
+         * D&amp;Dに成功したらダイアログを閉じる。
          *
          * <p>{@inheritDoc}
          *

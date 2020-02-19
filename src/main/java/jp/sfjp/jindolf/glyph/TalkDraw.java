@@ -693,11 +693,12 @@ public class TalkDraw extends AbstractTextRow{
         int total = 0;
 
         total += this.dialog.setRegex(searchRegex);
-/*
+        /*
         for(AnchorDraw anchorDraw : this.anchorTalks){
             total += anchorDraw.setRegex(searchRegex);
         }
-*/ // TODO よくわからんので保留
+        */
+        // TODO よくわからんので保留
         return total;
     }
 
