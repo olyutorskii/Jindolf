@@ -7,12 +7,16 @@
 
 package jp.sfjp.jindolf.data;
 
+import jp.sfjp.jindolf.util.StringUtils;
 import jp.sourceforge.jindolf.corelib.TalkType;
 
 /**
  * プレイヤーの発言。
  */
 public class Talk implements Topic{
+
+    private static final String MEINICHI_LAST = "！\u0020今日がお前の命日だ！";
+
 
     private final Period homePeriod;
     private final TalkType talkType;
@@ -28,6 +32,7 @@ public class Talk implements Topic{
 
     /**
      * Talkの生成。
+     *
      * @param homePeriod 発言元Period
      * @param talkType 発言種別
      * @param avatar Avatar
@@ -72,6 +77,7 @@ public class Talk implements Topic{
 
     /**
      * 会話種別から色名への変換を行う。
+     *
      * @param type 会話種別
      * @return 色名
      */
@@ -93,6 +99,7 @@ public class Talk implements Topic{
 
     /**
      * 発言が交わされたPeriodを返す。
+     *
      * @return Period
      */
     public Period getPeriod(){
@@ -101,6 +108,7 @@ public class Talk implements Topic{
 
     /**
      * 発言種別を得る。
+     *
      * @return 種別
      */
     public TalkType getTalkType(){
@@ -109,6 +117,7 @@ public class Talk implements Topic{
 
     /**
      * 墓下発言か否か判定する。
+     *
      * @return 墓下発言ならtrue
      */
     public boolean isGrave(){
@@ -116,8 +125,10 @@ public class Talk implements Topic{
     }
 
     /**
-     * 発言種別ごとにその日(Period)の累積発言回数を返す。
-     * 1から始まる。
+     * 各Avatarの発言種別ごとにその日(Period)の累積発言回数を返す。
+     *
+     * <p>システム生成の殺人予告の場合は負の値となる。
+     *
      * @return 累積発言回数。
      */
     public int getTalkCount(){
@@ -126,7 +137,9 @@ public class Talk implements Topic{
 
     /**
      * 発言文字数を返す。
-     * 改行(\n)は1文字。
+     *
+     * <p>改行(\n)は1文字。
+     *
      * @return 文字数
      */
     public int getTotalChars(){
@@ -135,6 +148,7 @@ public class Talk implements Topic{
 
     /**
      * 発言元Avatarを得る。
+     *
      * @return 発言元Avatar
      */
     public Avatar getAvatar(){
@@ -143,7 +157,9 @@ public class Talk implements Topic{
 
     /**
      * 公開発言番号を取得する。
-     * 公開発言番号が割り振られてなければ0以下の値を返す。
+     *
+     * <p>公開発言番号が割り振られてなければ0以下の値を返す。
+     *
      * @return 公開発言番号
      */
     public int getTalkNo(){
@@ -152,6 +168,7 @@ public class Talk implements Topic{
 
     /**
      * 公開発言番号の有無を返す。
+     *
      * @return 公開発言番号が割り当てられているならtrueを返す。
      */
     public boolean hasTalkNo(){
@@ -161,6 +178,7 @@ public class Talk implements Topic{
 
     /**
      * メッセージIDを取得する。
+     *
      * @return メッセージID
      */
     public String getMessageID(){
@@ -169,6 +187,7 @@ public class Talk implements Topic{
 
     /**
      * メッセージIDからエポック秒(ms)に変換する。
+     *
      * @return GMT 1970-01-01 00:00:00 からのエポック秒(ms)
      */
     public long getTimeFromID(){
@@ -179,6 +198,7 @@ public class Talk implements Topic{
 
     /**
      * 発言時を取得する。
+     *
      * @return 発言時
      */
     public int getHour(){
@@ -187,6 +207,7 @@ public class Talk implements Topic{
 
     /**
      * 発言分を取得する。
+     *
      * @return 発言分
      */
     public int getMinute(){
@@ -195,6 +216,7 @@ public class Talk implements Topic{
 
     /**
      * 会話データを取得する。
+     *
      * @return 会話データ
      */
     public CharSequence getDialog(){
@@ -203,6 +225,9 @@ public class Talk implements Topic{
 
     /**
      * 発言種別ごとの発言回数を設定する。
+     *
+     * <p>システム生成の殺人予告では負の値を入れれば良い。
+     *
      * @param count 発言回数
      */
     public void setCount(int count){
@@ -212,7 +237,9 @@ public class Talk implements Topic{
 
     /**
      * この会話を識別するためのアンカー文字列を生成する。
-     * 例えば「3d09:56」など。
+     *
+     * <p>例えば「3d09:56」など。
+     *
      * @return アンカー文字列
      */
     public String getAnchorNotation(){
@@ -228,12 +255,43 @@ public class Talk implements Topic{
 
     /**
      * この会話を識別するためのG国用アンカー文字列を発言番号から生成する。
-     * 例えば「{@literal >>172}」など。
+     *
+     * <p>例えば「{@literal >>172}」など。
+     *
      * @return アンカー文字列。発言番号がなければ空文字列。
      */
     public String getAnchorNotation_G(){
         if( ! hasTalkNo() ) return "";
         return ">>" + this.talkNo;
+    }
+
+    /**
+     * 会話テキスト本文が殺人予告たりうるか判定する。
+     *
+     * <p>Period開始時の殺人予告の文面はシステムが生成する文書であり、
+     * 狼プレイヤーの投稿に由来しない。
+     *
+     * <p>「！ 今日がお前の命日だ！」で終わる赤ログは
+     * 殺人予告の可能性がある。
+     *
+     * <p>
+     * {@link jp.sourceforge.jindolf.corelib.SysEventType.MURDERED}
+     * もしくは
+     * {@link jp.sourceforge.jindolf.corelib.SysEventType.NOMURDER}
+     * の前に該当する赤ログが出現すれば、それは殺人予告と断定して良い。
+     *
+     * @return 殺人予告のテキストの可能性があるならtrue
+     */
+    public boolean isMurderNotice(){
+        boolean isWolf;
+        isWolf = this.talkType == TalkType.WOLFONLY;
+        if( ! isWolf) return false;
+
+        boolean meinichida;
+        meinichida = StringUtils.isTerminated(getDialog(), MEINICHI_LAST);
+        if( ! meinichida) return false;
+
+        return true;
     }
 
     /**

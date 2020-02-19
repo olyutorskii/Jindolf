@@ -17,7 +17,6 @@ import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
-import jp.sfjp.jindolf.util.StringUtils;
 import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.PeriodType;
@@ -856,19 +855,19 @@ public class PeriodHandler extends HtmlAdapter {
 
         this.period.addTopic(event);
 
-        if(    this.sysEventType == SysEventType.MURDERED
-            || this.sysEventType == SysEventType.NOMURDER ){
+        boolean isMurderResult =
+                   this.sysEventType == SysEventType.MURDERED
+                || this.sysEventType == SysEventType.NOMURDER;
+
+        if(isMurderResult){
             for(Topic topic : this.period.getTopicList()){
                 if( ! (topic instanceof Talk) ) continue;
                 Talk talk = (Talk) topic;
-                if(talk.getTalkType() != TalkType.WOLFONLY) continue;
-                if( ! StringUtils
-                     .isTerminated(talk.getDialog(),
-                                   "！\u0020今日がお前の命日だ！") ){
-                    continue;
+                if(talk.isMurderNotice()){
+                    talk.setCount(-1);
+                    this.countMap.clear();
+                    break;
                 }
-                talk.setCount(-1);
-                this.countMap.clear();
             }
         }
 
