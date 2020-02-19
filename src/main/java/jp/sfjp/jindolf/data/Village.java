@@ -511,7 +511,7 @@ public class Village implements Comparable<Village> {
         Period anchorPeriod = getPeriod(anchor);
         if(anchorPeriod == null) return result;
 
-        Period.parsePeriod(anchorPeriod, false);
+        PeriodLoader.parsePeriod(anchorPeriod, false);
 
         for(Topic topic : anchorPeriod.getTopicList()){
             if( ! (topic instanceof Talk) ) continue;

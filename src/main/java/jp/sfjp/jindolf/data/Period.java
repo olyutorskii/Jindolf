@@ -7,23 +7,14 @@
 
 package jp.sfjp.jindolf.data;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jp.osdn.jindolf.parser.HtmlParseException;
-import jp.osdn.jindolf.parser.HtmlParser;
-import jp.osdn.jindolf.parser.content.DecodedContent;
-import jp.sfjp.jindolf.net.HtmlSequence;
-import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.PeriodType;
 import jp.sourceforge.jindolf.corelib.SysEventType;
-import jp.sourceforge.jindolf.corelib.VillageState;
 
 /**
  * いわゆる「日」。
@@ -35,18 +26,6 @@ import jp.sourceforge.jindolf.corelib.VillageState;
  */
 public class Period{
     // TODO Comparable も implement する？
-
-    private static final HtmlParser PARSER = new HtmlParser();
-    private static final PeriodHandler HANDLER =
-            new PeriodHandler();
-
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
-
-    static{
-        PARSER.setBasicHandler   (HANDLER);
-        PARSER.setSysEventHandler(HANDLER);
-        PARSER.setTalkHandler    (HANDLER);
-    }
 
     private final Village homeVillage;
     private final PeriodType periodType;
@@ -131,51 +110,6 @@ public class Period{
         return;
     }
 
-
-    /**
-     * Periodを更新する。Topicのリストが更新される。
-     * @param period 日
-     * @param force trueなら強制再読み込み。
-     *     falseならまだ読み込んで無い時のみ読み込み。
-     * @throws IOException ネットワーク入力エラー
-     */
-    public static void parsePeriod(Period period, boolean force)
-            throws IOException{
-        if( ! force && period.hasLoaded() ) return;
-
-        Village village = period.getVillage();
-        Land land = village.getParentLand();
-        ServerAccess server = land.getServerAccess();
-
-        if(village.getState() != VillageState.PROGRESS){
-            period.isFullOpen = true;
-        }else if(period.getType() != PeriodType.PROGRESS){
-            period.isFullOpen = true;
-        }else{
-            period.isFullOpen = false;
-        }
-
-        HtmlSequence html = server.getHTMLPeriod(period);
-
-        period.topicList.clear();
-
-        boolean wasHot = period.isHot();
-
-        HANDLER.setPeriod(period);
-        DecodedContent content = html.getContent();
-        try{
-            PARSER.parseAutomatic(content);
-        }catch(HtmlParseException e){
-            LOGGER.log(Level.WARNING, "発言抽出に失敗", e);
-        }
-
-        if(wasHot && ! period.isHot() ){
-            parsePeriod(period, true);
-            return;
-        }
-
-        return;
-    }
 
     /**
      * 所属する村を返す。
@@ -433,11 +367,30 @@ public class Period{
     }
 
     /**
-     * このPeriodの内容にゲーム進行上隠された部分がある可能性を判定する。
-     * @return 隠れた要素がありうるならfalse
+     * このPeriodの内容が全て公に開示されたものであるか判定する。
+     *
+     * <p>公に開示とは、非狼プレイヤーでも赤ログを閲覧できる状況を指す。
+     *
+     * <p>※ 2020-02の時点で、全てのPeriodは公に開示されているものとする。
+     *
+     * @return すべて開示されているならtrue
      */
     public boolean isFullOpen(){
         return this.isFullOpen;
+    }
+
+    /**
+     * このPeriodの内容が全て公に開示されたものであるか設定する。
+     *
+     * <p>公に開示とは、非狼プレイヤーでも赤ログを閲覧できる状況を指す。
+     *
+     * <p>※ 2020-02の時点で、全てのPeriodは公に開示されているものとする。
+     *
+     * @param fullOpen すべて開示されているならtrue
+     */
+    public void setFullOpen(boolean fullOpen){
+        this.isFullOpen = fullOpen;
+        return;
     }
 
     /**

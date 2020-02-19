@@ -53,6 +53,7 @@ import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.data.LandsModel;
 import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.PeriodLoader;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
@@ -770,7 +771,7 @@ public class Controller
                         + "日目のデータを読み込んでいます";
                 updateStatusBar(message);
                 try{
-                    Period.parsePeriod(period, true);
+                    PeriodLoader.parsePeriod(period, true);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
@@ -1022,7 +1023,7 @@ public class Controller
                         + "日目のデータを読み込んでいます";
                 updateStatusBar(message);
                 try{
-                    Period.parsePeriod(period, false);
+                    PeriodLoader.parsePeriod(period, false);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
@@ -1246,7 +1247,7 @@ public class Controller
                 try{
                     wasHot = period.isHot();
                     try{
-                        Period.parsePeriod(period, force);
+                        PeriodLoader.parsePeriod(period, force);
                     }catch(IOException e){
                         showNetworkError(village, e);
                     }
