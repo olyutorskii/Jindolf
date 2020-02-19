@@ -174,12 +174,12 @@ public class TextEditor extends JTextArea
             if(onIMEoperation()) return true;
 
             if(ch == '\n') return true;
-//          if(ch == '\f') return true;
+            // if(ch == '\f') return true;
 
             if(ch == '\uffff')             return false;
             if(Character.isISOControl(ch)) return false;
 
-//          if( ! CodeX0208.isValid(ch) ) return false;
+            // if( ! CodeX0208.isValid(ch) ) return false;
             if(Character.isHighSurrogate(ch)) return false;
             if(Character.isLowSurrogate(ch) ) return false;
 
@@ -201,7 +201,8 @@ public class TextEditor extends JTextArea
                 char ch = input.charAt(pos);
                 if(ch == '\u2211') ch = '\u03a3'; // Σ変換
                 if(ch == '\u00ac') ch = '\uffe2'; // ￢変換
-//              if(ch ==  0x005c ) ch = '\u00a5'; // バックスラッシュから円へ
+                // if(ch ==  0x005c ) ch = '\u00a5';
+                // バックスラッシュから円へ
                 if(isValid(ch)) buf.append(ch);
             }
 

@@ -514,7 +514,7 @@ public class Controller
     }
 
     /**
-     * L&Fの変更を行う。
+     * L&amp;Fの変更を行う。
      */
     private void actionChangeLaF(){
         String className = this.actionManager.getSelectedLookAndFeel();
@@ -1670,8 +1670,8 @@ public class Controller
     /**
      * ヘビーなタスク実行をアピール。
      * プログレスバーとカーソルの設定を行う。
-     * @param isBusy trueならプログレスバーのアニメ開始&WAITカーソル。
-     *                falseなら停止&通常カーソル。
+     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
+     *                falseなら停止&amp;通常カーソル。
      */
     private void setBusy(final boolean isBusy){
         this.isBusyNow = isBusy;

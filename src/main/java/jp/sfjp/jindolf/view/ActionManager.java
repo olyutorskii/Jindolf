@@ -295,10 +295,10 @@ public class ActionManager{
     }
 
     /**
-     * L&F 一覧メニューを作成する。
+     * L&amp;F 一覧メニューを作成する。
      * @param label メニューラベル
      * @param nemonic ニモニックキー
-     * @return L&F 一覧メニュー
+     * @return L&amp;F 一覧メニュー
      */
     private JMenu buildLookAndFeelMenu(String label, int nemonic){
         JMenu result = buildMenu(label, nemonic);
