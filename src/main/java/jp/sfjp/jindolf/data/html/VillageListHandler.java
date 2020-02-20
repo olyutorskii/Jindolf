@@ -7,12 +7,12 @@
 
 package jp.sfjp.jindolf.data.html;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jp.osdn.jindolf.parser.HtmlAdapter;
 import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.PageType;
@@ -29,6 +29,15 @@ class VillageListHandler extends HtmlAdapter{
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
+    private static final String ERR_ILLEGALPAGE =
+            "トップページか村一覧ページが必要です。";
+    private static final String ERR_URI =
+            "認識できないURL[{0}]に遭遇しました。";
+
+    private static final Pattern REG_VID = Pattern.compile(
+            "\\Qindex.rb?vid=\\E" + "([1-9][0-9]*)" + "\\Q&amp;\\E");
+
+
     private final List<VillageRecord> villageRecords = new LinkedList<>();
 
 
@@ -42,85 +51,18 @@ class VillageListHandler extends HtmlAdapter{
 
 
     /**
-     * URLクエリー文字列から特定キーの値を得る。
-     *
-     * <p>クエリーの書式例：「{@literal a=b&c=d&e=f}」この場合キーcの値はd
-     *
-     * @param key キー
-     * @param allQuery クエリー文字列
-     * @return キーの値。見つからなければnull
-     */
-    static String getValueFromCGIQueries(String key,
-                                                String allQuery){
-        String result = null;
-
-        String[] queries = allQuery.split("\\Q&\\E");
-
-        for(String pair : queries){
-            if(pair == null) continue;
-            String[] namevalue = pair.split("\\Q=\\E");
-            if(namevalue == null) continue;
-            if(namevalue.length != 2) continue;
-            String name  = namevalue[0];
-            String value = namevalue[1];
-            if(name == null) continue;
-            if( name.equals(key) ){
-                result = value;
-                if(result == null) continue;
-                if(result.length() <= 0) continue;
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * AタグのHREF属性値からクエリー部を抽出する。
-     *
-     * <p>「{@literal &amp;}」は「{@literal &}」に解釈される。
-     *
-     * @param hrefValue HREF属性値
-     * @return クエリー文字列。見つからなければnull。
-     * @see <a href="https://www.w3.org/TR/html401/appendix/notes.html#h-B.2.2">
-     * HTML 4.01 B.2.2
-     * </a>
-     */
-    static String getRawQueryFromHREF(CharSequence hrefValue){
-        if(hrefValue == null) return null;
-
-        // HTML 4.01 B.2.2 rule
-        String pureHREF = hrefValue.toString().replace("&amp;", "&");
-
-        URI uri;
-        try{
-            uri = new URI(pureHREF);
-        }catch(URISyntaxException e){
-            LOGGER.log(Level.WARNING,
-                    "不正なURI[{0}]を検出しました", hrefValue);
-            return null;
-        }
-
-        String rawQuery = uri.getRawQuery();
-
-        return rawQuery;
-    }
-
-    /**
      * HTMLのAタグ内HREF属性値から村IDを得る。
      *
-     * @param hrefValue HREF値
+     * @param hrefValue HREF属性値
      * @return 村ID。見つからなければnull。
      */
-    static String getVillageIDFromHREF(CharSequence hrefValue){
-        String rawQuery = getRawQueryFromHREF(hrefValue);
-        if(rawQuery == null) return null;
+    static String parseVidFromHref(CharSequence hrefValue){
+        Matcher matcher = REG_VID.matcher(hrefValue);
+        boolean match = matcher.lookingAt();
+        if(!match) return null;
 
-        String villageID = getValueFromCGIQueries("vid", rawQuery);
-        if(villageID == null) return null;
-        if(villageID.length() <= 0) return null;
-
-        return villageID;
+        String result = matcher.group(1);
+        return result;
     }
 
 
@@ -171,7 +113,7 @@ class VillageListHandler extends HtmlAdapter{
     public void pageType(PageType type) throws HtmlParseException {
         if(        type != PageType.VILLAGELIST_PAGE
                 && type != PageType.TOP_PAGE ){
-            throw new HtmlParseException("トップページか村一覧ページが必要です。");
+            throw new HtmlParseException(ERR_ILLEGALPAGE);
         }
         return;
     }
@@ -197,10 +139,9 @@ class VillageListHandler extends HtmlAdapter{
                               VillageState villageState)
             throws HtmlParseException {
         CharSequence href = anchorRange.sliceSequence(content);
-        String villageID = getVillageIDFromHREF(href);
+        String villageID = parseVidFromHref(href);
         if(villageID == null || villageID.length() <= 0){
-            LOGGER.log(Level.WARNING,
-                    "認識できないURL[{0}]に遭遇しました。", href);
+            LOGGER.log(Level.WARNING, ERR_URI, href);
             return;
         }
 
