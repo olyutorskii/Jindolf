@@ -5,7 +5,7 @@
  * Copyright(c) 2020 olyutorskii
  */
 
-package jp.sfjp.jindolf.data;
+package jp.sfjp.jindolf.data.html;
 
 import jp.sourceforge.jindolf.corelib.VillageState;
 

@@ -5,7 +5,7 @@
  * Copyright(c) 2020 olyutorskii
  */
 
-package jp.sfjp.jindolf.data;
+package jp.sfjp.jindolf.data.html;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,6 +17,12 @@ import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
+import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.SysEvent;
+import jp.sfjp.jindolf.data.Talk;
+import jp.sfjp.jindolf.data.Topic;
+import jp.sfjp.jindolf.data.Village;
 import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.PeriodType;

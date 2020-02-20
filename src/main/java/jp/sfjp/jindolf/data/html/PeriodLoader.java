@@ -5,7 +5,7 @@
  * Copyright(c) 2020 olyutorskii
  */
 
-package jp.sfjp.jindolf.data;
+package jp.sfjp.jindolf.data.html;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -13,6 +13,9 @@ import java.util.logging.Logger;
 import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.HtmlParser;
 import jp.osdn.jindolf.parser.content.DecodedContent;
+import jp.sfjp.jindolf.data.Land;
+import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sourceforge.jindolf.corelib.PeriodType;
@@ -74,8 +77,8 @@ public final class PeriodLoader {
                (常にFullOpen)
         */
         boolean isOpen = true;
-        if(   village.getState() == VillageState.PROGRESS
-           && period.getType() == PeriodType.PROGRESS ){
+        if(    village.getState() == VillageState.PROGRESS
+            && period.getType() == PeriodType.PROGRESS ){
             isOpen = false;
         }
         period.setFullOpen(isOpen);

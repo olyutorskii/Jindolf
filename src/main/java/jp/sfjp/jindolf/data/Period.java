@@ -299,7 +299,7 @@ public class Period{
      * @param topic Topic
      * @throws java.lang.NullPointerException nullが渡された場合。
      */
-    protected void addTopic(Topic topic) throws NullPointerException{
+    public void addTopic(Topic topic) throws NullPointerException{
         if(topic == null) throw new NullPointerException();
         this.topicList.add(topic);
         return;

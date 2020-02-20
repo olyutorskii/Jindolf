@@ -5,7 +5,7 @@
  * Copyright(c) 2020 olyutorskii
  */
 
-package jp.sfjp.jindolf.data;
+package jp.sfjp.jindolf.data.html;
 
 import java.util.logging.Logger;
 import jp.osdn.jindolf.parser.HtmlAdapter;
@@ -13,6 +13,9 @@ import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
+import jp.sfjp.jindolf.data.Land;
+import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.Village;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.LandState;
 import jp.sourceforge.jindolf.corelib.PeriodType;

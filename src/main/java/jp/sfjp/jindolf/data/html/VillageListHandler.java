@@ -5,7 +5,7 @@
  * Copyright(c) 2008 olyutorskii
  */
 
-package jp.sfjp.jindolf.data;
+package jp.sfjp.jindolf.data.html;
 
 import java.net.URI;
 import java.net.URISyntaxException;

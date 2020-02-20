@@ -5,7 +5,7 @@
  * Copyright(c) 2008 olyutorskii
  */
 
-package jp.sfjp.jindolf.data;
+package jp.sfjp.jindolf.data.html;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import jp.osdn.jindolf.parser.HtmlParseException;
 import jp.osdn.jindolf.parser.HtmlParser;
 import jp.osdn.jindolf.parser.content.DecodedContent;
+import jp.sfjp.jindolf.data.Land;
+import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sourceforge.jindolf.corelib.LandDef;

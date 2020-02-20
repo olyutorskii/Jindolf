@@ -127,7 +127,7 @@ public class Talk implements Topic{
     /**
      * 各Avatarの発言種別ごとにその日(Period)の累積発言回数を返す。
      *
-     * <p>システム生成の殺人予告の場合は負の値となる。
+     * <p>システム生成の襲撃予告の場合は負の値となる。
      *
      * @return 累積発言回数。
      */
@@ -226,7 +226,7 @@ public class Talk implements Topic{
     /**
      * 発言種別ごとの発言回数を設定する。
      *
-     * <p>システム生成の殺人予告では負の値を入れれば良い。
+     * <p>システム生成の襲撃予告では負の値を入れれば良い。
      *
      * @param count 発言回数
      */
@@ -266,21 +266,21 @@ public class Talk implements Topic{
     }
 
     /**
-     * 会話テキスト本文が殺人予告たりうるか判定する。
+     * 会話テキスト本文が襲撃予告たりうるか判定する。
      *
-     * <p>Period開始時の殺人予告の文面はシステムが生成する文書であり、
+     * <p>Period開始時の襲撃予告の文面はシステムが生成する文書であり、
      * 狼プレイヤーの投稿に由来しない。
      *
      * <p>「！ 今日がお前の命日だ！」で終わる赤ログは
-     * 殺人予告の可能性がある。
+     * 襲撃予告の可能性がある。
      *
      * <p>
-     * {@link jp.sourceforge.jindolf.corelib.SysEventType.MURDERED}
+     * {@link jp.sourceforge.jindolf.corelib.SysEventType#MURDERED}
      * もしくは
-     * {@link jp.sourceforge.jindolf.corelib.SysEventType.NOMURDER}
-     * の前に該当する赤ログが出現すれば、それは殺人予告と断定して良い。
+     * {@link jp.sourceforge.jindolf.corelib.SysEventType#NOMURDER}
+     * の前に該当する赤ログが出現すれば、それは襲撃予告と断定して良い。
      *
-     * @return 殺人予告のテキストの可能性があるならtrue
+     * @return 襲撃予告のテキストの可能性があるならtrue
      */
     public boolean isMurderNotice(){
         boolean isWolf;
