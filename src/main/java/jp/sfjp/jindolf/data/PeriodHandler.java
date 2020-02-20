@@ -115,6 +115,46 @@ public class PeriodHandler extends HtmlAdapter {
     }
 
     /**
+     * パース中の各種コンテキストをリセットする。
+     */
+    public void reset(){
+        this.countMap.clear();
+
+        resetTalkContext();
+        resetEventContext();
+
+        return;
+    }
+
+    /**
+     * パース中の会話コンテキストをリセットする。
+     */
+    public void resetTalkContext(){
+        this.talkType = null;
+        this.avatar = null;
+        this.talkNo = -1;
+        this.anchorId = null;
+        this.talkHour = -1;
+        this.talkMinute = -1;
+        this.talkContent = null;
+        return;
+    }
+
+    /**
+     * パース中のイベントコンテキストをリセットする。
+     */
+    public void resetEventContext(){
+        this.eventFamily = null;
+        this.sysEventType = null;
+        this.eventContent = null;
+        this.avatarList.clear();
+        this.roleList.clear();
+        this.integerList.clear();
+        this.charseqList.clear();
+        return;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @param content {@inheritDoc}
@@ -123,9 +163,11 @@ public class PeriodHandler extends HtmlAdapter {
     @Override
     public void startParse(DecodedContent content)
             throws HtmlParseException{
+        reset();
+
         this.period.setLoginName(null);
         this.period.clearTopicList();
-        this.countMap.clear();
+
         return;
     }
 
@@ -241,14 +283,8 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void startTalk() throws HtmlParseException{
-        this.talkType = null;
-        this.avatar = null;
-        this.talkNo = -1;
-        this.anchorId = null;
-        this.talkHour = -1;
-        this.talkMinute = -1;
+        resetTalkContext();
         this.talkContent = new DecodedContent(100 + 1);
-
         return;
     }
 
@@ -392,13 +428,7 @@ public class PeriodHandler extends HtmlAdapter {
 
         this.period.addTopic(talk);
 
-        this.talkType = null;
-        this.avatar = null;
-        this.talkNo = -1;
-        this.anchorId = null;
-        this.talkHour = -1;
-        this.talkMinute = -1;
-        this.talkContent = null;
+        resetTalkContext();
 
         return;
     }
@@ -412,13 +442,11 @@ public class PeriodHandler extends HtmlAdapter {
     @Override
     public void startSysEvent(EventFamily family)
             throws HtmlParseException{
+        resetEventContext();
+
         this.eventFamily = family;
-        this.sysEventType = null;
         this.eventContent = new DecodedContent();
-        this.avatarList.clear();
-        this.roleList.clear();
-        this.integerList.clear();
-        this.charseqList.clear();
+
         return;
     }
 
@@ -871,13 +899,7 @@ public class PeriodHandler extends HtmlAdapter {
             }
         }
 
-        this.eventFamily = null;
-        this.sysEventType = null;
-        this.eventContent = null;
-        this.avatarList.clear();
-        this.roleList.clear();
-        this.integerList.clear();
-        this.charseqList.clear();
+        resetEventContext();
 
         return;
     }
@@ -889,6 +911,7 @@ public class PeriodHandler extends HtmlAdapter {
      */
     @Override
     public void endParse() throws HtmlParseException{
+        reset();
         return;
     }
 

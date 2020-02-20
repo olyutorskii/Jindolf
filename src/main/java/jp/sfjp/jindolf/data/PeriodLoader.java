@@ -27,17 +27,18 @@ import jp.sourceforge.jindolf.corelib.VillageState;
  * <p>※ 人狼BBS:G国におけるG2087村のエピローグが終了した段階で、
  * 人狼BBSは過去ログの提供しか行っていない。
  * だがこのクラスには進行中の村の各日をパースするための
- * 冗長な処理が若干残っている。
+ * 冗長な処理(Hot判定、fullopen判定etc.)が若干残っている。
  */
 public final class PeriodLoader {
 
-    private static final HtmlParser PARSER = new HtmlParser();
-    private static final PeriodHandler HANDLER =
-            new PeriodHandler();
-
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
+    private static final HtmlParser PARSER;
+    private static final PeriodHandler HANDLER;
+
     static{
+        PARSER = new HtmlParser();
+        HANDLER = new PeriodHandler();
         PARSER.setBasicHandler   (HANDLER);
         PARSER.setSysEventHandler(HANDLER);
         PARSER.setTalkHandler    (HANDLER);
@@ -65,31 +66,48 @@ public final class PeriodLoader {
         if( ! force && period.hasLoaded() ) return;
 
         Village village = period.getVillage();
+
+        /*
+            プレイ中の村でプロローグでもエピローグでもない日は
+            灰ログetc.の非開示情報が含まれる。
+            ※ 2020-02の時点で非開示情報の含まれるPeriodは存在しない。
+               (常にFullOpen)
+        */
+        boolean isOpen = true;
+        if(   village.getState() == VillageState.PROGRESS
+           && period.getType() == PeriodType.PROGRESS ){
+            isOpen = false;
+        }
+        period.setFullOpen(isOpen);
+
         Land land = village.getParentLand();
         ServerAccess server = land.getServerAccess();
 
-        if(village.getState() != VillageState.PROGRESS){
-            period.setFullOpen(true);
-        }else if(period.getType() != PeriodType.PROGRESS){
-            period.setFullOpen(true);
-        }else{
-            period.setFullOpen(false);
-        }
-
         HtmlSequence html = server.getHTMLPeriod(period);
+        DecodedContent content = html.getContent();
+
+        // 2020-02の時点でHotなPeriodは存在しない。
+        boolean wasHot = period.isHot();
 
         period.clearTopicList();
 
-        boolean wasHot = period.isHot();
+        PARSER.reset();
+        HANDLER.reset();
 
         HANDLER.setPeriod(period);
-        DecodedContent content = html.getContent();
         try{
             PARSER.parseAutomatic(content);
         }catch(HtmlParseException e){
             LOGGER.log(Level.WARNING, "発言抽出に失敗", e);
         }
 
+        PARSER.reset();
+        HANDLER.reset();
+
+        /*
+            2020-02の時点で、
+            日付更新によるリロードを必要とするHotなPeriodは存在しない。
+        */
         if(wasHot && ! period.isHot() ){
             parsePeriod(period, true);
             return;
