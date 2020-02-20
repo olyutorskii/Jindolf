@@ -111,7 +111,7 @@ public final class VillageListLoader {
      * @return 村一覧リスト
      * @throws java.io.IOException ネットワーク入出力の異常
      */
-    public static List<VillageRecord> loadVillageRecords(Land land)
+    private static List<VillageRecord> loadVillageRecords(Land land)
             throws IOException{
         List<VillageRecord> totalList = new LinkedList<>();
         List<VillageRecord> recList;

@@ -50,7 +50,7 @@ class VillageListHandler extends HtmlAdapter{
      * @param allQuery クエリー文字列
      * @return キーの値。見つからなければnull
      */
-    public static String getValueFromCGIQueries(String key,
+    static String getValueFromCGIQueries(String key,
                                                 String allQuery){
         String result = null;
 
@@ -86,7 +86,7 @@ class VillageListHandler extends HtmlAdapter{
      * HTML 4.01 B.2.2
      * </a>
      */
-    public static String getRawQueryFromHREF(CharSequence hrefValue){
+    static String getRawQueryFromHREF(CharSequence hrefValue){
         if(hrefValue == null) return null;
 
         // HTML 4.01 B.2.2 rule
@@ -112,7 +112,7 @@ class VillageListHandler extends HtmlAdapter{
      * @param hrefValue HREF値
      * @return 村ID。見つからなければnull。
      */
-    public static String getVillageIDFromHREF(CharSequence hrefValue){
+    static String getVillageIDFromHREF(CharSequence hrefValue){
         String rawQuery = getRawQueryFromHREF(hrefValue);
         if(rawQuery == null) return null;
 
@@ -129,7 +129,7 @@ class VillageListHandler extends HtmlAdapter{
      *
      * @return 村一覧
      */
-    public List<VillageRecord> getVillageRecords(){
+    List<VillageRecord> getVillageRecords(){
         return this.villageRecords;
     }
 
@@ -138,7 +138,7 @@ class VillageListHandler extends HtmlAdapter{
      *
      * <p>村一覧リストは空になる。
      */
-    public void reset() {
+    void reset() {
         this.villageRecords.clear();
         return;
     }

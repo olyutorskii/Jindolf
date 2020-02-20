@@ -12,7 +12,7 @@ import jp.sourceforge.jindolf.corelib.VillageState;
 /**
  * Village record on HTML.
  */
-public class VillageRecord {
+class VillageRecord {
 
     private final String villageId;
     private final String fullVillageName;
@@ -42,7 +42,7 @@ public class VillageRecord {
      *
      * @return village id
      */
-    public String getVillageId(){
+    String getVillageId(){
         return this.villageId;
     }
 
@@ -51,7 +51,7 @@ public class VillageRecord {
      *
      * @return long village name
      */
-    public String getFullVillageName(){
+    String getFullVillageName(){
         return this.fullVillageName;
     }
 
@@ -60,7 +60,7 @@ public class VillageRecord {
      *
      * @return village status
      */
-    public VillageState getVillageStatus(){
+    VillageState getVillageStatus(){
         return this.villageStatus;
     }
 

@@ -46,7 +46,7 @@ import jp.sourceforge.jindolf.corelib.Team;
  * だがこのクラスには進行中の村の各日をパースするための
  * 冗長な処理が若干残っている。
  */
-public class PeriodHandler extends HtmlAdapter {
+class PeriodHandler extends HtmlAdapter {
 
     private static final int TALKTYPE_NUM = TalkType.values().length;
 
@@ -81,7 +81,7 @@ public class PeriodHandler extends HtmlAdapter {
     /**
      * コンストラクタ。
      */
-    public PeriodHandler(){
+    PeriodHandler(){
         super();
         return;
     }
@@ -92,7 +92,7 @@ public class PeriodHandler extends HtmlAdapter {
      *
      * @param period Period
      */
-    public void setPeriod(Period period){
+    void setPeriod(Period period){
         this.period = period;
         return;
     }
@@ -123,7 +123,7 @@ public class PeriodHandler extends HtmlAdapter {
     /**
      * パース中の各種コンテキストをリセットする。
      */
-    public void reset(){
+    void reset(){
         this.countMap.clear();
 
         resetTalkContext();
@@ -135,7 +135,7 @@ public class PeriodHandler extends HtmlAdapter {
     /**
      * パース中の会話コンテキストをリセットする。
      */
-    public void resetTalkContext(){
+    private void resetTalkContext(){
         this.talkType = null;
         this.avatar = null;
         this.talkNo = -1;
@@ -149,7 +149,7 @@ public class PeriodHandler extends HtmlAdapter {
     /**
      * パース中のイベントコンテキストをリセットする。
      */
-    public void resetEventContext(){
+    private void resetEventContext(){
         this.eventFamily = null;
         this.sysEventType = null;
         this.eventContent = null;

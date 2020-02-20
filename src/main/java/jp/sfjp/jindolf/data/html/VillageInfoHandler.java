@@ -64,7 +64,7 @@ class VillageInfoHandler extends HtmlAdapter {
      *
      * @param village 村インスタンス
      */
-    public void setVillage(Village village){
+    void setVillage(Village village){
         this.village = village;
         reset();
         return;
@@ -73,7 +73,7 @@ class VillageInfoHandler extends HtmlAdapter {
     /**
      * 各種進行コンテキストのリセットを行う。
      */
-    public void reset() {
+    void reset() {
         this.hasPrologue = false;
         this.hasProgress = false;
         this.hasEpilogue = false;
@@ -87,7 +87,7 @@ class VillageInfoHandler extends HtmlAdapter {
      *
      * @return 村の状態
      */
-    public VillageState getVillageState() {
+    private VillageState getVillageState() {
         if(this.hasDone){
             return VillageState.GAMEOVER;
         }else if(this.hasEpilogue){
