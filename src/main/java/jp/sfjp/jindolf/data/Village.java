@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,12 +23,9 @@ import jp.sourceforge.jindolf.corelib.VillageState;
 /**
  * いわゆる「村」。
  */
-public class Village implements Comparable<Village> {
+public class Village{
 
     private static final int GID_MIN = 3;
-
-    private static final Comparator<Village> VILLAGE_COMPARATOR =
-            new VillageComparator();
 
 
     private final Land parentLand;
@@ -79,15 +75,6 @@ public class Village implements Comparable<Village> {
                        .isValidVillageId(this.villageIDNum);
 
         return;
-    }
-
-
-    /**
-     * 村同士を比較するためのComparatorを返す。
-     * @return Comparatorインスタンス
-     */
-    public static Comparator<Village> comparator(){
-        return VILLAGE_COMPARATOR;
     }
 
 
@@ -536,49 +523,6 @@ public class Village implements Comparable<Village> {
 
     /**
      * {@inheritDoc}
-     * 二つの村を順序付ける。
-     * @param village {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public int compareTo(Village village){
-        int cmpResult = VILLAGE_COMPARATOR.compare(this, village);
-        return cmpResult;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 二つの村が等しいか調べる。
-     * @param obj {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object obj){
-        if(obj == null) return false;
-        if( ! (obj instanceof Village) ) return false;
-        Village village = (Village) obj;
-
-        if( getParentLand() != village.getParentLand() ) return false;
-
-        int cmpResult = compareTo(village);
-        if(cmpResult == 0) return true;
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public int hashCode(){
-        int homeHash = getParentLand().hashCode();
-        int vidHash = getVillageID().hashCode();
-        int result = homeHash ^ vidHash;
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
      * 村の文字列表現を返す。
      * 村の名前と等しい。
      * @return 村の名前
@@ -586,41 +530,6 @@ public class Village implements Comparable<Village> {
     @Override
     public String toString(){
         return getVillageFullName();
-    }
-
-
-    /**
-     * 村同士を比較するためのComparator。
-     */
-    private static class VillageComparator implements Comparator<Village> {
-
-        /**
-         * コンストラクタ。
-         */
-        public VillageComparator(){
-            super();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param v1 {@inheritDoc}
-         * @param v2 {@inheritDoc}
-         * @return {@inheritDoc}
-         */
-        @Override
-        public int compare(Village v1, Village v2){
-            int v1Num;
-            if(v1 == null) v1Num = Integer.MIN_VALUE;
-            else           v1Num = v1.getVillageIDNum();
-
-            int v2Num;
-            if(v2 == null) v2Num = Integer.MIN_VALUE;
-            else           v2Num = v2.getVillageIDNum();
-
-            return v1Num - v2Num;
-        }
-
     }
 
 }

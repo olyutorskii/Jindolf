@@ -71,7 +71,7 @@ public final class VillageListLoader {
         LandState landState = landDef.getLandState();
         boolean isHistorical = landState == LandState.HISTORICAL;
 
-        List<Village> vList = new ArrayList<>(records.size());
+        List<Village> result = new ArrayList<>(records.size());
 
         for(VillageRecord record : records){
             String id = record.getVillageId();
@@ -87,12 +87,8 @@ public final class VillageListLoader {
             Village village = new Village(land, id, fullVillageName);
             village.setState(status);
 
-            vList.add(village);
+            result.add(village);
         }
-
-        // たまに同じ村が複数回出現するので注意！
-        SortedSet<Village> uniq = new TreeSet<>(vList);
-        List<Village> result = new ArrayList<>(uniq);
 
         return result;
     }
@@ -105,7 +101,7 @@ public final class VillageListLoader {
      * <p>古国(wolf)の場合は村一覧にアクセスせずトップページのみ。
      * 古国以外で村建てをやめた国はトップページにアクセスしない。
      *
-     * <p>戻される村一覧リストは順不同で重複もありうる。
+     * <p>戻される村一覧リストは順序づけられており重複はない。
      *
      * @param land 国
      * @return 村一覧リスト
@@ -113,9 +109,6 @@ public final class VillageListLoader {
      */
     private static List<VillageRecord> loadVillageRecords(Land land)
             throws IOException{
-        List<VillageRecord> totalList = new LinkedList<>();
-        List<VillageRecord> recList;
-
         LandDef landDef = land.getLandDef();
         boolean isVanillaWolf = landDef.getLandId().equals(ID_VANILLAWOLF);
         LandState state = landDef.getLandState();
@@ -126,31 +119,37 @@ public final class VillageListLoader {
 
         ServerAccess server = land.getServerAccess();
 
+        List<VillageRecord> result = new LinkedList<>();
+
         // トップページ
         if(needTopPage){
-            recList = EMPTY_LIST;
+            List<VillageRecord> recList = EMPTY_LIST;
             HtmlSequence html = server.getHTMLTopPage();
             try{
                 recList = parseVillageRecords(html);
             }catch(HtmlParseException e){
                 LOGGER.log(Level.WARNING, "トップページを認識できない", e);
             }
-            totalList.addAll(recList);
+            result.addAll(recList);
         }
 
         // 村一覧ページ
         if(hasVillageList){
-            recList = EMPTY_LIST;
+            List<VillageRecord> recList = EMPTY_LIST;
             HtmlSequence html = server.getHTMLLandList();
             try{
                 recList = parseVillageRecords(html);
             }catch(HtmlParseException e){
                 LOGGER.log(Level.WARNING, "村一覧ページを認識できない", e);
             }
-            totalList.addAll(recList);
+            result.addAll(recList);
         }
 
-        return totalList;
+        // 昇順ソートと重複排除処理。 重複例) B国116村
+        SortedSet<VillageRecord> uniq = new TreeSet<>(result);
+        result = new ArrayList<>(uniq);
+
+        return result;
     }
 
     /**

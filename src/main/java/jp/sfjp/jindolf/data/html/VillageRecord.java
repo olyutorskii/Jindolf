@@ -12,11 +12,14 @@ import jp.sourceforge.jindolf.corelib.VillageState;
 /**
  * Village record on HTML.
  */
-class VillageRecord {
+class VillageRecord implements Comparable<VillageRecord>{
 
     private final String villageId;
     private final String fullVillageName;
     private final VillageState villageStatus;
+
+    private final int villageIdNum;
+
 
     /**
      * Constructor.
@@ -33,6 +36,8 @@ class VillageRecord {
         this.villageId = villageId;
         this.fullVillageName = fullVillageName;
         this.villageStatus = villageStatus;
+
+        this.villageIdNum = Integer.parseInt(villageId);
 
         return;
     }
@@ -62,6 +67,47 @@ class VillageRecord {
      */
     VillageState getVillageStatus(){
         return this.villageStatus;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>村IDの自然数順に順序づける。
+     *
+     * @param o {@inheritDoc}
+     * @return {@inheritDoc}
+     */
+    @Override
+    public int compareTo(VillageRecord o) {
+        int result = this.villageIdNum - o.villageIdNum;
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return this.villageId.hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param obj {@inheritDoc}
+     * @return {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj == null) return false;
+
+        if(! (obj instanceof VillageRecord)) return false;
+        VillageRecord other = (VillageRecord) obj;
+
+        return this.villageId.equals(other.villageId);
     }
 
 }
