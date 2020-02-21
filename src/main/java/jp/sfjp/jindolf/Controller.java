@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
@@ -57,6 +56,9 @@ import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
+import jp.sfjp.jindolf.data.html.PeriodLoader;
+import jp.sfjp.jindolf.data.html.VillageInfoLoader;
+import jp.sfjp.jindolf.data.html.VillageListLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
@@ -769,7 +771,7 @@ public class Controller
                         + "日目のデータを読み込んでいます";
                 updateStatusBar(message);
                 try{
-                    Period.parsePeriod(period, true);
+                    PeriodLoader.parsePeriod(period, true);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
@@ -1021,7 +1023,7 @@ public class Controller
                         + "日目のデータを読み込んでいます";
                 updateStatusBar(message);
                 try{
-                    Period.parsePeriod(period, false);
+                    PeriodLoader.parsePeriod(period, false);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
@@ -1185,9 +1187,9 @@ public class Controller
      * @param land 国
      */
     private void taskReloadVillageList(Land land){
-        SortedSet<Village> villageList;
+        List<Village> villageList;
         try{
-            villageList = land.downloadVillageList();
+            villageList = VillageListLoader.loadVillageList(land);
         }catch(IOException e){
             showNetworkError(land, e);
             return;
@@ -1245,7 +1247,7 @@ public class Controller
                 try{
                     wasHot = period.isHot();
                     try{
-                        Period.parsePeriod(period, force);
+                        PeriodLoader.parsePeriod(period, force);
                     }catch(IOException e){
                         showNetworkError(village, e);
                     }
@@ -1258,7 +1260,7 @@ public class Controller
             private boolean updatePeriodList(){
                 updateStatusBar("村情報を読み直しています…");
                 try{
-                    Village.updateVillage(village);
+                    VillageInfoLoader.updateVillageInfo(village);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return false;
@@ -1451,7 +1453,7 @@ public class Controller
                     updateStatusBar("村情報を読み込み中…");
 
                     try{
-                        Village.updateVillage(village);
+                        VillageInfoLoader.updateVillageInfo(village);
                     }catch(IOException e){
                         showNetworkError(village, e);
                         return;
