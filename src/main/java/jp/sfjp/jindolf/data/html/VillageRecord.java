@@ -12,7 +12,7 @@ import jp.sourceforge.jindolf.corelib.VillageState;
 /**
  * Village record on HTML.
  */
-class VillageRecord implements Comparable<VillageRecord>{
+class VillageRecord implements Comparable<VillageRecord> {
 
     private final String villageId;
     private final String fullVillageName;
@@ -74,12 +74,12 @@ class VillageRecord implements Comparable<VillageRecord>{
      *
      * <p>村IDの自然数順に順序づける。
      *
-     * @param o {@inheritDoc}
+     * @param rec {@inheritDoc}
      * @return {@inheritDoc}
      */
     @Override
-    public int compareTo(VillageRecord o) {
-        int result = this.villageIdNum - o.villageIdNum;
+    public int compareTo(VillageRecord rec) {
+        int result = this.villageIdNum - rec.villageIdNum;
         return result;
     }
 
