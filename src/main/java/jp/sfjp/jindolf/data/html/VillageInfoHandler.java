@@ -88,17 +88,19 @@ class VillageInfoHandler extends HtmlAdapter {
      * @return 村の状態
      */
     private VillageState getVillageState() {
+        VillageState result = VillageState.UNKNOWN;
+
         if(this.hasDone){
-            return VillageState.GAMEOVER;
+            result = VillageState.GAMEOVER;
         }else if(this.hasEpilogue){
-            return VillageState.EPILOGUE;
+            result = VillageState.EPILOGUE;
         }else if(this.hasProgress){
-            return VillageState.PROGRESS;
+            result = VillageState.PROGRESS;
         }else if(this.hasPrologue){
-            return VillageState.PROLOGUE;
+            result = VillageState.PROLOGUE;
         }
 
-        return VillageState.UNKNOWN;
+        return result;
     }
 
     /**
@@ -217,11 +219,10 @@ class VillageInfoHandler extends HtmlAdapter {
         LandDef landDef = land.getLandDef();
         LandState landState = landDef.getLandState();
 
-        if(landState == LandState.ACTIVE){
-            this.village.setState(villageState);
-        }else{
-            this.village.setState(VillageState.GAMEOVER);
+        if(landState != LandState.ACTIVE){
+            villageState = VillageState.GAMEOVER;
         }
+        this.village.setState(villageState);
 
         modifyPeriodList();
 
@@ -269,11 +270,12 @@ class VillageInfoHandler extends HtmlAdapter {
         if(this.hasEpilogue){
             Period epilogue = this.village.getEpilogue();
             if(epilogue == null){
+                int epilogueDay = this.maxProgress + 1;
                 lastPeriod =
                         new Period(this.village,
                                    PeriodType.EPILOGUE,
-                                   this.maxProgress + 1 );
-                this.village.setPeriod(this.maxProgress + 1, lastPeriod);
+                                   epilogueDay );
+                this.village.setPeriod(epilogueDay, lastPeriod);
             } else {
                 lastPeriod = epilogue;
             }

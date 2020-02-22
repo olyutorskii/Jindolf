@@ -31,17 +31,6 @@ public final class VillageInfoLoader {
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
-    private static final HtmlParser PARSER;
-    private static final VillageInfoHandler HANDLER;
-
-    static{
-        PARSER = new HtmlParser();
-        HANDLER = new VillageInfoHandler();
-        PARSER.setBasicHandler   (HANDLER);
-        PARSER.setSysEventHandler(HANDLER);
-        PARSER.setTalkHandler    (HANDLER);
-    }
-
 
     /**
      * Hidden constructor.
@@ -99,20 +88,21 @@ public final class VillageInfoLoader {
             throws IOException{
         DecodedContent content = loadVillageInfo(village);
 
-        synchronized(PARSER){
-            PARSER.reset();
-            HANDLER.reset();
+        HtmlParser parser = new HtmlParser();
+        VillageInfoHandler handler = new VillageInfoHandler();
+        parser.setBasicHandler   (handler);
+        parser.setSysEventHandler(handler);
+        parser.setTalkHandler    (handler);
 
-            HANDLER.setVillage(village);
-            try{
-                PARSER.parseAutomatic(content);
-            }catch(HtmlParseException e){
-                LOGGER.log(Level.WARNING, "村の状態が不明", e);
-            }
-
-            PARSER.reset();
-            HANDLER.reset();
+        handler.setVillage(village);
+        try{
+            parser.parseAutomatic(content);
+        }catch(HtmlParseException e){
+            LOGGER.log(Level.WARNING, "村の状態が不明", e);
         }
+
+        parser.reset();
+        handler.reset();
 
         return;
     }
