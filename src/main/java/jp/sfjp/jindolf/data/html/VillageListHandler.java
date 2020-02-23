@@ -38,7 +38,7 @@ class VillageListHandler extends HtmlAdapter{
             "\\Qindex.rb?vid=\\E" + "([1-9][0-9]*)" + "\\Q&amp;\\E");
 
 
-    private final List<VillageRecord> villageRecords = new LinkedList<>();
+    private List<VillageRecord> villageRecords = new LinkedList<>();
 
 
     /**
@@ -46,12 +46,15 @@ class VillageListHandler extends HtmlAdapter{
      */
     VillageListHandler() {
         super();
+        this.villageRecords = new LinkedList<>();
         return;
     }
 
 
     /**
      * HTMLのAタグ内HREF属性値から村IDを得る。
+     *
+     * <p>G国も含め村IDは0以外から始まる1以上の10進数。
      *
      * @param hrefValue HREF属性値
      * @return 村ID。見つからなければnull。
@@ -62,6 +65,8 @@ class VillageListHandler extends HtmlAdapter{
         if(!match) return null;
 
         String result = matcher.group(1);
+        assert result.length() > 0;
+
         return result;
     }
 
@@ -81,7 +86,7 @@ class VillageListHandler extends HtmlAdapter{
      * <p>村一覧リストは空になる。
      */
     void reset() {
-        this.villageRecords.clear();
+        this.villageRecords = new LinkedList<>();
         return;
     }
 
@@ -140,7 +145,7 @@ class VillageListHandler extends HtmlAdapter{
             throws HtmlParseException {
         CharSequence href = anchorRange.sliceSequence(content);
         String villageID = parseVidFromHref(href);
-        if(villageID == null || villageID.length() <= 0){
+        if(villageID == null){
             LOGGER.log(Level.WARNING, ERR_URI, href);
             return;
         }

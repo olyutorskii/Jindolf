@@ -94,6 +94,7 @@ class PeriodHandler extends HtmlAdapter {
      */
     void setPeriod(Period period){
         this.period = period;
+        reset();
         return;
     }
 
@@ -400,14 +401,15 @@ class PeriodHandler extends HtmlAdapter {
      * @return 現時点でのカウント数
      */
     private int countUp(Avatar targetAvatar, TalkType targetType){
-        int[] countArray = this.countMap.get(targetAvatar);
-        if(countArray == null){
-            countArray = new int[TALKTYPE_NUM];
-            this.countMap.put(targetAvatar, countArray);
+        int[] avatarCount = this.countMap.get(targetAvatar);
+        if(avatarCount == null){
+            avatarCount = new int[TALKTYPE_NUM];
+            this.countMap.put(targetAvatar, avatarCount);
         }
 
         int typeIdx = targetType.ordinal();
-        int count = ++countArray[typeIdx];
+        int count = ++avatarCount[typeIdx];
+
         return count;
     }
 

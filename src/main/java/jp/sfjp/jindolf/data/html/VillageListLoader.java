@@ -10,7 +10,6 @@ package jp.sfjp.jindolf.data.html;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -57,21 +56,21 @@ public final class VillageListLoader {
      * <p>古国(wolf)の場合は村一覧にアクセスせずトップページのみ。
      * 古国以外で村建てをやめた国はトップページにアクセスしない。
      *
-     * <p>戻される村一覧リストはソート済みで重複がない。
+     * <p>戻される村一覧不変リストはソート済みで重複がない。
      *
      * @param land 国
-     * @return 村一覧リスト
+     * @return 村一覧の不変リスト
      * @throws java.io.IOException ネットワーク入出力の異常
      */
     public static List<Village> loadVillageList(Land land)
             throws IOException{
-        List<VillageRecord> records = loadVillageRecords(land);
+        SortedSet<VillageRecord> records = loadVillageRecords(land);
 
         LandDef landDef = land.getLandDef();
         LandState landState = landDef.getLandState();
         boolean isHistorical = landState == LandState.HISTORICAL;
 
-        List<Village> vList = new ArrayList<>(records.size());
+        List<Village> result = new ArrayList<>(records.size());
 
         for(VillageRecord record : records){
             String id = record.getVillageId();
@@ -87,35 +86,30 @@ public final class VillageListLoader {
             Village village = new Village(land, id, fullVillageName);
             village.setState(status);
 
-            vList.add(village);
+            result.add(village);
         }
 
-        // たまに同じ村が複数回出現するので注意！
-        SortedSet<Village> uniq = new TreeSet<>(vList);
-        List<Village> result = new ArrayList<>(uniq);
+        result = Collections.unmodifiableList(result);
 
         return result;
     }
 
     /**
-     * 村一覧リストをサーバからダウンロードする。
+     * 村一覧リストを各国サーバからダウンロードする。
      *
      * <p>リスト元情報は国のトップページと村一覧ページ。
      *
      * <p>古国(wolf)の場合は村一覧にアクセスせずトップページのみ。
      * 古国以外で村建てをやめた国はトップページにアクセスしない。
      *
-     * <p>戻される村一覧リストは順不同で重複もありうる。
+     * <p>戻される村一覧セットは順序づけられており重複はない。
      *
      * @param land 国
-     * @return 村一覧リスト
+     * @return 村一覧セット
      * @throws java.io.IOException ネットワーク入出力の異常
      */
-    private static List<VillageRecord> loadVillageRecords(Land land)
+    private static SortedSet<VillageRecord> loadVillageRecords(Land land)
             throws IOException{
-        List<VillageRecord> totalList = new LinkedList<>();
-        List<VillageRecord> recList;
-
         LandDef landDef = land.getLandDef();
         boolean isVanillaWolf = landDef.getLandId().equals(ID_VANILLAWOLF);
         LandState state = landDef.getLandState();
@@ -126,31 +120,34 @@ public final class VillageListLoader {
 
         ServerAccess server = land.getServerAccess();
 
+        // 昇順ソートと重複排除処理。 重複例) B国116村
+        SortedSet<VillageRecord> result = new TreeSet<>();
+
         // トップページ
         if(needTopPage){
-            recList = EMPTY_LIST;
+            List<VillageRecord> recList = EMPTY_LIST;
             HtmlSequence html = server.getHTMLTopPage();
             try{
                 recList = parseVillageRecords(html);
             }catch(HtmlParseException e){
                 LOGGER.log(Level.WARNING, "トップページを認識できない", e);
             }
-            totalList.addAll(recList);
+            result.addAll(recList);
         }
 
         // 村一覧ページ
         if(hasVillageList){
-            recList = EMPTY_LIST;
+            List<VillageRecord> recList = EMPTY_LIST;
             HtmlSequence html = server.getHTMLLandList();
             try{
                 recList = parseVillageRecords(html);
             }catch(HtmlParseException e){
                 LOGGER.log(Level.WARNING, "村一覧ページを認識できない", e);
             }
-            totalList.addAll(recList);
+            result.addAll(recList);
         }
 
-        return totalList;
+        return result;
     }
 
     /**
@@ -170,6 +167,9 @@ public final class VillageListLoader {
         parser.parseAutomatic(content);
 
         List<VillageRecord> result = handler.getVillageRecords();
+
+        parser.reset();
+        handler.reset();
 
         return result;
     }
