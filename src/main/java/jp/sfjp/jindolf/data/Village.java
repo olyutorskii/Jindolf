@@ -8,14 +8,12 @@
 package jp.sfjp.jindolf.data;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import jp.sfjp.jindolf.data.html.PeriodLoader;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.VillageState;
@@ -479,15 +477,13 @@ public class Village{
      * アンカーに一致する会話(Talk)のリストを取得する。
      * @param anchor アンカー
      * @return Talkのリスト
-     * @throws java.io.IOException おそらくネットワークエラー
      */
-    public List<Talk> getTalkListFromAnchor(Anchor anchor)
-            throws IOException{
+    public List<Talk> getTalkListFromAnchor(Anchor anchor){
         List<Talk> result = new LinkedList<>();
 
         /* G国アンカー対応 */
         if(anchor.hasTalkNo()){
-            // 事前に全Periodがロードされているのが前提
+            // 事前に全Periodの全会話がロードされているのが前提
             for(Period period : this.periodList){
                 Talk talk = period.getNumberedTalk(anchor.getTalkNo());
                 if(talk == null) continue;
@@ -499,7 +495,7 @@ public class Village{
         Period anchorPeriod = getPeriod(anchor);
         if(anchorPeriod == null) return result;
 
-        PeriodLoader.parsePeriod(anchorPeriod, false);
+        // 事前にアンカー対象Periodの全会話がロードされているのが前提
 
         for(Topic topic : anchorPeriod.getTopicList()){
             if( ! (topic instanceof Talk) ) continue;

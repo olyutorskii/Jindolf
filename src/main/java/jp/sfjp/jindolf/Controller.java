@@ -1095,6 +1095,28 @@ public class Controller
     }
 
     /**
+     * アンカー先を含むPeriodの全会話を事前にロードする。
+     * 
+     * @param village 村
+     * @param anchor アンカー
+     * @return アンカー先を含むPeriod。
+     * アンカーがG国発言番号ならnull。
+     * Periodが見つからないならnull。
+     * @throws IOException 入力エラー
+     */
+    private Period loadAnchoredPeriod(Village village, Anchor anchor)
+            throws IOException{
+        if(anchor.hasTalkNo()) return null;
+
+        Period anchorPeriod = village.getPeriod(anchor);
+        if(anchorPeriod == null) return null;
+
+        PeriodLoader.parsePeriod(anchorPeriod, false);
+
+        return anchorPeriod;
+    }
+
+    /**
      * アンカーにジャンプする。
      */
     private void actionJumpAnchor(){
@@ -1121,6 +1143,7 @@ public class Controller
 
                 final List<Talk> talkList;
                 try{
+                    loadAnchoredPeriod(village, anchor);
                     talkList = village.getTalkListFromAnchor(anchor);
                     if(talkList == null || talkList.size() <= 0){
                         updateStatusBar(
@@ -1634,6 +1657,7 @@ public class Controller
 
                 final List<Talk> talkList;
                 try{
+                    loadAnchoredPeriod(village, anchor);
                     talkList = village.getTalkListFromAnchor(anchor);
                     if(talkList == null || talkList.size() <= 0){
                         updateStatusBar(
