@@ -36,17 +36,6 @@ public final class PeriodLoader {
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
-    private static final HtmlParser PARSER;
-    private static final PeriodHandler HANDLER;
-
-    static{
-        PARSER = new HtmlParser();
-        HANDLER = new PeriodHandler();
-        PARSER.setBasicHandler   (HANDLER);
-        PARSER.setSysEventHandler(HANDLER);
-        PARSER.setTalkHandler    (HANDLER);
-    }
-
 
     /**
      * hidden constructor.
@@ -94,18 +83,21 @@ public final class PeriodLoader {
 
         period.clearTopicList();
 
-        PARSER.reset();
-        HANDLER.reset();
+        HtmlParser parser = new HtmlParser();
+        PeriodHandler handler = new PeriodHandler();
+        parser.setBasicHandler   (handler);
+        parser.setSysEventHandler(handler);
+        parser.setTalkHandler    (handler);
 
-        HANDLER.setPeriod(period);
+        handler.setPeriod(period);
         try{
-            PARSER.parseAutomatic(content);
+            parser.parseAutomatic(content);
         }catch(HtmlParseException e){
             LOGGER.log(Level.WARNING, "発言抽出に失敗", e);
         }
 
-        PARSER.reset();
-        HANDLER.reset();
+        parser.reset();
+        handler.reset();
 
         /*
             2020-02の時点で、
