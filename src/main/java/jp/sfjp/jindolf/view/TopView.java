@@ -267,7 +267,6 @@ public class TopView extends JPanel{
         String text = message;
         if(message == null) text = "";
         this.sysMessage.setText(text);   // Thread safe
-        GUIUtils.dispatchEmptyAWTEvent();
         return;
     }
 

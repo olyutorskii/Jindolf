@@ -722,8 +722,7 @@ public class Controller
      */
     // TODO taskLoadAllPeriodtと一体化したい。
     private void taskFullOpenAllPeriod(){
-        setBusy(true);
-        updateStatusBar("一括読み込み開始");
+        setBusy(true, "一括読み込み開始");
         try{
             TabBrowser browser = this.topView.getTabBrowser();
             Village village = browser.getVillage();
@@ -745,8 +744,7 @@ public class Controller
                 periodView.showTopics();
             }
         }finally{
-            updateStatusBar("一括読み込み完了");
-            setBusy(false);
+            setBusy(false, "一括読み込み完了");
         }
         return;
     }
@@ -967,8 +965,7 @@ public class Controller
      * 全日程の一括ロード。ヘビータスク版。
      */
     private void taskLoadAllPeriod(){
-        setBusy(true);
-        updateStatusBar("一括読み込み開始");
+        setBusy(true, "一括読み込み開始");
         try{
             TabBrowser browser = this.topView.getTabBrowser();
             Village village = browser.getVillage();
@@ -989,8 +986,7 @@ public class Controller
                 periodView.showTopics();
             }
         }finally{
-            updateStatusBar("一括読み込み完了");
-            setBusy(false);
+            setBusy(false, "一括読み込み完了");
         }
         return;
     }
@@ -1089,8 +1085,7 @@ public class Controller
 
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
-            setBusy(true);
-            updateStatusBar("ジャンプ先の読み込み中…");
+            setBusy(true, "ジャンプ先の読み込み中…");
 
             if(anchor.hasTalkNo()){
                 // TODO もう少し賢くならない？
@@ -1404,17 +1399,14 @@ public class Controller
 
             Executor executor = Executors.newCachedThreadPool();
             executor.execute(() -> {
-                setBusy(true);
-                updateStatusBar("村情報を読み込み中…");
-
+                setBusy(true, "村情報を読み込み中…");
                 try{
                     VillageInfoLoader.updateVillageInfo(village);
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
                 }finally{
-                    updateStatusBar("村情報の読み込み完了");
-                    setBusy(false);
+                    setBusy(false, "村情報の読み込み完了");
                 }
 
                 Controller.this.actionManager.appearVillage(true);
@@ -1606,8 +1598,7 @@ public class Controller
 
         Executor executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
-            setBusy(true);
-            updateStatusBar("アンカーの展開中…");
+            setBusy(true, "アンカーの展開中…");
 
             if(anchor.hasTalkNo()){
                 // TODO もう少し賢くならない？
@@ -1646,24 +1637,29 @@ public class Controller
 
     /**
      * ビジー状態の設定を行う。
-     * 
+     *
      * <p>ヘビーなタスク実行をアピールするために、
      * プログレスバーとカーソルの設定を行う。
-     * 
+     *
      * <p>ビジー中のActionコマンド受信は無視される。
      *
      * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
      * 全てグラブされるため無視される。
      *
      * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     *                falseなら停止&amp;通常カーソル。
+     * falseなら停止&amp;通常カーソル。
+     * @param msg フッタメッセージ。nullなら変更なし。
      */
-    private void setBusy(boolean isBusy){
+    private void setBusy(boolean isBusy, String msg){
         this.isBusyNow = isBusy;
 
         TopFrame topFrame = getTopFrame();
+
         Runnable microJob = () -> {
             topFrame.setBusy(isBusy);
+            if(msg != null){
+                this.topView.updateSysMessage(msg);
+            }
         };
 
         if(EventQueue.isDispatchThread()){
@@ -1680,11 +1676,24 @@ public class Controller
     }
 
     /**
+     * ビジー状態の設定を行う。
+     *
+     * <p>フッタメッセージは変更されない。
+     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
+     * falseなら停止&amp;通常カーソル。
+     */
+    private void setBusy(boolean isBusy){
+        setBusy(isBusy, null);
+        return;
+    }
+
+    /**
      * ステータスバーを更新する。
      * @param message メッセージ
      */
     private void updateStatusBar(String message){
         this.topView.updateSysMessage(message);
+        return;
     }
 
     /**
