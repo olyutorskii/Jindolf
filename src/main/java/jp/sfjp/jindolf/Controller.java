@@ -7,8 +7,6 @@
 
 package jp.sfjp.jindolf;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Window;
@@ -34,7 +32,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.LookAndFeel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
@@ -239,20 +236,12 @@ public class Controller
      * @param isBusy ビジーならtrue
      * @param message ステータスバー表示。nullなら変更なし
      */
-    public void submitBusyStatus(final boolean isBusy, final String message){
-        Runnable task = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                if(isBusy) setBusy(true);
-                if(message != null) updateStatusBar(message);
-                if( ! isBusy ) setBusy(false);
-                return;
-            }
-        };
-
-        EventQueue.invokeLater(task);
-
+    public void submitBusyStatus(boolean isBusy, String message){
+        EventQueue.invokeLater(() -> {
+            if(isBusy) setBusy(true);
+            if(message != null) updateStatusBar(message);
+            if( ! isBusy ) setBusy(false);
+        });
         return;
     }
 
@@ -312,29 +301,18 @@ public class Controller
                                     final String afterMsg ){
         submitBusyStatus(true, beforeMsg);
 
-        final Runnable busyManager = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            @SuppressWarnings("CallToThreadYield")
-            public void run(){
-                Thread.yield();
-                try{
-                    heavyTask.run();
-                }finally{
-                    submitBusyStatus(false, afterMsg);
-                }
-                return;
+        final Runnable busyManager = () -> {
+            Thread.yield();
+            try{
+                heavyTask.run();
+            }finally{
+                submitBusyStatus(false, afterMsg);
             }
         };
 
-        Runnable forkLauncher = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                Executor executor = Executors.newCachedThreadPool();
-                executor.execute(busyManager);
-                return;
-            }
+        Runnable forkLauncher = () -> {
+            Executor executor = Executors.newCachedThreadPool();
+            executor.execute(busyManager);
         };
 
         EventQueue.invokeLater(forkLauncher);
@@ -543,12 +521,8 @@ public class Controller
             return;
         }
 
-        Runnable lafTask = new Runnable(){
-            @Override
-            public void run(){
-                changeLaF(lnf);
-                return;
-            }
+        Runnable lafTask = () -> {
+            changeLaF(lnf);
         };
 
         submitLightBusyTask(lafTask,
@@ -732,20 +706,12 @@ public class Controller
         VillageDigest villageDigest = this.windowManager.getVillageDigest();
         final VillageDigest digest = villageDigest;
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskFullOpenAllPeriod();
-                EventQueue.invokeLater(new Runnable(){
-                    @Override
-                    public void run(){
-                        digest.setVillage(village);
-                        digest.setVisible(true);
-                        return;
-                    }
-                });
-                return;
-            }
+        executor.execute(() -> {
+            taskFullOpenAllPeriod();
+            EventQueue.invokeLater(() -> {
+                digest.setVillage(village);
+                digest.setVisible(true);
+            });
         });
 
         return;
@@ -756,8 +722,7 @@ public class Controller
      */
     // TODO taskLoadAllPeriodtと一体化したい。
     private void taskFullOpenAllPeriod(){
-        setBusy(true);
-        updateStatusBar("一括読み込み開始");
+        setBusy(true, "一括読み込み開始");
         try{
             TabBrowser browser = this.topView.getTabBrowser();
             Village village = browser.getVillage();
@@ -779,8 +744,7 @@ public class Controller
                 periodView.showTopics();
             }
         }finally{
-            updateStatusBar("一括読み込み完了");
-            setBusy(false);
+            setBusy(false, "一括読み込み完了");
         }
         return;
     }
@@ -836,12 +800,8 @@ public class Controller
      */
     private void bulkSearch(){
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskBulkSearch();
-                return;
-            }
+        executor.execute(() -> {
+            taskBulkSearch();
         });
     }
 
@@ -994,12 +954,8 @@ public class Controller
      */
     private void actionLoadAllPeriod(){
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskLoadAllPeriod();
-                return;
-            }
+        executor.execute(() -> {
+            taskLoadAllPeriod();
         });
 
         return;
@@ -1009,8 +965,7 @@ public class Controller
      * 全日程の一括ロード。ヘビータスク版。
      */
     private void taskLoadAllPeriod(){
-        setBusy(true);
-        updateStatusBar("一括読み込み開始");
+        setBusy(true, "一括読み込み開始");
         try{
             TabBrowser browser = this.topView.getTabBrowser();
             Village village = browser.getVillage();
@@ -1031,8 +986,7 @@ public class Controller
                 periodView.showTopics();
             }
         }finally{
-            updateStatusBar("一括読み込み完了");
-            setBusy(false);
+            setBusy(false, "一括読み込み完了");
         }
         return;
     }
@@ -1096,7 +1050,7 @@ public class Controller
 
     /**
      * アンカー先を含むPeriodの全会話を事前にロードする。
-     * 
+     *
      * @param village 村
      * @param anchor アンカー
      * @return アンカー先を含むPeriod。
@@ -1130,55 +1084,45 @@ public class Controller
         if(anchor == null) return;
 
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                updateStatusBar("ジャンプ先の読み込み中…");
+        executor.execute(() -> {
+            setBusy(true, "ジャンプ先の読み込み中…");
 
-                if(anchor.hasTalkNo()){
-                    // TODO もう少し賢くならない？
-                    taskLoadAllPeriod();
+            if(anchor.hasTalkNo()){
+                // TODO もう少し賢くならない？
+                taskLoadAllPeriod();
+            }
+
+            final List<Talk> talkList;
+            try{
+                loadAnchoredPeriod(village, anchor);
+                talkList = village.getTalkListFromAnchor(anchor);
+                if(talkList == null || talkList.size() <= 0){
+                    updateStatusBar(
+                            "アンカーのジャンプ先["
+                                    + anchor.toString()
+                                    + "]が見つかりません");
+                    return;
                 }
 
-                final List<Talk> talkList;
-                try{
-                    loadAnchoredPeriod(village, anchor);
-                    talkList = village.getTalkListFromAnchor(anchor);
-                    if(talkList == null || talkList.size() <= 0){
-                        updateStatusBar(
-                                  "アンカーのジャンプ先["
+                final Talk targetTalk = talkList.get(0);
+                final Period targetPeriod = targetTalk.getPeriod();
+                final int tabIndex = targetPeriod.getDay() + 1;
+                final PeriodView target = browser.getPeriodView(tabIndex);
+
+                EventQueue.invokeLater(() -> {
+                    browser.setSelectedIndex(tabIndex);
+                    target.setPeriod(targetPeriod);
+                    target.scrollToTalk(targetTalk);
+                });
+                updateStatusBar(
+                        "アンカー["
                                 + anchor.toString()
-                                + "]が見つかりません");
-                        return;
-                    }
-
-                    final Talk targetTalk = talkList.get(0);
-                    final Period targetPeriod = targetTalk.getPeriod();
-                    final int tabIndex = targetPeriod.getDay() + 1;
-                    final PeriodView target = browser.getPeriodView(tabIndex);
-
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            browser.setSelectedIndex(tabIndex);
-                            target.setPeriod(targetPeriod);
-                            target.scrollToTalk(targetTalk);
-                            return;
-                        }
-                    });
-                    updateStatusBar(
-                              "アンカー["
-                            + anchor.toString()
-                            + "]にジャンプしました");
-                }catch(IOException e){
-                    updateStatusBar(
-                            "アンカーの展開中にエラーが起きました");
-                }finally{
-                    setBusy(false);
-                }
-
-                return;
+                                + "]にジャンプしました");
+            }catch(IOException e){
+                updateStatusBar(
+                        "アンカーの展開中にエラーが起きました");
+            }finally{
+                setBusy(false);
             }
         });
 
@@ -1190,12 +1134,8 @@ public class Controller
      * @param land 国
      */
     private void submitReloadVillageList(final Land land){
-        Runnable heavyTask = new Runnable(){
-            @Override
-            public void run(){
-                taskReloadVillageList(land);
-                return;
-            }
+        Runnable heavyTask = () -> {
+            taskReloadVillageList(land);
         };
 
         submitHeavyBusyTask(heavyTask,
@@ -1289,12 +1229,8 @@ public class Controller
                     return false;
                 }
                 try{
-                    SwingUtilities.invokeAndWait(new Runnable(){
-                        @Override
-                        public void run(){
-                            tabBrowser.setVillage(village);
-                            return;
-                        }
+                    EventQueue.invokeAndWait(() -> {
+                        tabBrowser.setVillage(village);
                     });
                 }catch(InvocationTargetException | InterruptedException e){
                     LOGGER.log(Level.SEVERE,
@@ -1309,12 +1245,8 @@ public class Controller
                 try{
                     final int lastPos = periodView.getVerticalPosition();
                     try{
-                        SwingUtilities.invokeAndWait(new Runnable(){
-                            @Override
-                            public void run(){
-                                periodView.showTopics();
-                                return;
-                            }
+                        EventQueue.invokeAndWait(() -> {
+                            periodView.showTopics();
                         });
                     }catch(   InvocationTargetException
                             | InterruptedException
@@ -1323,11 +1255,8 @@ public class Controller
                                 "ブラウザ表示で致命的な障害が発生しました",
                                 e );
                     }
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            periodView.setVerticalPosition(lastPos);
-                        }
+                    EventQueue.invokeLater(() -> {
+                        periodView.setVerticalPosition(lastPos);
                     });
                 }finally{
                     updateStatusBar("レンダリング完了");
@@ -1469,35 +1398,23 @@ public class Controller
             final Village village = (Village) selObj;
 
             Executor executor = Executors.newCachedThreadPool();
-            executor.execute(new Runnable(){
-                @Override
-                public void run(){
-                    setBusy(true);
-                    updateStatusBar("村情報を読み込み中…");
-
-                    try{
-                        VillageInfoLoader.updateVillageInfo(village);
-                    }catch(IOException e){
-                        showNetworkError(village, e);
-                        return;
-                    }finally{
-                        updateStatusBar("村情報の読み込み完了");
-                        setBusy(false);
-                    }
-
-                    Controller.this.actionManager.appearVillage(true);
-                    setFrameTitle(village.getVillageFullName());
-
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            Controller.this.topView.showVillageInfo(village);
-                            return;
-                        }
-                    });
-
+            executor.execute(() -> {
+                setBusy(true, "村情報を読み込み中…");
+                try{
+                    VillageInfoLoader.updateVillageInfo(village);
+                }catch(IOException e){
+                    showNetworkError(village, e);
                     return;
+                }finally{
+                    setBusy(false, "村情報の読み込み完了");
                 }
+
+                Controller.this.actionManager.appearVillage(true);
+                setFrameTitle(village.getVillageFullName());
+
+                EventQueue.invokeLater(() -> {
+                    Controller.this.topView.showVillageInfo(village);
+                });
             });
         }
 
@@ -1527,67 +1444,103 @@ public class Controller
 
     /**
      * {@inheritDoc}
-     * 主にメニュー選択やボタン押下など。
-     * @param e イベント {@inheritDoc}
+     *
+     * <p>主にメニュー選択やボタン押下などのアクションをディスパッチする。
+     *
+     * <p>ビジーな状態では何もしない。
+     *
+     * @param ev {@inheritDoc}
      */
     @Override
-    public void actionPerformed(ActionEvent e){
+    public void actionPerformed(ActionEvent ev){
         if(this.isBusyNow) return;
 
-        String cmd = e.getActionCommand();
-        if(cmd.equals(ActionManager.CMD_ACCOUNT)){
+        String cmd = ev.getActionCommand();
+        if(cmd == null) return;
+
+        switch(cmd){
+        case ActionManager.CMD_ACCOUNT:
             actionShowAccount();
-        }else if(cmd.equals(ActionManager.CMD_EXIT)){
+            break;
+        case ActionManager.CMD_EXIT:
             actionExit();
-        }else if(cmd.equals(ActionManager.CMD_COPY)){
+            break;
+        case ActionManager.CMD_COPY:
             actionCopySelected();
-        }else if(cmd.equals(ActionManager.CMD_SHOWFIND)){
+            break;
+        case ActionManager.CMD_SHOWFIND:
             actionShowFind();
-        }else if(cmd.equals(ActionManager.CMD_SEARCHNEXT)){
+            break;
+        case ActionManager.CMD_SEARCHNEXT:
             actionSearchNext();
-        }else if(cmd.equals(ActionManager.CMD_SEARCHPREV)){
+            break;
+        case ActionManager.CMD_SEARCHPREV:
             actionSearchPrev();
-        }else if(cmd.equals(ActionManager.CMD_ALLPERIOD)){
+            break;
+        case ActionManager.CMD_ALLPERIOD:
             actionLoadAllPeriod();
-        }else if(cmd.equals(ActionManager.CMD_SHOWDIGEST)){
+            break;
+        case ActionManager.CMD_SHOWDIGEST:
             actionShowDigest();
-        }else if(cmd.equals(ActionManager.CMD_WEBVILL)){
+            break;
+        case ActionManager.CMD_WEBVILL:
             actionShowWebVillage();
-        }else if(cmd.equals(ActionManager.CMD_WEBWIKI)){
+            break;
+        case ActionManager.CMD_WEBWIKI:
             actionShowWebWiki();
-        }else if(cmd.equals(ActionManager.CMD_RELOAD)){
+            break;
+        case ActionManager.CMD_RELOAD:
             actionReloadPeriod();
-        }else if(cmd.equals(ActionManager.CMD_DAYSUMMARY)){
+            break;
+        case ActionManager.CMD_DAYSUMMARY:
             actionDaySummary();
-        }else if(cmd.equals(ActionManager.CMD_DAYEXPCSV)){
+            break;
+        case ActionManager.CMD_DAYEXPCSV:
             actionDayExportCsv();
-        }else if(cmd.equals(ActionManager.CMD_WEBDAY)){
+            break;
+        case ActionManager.CMD_WEBDAY:
             actionShowWebDay();
-        }else if(cmd.equals(ActionManager.CMD_OPTION)){
+            break;
+        case ActionManager.CMD_OPTION:
             actionOption();
-        }else if(cmd.equals(ActionManager.CMD_LANDF)){
+            break;
+        case ActionManager.CMD_LANDF:
             actionChangeLaF();
-        }else if(cmd.equals(ActionManager.CMD_SHOWFILT)){
+            break;
+        case ActionManager.CMD_SHOWFILT:
             actionShowFilter();
-        }else if(cmd.equals(ActionManager.CMD_SHOWEDIT)){
+            break;
+        case ActionManager.CMD_SHOWEDIT:
             actionTalkPreview();
-        }else if(cmd.equals(ActionManager.CMD_SHOWLOG)){
+            break;
+        case ActionManager.CMD_SHOWLOG:
             actionShowLog();
-        }else if(cmd.equals(ActionManager.CMD_HELPDOC)){
+            break;
+        case ActionManager.CMD_HELPDOC:
             actionHelp();
-        }else if(cmd.equals(ActionManager.CMD_SHOWPORTAL)){
+            break;
+        case ActionManager.CMD_SHOWPORTAL:
             actionShowPortal();
-        }else if(cmd.equals(ActionManager.CMD_ABOUT)){
+            break;
+        case ActionManager.CMD_ABOUT:
             actionAbout();
-        }else if(cmd.equals(ActionManager.CMD_VILLAGELIST)){
+            break;
+        case ActionManager.CMD_VILLAGELIST:
             actionReloadVillageList();
-        }else if(cmd.equals(ActionManager.CMD_COPYTALK)){
+            break;
+        case ActionManager.CMD_COPYTALK:
             actionCopyTalk();
-        }else if(cmd.equals(ActionManager.CMD_JUMPANCHOR)){
+            break;
+        case ActionManager.CMD_JUMPANCHOR:
             actionJumpAnchor();
-        }else if(cmd.equals(ActionManager.CMD_WEBTALK)){
+            break;
+        case ActionManager.CMD_WEBTALK:
             actionShowWebTalk();
+            break;
+        default:
+            break;
         }
+
         return;
     }
 
@@ -1644,48 +1597,38 @@ public class Controller
         final Discussion discussion = periodView.getDiscussion();
 
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                updateStatusBar("アンカーの展開中…");
+        executor.execute(() -> {
+            setBusy(true, "アンカーの展開中…");
 
-                if(anchor.hasTalkNo()){
-                    // TODO もう少し賢くならない？
-                    taskLoadAllPeriod();
+            if(anchor.hasTalkNo()){
+                // TODO もう少し賢くならない？
+                taskLoadAllPeriod();
+            }
+
+            final List<Talk> talkList;
+            try{
+                loadAnchoredPeriod(village, anchor);
+                talkList = village.getTalkListFromAnchor(anchor);
+                if(talkList == null || talkList.size() <= 0){
+                    updateStatusBar(
+                            "アンカーの展開先["
+                                    + anchor.toString()
+                                    + "]が見つかりません");
+                    return;
                 }
-
-                final List<Talk> talkList;
-                try{
-                    loadAnchoredPeriod(village, anchor);
-                    talkList = village.getTalkListFromAnchor(anchor);
-                    if(talkList == null || talkList.size() <= 0){
-                        updateStatusBar(
-                                  "アンカーの展開先["
+                EventQueue.invokeLater(() -> {
+                    talkDraw.showAnchorTalks(anchor, talkList);
+                    discussion.layoutRows();
+                });
+                updateStatusBar(
+                        "アンカー["
                                 + anchor.toString()
-                                + "]が見つかりません");
-                        return;
-                    }
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            talkDraw.showAnchorTalks(anchor, talkList);
-                            discussion.layoutRows();
-                            return;
-                        }
-                    });
-                    updateStatusBar(
-                              "アンカー["
-                            + anchor.toString()
-                            + "]の展開完了");
-                }catch(IOException e){
-                    updateStatusBar(
-                            "アンカーの展開中にエラーが起きました");
-                }finally{
-                    setBusy(false);
-                }
-
-                return;
+                                + "]の展開完了");
+            }catch(IOException e){
+                updateStatusBar(
+                        "アンカーの展開中にエラーが起きました");
+            }finally{
+                setBusy(false);
             }
         });
 
@@ -1693,38 +1636,37 @@ public class Controller
     }
 
     /**
-     * ヘビーなタスク実行をアピール。
+     * ビジー状態の設定を行う。
+     *
+     * <p>ヘビーなタスク実行をアピールするために、
      * プログレスバーとカーソルの設定を行う。
+     *
+     * <p>ビジー中のActionコマンド受信は無視される。
+     *
+     * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
+     * 全てグラブされるため無視される。
+     *
      * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     *                falseなら停止&amp;通常カーソル。
+     * falseなら停止&amp;通常カーソル。
+     * @param msg フッタメッセージ。nullなら変更なし。
      */
-    private void setBusy(final boolean isBusy){
+    private void setBusy(boolean isBusy, String msg){
         this.isBusyNow = isBusy;
 
-        Runnable microJob = new Runnable(){
-            @Override
-            public void run(){
-                Cursor cursor;
-                if(isBusy){
-                    cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-                }else{
-                    cursor = Cursor.getDefaultCursor();
-                }
+        TopFrame topFrame = getTopFrame();
 
-                Component glass = getTopFrame().getGlassPane();
-                glass.setCursor(cursor);
-                glass.setVisible(isBusy);
-                Controller.this.topView.setBusy(isBusy);
-
-                return;
+        Runnable microJob = () -> {
+            topFrame.setBusy(isBusy);
+            if(msg != null){
+                this.topView.updateSysMessage(msg);
             }
         };
 
-        if(SwingUtilities.isEventDispatchThread()){
+        if(EventQueue.isDispatchThread()){
             microJob.run();
         }else{
             try{
-                SwingUtilities.invokeAndWait(microJob);
+                EventQueue.invokeAndWait(microJob);
             }catch(InvocationTargetException | InterruptedException e){
                 LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
             }
@@ -1734,11 +1676,24 @@ public class Controller
     }
 
     /**
+     * ビジー状態の設定を行う。
+     *
+     * <p>フッタメッセージは変更されない。
+     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
+     * falseなら停止&amp;通常カーソル。
+     */
+    private void setBusy(boolean isBusy){
+        setBusy(isBusy, null);
+        return;
+    }
+
+    /**
      * ステータスバーを更新する。
      * @param message メッセージ
      */
     private void updateStatusBar(String message){
         this.topView.updateSysMessage(message);
+        return;
     }
 
     /**
