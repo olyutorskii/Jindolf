@@ -94,7 +94,6 @@ import jp.sourceforge.jovsonz.JsObject;
  */
 public class Controller
         implements ActionListener,
-                   TreeWillExpandListener,
                    ChangeListener,
                    AnchorHitListener {
     private static final Logger LOGGER = Logger.getAnonymousLogger();
@@ -111,8 +110,8 @@ public class Controller
 
     private final TopView topView;
 
-    private final TreeVillageWatcher treeVillageWatcher =
-            new TreeVillageWatcher();
+    private final VillageTreeWatcher treeVillageWatcher =
+            new VillageTreeWatcher();
 
     private volatile boolean isBusyNow;
 
@@ -145,7 +144,7 @@ public class Controller
 
         JTree treeView = this.topView.getTreeView();
         treeView.setModel(this.model);
-        treeView.addTreeWillExpandListener(this);
+        treeView.addTreeWillExpandListener(this.treeVillageWatcher);
         treeView.addTreeSelectionListener(this.treeVillageWatcher);
 
         this.topView.getTabBrowser().addChangeListener(this);
@@ -1549,42 +1548,6 @@ public class Controller
 
     /**
      * {@inheritDoc}
-     * 村選択ツリーリストが畳まれるとき呼ばれる。
-     * @param event ツリーイベント {@inheritDoc}
-     */
-    @Override
-    public void treeWillCollapse(TreeExpansionEvent event){
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 村選択ツリーリストが展開されるとき呼ばれる。
-     * @param event ツリーイベント {@inheritDoc}
-     */
-    @Override
-    public void treeWillExpand(TreeExpansionEvent event){
-        if(!(event.getSource() instanceof JTree)){
-            return;
-        }
-
-        TreePath path = event.getPath();
-        Object lastObj = path.getLastPathComponent();
-        if(!(lastObj instanceof Land)){
-            return;
-        }
-        final Land land = (Land) lastObj;
-        if(land.getVillageCount() > 0){
-            return;
-        }
-
-        submitReloadVillageList(land);
-
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
      * @param event {@inheritDoc}
      */
     @Override
@@ -1740,14 +1703,15 @@ public class Controller
 
 
     /**
-     * 国村選択リストの操作を監視する。
+     * 国村選択リストの選択展開操作を監視する。
      */
-    private class TreeVillageWatcher implements TreeSelectionListener{
+    private class VillageTreeWatcher
+            implements TreeSelectionListener, TreeWillExpandListener{
 
         /**
          * Constructor.
          */
-        TreeVillageWatcher(){
+        VillageTreeWatcher(){
             super();
             return;
         }
@@ -1773,6 +1737,46 @@ public class Controller
                 Village village = (Village) selObj;
                 selectedVillage(village);
             }
+
+            return;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>村選択ツリーリストが畳まれるとき呼ばれる。
+         *
+         * @param event ツリーイベント {@inheritDoc}
+         */
+        @Override
+        public void treeWillCollapse(TreeExpansionEvent event){
+            return;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>村選択ツリーリストが展開されるとき呼ばれる。
+         *
+         * @param event ツリーイベント {@inheritDoc}
+         */
+        @Override
+        public void treeWillExpand(TreeExpansionEvent event){
+            if(!(event.getSource() instanceof JTree)){
+                return;
+            }
+
+            TreePath path = event.getPath();
+            Object lastObj = path.getLastPathComponent();
+            if(!(lastObj instanceof Land)){
+                return;
+            }
+            Land land = (Land) lastObj;
+            if(land.getVillageCount() > 0){
+                return;
+            }
+
+            submitReloadVillageList(land);
 
             return;
         }
