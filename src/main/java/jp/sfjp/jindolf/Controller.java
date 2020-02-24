@@ -94,7 +94,6 @@ import jp.sourceforge.jovsonz.JsObject;
  */
 public class Controller
         implements ActionListener,
-                   ChangeListener,
                    AnchorHitListener {
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
@@ -112,6 +111,10 @@ public class Controller
 
     private final VillageTreeWatcher treeVillageWatcher =
             new VillageTreeWatcher();
+    private final ChangeListener tabPeriodWatcher =
+            new TabPeriodWatcher();
+    private final ChangeListener filterWatcher =
+            new FilterWatcher();
 
     private volatile boolean isBusyNow;
 
@@ -147,9 +150,10 @@ public class Controller
         treeView.addTreeWillExpandListener(this.treeVillageWatcher);
         treeView.addTreeSelectionListener(this.treeVillageWatcher);
 
-        this.topView.getTabBrowser().addChangeListener(this);
-        this.topView.getTabBrowser().addActionListener(this);
-        this.topView.getTabBrowser().addAnchorHitListener(this);
+        TabBrowser periodTab = this.topView.getTabBrowser();
+        periodTab.addChangeListener(this.tabPeriodWatcher);
+        periodTab.addActionListener(this);
+        periodTab.addAnchorHitListener(this);
 
         JButton reloadVillageListButton = this.topView
                                          .getLandsTree()
@@ -178,7 +182,7 @@ public class Controller
             }
         });
 
-        filterPanel.addChangeListener(this);
+        filterPanel.addChangeListener(this.filterWatcher);
 
         Handler newHandler = logFrame.getHandler();
         LogUtils.switchHandler(newHandler);
@@ -192,7 +196,7 @@ public class Controller
         findPanel.putJson(history);
 
         FontInfo fontInfo = this.appSetting.getFontInfo();
-        this.topView.getTabBrowser().setFontInfo(fontInfo);
+        periodTab.setFontInfo(fontInfo);
         talkPreview.setFontInfo(fontInfo);
         optionPanel.getFontChooser().setFontInfo(fontInfo);
 
@@ -200,7 +204,7 @@ public class Controller
         optionPanel.getProxyChooser().setProxyInfo(proxyInfo);
 
         DialogPref pref = this.appSetting.getDialogPref();
-        this.topView.getTabBrowser().setDialogPref(pref);
+        periodTab.setDialogPref(pref);
         optionPanel.getDialogPrefPanel().setDialogPref(pref);
 
         accountPanel.setModel(this.model);
@@ -1425,27 +1429,6 @@ public class Controller
 
     /**
      * {@inheritDoc}
-     * Periodがタブ選択されたときもしくは発言フィルタが操作されたときの処理。
-     * @param event イベント {@inheritDoc}
-     */
-    @Override
-    public void stateChanged(ChangeEvent event){
-        Object source = event.getSource();
-
-        if(source == this.windowManager.getFilterPanel()){
-            filterChanged();
-        }else if(source instanceof TabBrowser){
-            updateFindPanel();
-            updatePeriod(false);
-            PeriodView periodView = currentPeriodView();
-            if(periodView == null) this.actionManager.appearPeriod(false);
-            else                   this.actionManager.appearPeriod(true);
-        }
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * <p>主にメニュー選択やボタン押下などのアクションをディスパッチする。
      *
@@ -1701,6 +1684,80 @@ public class Controller
         return;
     }
 
+
+    /**
+     * 発言フィルタ操作を監視する。
+     */
+    private class FilterWatcher implements ChangeListener{
+
+        /**
+         * constructor.
+         */
+        FilterWatcher(){
+            super();
+            return;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>発言フィルタが操作されたときの処理。
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void stateChanged(ChangeEvent event){
+            Object source = event.getSource();
+
+            if(source == Controller.this.windowManager.getFilterPanel()){
+                filterChanged();
+            }
+
+            return;
+        }
+
+    }
+
+    /**
+     * Period一覧タブのタブ操作を監視する。
+     */
+    private class TabPeriodWatcher implements ChangeListener{
+
+        /**
+         * constructor.
+         */
+        TabPeriodWatcher(){
+            super();
+            return;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>Periodがタブ選択されたときの処理。
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void stateChanged(ChangeEvent event){
+            Object source = event.getSource();
+
+            if(source instanceof TabBrowser){
+                updateFindPanel();
+                updatePeriod(false);
+                PeriodView periodView = currentPeriodView();
+                boolean hasCurrentPeriod;
+                if(periodView == null) hasCurrentPeriod = false;
+                else                   hasCurrentPeriod = true;
+                Controller.this.actionManager.appearPeriod(hasCurrentPeriod);
+            }
+
+            return;
+        }
+
+    }
 
     /**
      * 国村選択リストの選択展開操作を監視する。
