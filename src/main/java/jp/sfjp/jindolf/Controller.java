@@ -1456,67 +1456,103 @@ public class Controller
 
     /**
      * {@inheritDoc}
-     * 主にメニュー選択やボタン押下など。
-     * @param e イベント {@inheritDoc}
+     *
+     * <p>主にメニュー選択やボタン押下などのアクションをディスパッチする。
+     *
+     * <p>ビジーな状態では何もしない。
+     *
+     * @param ev {@inheritDoc}
      */
     @Override
-    public void actionPerformed(ActionEvent e){
+    public void actionPerformed(ActionEvent ev){
         if(this.isBusyNow) return;
 
-        String cmd = e.getActionCommand();
-        if(cmd.equals(ActionManager.CMD_ACCOUNT)){
+        String cmd = ev.getActionCommand();
+        if(cmd == null) return;
+
+        switch(cmd){
+        case ActionManager.CMD_ACCOUNT:
             actionShowAccount();
-        }else if(cmd.equals(ActionManager.CMD_EXIT)){
+            break;
+        case ActionManager.CMD_EXIT:
             actionExit();
-        }else if(cmd.equals(ActionManager.CMD_COPY)){
+            break;
+        case ActionManager.CMD_COPY:
             actionCopySelected();
-        }else if(cmd.equals(ActionManager.CMD_SHOWFIND)){
+            break;
+        case ActionManager.CMD_SHOWFIND:
             actionShowFind();
-        }else if(cmd.equals(ActionManager.CMD_SEARCHNEXT)){
+            break;
+        case ActionManager.CMD_SEARCHNEXT:
             actionSearchNext();
-        }else if(cmd.equals(ActionManager.CMD_SEARCHPREV)){
+            break;
+        case ActionManager.CMD_SEARCHPREV:
             actionSearchPrev();
-        }else if(cmd.equals(ActionManager.CMD_ALLPERIOD)){
+            break;
+        case ActionManager.CMD_ALLPERIOD:
             actionLoadAllPeriod();
-        }else if(cmd.equals(ActionManager.CMD_SHOWDIGEST)){
+            break;
+        case ActionManager.CMD_SHOWDIGEST:
             actionShowDigest();
-        }else if(cmd.equals(ActionManager.CMD_WEBVILL)){
+            break;
+        case ActionManager.CMD_WEBVILL:
             actionShowWebVillage();
-        }else if(cmd.equals(ActionManager.CMD_WEBWIKI)){
+            break;
+        case ActionManager.CMD_WEBWIKI:
             actionShowWebWiki();
-        }else if(cmd.equals(ActionManager.CMD_RELOAD)){
+            break;
+        case ActionManager.CMD_RELOAD:
             actionReloadPeriod();
-        }else if(cmd.equals(ActionManager.CMD_DAYSUMMARY)){
+            break;
+        case ActionManager.CMD_DAYSUMMARY:
             actionDaySummary();
-        }else if(cmd.equals(ActionManager.CMD_DAYEXPCSV)){
+            break;
+        case ActionManager.CMD_DAYEXPCSV:
             actionDayExportCsv();
-        }else if(cmd.equals(ActionManager.CMD_WEBDAY)){
+            break;
+        case ActionManager.CMD_WEBDAY:
             actionShowWebDay();
-        }else if(cmd.equals(ActionManager.CMD_OPTION)){
+            break;
+        case ActionManager.CMD_OPTION:
             actionOption();
-        }else if(cmd.equals(ActionManager.CMD_LANDF)){
+            break;
+        case ActionManager.CMD_LANDF:
             actionChangeLaF();
-        }else if(cmd.equals(ActionManager.CMD_SHOWFILT)){
+            break;
+        case ActionManager.CMD_SHOWFILT:
             actionShowFilter();
-        }else if(cmd.equals(ActionManager.CMD_SHOWEDIT)){
+            break;
+        case ActionManager.CMD_SHOWEDIT:
             actionTalkPreview();
-        }else if(cmd.equals(ActionManager.CMD_SHOWLOG)){
+            break;
+        case ActionManager.CMD_SHOWLOG:
             actionShowLog();
-        }else if(cmd.equals(ActionManager.CMD_HELPDOC)){
+            break;
+        case ActionManager.CMD_HELPDOC:
             actionHelp();
-        }else if(cmd.equals(ActionManager.CMD_SHOWPORTAL)){
+            break;
+        case ActionManager.CMD_SHOWPORTAL:
             actionShowPortal();
-        }else if(cmd.equals(ActionManager.CMD_ABOUT)){
+            break;
+        case ActionManager.CMD_ABOUT:
             actionAbout();
-        }else if(cmd.equals(ActionManager.CMD_VILLAGELIST)){
+            break;
+        case ActionManager.CMD_VILLAGELIST:
             actionReloadVillageList();
-        }else if(cmd.equals(ActionManager.CMD_COPYTALK)){
+            break;
+        case ActionManager.CMD_COPYTALK:
             actionCopyTalk();
-        }else if(cmd.equals(ActionManager.CMD_JUMPANCHOR)){
+            break;
+        case ActionManager.CMD_JUMPANCHOR:
             actionJumpAnchor();
-        }else if(cmd.equals(ActionManager.CMD_WEBTALK)){
+            break;
+        case ActionManager.CMD_WEBTALK:
             actionShowWebTalk();
+            break;
+        default:
+            break;
         }
+
         return;
     }
 
