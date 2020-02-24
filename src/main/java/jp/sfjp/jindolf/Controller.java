@@ -95,7 +95,6 @@ import jp.sourceforge.jovsonz.JsObject;
 public class Controller
         implements ActionListener,
                    TreeWillExpandListener,
-                   TreeSelectionListener,
                    ChangeListener,
                    AnchorHitListener {
     private static final Logger LOGGER = Logger.getAnonymousLogger();
@@ -111,6 +110,9 @@ public class Controller
     private final AppSetting appSetting;
 
     private final TopView topView;
+
+    private final TreeVillageWatcher treeVillageWatcher =
+            new TreeVillageWatcher();
 
     private volatile boolean isBusyNow;
 
@@ -144,7 +146,7 @@ public class Controller
         JTree treeView = this.topView.getTreeView();
         treeView.setModel(this.model);
         treeView.addTreeWillExpandListener(this);
-        treeView.addTreeSelectionListener(this);
+        treeView.addTreeSelectionListener(this.treeVillageWatcher);
 
         this.topView.getTabBrowser().addChangeListener(this);
         this.topView.getTabBrowser().addActionListener(this);
@@ -1377,46 +1379,47 @@ public class Controller
     }
 
     /**
-     * {@inheritDoc}
-     * ツリーリストで何らかの要素（国、村）がクリックされたときの処理。
-     * @param event イベント {@inheritDoc}
+     * 国を選択する。
+     *
+     * @param land 国
      */
-    @Override
-    public void valueChanged(TreeSelectionEvent event){
-        TreePath path = event.getNewLeadSelectionPath();
-        if(path == null) return;
+    private void selectedLand(Land land){
+        String landName = land.getLandDef().getLandName();
+        setFrameTitle(landName);
 
-        Object selObj = path.getLastPathComponent();
+        this.actionManager.appearVillage(false);
+        this.actionManager.appearPeriod(false);
 
-        if( selObj instanceof Land ){
-            Land land = (Land) selObj;
-            setFrameTitle(land.getLandDef().getLandName());
-            this.topView.showLandInfo(land);
-            this.actionManager.appearVillage(false);
-            this.actionManager.appearPeriod(false);
-        }else if( selObj instanceof Village ){
-            final Village village = (Village) selObj;
+        this.topView.showLandInfo(land);
 
-            Executor executor = Executors.newCachedThreadPool();
-            executor.execute(() -> {
-                setBusy(true, "村情報を読み込み中…");
-                try{
-                    VillageInfoLoader.updateVillageInfo(village);
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }finally{
-                    setBusy(false, "村情報の読み込み完了");
-                }
+        return;
+    }
 
-                Controller.this.actionManager.appearVillage(true);
-                setFrameTitle(village.getVillageFullName());
+    /**
+     * 村を選択する。
+     *
+     * @param village 村
+     */
+    private void selectedVillage(Village village){
+        setFrameTitle(village.getVillageFullName());
+        this.actionManager.appearVillage(true);
 
-                EventQueue.invokeLater(() -> {
-                    Controller.this.topView.showVillageInfo(village);
-                });
+        Executor executor = Executors.newCachedThreadPool();
+        executor.execute(() -> {
+            setBusy(true, "村情報を読み込み中…");
+            try{
+                VillageInfoLoader.updateVillageInfo(village);
+            }catch(IOException e){
+                showNetworkError(village, e);
+                return;
+            }finally{
+                setBusy(false, "村情報の読み込み完了");
+            }
+
+            EventQueue.invokeLater(() -> {
+                this.topView.showVillageInfo(village);
             });
-        }
+        });
 
         return;
     }
@@ -1733,6 +1736,47 @@ public class Controller
 
         assert false;
         return;
+    }
+
+
+    /**
+     * 国村選択リストの操作を監視する。
+     */
+    private class TreeVillageWatcher implements TreeSelectionListener{
+
+        /**
+         * Constructor.
+         */
+        TreeVillageWatcher(){
+            super();
+            return;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>ツリーリストで何らかの要素（国、村）がクリックされたときの処理。
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void valueChanged(TreeSelectionEvent event){
+            TreePath path = event.getNewLeadSelectionPath();
+            if(path == null) return;
+
+            Object selObj = path.getLastPathComponent();
+            if(selObj instanceof Land){
+                Land land = (Land) selObj;
+                selectedLand(land);
+            }else if(selObj instanceof Village){
+                Village village = (Village) selObj;
+                selectedVillage(village);
+            }
+
+            return;
+        }
+
     }
 
 }
