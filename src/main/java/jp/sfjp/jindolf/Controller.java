@@ -34,7 +34,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.LookAndFeel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
@@ -240,17 +239,11 @@ public class Controller
      * @param message ステータスバー表示。nullなら変更なし
      */
     public void submitBusyStatus(final boolean isBusy, final String message){
-        Runnable task = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                if(isBusy) setBusy(true);
-                if(message != null) updateStatusBar(message);
-                if( ! isBusy ) setBusy(false);
-                return;
-            }
+        Runnable task = () -> {
+            if(isBusy) setBusy(true);
+            if(message != null) updateStatusBar(message);
+            if( ! isBusy ) setBusy(false);
         };
-
         EventQueue.invokeLater(task);
 
         return;
@@ -312,29 +305,18 @@ public class Controller
                                     final String afterMsg ){
         submitBusyStatus(true, beforeMsg);
 
-        final Runnable busyManager = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            @SuppressWarnings("CallToThreadYield")
-            public void run(){
-                Thread.yield();
-                try{
-                    heavyTask.run();
-                }finally{
-                    submitBusyStatus(false, afterMsg);
-                }
-                return;
+        final Runnable busyManager = () -> {
+            Thread.yield();
+            try{
+                heavyTask.run();
+            }finally{
+                submitBusyStatus(false, afterMsg);
             }
         };
 
-        Runnable forkLauncher = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                Executor executor = Executors.newCachedThreadPool();
-                executor.execute(busyManager);
-                return;
-            }
+        Runnable forkLauncher = () -> {
+            Executor executor = Executors.newCachedThreadPool();
+            executor.execute(busyManager);
         };
 
         EventQueue.invokeLater(forkLauncher);
@@ -543,12 +525,8 @@ public class Controller
             return;
         }
 
-        Runnable lafTask = new Runnable(){
-            @Override
-            public void run(){
-                changeLaF(lnf);
-                return;
-            }
+        Runnable lafTask = () -> {
+            changeLaF(lnf);
         };
 
         submitLightBusyTask(lafTask,
@@ -732,20 +710,12 @@ public class Controller
         VillageDigest villageDigest = this.windowManager.getVillageDigest();
         final VillageDigest digest = villageDigest;
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskFullOpenAllPeriod();
-                EventQueue.invokeLater(new Runnable(){
-                    @Override
-                    public void run(){
-                        digest.setVillage(village);
-                        digest.setVisible(true);
-                        return;
-                    }
-                });
-                return;
-            }
+        executor.execute(() -> {
+            taskFullOpenAllPeriod();
+            EventQueue.invokeLater(() -> {
+                digest.setVillage(village);
+                digest.setVisible(true);
+            });
         });
 
         return;
@@ -836,12 +806,8 @@ public class Controller
      */
     private void bulkSearch(){
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskBulkSearch();
-                return;
-            }
+        executor.execute(() -> {
+            taskBulkSearch();
         });
     }
 
@@ -994,12 +960,8 @@ public class Controller
      */
     private void actionLoadAllPeriod(){
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskLoadAllPeriod();
-                return;
-            }
+        executor.execute(() -> {
+            taskLoadAllPeriod();
         });
 
         return;
@@ -1096,7 +1058,7 @@ public class Controller
 
     /**
      * アンカー先を含むPeriodの全会話を事前にロードする。
-     * 
+     *
      * @param village 村
      * @param anchor アンカー
      * @return アンカー先を含むPeriod。
@@ -1130,55 +1092,46 @@ public class Controller
         if(anchor == null) return;
 
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                updateStatusBar("ジャンプ先の読み込み中…");
+        executor.execute(() -> {
+            setBusy(true);
+            updateStatusBar("ジャンプ先の読み込み中…");
 
-                if(anchor.hasTalkNo()){
-                    // TODO もう少し賢くならない？
-                    taskLoadAllPeriod();
+            if(anchor.hasTalkNo()){
+                // TODO もう少し賢くならない？
+                taskLoadAllPeriod();
+            }
+
+            final List<Talk> talkList;
+            try{
+                loadAnchoredPeriod(village, anchor);
+                talkList = village.getTalkListFromAnchor(anchor);
+                if(talkList == null || talkList.size() <= 0){
+                    updateStatusBar(
+                            "アンカーのジャンプ先["
+                                    + anchor.toString()
+                                    + "]が見つかりません");
+                    return;
                 }
 
-                final List<Talk> talkList;
-                try{
-                    loadAnchoredPeriod(village, anchor);
-                    talkList = village.getTalkListFromAnchor(anchor);
-                    if(talkList == null || talkList.size() <= 0){
-                        updateStatusBar(
-                                  "アンカーのジャンプ先["
+                final Talk targetTalk = talkList.get(0);
+                final Period targetPeriod = targetTalk.getPeriod();
+                final int tabIndex = targetPeriod.getDay() + 1;
+                final PeriodView target = browser.getPeriodView(tabIndex);
+
+                EventQueue.invokeLater(() -> {
+                    browser.setSelectedIndex(tabIndex);
+                    target.setPeriod(targetPeriod);
+                    target.scrollToTalk(targetTalk);
+                });
+                updateStatusBar(
+                        "アンカー["
                                 + anchor.toString()
-                                + "]が見つかりません");
-                        return;
-                    }
-
-                    final Talk targetTalk = talkList.get(0);
-                    final Period targetPeriod = targetTalk.getPeriod();
-                    final int tabIndex = targetPeriod.getDay() + 1;
-                    final PeriodView target = browser.getPeriodView(tabIndex);
-
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            browser.setSelectedIndex(tabIndex);
-                            target.setPeriod(targetPeriod);
-                            target.scrollToTalk(targetTalk);
-                            return;
-                        }
-                    });
-                    updateStatusBar(
-                              "アンカー["
-                            + anchor.toString()
-                            + "]にジャンプしました");
-                }catch(IOException e){
-                    updateStatusBar(
-                            "アンカーの展開中にエラーが起きました");
-                }finally{
-                    setBusy(false);
-                }
-
-                return;
+                                + "]にジャンプしました");
+            }catch(IOException e){
+                updateStatusBar(
+                        "アンカーの展開中にエラーが起きました");
+            }finally{
+                setBusy(false);
             }
         });
 
@@ -1190,12 +1143,8 @@ public class Controller
      * @param land 国
      */
     private void submitReloadVillageList(final Land land){
-        Runnable heavyTask = new Runnable(){
-            @Override
-            public void run(){
-                taskReloadVillageList(land);
-                return;
-            }
+        Runnable heavyTask = () -> {
+            taskReloadVillageList(land);
         };
 
         submitHeavyBusyTask(heavyTask,
@@ -1289,12 +1238,8 @@ public class Controller
                     return false;
                 }
                 try{
-                    SwingUtilities.invokeAndWait(new Runnable(){
-                        @Override
-                        public void run(){
-                            tabBrowser.setVillage(village);
-                            return;
-                        }
+                    EventQueue.invokeAndWait(() -> {
+                        tabBrowser.setVillage(village);
                     });
                 }catch(InvocationTargetException | InterruptedException e){
                     LOGGER.log(Level.SEVERE,
@@ -1309,12 +1254,8 @@ public class Controller
                 try{
                     final int lastPos = periodView.getVerticalPosition();
                     try{
-                        SwingUtilities.invokeAndWait(new Runnable(){
-                            @Override
-                            public void run(){
-                                periodView.showTopics();
-                                return;
-                            }
+                        EventQueue.invokeAndWait(() -> {
+                            periodView.showTopics();
                         });
                     }catch(   InvocationTargetException
                             | InterruptedException
@@ -1323,11 +1264,8 @@ public class Controller
                                 "ブラウザ表示で致命的な障害が発生しました",
                                 e );
                     }
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            periodView.setVerticalPosition(lastPos);
-                        }
+                    EventQueue.invokeLater(() -> {
+                        periodView.setVerticalPosition(lastPos);
                     });
                 }finally{
                     updateStatusBar("レンダリング完了");
@@ -1469,35 +1407,26 @@ public class Controller
             final Village village = (Village) selObj;
 
             Executor executor = Executors.newCachedThreadPool();
-            executor.execute(new Runnable(){
-                @Override
-                public void run(){
-                    setBusy(true);
-                    updateStatusBar("村情報を読み込み中…");
+            executor.execute(() -> {
+                setBusy(true);
+                updateStatusBar("村情報を読み込み中…");
 
-                    try{
-                        VillageInfoLoader.updateVillageInfo(village);
-                    }catch(IOException e){
-                        showNetworkError(village, e);
-                        return;
-                    }finally{
-                        updateStatusBar("村情報の読み込み完了");
-                        setBusy(false);
-                    }
-
-                    Controller.this.actionManager.appearVillage(true);
-                    setFrameTitle(village.getVillageFullName());
-
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            Controller.this.topView.showVillageInfo(village);
-                            return;
-                        }
-                    });
-
+                try{
+                    VillageInfoLoader.updateVillageInfo(village);
+                }catch(IOException e){
+                    showNetworkError(village, e);
                     return;
+                }finally{
+                    updateStatusBar("村情報の読み込み完了");
+                    setBusy(false);
                 }
+
+                Controller.this.actionManager.appearVillage(true);
+                setFrameTitle(village.getVillageFullName());
+
+                EventQueue.invokeLater(() -> {
+                    Controller.this.topView.showVillageInfo(village);
+                });
             });
         }
 
@@ -1644,48 +1573,39 @@ public class Controller
         final Discussion discussion = periodView.getDiscussion();
 
         Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                updateStatusBar("アンカーの展開中…");
+        executor.execute(() -> {
+            setBusy(true);
+            updateStatusBar("アンカーの展開中…");
 
-                if(anchor.hasTalkNo()){
-                    // TODO もう少し賢くならない？
-                    taskLoadAllPeriod();
+            if(anchor.hasTalkNo()){
+                // TODO もう少し賢くならない？
+                taskLoadAllPeriod();
+            }
+
+            final List<Talk> talkList;
+            try{
+                loadAnchoredPeriod(village, anchor);
+                talkList = village.getTalkListFromAnchor(anchor);
+                if(talkList == null || talkList.size() <= 0){
+                    updateStatusBar(
+                            "アンカーの展開先["
+                                    + anchor.toString()
+                                    + "]が見つかりません");
+                    return;
                 }
-
-                final List<Talk> talkList;
-                try{
-                    loadAnchoredPeriod(village, anchor);
-                    talkList = village.getTalkListFromAnchor(anchor);
-                    if(talkList == null || talkList.size() <= 0){
-                        updateStatusBar(
-                                  "アンカーの展開先["
+                EventQueue.invokeLater(() -> {
+                    talkDraw.showAnchorTalks(anchor, talkList);
+                    discussion.layoutRows();
+                });
+                updateStatusBar(
+                        "アンカー["
                                 + anchor.toString()
-                                + "]が見つかりません");
-                        return;
-                    }
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            talkDraw.showAnchorTalks(anchor, talkList);
-                            discussion.layoutRows();
-                            return;
-                        }
-                    });
-                    updateStatusBar(
-                              "アンカー["
-                            + anchor.toString()
-                            + "]の展開完了");
-                }catch(IOException e){
-                    updateStatusBar(
-                            "アンカーの展開中にエラーが起きました");
-                }finally{
-                    setBusy(false);
-                }
-
-                return;
+                                + "]の展開完了");
+            }catch(IOException e){
+                updateStatusBar(
+                        "アンカーの展開中にエラーが起きました");
+            }finally{
+                setBusy(false);
             }
         });
 
@@ -1701,30 +1621,25 @@ public class Controller
     private void setBusy(final boolean isBusy){
         this.isBusyNow = isBusy;
 
-        Runnable microJob = new Runnable(){
-            @Override
-            public void run(){
-                Cursor cursor;
-                if(isBusy){
-                    cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-                }else{
-                    cursor = Cursor.getDefaultCursor();
-                }
-
-                Component glass = getTopFrame().getGlassPane();
-                glass.setCursor(cursor);
-                glass.setVisible(isBusy);
-                Controller.this.topView.setBusy(isBusy);
-
-                return;
+        Runnable microJob = () -> {
+            Cursor cursor;
+            if(isBusy){
+                cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+            }else{
+                cursor = Cursor.getDefaultCursor();
             }
+
+            Component glass = getTopFrame().getGlassPane();
+            glass.setCursor(cursor);
+            glass.setVisible(isBusy);
+            Controller.this.topView.setBusy(isBusy);
         };
 
-        if(SwingUtilities.isEventDispatchThread()){
+        if(EventQueue.isDispatchThread()){
             microJob.run();
         }else{
             try{
-                SwingUtilities.invokeAndWait(microJob);
+                EventQueue.invokeAndWait(microJob);
             }catch(InvocationTargetException | InterruptedException e){
                 LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
             }
