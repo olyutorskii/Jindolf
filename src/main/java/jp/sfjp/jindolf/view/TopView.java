@@ -249,9 +249,10 @@ public class TopView extends JPanel{
     }
 
     /**
-     * プログレスバーとカーソルの設定を行う。
-     * @param busy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     *              falseなら停止&amp;通常カーソル。
+     * プログレスバーの設定を行う。
+     *
+     * @param busy trueならプログレスバーのアニメ開始。
+     * falseなら停止。
      */
     public void setBusy(boolean busy){
         this.progressBar.setIndeterminate(busy);

@@ -7,8 +7,6 @@
 
 package jp.sfjp.jindolf;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Window;
@@ -238,14 +236,12 @@ public class Controller
      * @param isBusy ビジーならtrue
      * @param message ステータスバー表示。nullなら変更なし
      */
-    public void submitBusyStatus(final boolean isBusy, final String message){
-        Runnable task = () -> {
+    public void submitBusyStatus(boolean isBusy, String message){
+        EventQueue.invokeLater(() -> {
             if(isBusy) setBusy(true);
             if(message != null) updateStatusBar(message);
             if( ! isBusy ) setBusy(false);
-        };
-        EventQueue.invokeLater(task);
-
+        });
         return;
     }
 
@@ -1649,26 +1645,25 @@ public class Controller
     }
 
     /**
-     * ヘビーなタスク実行をアピール。
+     * ビジー状態の設定を行う。
+     * 
+     * <p>ヘビーなタスク実行をアピールするために、
      * プログレスバーとカーソルの設定を行う。
+     * 
+     * <p>ビジー中のActionコマンド受信は無視される。
+     *
+     * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
+     * 全てグラブされるため無視される。
+     *
      * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
      *                falseなら停止&amp;通常カーソル。
      */
-    private void setBusy(final boolean isBusy){
+    private void setBusy(boolean isBusy){
         this.isBusyNow = isBusy;
 
+        TopFrame topFrame = getTopFrame();
         Runnable microJob = () -> {
-            Cursor cursor;
-            if(isBusy){
-                cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-            }else{
-                cursor = Cursor.getDefaultCursor();
-            }
-
-            Component glass = getTopFrame().getGlassPane();
-            glass.setCursor(cursor);
-            glass.setVisible(isBusy);
-            Controller.this.topView.setBusy(isBusy);
+            topFrame.setBusy(isBusy);
         };
 
         if(EventQueue.isDispatchThread()){
