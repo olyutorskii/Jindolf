@@ -16,6 +16,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -98,7 +99,9 @@ public class Controller
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private static final String ERRTITLE_LAF = "Look&Feel";
-    private static final String ERRFORM_LAF =
+    private static final String ERRFORM_LAFLOAD =
+            "このLook&Feel[{0}]を読み込む事ができません。";
+    private static final String ERRFORM_LAFGEN =
             "このLook&Feel[{0}]を生成する事ができません。";
 
 
@@ -502,37 +505,34 @@ public class Controller
      */
     private void actionChangeLaF(){
         String className = this.actionManager.getSelectedLookAndFeel();
+        if(className == null) return;
 
         Class<?> lnfClass;
         try{
             lnfClass = Class.forName(className);
         }catch(ClassNotFoundException e){
-            String warnMsg = MessageFormat.format(
-                    "このLook&Feel[{0}]を読み込む事ができません。",
-                    className );
+            String warnMsg =
+                    MessageFormat.format(ERRFORM_LAFLOAD, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
 
-        final LookAndFeel lnf;
+        LookAndFeel lnf;
         try{
-            lnf = (LookAndFeel) ( lnfClass.newInstance() );
-        }catch(   InstantiationException
-                | IllegalAccessException
-                | ClassCastException
-                e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
+            Constructor<?> cons;
+            cons = lnfClass.getDeclaredConstructor();
+            lnf = (LookAndFeel) cons.newInstance();
+        }catch(ReflectiveOperationException e){
+            String warnMsg = MessageFormat.format(ERRFORM_LAFGEN, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
 
-        Runnable lafTask = () -> {
-            changeLaF(lnf);
-        };
-
-        submitLightBusyTask(lafTask,
-                            "Look&Feelを更新中…",
-                            "Look&Feelが更新されました" );
+        submitLightBusyTask(
+            () -> {changeLaF(lnf);},
+            "Look&Feelを更新中…",
+            "Look&Feelが更新されました"
+        );
 
         return;
     }
