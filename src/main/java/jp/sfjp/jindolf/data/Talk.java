@@ -7,7 +7,9 @@
 
 package jp.sfjp.jindolf.data;
 
-import jp.sfjp.jindolf.util.StringUtils;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Objects;
 import jp.sourceforge.jindolf.corelib.TalkType;
 
 /**
@@ -15,7 +17,18 @@ import jp.sourceforge.jindolf.corelib.TalkType;
  */
 public class Talk implements Topic{
 
-    private static final String MEINICHI_LAST = "！\u0020今日がお前の命日だ！";
+    private static final String MEINICHI_LAST =
+            "！\u0020今日がお前の命日だ！";
+
+    private static final Map<TalkType, String> COLOR_MAP;
+
+    static{
+        COLOR_MAP = new EnumMap<>(TalkType.class);
+        COLOR_MAP.put(TalkType.PUBLIC,   "白");
+        COLOR_MAP.put(TalkType.PRIVATE,  "灰");
+        COLOR_MAP.put(TalkType.WOLFONLY, "赤");
+        COLOR_MAP.put(TalkType.GRAVE,    "青");
+    }
 
 
     private final Period homePeriod;
@@ -82,19 +95,39 @@ public class Talk implements Topic{
      * @return 色名
      */
     public static String encodeColorName(TalkType type){
-        String result;
+        Objects.requireNonNull(type);
+        String result = COLOR_MAP.get(type);
+        return result;
+    }
 
-        switch(type){
-        case PUBLIC:   result = "白"; break;
-        case PRIVATE:  result = "灰"; break;
-        case WOLFONLY: result = "赤"; break;
-        case GRAVE:    result = "青"; break;
-        default:
-            assert false;
-            return null;
+    /**
+     * ある文字列の末尾が別の文字列に一致するか判定する。
+     *
+     * @param target 判定対象
+     * @param term 末尾文字
+     * @return 一致すればtrue
+     * @throws java.lang.NullPointerException 引数がnull
+     * @see String#endsWith(String)
+     */
+    static boolean isTerminated(CharSequence target,
+                                CharSequence term)
+            throws NullPointerException{
+        Objects.requireNonNull(target);
+        Objects.requireNonNull(term);
+
+        int targetLength = target.length();
+        int termLength   = term  .length();
+
+        int offset = targetLength - termLength;
+        if(offset < 0) return false;
+
+        for(int pos = 0; pos < termLength; pos++){
+            char targetch = target.charAt(offset + pos);
+            char termch   = term  .charAt(0      + pos);
+            if(targetch != termch) return false;
         }
 
-        return result;
+        return true;
     }
 
     /**
@@ -288,7 +321,7 @@ public class Talk implements Topic{
         if( ! isWolf) return false;
 
         boolean meinichida;
-        meinichida = StringUtils.isTerminated(getDialog(), MEINICHI_LAST);
+        meinichida = isTerminated(getDialog(), MEINICHI_LAST);
         if( ! meinichida) return false;
 
         return true;
@@ -296,22 +329,37 @@ public class Talk implements Topic{
 
     /**
      * {@inheritDoc}
-     * 会話のString表現を返す。
+     *
+     * <p>会話のString表現を返す。
      * 実体参照やHTMLタグも含まれる。
+     *
      * @return 会話のString表現
      */
     @Override
     public String toString(){
+        String fullName = this.avatar.getFullName();
+
+        String verb;
+        switch (this.talkType) {
+        case PUBLIC:
+            verb=" says ";
+            break;
+        case PRIVATE:
+            verb=" think ";
+            break;
+        case WOLFONLY:
+            verb=" howl ";
+            break;
+        case GRAVE:
+            verb=" groan ";
+            break;
+        default:
+            assert false;
+            return null;
+        }
+
         StringBuilder result = new StringBuilder();
-
-        result.append(this.avatar.getFullName());
-
-        if     (this.talkType == TalkType.PUBLIC)   result.append(" says ");
-        else if(this.talkType == TalkType.PRIVATE)  result.append(" think ");
-        else if(this.talkType == TalkType.WOLFONLY) result.append(" howl ");
-        else if(this.talkType == TalkType.GRAVE)    result.append(" groan ");
-
-        result.append(this.dialog);
+        result.append(fullName).append(verb).append(this.dialog);
 
         return result.toString();
     }

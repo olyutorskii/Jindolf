@@ -187,42 +187,6 @@ public class StringUtilsTest {
     }
 
     /**
-     * Test of isTerminated method, of class StringUtils.
-     */
-    @Test
-    public void testIsTerminated(){
-        System.out.println("isTerminated");
-
-        try{
-            StringUtils.isTerminated(null, null);
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        try{
-            StringUtils.isTerminated("A", null);
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        try{
-            StringUtils.isTerminated(null, "X");
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        assertTrue(StringUtils.isTerminated("ABCXYZ", "XYZ"));
-        assertTrue(StringUtils.isTerminated("ABCXYZ", ""));
-        assertTrue(StringUtils.isTerminated("", ""));
-
-        assertFalse(StringUtils.isTerminated("ABCXYZ", "PQR"));
-        assertFalse(StringUtils.isTerminated("ABC", "ABCXYZ"));
-        assertFalse(StringUtils.isTerminated("", "XYZ"));
-
-        return;
-    }
-
-    /**
      * Test of compareSubSequence method, of class StringUtils.
      */
     @Test

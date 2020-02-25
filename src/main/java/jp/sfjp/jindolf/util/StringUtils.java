@@ -94,34 +94,6 @@ public final class StringUtils{
     }
 
     /**
-     * ある文字列の末尾が別の文字列に一致するか判定する。
-     * @param target 判定対象
-     * @param term 末尾文字
-     * @return 一致すればtrue
-     * @throws java.lang.NullPointerException 引数がnull
-     * @see String#endsWith(String)
-     */
-    public static boolean isTerminated(CharSequence target,
-                                         CharSequence term)
-            throws NullPointerException{
-        if(target == null || term == null) throw new NullPointerException();
-
-        int targetLength = target.length();
-        int termLength   = term  .length();
-
-        int offset = targetLength - termLength;
-        if(offset < 0) return false;
-
-        for(int pos = 0; pos < termLength; pos++){
-            char targetch = target.charAt(offset + pos);
-            char termch   = term  .charAt(0      + pos);
-            if(targetch != termch) return false;
-        }
-
-        return true;
-    }
-
-    /**
      * サブシーケンス同士を比較する。
      * @param seq1 サブシーケンス1
      * @param start1 開始インデックス1
