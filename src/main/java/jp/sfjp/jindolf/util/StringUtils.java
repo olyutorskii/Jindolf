@@ -7,8 +7,6 @@
 
 package jp.sfjp.jindolf.util;
 
-import java.util.regex.Matcher;
-
 /**
  * 文字列ユーティリティクラス。
  */
@@ -26,55 +24,6 @@ public final class StringUtils{
         throw new AssertionError();
     }
 
-
-    /**
-     * 正規表現にマッチした領域を数値化する。
-     * @param seq 文字列
-     * @param matcher Matcher
-     * @param groupIndex 前方指定グループ番号
-     * @return 数値
-     * @throws IndexOutOfBoundsException 不正なグループ番号
-     */
-    public static int parseInt(CharSequence seq,
-                                Matcher matcher,
-                                int groupIndex     )
-            throws IndexOutOfBoundsException {
-        return parseInt(seq,
-                        matcher.start(groupIndex),
-                        matcher.end(groupIndex)   );
-    }
-
-    /**
-     * 文字列を数値化する。
-     * @param seq 文字列
-     * @return 数値
-     */
-    public static int parseInt(CharSequence seq){
-        return parseInt(seq, 0, seq.length());
-    }
-
-    /**
-     * 部分文字列を数値化する。
-     * @param seq 文字列
-     * @param startPos 範囲開始位置
-     * @param endPos 範囲終了位置
-     * @return パースした数値
-     * @throws IndexOutOfBoundsException 不正な位置指定
-     */
-    public static int parseInt(CharSequence seq, int startPos, int endPos)
-            throws IndexOutOfBoundsException{
-        int result = 0;
-
-        for(int pos = startPos; pos < endPos; pos++){
-            char ch = seq.charAt(pos);
-            int digit = Character.digit(ch, 10);
-            if(digit < 0) break;
-            result *= 10;
-            result += digit;
-        }
-
-        return result;
-    }
 
     /**
      * 長い文字列を三点リーダで省略する。

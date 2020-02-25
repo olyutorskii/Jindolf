@@ -6,8 +6,6 @@
 
 package jp.sfjp.jindolf.util;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -38,122 +36,6 @@ public class StringUtilsTest {
 
     @After
     public void tearDown() {
-    }
-
-    /**
-     * Test of parseInt method, of class StringUtils.
-     */
-    @Test
-    public void testParseInt_3args_1(){
-        System.out.println("parseInt");
-
-        int result;
-        Matcher matcher;
-        Pattern pattern;
-        String input = "ABC123PQR456XYZ";
-
-        pattern = Pattern.compile("([0-9]+)[A-Z]*([0-9]+)");
-        matcher = pattern.matcher(input);
-
-        assertTrue(matcher.find());
-
-        result = StringUtils.parseInt(input, matcher, 1);
-        assertEquals(123, result);
-
-        result = StringUtils.parseInt(input, matcher, 2);
-        assertEquals(456, result);
-
-        try{
-            StringUtils.parseInt(null, matcher, 1);
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        try{
-            StringUtils.parseInt(input, null, 1);
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        return;
-    }
-
-    /**
-     * Test of parseInt method, of class StringUtils.
-     */
-    @Test
-    public void testParseInt_CharSequence(){
-        System.out.println("parseInt");
-
-        int result;
-
-        try{
-            StringUtils.parseInt(null);
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        result = StringUtils.parseInt("");
-        assertEquals(0, result);
-
-        result = StringUtils.parseInt("0");
-        assertEquals(0, result);
-
-        result = StringUtils.parseInt("999");
-        assertEquals(999, result);
-
-        result = StringUtils.parseInt("X");
-        assertEquals(0, result);
-
-        result = StringUtils.parseInt("-1");
-        assertEquals(0, result);
-
-        return;
-    }
-
-    /**
-     * Test of parseInt method, of class StringUtils.
-     */
-    @Test
-    public void testParseInt_3args_2(){
-        System.out.println("parseInt");
-
-        int result;
-
-        try{
-            StringUtils.parseInt(null, 1, 3);
-            fail();
-        }catch(NullPointerException e){
-        }
-
-        result = StringUtils.parseInt("1234567", 2, 5);
-        assertEquals(345, result);
-
-        result = StringUtils.parseInt("1234567", 2, 3);
-        assertEquals(3, result);
-
-        result = StringUtils.parseInt("1234567", 2, 2);
-        assertEquals(0, result);
-
-        result = StringUtils.parseInt("1234567", 2, 1);
-        assertEquals(0, result);
-
-        result = StringUtils.parseInt("1234567", 0, 0);
-        assertEquals(0, result);
-
-        try{
-            StringUtils.parseInt("1234567", 2, 999);
-            fail();
-        }catch(StringIndexOutOfBoundsException e){
-        }
-
-        try{
-            StringUtils.parseInt("1234567", -1, 5);
-            fail();
-        }catch(StringIndexOutOfBoundsException e){
-        }
-
-        return;
     }
 
     /**
