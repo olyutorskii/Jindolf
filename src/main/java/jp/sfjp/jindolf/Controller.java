@@ -276,26 +276,6 @@ public class Controller
     }
 
     /**
-     * 軽量タスクをEDTで実行する。
-     *
-     * <p>タスク実行中はビジー状態となる。
-     *
-     * <p>軽量タスク実行中はイベントループが停止するので、
-     * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
-     *
-     * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
-     *
-     * @param task 軽量タスク
-     * @param beforeMsg ビジー中ステータス文字列。
-     *     ビジー復帰時は元のステータス文字列に戻る。
-     */
-    public void submitLightBusyTask(Runnable task, String beforeMsg){
-        String afterMsg = this.topView.getSysMessage();
-        submitLightBusyTask(task, beforeMsg, afterMsg);
-        return;
-    }
-
-    /**
      * 重量級タスクをEDTとは別のスレッドで実行する。
      *
      * <p>タスク実行中はビジー状態となる。
@@ -309,8 +289,7 @@ public class Controller
                                     final String afterMsg ){
         submitBusyStatus(true, beforeMsg);
 
-        final Runnable busyManager = () -> {
-            Thread.yield();
+        Runnable busyManager = () -> {
             try{
                 heavyTask.run();
             }finally{
@@ -325,23 +304,6 @@ public class Controller
 
         EventQueue.invokeLater(forkLauncher);
 
-        return;
-    }
-
-    /**
-     * 重量級タスクをEDTとは別のスレッドで実行する。
-     *
-     * <p>タスク実行中はビジー状態となる。
-     *
-     * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
-     *
-     * @param task 重量級タスク
-     * @param beforeMsg ビジー中ステータス文字列。
-     *     ビジー復帰時は元のステータス文字列に戻る。
-     */
-    public void submitHeavyBusyTask(Runnable task, String beforeMsg){
-        String afterMsg = this.topView.getSysMessage();
-        submitHeavyBusyTask(task, beforeMsg, afterMsg);
         return;
     }
 
@@ -529,7 +491,7 @@ public class Controller
         }
 
         submitLightBusyTask(
-            () -> {changeLaF(lnf);},
+            () -> {taskChangeLaF(lnf);},
             "Look&Feelを更新中…",
             "Look&Feelが更新されました"
         );
@@ -541,7 +503,7 @@ public class Controller
      * LookAndFeelの実際の更新を行う。
      * @param lnf LookAndFeel
      */
-    private void changeLaF(LookAndFeel lnf){
+    private void taskChangeLaF(LookAndFeel lnf){
         assert EventQueue.isDispatchThread();
 
         try{
@@ -1139,14 +1101,11 @@ public class Controller
      * @param land 国
      */
     private void submitReloadVillageList(final Land land){
-        Runnable heavyTask = () -> {
-            taskReloadVillageList(land);
-        };
-
-        submitHeavyBusyTask(heavyTask,
-                            "村一覧を読み込み中…",
-                            "村一覧の読み込み完了" );
-
+        submitHeavyBusyTask(
+            () -> {taskReloadVillageList(land);},
+            "村一覧を読み込み中…",
+            "村一覧の読み込み完了"
+        );
         return;
     }
 
