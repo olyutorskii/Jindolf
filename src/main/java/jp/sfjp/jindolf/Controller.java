@@ -119,6 +119,7 @@ public class Controller
     private final ChangeListener filterWatcher =
             new FilterWatcher();
 
+    private final Executor executor = Executors.newCachedThreadPool();
     private volatile boolean isBusyNow;
 
 
@@ -219,6 +220,18 @@ public class Controller
         return;
     }
 
+
+    /**
+     * スレッドプールを用いて非EDTなタスクを投入する。
+     *
+     * @param task タスク
+     */
+    private void fork(Runnable task){
+        this.executor.execute(task);
+        return;
+    }
+
+
     /**
      * ウィンドウマネジャを返す。
      * @return ウィンドウマネジャ
@@ -289,20 +302,15 @@ public class Controller
                                     final String afterMsg ){
         submitBusyStatus(true, beforeMsg);
 
-        Runnable busyManager = () -> {
-            try{
-                heavyTask.run();
-            }finally{
-                submitBusyStatus(false, afterMsg);
-            }
-        };
-
-        Runnable forkLauncher = () -> {
-            Executor executor = Executors.newCachedThreadPool();
-            executor.execute(busyManager);
-        };
-
-        EventQueue.invokeLater(forkLauncher);
+        EventQueue.invokeLater(() -> {
+            fork(() -> {
+                try{
+                    heavyTask.run();
+                }finally{
+                    submitBusyStatus(false, afterMsg);
+                }
+            });
+        });
 
         return;
     }
@@ -672,8 +680,7 @@ public class Controller
 
         VillageDigest villageDigest = this.windowManager.getVillageDigest();
         final VillageDigest digest = villageDigest;
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
+        fork(() -> {
             taskFullOpenAllPeriod();
             EventQueue.invokeLater(() -> {
                 digest.setVillage(village);
@@ -766,10 +773,11 @@ public class Controller
      * 一括検索処理。
      */
     private void bulkSearch(){
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
-            taskBulkSearch();
-        });
+        submitHeavyBusyTask(
+                () -> {taskBulkSearch();},
+                null, null
+        );
+        return;
     }
 
     /**
@@ -920,10 +928,11 @@ public class Controller
      * 全日程の一括ロード。
      */
     private void actionLoadAllPeriod(){
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
-            taskLoadAllPeriod();
-        });
+        submitHeavyBusyTask(
+                () -> {taskLoadAllPeriod();},
+                "一括読み込み開始",
+                "一括読み込み完了"
+        );
 
         return;
     }
@@ -932,29 +941,25 @@ public class Controller
      * 全日程の一括ロード。ヘビータスク版。
      */
     private void taskLoadAllPeriod(){
-        setBusy(true, "一括読み込み開始");
-        try{
-            TabBrowser browser = this.topView.getTabBrowser();
-            Village village = browser.getVillage();
-            if(village == null) return;
-            for(PeriodView periodView : browser.getPeriodViewList()){
-                Period period = periodView.getPeriod();
-                if(period == null) continue;
-                String message =
-                        period.getDay()
-                        + "日目のデータを読み込んでいます";
-                updateStatusBar(message);
-                try{
-                    PeriodLoader.parsePeriod(period, false);
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                periodView.showTopics();
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = browser.getVillage();
+        if(village == null) return;
+        for(PeriodView periodView : browser.getPeriodViewList()){
+            Period period = periodView.getPeriod();
+            if(period == null) continue;
+            String message =
+                    period.getDay()
+                    + "日目のデータを読み込んでいます";
+            updateStatusBar(message);
+            try{
+                PeriodLoader.parsePeriod(period, false);
+            }catch(IOException e){
+                showNetworkError(village, e);
+                return;
             }
-        }finally{
-            setBusy(false, "一括読み込み完了");
+            periodView.showTopics();
         }
+
         return;
     }
 
@@ -1050,10 +1055,7 @@ public class Controller
         final Anchor anchor = discussion.getPopupedAnchor();
         if(anchor == null) return;
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
-            setBusy(true, "ジャンプ先の読み込み中…");
-
+        Runnable task = () -> {
             if(anchor.hasTalkNo()){
                 // TODO もう少し賢くならない？
                 taskLoadAllPeriod();
@@ -1088,10 +1090,15 @@ public class Controller
             }catch(IOException e){
                 updateStatusBar(
                         "アンカーの展開中にエラーが起きました");
-            }finally{
-                setBusy(false);
             }
-        });
+
+        };
+
+        submitHeavyBusyTask(
+                task,
+                "ジャンプ先の読み込み中…",
+                null
+        );
 
         return;
     }
@@ -1149,8 +1156,7 @@ public class Controller
         final Period period = discussion.getPeriod();
         if(period == null) return;
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
+        fork(new Runnable(){
             @Override
             public void run(){
                 setBusy(true);
@@ -1366,22 +1372,24 @@ public class Controller
         setFrameTitle(village.getVillageFullName());
         this.actionManager.appearVillage(true);
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
-            setBusy(true, "村情報を読み込み中…");
+        Runnable task = () -> {
             try{
                 VillageInfoLoader.updateVillageInfo(village);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
-            }finally{
-                setBusy(false, "村情報の読み込み完了");
             }
 
             EventQueue.invokeLater(() -> {
                 this.topView.showVillageInfo(village);
             });
-        });
+        };
+
+        submitHeavyBusyTask(
+                task,
+                "村情報を読み込み中…",
+                "村情報の読み込み完了"
+        );
 
         return;
     }
@@ -1504,10 +1512,7 @@ public class Controller
         final Anchor anchor = event.getAnchor();
         final Discussion discussion = periodView.getDiscussion();
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(() -> {
-            setBusy(true, "アンカーの展開中…");
-
+        Runnable task = () -> {
             if(anchor.hasTalkNo()){
                 // TODO もう少し賢くならない？
                 taskLoadAllPeriod();
@@ -1535,10 +1540,14 @@ public class Controller
             }catch(IOException e){
                 updateStatusBar(
                         "アンカーの展開中にエラーが起きました");
-            }finally{
-                setBusy(false);
             }
-        });
+        };
+        
+        submitHeavyBusyTask(
+                task,
+                "アンカーの展開中…",
+                null
+        );
 
         return;
     }
