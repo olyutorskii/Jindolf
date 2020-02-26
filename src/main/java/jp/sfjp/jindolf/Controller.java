@@ -268,6 +268,18 @@ public class Controller
     }
 
     /**
+     * トップフレームのタイトルを設定する。
+     * タイトルは指定された国or村名 + " - Jindolf"
+     * @param name 国or村名
+     */
+    private void setFrameTitle(String name){
+        String title = VerInfo.getFrameTitle(name);
+        TopFrame topFrame = this.windowManager.getTopFrame();
+        topFrame.setTitle(title);
+        return;
+    }
+
+    /**
      * 現在選択中のPeriodを内包するPeriodViewを返す。
      * @return PeriodView
      */
@@ -290,25 +302,13 @@ public class Controller
 
     /**
      * 現在選択中の村を返す。
-     * 
-     * @return 選択中の村。なければnull。 
+     *
+     * @return 選択中の村。なければnull。
      */
     private Village getVillage(){
         TabBrowser browser = this.topView.getTabBrowser();
         Village village = browser.getVillage();
         return village;
-    }
-
-    /**
-     * トップフレームのタイトルを設定する。
-     * タイトルは指定された国or村名 + " - Jindolf"
-     * @param name 国or村名
-     */
-    private void setFrameTitle(String name){
-        String title = VerInfo.getFrameTitle(name);
-        TopFrame topFrame = this.windowManager.getTopFrame();
-        topFrame.setTitle(title);
-        return;
     }
 
     /**
@@ -331,35 +331,11 @@ public class Controller
 
         TopFrame topFrame = getTopFrame();
 
-        Runnable microJob = () -> {
-            topFrame.setBusy(isBusy);
-            if(msg != null){
-                this.topView.updateSysMessage(msg);
-            }
-        };
-
-        if(EventQueue.isDispatchThread()){
-            microJob.run();
-        }else{
-            try{
-                EventQueue.invokeAndWait(microJob);
-            }catch(InvocationTargetException | InterruptedException e){
-                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
-            }
+        topFrame.setBusy(isBusy);
+        if(msg != null){
+            this.topView.updateSysMessage(msg);
         }
 
-        return;
-    }
-
-    /**
-     * ビジー状態の設定を行う。
-     *
-     * <p>フッタメッセージは変更されない。
-     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     * falseなら停止&amp;通常カーソル。
-     */
-    private void setBusy(boolean isBusy){
-        setBusy(isBusy, null);
         return;
     }
 
@@ -381,11 +357,20 @@ public class Controller
      * @param message ステータスバー表示。nullなら変更なし
      */
     public void submitBusyStatus(boolean isBusy, String message){
-        EventQueue.invokeLater(() -> {
-            if(isBusy) setBusy(true);
-            if(message != null) updateStatusBar(message);
-            if( ! isBusy ) setBusy(false);
-        });
+        Runnable task = () -> {
+            setBusy(isBusy, message);
+        };
+
+        if(EventQueue.isDispatchThread()){
+            task.run();
+        }else{
+            try{
+                EventQueue.invokeAndWait(task);
+            }catch(InvocationTargetException | InterruptedException e){
+                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
+            }
+        }
+
         return;
     }
 
@@ -1274,96 +1259,56 @@ public class Controller
      */
     private void updatePeriod(final boolean force){
         TabBrowser tabBrowser = this.topView.getTabBrowser();
+
         Village village = getVillage();
         if(village == null) return;
-        setFrameTitle(village.getVillageFullName());
 
-        final PeriodView periodView = currentPeriodView();
+        String fullName = village.getVillageFullName();
+        setFrameTitle(fullName);
+
+        PeriodView periodView = currentPeriodView();
         Discussion discussion = currentDiscussion();
         if(discussion == null) return;
+
         FilterPanel filterPanel = this.windowManager.getFilterPanel();
         discussion.setTopicFilter(filterPanel);
-        final Period period = discussion.getPeriod();
+
+        Period period = discussion.getPeriod();
         if(period == null) return;
 
-        fork(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                try{
-                    boolean wasHot = loadPeriod();
-
-                    if(wasHot && ! period.isHot() ){
-                        if( ! updatePeriodList() ) return;
-                    }
-
-                    renderBrowser();
-                }finally{
-                    setBusy(false);
-                }
+        Runnable task = () -> {
+            boolean wasHot = period.isHot();
+            try{
+                PeriodLoader.parsePeriod(period, force);
+            }catch(IOException e){
+                showNetworkError(village, e);
                 return;
             }
 
-            private boolean loadPeriod(){
-                updateStatusBar("1日分のデータを読み込んでいます…");
-                boolean wasHot;
-                try{
-                    wasHot = period.isHot();
-                    try{
-                        PeriodLoader.parsePeriod(period, force);
-                    }catch(IOException e){
-                        showNetworkError(village, e);
-                    }
-                }finally{
-                    updateStatusBar("1日分のデータを読み終わりました");
-                }
-                return wasHot;
-            }
-
-            private boolean updatePeriodList(){
-                updateStatusBar("村情報を読み直しています…");
+            if(wasHot && ! period.isHot() ){
                 try{
                     VillageInfoLoader.updateVillageInfo(village);
                 }catch(IOException e){
                     showNetworkError(village, e);
-                    return false;
+                    return;
                 }
-                try{
-                    EventQueue.invokeAndWait(() -> {
-                        tabBrowser.setVillage(village);
-                    });
-                }catch(InvocationTargetException | InterruptedException e){
-                    LOGGER.log(Level.SEVERE,
-                            "タブ操作で致命的な障害が発生しました", e);
-                }
-                updateStatusBar("村情報を読み直しました…");
-                return true;
+                EventQueue.invokeLater(() -> {
+                    tabBrowser.setVillage(village);
+                });
             }
 
-            private void renderBrowser(){
-                updateStatusBar("レンダリング中…");
-                try{
-                    final int lastPos = periodView.getVerticalPosition();
-                    try{
-                        EventQueue.invokeAndWait(() -> {
-                            periodView.showTopics();
-                        });
-                    }catch(   InvocationTargetException
-                            | InterruptedException
-                            e){
-                        LOGGER.log(Level.SEVERE,
-                                "ブラウザ表示で致命的な障害が発生しました",
-                                e );
-                    }
-                    EventQueue.invokeLater(() -> {
-                        periodView.setVerticalPosition(lastPos);
-                    });
-                }finally{
-                    updateStatusBar("レンダリング完了");
-                }
-                return;
-            }
-        });
+            EventQueue.invokeLater(() -> {
+                int lastPos = periodView.getVerticalPosition();
+                periodView.showTopics();
+                periodView.setVerticalPosition(lastPos);
+            });
+        };
+
+        submitHeavyBusyTask(
+                task,
+                "会話の読み込み中",
+                "会話の表示が完了"
+        );
 
         return;
     }
@@ -1623,7 +1568,7 @@ public class Controller
                         "アンカーの展開中にエラーが起きました");
             }
         };
-        
+
         submitHeavyBusyTask(
                 task,
                 "アンカーの展開中…",
