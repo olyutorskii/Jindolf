@@ -222,12 +222,30 @@ public class Controller
 
 
     /**
-     * スレッドプールを用いて非EDTなタスクを投入する。
-     *
-     * @param task タスク
+     * フレーム表示のトグル処理。
+     * @param window フレーム
      */
-    private void fork(Runnable task){
-        this.executor.execute(task);
+    private static void toggleWindow(Window window){
+        if(window == null) return;
+
+        if(window instanceof Frame){
+            Frame frame = (Frame) window;
+            int winState = frame.getExtendedState();
+            boolean isIconified = (winState & Frame.ICONIFIED) != 0;
+            if(isIconified){
+                winState &= ~(Frame.ICONIFIED);
+                frame.setExtendedState(winState);
+                frame.setVisible(true);
+                return;
+            }
+        }
+
+        if(window.isVisible()){
+            window.setVisible(false);
+            window.dispose();
+        }else{
+            window.setVisible(true);
+        }
         return;
     }
 
@@ -247,6 +265,111 @@ public class Controller
     public TopFrame getTopFrame(){
         TopFrame result = this.windowManager.getTopFrame();
         return result;
+    }
+
+    /**
+     * 現在選択中のPeriodを内包するPeriodViewを返す。
+     * @return PeriodView
+     */
+    private PeriodView currentPeriodView(){
+        TabBrowser tb = this.topView.getTabBrowser();
+        PeriodView result = tb.currentPeriodView();
+        return result;
+    }
+
+    /**
+     * 現在選択中のPeriodを内包するDiscussionを返す。
+     * @return Discussion
+     */
+    private Discussion currentDiscussion(){
+        PeriodView periodView = currentPeriodView();
+        if(periodView == null) return null;
+        Discussion result = periodView.getDiscussion();
+        return result;
+    }
+
+    /**
+     * 現在選択中の村を返す。
+     * 
+     * @return 選択中の村。なければnull。 
+     */
+    private Village getVillage(){
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = browser.getVillage();
+        return village;
+    }
+
+    /**
+     * トップフレームのタイトルを設定する。
+     * タイトルは指定された国or村名 + " - Jindolf"
+     * @param name 国or村名
+     */
+    private void setFrameTitle(String name){
+        String title = VerInfo.getFrameTitle(name);
+        TopFrame topFrame = this.windowManager.getTopFrame();
+        topFrame.setTitle(title);
+        return;
+    }
+
+    /**
+     * ビジー状態の設定を行う。
+     *
+     * <p>ヘビーなタスク実行をアピールするために、
+     * プログレスバーとカーソルの設定を行う。
+     *
+     * <p>ビジー中のActionコマンド受信は無視される。
+     *
+     * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
+     * 全てグラブされるため無視される。
+     *
+     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
+     * falseなら停止&amp;通常カーソル。
+     * @param msg フッタメッセージ。nullなら変更なし。
+     */
+    private void setBusy(boolean isBusy, String msg){
+        this.isBusyNow = isBusy;
+
+        TopFrame topFrame = getTopFrame();
+
+        Runnable microJob = () -> {
+            topFrame.setBusy(isBusy);
+            if(msg != null){
+                this.topView.updateSysMessage(msg);
+            }
+        };
+
+        if(EventQueue.isDispatchThread()){
+            microJob.run();
+        }else{
+            try{
+                EventQueue.invokeAndWait(microJob);
+            }catch(InvocationTargetException | InterruptedException e){
+                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
+            }
+        }
+
+        return;
+    }
+
+    /**
+     * ビジー状態の設定を行う。
+     *
+     * <p>フッタメッセージは変更されない。
+     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
+     * falseなら停止&amp;通常カーソル。
+     */
+    private void setBusy(boolean isBusy){
+        setBusy(isBusy, null);
+        return;
+    }
+
+    /**
+     * ステータスバーを更新する。
+     * @param message メッセージ
+     */
+    private void updateStatusBar(String message){
+        this.topView.updateSysMessage(message);
+        return;
     }
 
     /**
@@ -316,6 +439,16 @@ public class Controller
     }
 
     /**
+     * スレッドプールを用いて非EDTなタスクを投入する。
+     *
+     * @param task タスク
+     */
+    private void fork(Runnable task){
+        this.executor.execute(task);
+        return;
+    }
+
+    /**
      * About画面を表示する。
      */
     private void actionAbout(){
@@ -356,8 +489,7 @@ public class Controller
      * 村をWebブラウザで表示する。
      */
     private void actionShowWebVillage(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         Land land = village.getParentLand();
@@ -379,8 +511,7 @@ public class Controller
      * 村に対応するまとめサイトをWebブラウザで表示する。
      */
     private void actionShowWebWiki(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         String urlTxt = WolfBBS.getCastGeneratorUrl(village);
@@ -399,8 +530,7 @@ public class Controller
         Period period = periodView.getPeriod();
         if(period == null) return;
 
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         Land land = village.getParentLand();
@@ -420,8 +550,7 @@ public class Controller
      * 個別の発言をWebブラウザで表示する。
      */
     private void actionShowWebTalk(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         PeriodView periodView = currentPeriodView();
@@ -657,8 +786,7 @@ public class Controller
      * 村ダイジェスト画面を表示する。
      */
     private void actionShowDigest(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        final Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         VillageState villageState = village.getState();
@@ -680,13 +808,20 @@ public class Controller
 
         VillageDigest villageDigest = this.windowManager.getVillageDigest();
         final VillageDigest digest = villageDigest;
-        fork(() -> {
+
+        Runnable task = () -> {
             taskFullOpenAllPeriod();
             EventQueue.invokeLater(() -> {
                 digest.setVillage(village);
                 digest.setVisible(true);
             });
-        });
+        };
+
+        submitHeavyBusyTask(
+                task,
+                "一括読み込み開始",
+                "一括読み込み完了"
+        );
 
         return;
     }
@@ -696,30 +831,26 @@ public class Controller
      */
     // TODO taskLoadAllPeriodtと一体化したい。
     private void taskFullOpenAllPeriod(){
-        setBusy(true, "一括読み込み開始");
-        try{
-            TabBrowser browser = this.topView.getTabBrowser();
-            Village village = browser.getVillage();
-            if(village == null) return;
-            for(PeriodView periodView : browser.getPeriodViewList()){
-                Period period = periodView.getPeriod();
-                if(period == null) continue;
-                if(period.isFullOpen()) continue;
-                String message =
-                        period.getDay()
-                        + "日目のデータを読み込んでいます";
-                updateStatusBar(message);
-                try{
-                    PeriodLoader.parsePeriod(period, true);
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                periodView.showTopics();
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = getVillage();
+        if(village == null) return;
+        for(PeriodView periodView : browser.getPeriodViewList()){
+            Period period = periodView.getPeriod();
+            if(period == null) continue;
+            if(period.isFullOpen()) continue;
+            String message =
+                    period.getDay()
+                    + "日目のデータを読み込んでいます";
+            updateStatusBar(message);
+            try{
+                PeriodLoader.parsePeriod(period, true);
+            }catch(IOException e){
+                showNetworkError(village, e);
+                return;
             }
-        }finally{
-            setBusy(false, "一括読み込み完了");
+            periodView.showTopics();
         }
+
         return;
     }
 
@@ -902,8 +1033,7 @@ public class Controller
     private void actionReloadPeriod(){
         updatePeriod(true);
 
-        TabBrowser tabBrowser = this.topView.getTabBrowser();
-        Village village = tabBrowser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
         if(village.getState() != VillageState.EPILOGUE) return;
 
@@ -942,7 +1072,7 @@ public class Controller
      */
     private void taskLoadAllPeriod(){
         TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
         for(PeriodView periodView : browser.getPeriodViewList()){
             Period period = periodView.getPeriod();
@@ -1050,8 +1180,8 @@ public class Controller
         if(periodView == null) return;
         Discussion discussion = periodView.getDiscussion();
 
-        final TabBrowser browser = this.topView.getTabBrowser();
-        final Village village = browser.getVillage();
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = getVillage();
         final Anchor anchor = discussion.getPopupedAnchor();
         if(anchor == null) return;
 
@@ -1143,8 +1273,8 @@ public class Controller
      * @param force trueならPeriodデータを強制再読み込み。
      */
     private void updatePeriod(final boolean force){
-        final TabBrowser tabBrowser = this.topView.getTabBrowser();
-        final Village village = tabBrowser.getVillage();
+        TabBrowser tabBrowser = this.topView.getTabBrowser();
+        Village village = getVillage();
         if(village == null) return;
         setFrameTitle(village.getVillageFullName());
 
@@ -1250,55 +1380,6 @@ public class Controller
         discussion.setTopicFilter(filterPanel);
         discussion.filtering();
 
-        return;
-    }
-
-    /**
-     * 現在選択中のPeriodを内包するPeriodViewを返す。
-     * @return PeriodView
-     */
-    private PeriodView currentPeriodView(){
-        TabBrowser tb = this.topView.getTabBrowser();
-        PeriodView result = tb.currentPeriodView();
-        return result;
-    }
-
-    /**
-     * 現在選択中のPeriodを内包するDiscussionを返す。
-     * @return Discussion
-     */
-    private Discussion currentDiscussion(){
-        PeriodView periodView = currentPeriodView();
-        if(periodView == null) return null;
-        Discussion result = periodView.getDiscussion();
-        return result;
-    }
-
-    /**
-     * フレーム表示のトグル処理。
-     * @param window フレーム
-     */
-    private void toggleWindow(Window window){
-        if(window == null) return;
-
-        if(window instanceof Frame){
-            Frame frame = (Frame) window;
-            int winState = frame.getExtendedState();
-            boolean isIconified = (winState & Frame.ICONIFIED) != 0;
-            if(isIconified){
-                winState &= ~(Frame.ICONIFIED);
-                frame.setExtendedState(winState);
-                frame.setVisible(true);
-                return;
-            }
-        }
-
-        if(window.isVisible()){
-            window.setVisible(false);
-            window.dispose();
-        }else{
-            window.setVisible(true);
-        }
         return;
     }
 
@@ -1549,79 +1630,6 @@ public class Controller
                 null
         );
 
-        return;
-    }
-
-    /**
-     * ビジー状態の設定を行う。
-     *
-     * <p>ヘビーなタスク実行をアピールするために、
-     * プログレスバーとカーソルの設定を行う。
-     *
-     * <p>ビジー中のActionコマンド受信は無視される。
-     *
-     * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
-     * 全てグラブされるため無視される。
-     *
-     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     * falseなら停止&amp;通常カーソル。
-     * @param msg フッタメッセージ。nullなら変更なし。
-     */
-    private void setBusy(boolean isBusy, String msg){
-        this.isBusyNow = isBusy;
-
-        TopFrame topFrame = getTopFrame();
-
-        Runnable microJob = () -> {
-            topFrame.setBusy(isBusy);
-            if(msg != null){
-                this.topView.updateSysMessage(msg);
-            }
-        };
-
-        if(EventQueue.isDispatchThread()){
-            microJob.run();
-        }else{
-            try{
-                EventQueue.invokeAndWait(microJob);
-            }catch(InvocationTargetException | InterruptedException e){
-                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
-            }
-        }
-
-        return;
-    }
-
-    /**
-     * ビジー状態の設定を行う。
-     *
-     * <p>フッタメッセージは変更されない。
-     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     * falseなら停止&amp;通常カーソル。
-     */
-    private void setBusy(boolean isBusy){
-        setBusy(isBusy, null);
-        return;
-    }
-
-    /**
-     * ステータスバーを更新する。
-     * @param message メッセージ
-     */
-    private void updateStatusBar(String message){
-        this.topView.updateSysMessage(message);
-        return;
-    }
-
-    /**
-     * トップフレームのタイトルを設定する。
-     * タイトルは指定された国or村名 + " - Jindolf"
-     * @param name 国or村名
-     */
-    private void setFrameTitle(String name){
-        String title = VerInfo.getFrameTitle(name);
-        TopFrame topFrame = this.windowManager.getTopFrame();
-        topFrame.setTitle(title);
         return;
     }
 
