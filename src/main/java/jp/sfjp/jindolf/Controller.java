@@ -16,7 +16,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -32,8 +31,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.LookAndFeel;
-import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -585,35 +582,14 @@ public class Controller
     }
 
     /**
-     * L&amp;Fの変更を行う。
+     * L&amp;Fの変更指示を受信する。
      */
     private void actionChangeLaF(){
         String className = this.actionManager.getSelectedLookAndFeel();
         if(className == null) return;
 
-        Class<?> lnfClass;
-        try{
-            lnfClass = Class.forName(className);
-        }catch(ClassNotFoundException e){
-            String warnMsg =
-                    MessageFormat.format(ERRFORM_LAFLOAD, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }
-
-        LookAndFeel lnf;
-        try{
-            Constructor<?> cons;
-            cons = lnfClass.getDeclaredConstructor();
-            lnf = (LookAndFeel) cons.newInstance();
-        }catch(ReflectiveOperationException e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAFGEN, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }
-
         submitLightBusyTask(
-            () -> {taskChangeLaF(lnf);},
+            () -> {taskChangeLaF(className);},
             "Look&Feelを更新中…",
             "Look&Feelが更新されました"
         );
@@ -622,26 +598,29 @@ public class Controller
     }
 
     /**
-     * LookAndFeelの実際の更新を行う。
+     * LookAndFeelの実際の更新を行う軽量タスク。
+     *
      * @param lnf LookAndFeel
      */
-    private void taskChangeLaF(LookAndFeel lnf){
+    private void taskChangeLaF(String className){
         assert EventQueue.isDispatchThread();
 
         try{
-            UIManager.setLookAndFeel(lnf);
+            this.windowManager.changeAllWindowUI(className);
         }catch(UnsupportedLookAndFeelException e){
             String warnMsg = MessageFormat.format(
                     "このLook&Feel[{0}]はサポートされていません。",
-                    lnf.getName() );
+                    className);
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
+            return;
+        }catch(ReflectiveOperationException e){
+            String warnMsg = MessageFormat.format(ERRFORM_LAFGEN, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
 
-        this.windowManager.changeAllWindowUI();
-
         LOGGER.log(Level.INFO,
-                   "Look&Feelが[{0}]に変更されました。", lnf.getName() );
+                   "Look&Feelが[{0}]に変更されました。", className );
 
         return;
     }

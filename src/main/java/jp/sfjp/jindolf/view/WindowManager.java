@@ -7,15 +7,14 @@
 
 package jp.sfjp.jindolf.view;
 
-import java.awt.Component;
-import java.awt.Container;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Window;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.log.LogFrame;
@@ -366,75 +365,27 @@ public class WindowManager {
 
     /**
      * 管理下にある全ウィンドウのLookAndFeelを更新する。
-     * 必要に応じて再パッキングが行われる。
+     *
+     * <p>必要に応じて再パッキングが行われる。
+     *
+     * @param className Look and Feel
+     * @throws java.lang.ReflectiveOperationException reflection error
+     * @throws javax.swing.UnsupportedLookAndFeelException Unsupported LAF
      */
-    public void changeAllWindowUI(){
-        for(Window window : this.windowSet){
-            updateTreeUI(window);
-        }
+    public void changeAllWindowUI(String className)
+            throws ReflectiveOperationException,
+                   UnsupportedLookAndFeelException {
+        assert EventQueue.isDispatchThread();
+
+        UIManager.setLookAndFeel(className);
+
+        this.windowSet.forEach((window) -> {
+            SwingUtilities.updateComponentTreeUI(window);
+        });
 
         if(this.filterPanel  != null) this.filterPanel.pack();
         if(this.findPanel    != null) this.findPanel.pack();
         if(this.accountPanel != null) this.accountPanel.pack();
-
-        return;
-    }
-
-    /**
-     * 再帰的に下層コンポーネントのLaFを更新する。
-     *
-     * <p>{@link javax.swing.SwingUtilities#updateComponentTreeUI(Component)}
-     * がポップアップメニューのLaF更新を正しく行わないSun製JREのバグ
-     * [BugID:6299213]
-     * を回避するために作られた。
-     *
-     * @param comp 開始コンポーネント
-     * @see <a href="http://bugs.sun.com/view_bug.do?bug_id=6299213">
-     *     BugID:6299213
-     * </a>
-     */
-    public static void updateTreeUI(Component comp) {
-        updateTreeUI(comp, true);
-        return;
-    }
-
-    /**
-     * 再帰的に下層コンポーネントのLaFを更新する。
-     * @param comp 開始コンポーネント
-     * @param isRoot このコンポーネントが最上位か否か指定する。
-     *     trueが指定された場合、LaF更新作業の後に再レイアウトを促す。
-     *     パフォーマンスの観点から、
-     *     ポップアップ以外の下層コンポーネントには
-     *     必要のない限りfalse指定を推奨。
-     */
-    public static void updateTreeUI(Component comp, boolean isRoot) {
-        if(comp instanceof JComponent){
-            JComponent jcomp = (JComponent) comp;
-            jcomp.updateUI();
-
-            JPopupMenu popup = jcomp.getComponentPopupMenu();
-            if(popup != null){
-                updateTreeUI(popup, true);
-            }
-        }
-
-        if(comp instanceof JMenu){
-            JMenu menu = (JMenu) comp;
-            for(Component child : menu.getMenuComponents()){
-                updateTreeUI(child, false);
-            }
-        }else if(comp instanceof Container){
-            Container cont = (Container) comp;
-            for(Component child : cont.getComponents()){
-                updateTreeUI(child, false);
-            }
-        }
-
-        if(isRoot){
-            comp.invalidate();
-            comp.validate();
-            comp.repaint();
-        }
 
         return;
     }
