@@ -27,7 +27,7 @@ import jp.sfjp.jindolf.glyph.Discussion;
 import jp.sfjp.jindolf.glyph.FontInfo;
 
 /**
- * タブを用いて村情報と各Periodを閲覧するためのコンポーネント。
+ * タブを用いて村情報と各Periodを切り替え表示するためのコンポーネント。
  */
 @SuppressWarnings("serial")
 public class TabBrowser extends JTabbedPane{
@@ -42,8 +42,11 @@ public class TabBrowser extends JTabbedPane{
     private final EventListenerList thisListenerList =
             new EventListenerList();
 
+
     /**
-     * 村が指定されていない状態のタブパネルを生成する。
+     * コンストラクタ。
+     *
+     * <p>村が指定されていない状態のタブパネルを生成する。
      */
     public TabBrowser(){
         super();
@@ -81,6 +84,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 設定された村を返す。
+     *
      * @return 設定された村
      */
     public Village getVillage(){
@@ -89,6 +93,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 新規に村を設定する。
+     *
      * @param village 新しい村
      */
     public final void setVillage(Village village){
@@ -143,6 +148,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 指定した数のPeriodが収まるよう必要十分なタブ数を用意する。
+     *
      * @param periods Periodの数
      */
     private void modifyTabCount(int periods){ // TODO 0でも大丈夫?
@@ -167,6 +173,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * Period日付指定からタブインデックス値への変換。
+     *
      * @param days Period日付指定
      * @return タブインデックス
      */
@@ -178,6 +185,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * タブインデックス値からPeriod日付指定への変換。
+     *
      * @param tabIndex タブインデックス
      * @return Period日付指定
      */
@@ -189,6 +197,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * PeriodView一覧を得る。
+     *
      * @return PeriodView の List
      */
     public List<PeriodView> getPeriodViewList(){
@@ -208,7 +217,9 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 現在タブ選択中のDiscussionを返す。
-     * Periodに関係ないタブが選択されていたらnullを返す。
+     *
+     * <p>Periodに関係ないタブが選択されていたらnullを返す。
+     *
      * @return 現在選択中のDiscussion
      */
     public Discussion currentDiscussion(){
@@ -219,7 +230,9 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 現在タブ選択中のPeriodViewを返す。
-     * Periodに関係ないタブが選択されていたらnullを返す。
+     *
+     * <p>Periodに関係ないタブが選択されていたらnullを返す。
+     *
      * @return 現在選択中のPeriodView
      */
     public PeriodView currentPeriodView(){
@@ -230,7 +243,9 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 指定したタブインデックスに関連付けられたPeriodViewを返す。
-     * Periodに関係ないタブが指定されたらnullを返す。
+     *
+     * <p>Periodに関係ないタブが指定されたらnullを返す。
+     *
      * @param tabIndex タブインデックス
      * @return 指定されたPeriodView
      */
@@ -248,7 +263,9 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 指定したタブインデックスに関連付けられたDiscussionを返す。
-     * Periodに関係ないタブが指定されたらnullを返す。
+     *
+     * <p>Periodに関係ないタブが指定されたらnullを返す。
+     *
      * @param tabIndex タブインデックス
      * @return 指定されたDiscussion
      */
@@ -262,6 +279,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * フォント描画設定を変更する。
+     *
      * @param fontInfo フォント
      */
     public void setFontInfo(FontInfo fontInfo){
@@ -278,6 +296,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * 発言表示設定を変更する。
+     *
      * @param dialogPref 発言表示設定
      */
     public void setDialogPref(DialogPref dialogPref){
@@ -294,6 +313,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * ActionListenerを追加する。
+     *
      * @param listener リスナー
      */
     public void addActionListener(ActionListener listener){
@@ -313,6 +333,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * ActionListenerを削除する。
+     *
      * @param listener リスナー
      */
     public void removeActionListener(ActionListener listener){
@@ -332,6 +353,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * ActionListenerを列挙する。
+     *
      * @return すべてのActionListener
      */
     public ActionListener[] getActionListeners(){
@@ -340,6 +362,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * AnchorHitListenerを追加する。
+     *
      * @param listener リスナー
      */
     public void addAnchorHitListener(AnchorHitListener listener){
@@ -359,6 +382,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * AnchorHitListenerを削除する。
+     *
      * @param listener リスナー
      */
     public void removeAnchorHitListener(AnchorHitListener listener){
@@ -378,6 +402,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * AnchorHitListenerを列挙する。
+     *
      * @return すべてのAnchorHitListener
      */
     public AnchorHitListener[] getAnchorHitListeners(){
@@ -386,6 +411,7 @@ public class TabBrowser extends JTabbedPane{
 
     /**
      * {@inheritDoc}
+     *
      * @param <T> {@inheritDoc}
      * @param listenerType {@inheritDoc}
      * @return {@inheritDoc}

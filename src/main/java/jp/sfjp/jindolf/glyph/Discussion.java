@@ -56,11 +56,19 @@ import jp.sfjp.jindolf.view.ActionManager;
 import jp.sfjp.jindolf.view.TopicFilter;
 
 /**
- * 発言表示画面。
+ * 会話表示画面。
  *
- * <p>表示に影響する要因は、Periodの中身、LayoutManagerによるサイズ変更、
- * フォント属性の指定、フィルタリング操作、ドラッギングによる文字列選択操作、
- * 文字列検索および検索ナビゲーション。
+ * <p>担当責務は
+ * <ul>
+ * <li>会話表示</li>
+ * <li>フィルタによる表示絞り込み</li>
+ * <li>検索結果ハイライト</li>
+ * <li>テキストのドラッグ選択</li>
+ * <li>アンカー選択処理</li>
+ * <li>テキストのCopyAndPaste</li>
+ * <li>ポップアップメニュー</li>
+ * </ul>
+ * など
  */
 @SuppressWarnings("serial")
 public class Discussion extends JComponent
@@ -71,6 +79,7 @@ public class Discussion extends JComponent
 
     private static final int MARGINTOP    =  50;
     private static final int MARGINBOTTOM = 100;
+
 
     private Period period;
     private final List<TextRow> rowList       = new LinkedList<>();
@@ -98,8 +107,11 @@ public class Discussion extends JComponent
     private final Action copySelectedAction =
             new ProxyAction(ActionManager.CMD_COPY);
 
+
     /**
-     * 発言表示画面を作成する。
+     * コンストラクタ。
+     *
+     * <p>会話表示画面を作成する。
      */
     @SuppressWarnings("LeakingThisInConstructor")
     public Discussion(){
@@ -133,7 +145,8 @@ public class Discussion extends JComponent
 
     /**
      * 描画設定の更新。
-     * FontRenderContextが更新された後は必ず呼び出す必要がある。
+     *
+     * <p>FontRenderContextが更新された後は必ず呼び出す必要がある。
      */
     private void updateRenderingHints(){
         Object textAliaseValue;
@@ -177,6 +190,7 @@ public class Discussion extends JComponent
 
     /**
      * フォント描画設定を変更する。
+     *
      * @param newFontInfo フォント設定
      */
     public void setFontInfo(FontInfo newFontInfo){
@@ -198,8 +212,9 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 発言表示設定を変更する。
-     * @param newPref 発言表示設定
+     * 会話表示設定を変更する。
+     *
+     * @param newPref 会話表示設定
      */
     public void setDialogPref(DialogPref newPref){
         this.dialogPref = newPref;
@@ -225,6 +240,7 @@ public class Discussion extends JComponent
 
     /**
      * 現在のPeriodを返す。
+     *
      * @return 現在のPeriod
      */
     public Period getPeriod(){
@@ -233,7 +249,9 @@ public class Discussion extends JComponent
 
     /**
      * Periodを更新する。
-     * 新しいPeriodの表示内容はまだ反映されない。
+     *
+     * <p>新しいPeriodの表示内容はまだ反映されない。
+     *
      * @param period 新しいPeriod
      */
     public final void setPeriod(Period period){
@@ -287,8 +305,9 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 発言フィルタを設定する。
-     * @param filter 発言フィルタ
+     * 会話フィルタを設定する。
+     *
+     * @param filter 会話フィルタ
      */
     public void setTopicFilter(TopicFilter filter){
         this.topicFilter = filter;
@@ -297,7 +316,7 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 発言フィルタを適用する。
+     * 会話フィルタを適用する。
      */
     public void filtering(){
         if(    this.topicFilter != null
@@ -321,6 +340,7 @@ public class Discussion extends JComponent
 
     /**
      * 検索パターンを取得する。
+     *
      * @return 検索パターン
      */
     public RegexPattern getRegexPattern(){
@@ -329,6 +349,7 @@ public class Discussion extends JComponent
 
     /**
      * 与えられた正規表現にマッチする文字列をハイライト描画する。
+     *
      * @param newPattern 検索パターン
      * @return ヒット件数
      */
@@ -486,6 +507,7 @@ public class Discussion extends JComponent
     /**
      * 指定した領域に若干の上下マージンを付けて
      * スクロールウィンドウに表示させる。
+     *
      * @param rectangle 指定領域
      */
     private void scrollRectWithMargin(Rectangle rectangle){
@@ -510,6 +532,7 @@ public class Discussion extends JComponent
 
     /**
      * 指定した矩形がフィルタリング対象か判定する。
+     *
      * @param row 矩形
      * @return フィルタリング対象ならtrue
      */
@@ -541,7 +564,9 @@ public class Discussion extends JComponent
 
     /**
      * 幅を設定する。
-     * 全子TextRowがリサイズされる。
+     *
+     * <p>全子TextRowがリサイズされる。
+     *
      * @param width コンポーネント幅
      */
     private void setWidth(int width){
@@ -559,8 +584,10 @@ public class Discussion extends JComponent
 
     /**
      * 子TextRowの縦位置レイアウトを行う。
-     * フィルタリングが反映される。
-     * TextRowは必要に応じて移動させられるがリサイズされることはない。
+     *
+     * <p>フィルタリングが反映される。
+     *
+     * <p>TextRowは必要に応じて移動させられるがリサイズされることはない。
      */
     private void layoutVertical(){
         Rectangle unionRect = null;
@@ -613,6 +640,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
+     * <p>描画処理
+     *
      * @param g {@inheritDoc}
      */
     @Override
@@ -637,6 +667,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -646,6 +677,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -655,6 +687,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -664,6 +697,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param visibleRect {@inheritDoc}
      * @param orientation {@inheritDoc}
      * @param direction {@inheritDoc}
@@ -681,6 +715,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param visibleRect {@inheritDoc}
      * @param orientation {@inheritDoc}
      * @param direction {@inheritDoc}
@@ -694,9 +729,11 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 任意の発言の表示が占める画面領域を返す。
-     * 発言がフィルタリング対象の時はnullを返す。
-     * @param talk 発言
+     * 任意の会話の表示が占める画面領域を返す。
+     *
+     * <p>会話がフィルタリング対象の時はnullを返す。
+     *
+     * @param talk 会話
      * @return 領域
      */
     public Rectangle getTalkBounds(Talk talk){
@@ -715,6 +752,7 @@ public class Discussion extends JComponent
 
     /**
      * ドラッグ処理を行う。
+     *
      * @param from ドラッグ開始位置
      * @param to 現在のドラッグ位置
      */
@@ -743,9 +781,10 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 与えられた点座標を包含する発言を返す。
+     * 与えられた点座標を包含する会話を返す。
+     *
      * @param pt 点座標（JComponent基準）
-     * @return 点座標を含む発言。含む発言がなければnullを返す。
+     * @return 点座標を含む会話。含む会話がなければnullを返す。
      */
     // TODO 二分探索とかしたい。
     private TalkDraw getHittedTalkDraw(Point pt){
@@ -759,6 +798,7 @@ public class Discussion extends JComponent
 
     /**
      * アンカークリック動作の処理。
+     *
      * @param pt クリックポイント
      */
     private void hitAnchor(Point pt){
@@ -779,6 +819,7 @@ public class Discussion extends JComponent
 
     /**
      * 検索マッチ文字列クリック動作の処理。
+     *
      * @param pt クリックポイント
      */
     private void hitRegex(Point pt){
@@ -796,8 +837,11 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * アンカーヒット処理を行う。
-     * MouseInputListenerを参照せよ。
+     *
+     * <p>アンカーヒット処理を行う。
+     *
+     * <p>MouseInputListenerを参照せよ。
+     *
      * @param event {@inheritDoc}
      */
     // TODO 距離判定がシビアすぎ
@@ -814,6 +858,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -824,6 +869,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -833,7 +879,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * ドラッグ開始処理を行う。
+     *
+     * <p>ドラッグ開始処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -850,7 +898,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * ドラッグ終了処理を行う。
+     *
+     * <p>ドラッグ終了処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -863,7 +913,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * ドラッグ処理を行う。
+     *
+     * <p>ドラッグ処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     // TODO ドラッグ範囲がビューポートを超えたら自動的にスクロールしてほしい。
@@ -877,6 +929,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -886,6 +939,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -895,6 +949,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -904,6 +959,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -913,6 +969,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -931,6 +988,7 @@ public class Discussion extends JComponent
 
     /**
      * 選択文字列を返す。
+     *
      * @return 選択文字列
      */
     public CharSequence getSelected(){
@@ -953,6 +1011,7 @@ public class Discussion extends JComponent
 
     /**
      * 選択文字列をクリップボードにコピーする。
+     *
      * @return 選択文字列
      */
     public CharSequence copySelected(){
@@ -963,7 +1022,8 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 矩形の示す一発言をクリップボードにコピーする。
+     * 一会話全体の文字列内容をクリップボードにコピーする。
+     *
      * @return コピーした文字列
      */
     public CharSequence copyTalk(){
@@ -994,8 +1054,9 @@ public class Discussion extends JComponent
     }
 
     /**
-     * ポップアップメニュートリガ座標に発言があればそれを返す。
-     * @return 発言
+     * ポップアップメニュートリガ座標に会話があればそれを返す。
+     *
+     * @return 会話
      */
     public Talk getPopupedTalk(){
         TalkDraw talkDraw = this.popup.lastPopupedTalkDraw;
@@ -1006,6 +1067,7 @@ public class Discussion extends JComponent
 
     /**
      * ポップアップメニュートリガ座標にアンカーがあればそれを返す。
+     *
      * @return アンカー
      */
     public Anchor getPopupedAnchor(){
@@ -1027,7 +1089,8 @@ public class Discussion extends JComponent
 
     /**
      * COPY処理を行うキーの設定をJTextFieldから流用する。
-     * おそらくはCtrl-C。MacならCommand-Cかも。
+     *
+     * <p>おそらくはCtrl-C。MacならCommand-Cかも。
      */
     private void updateInputMap(){
         InputMap thisInputMap = getInputMap();
@@ -1047,6 +1110,7 @@ public class Discussion extends JComponent
 
     /**
      * ActionListenerを追加する。
+     *
      * @param listener リスナー
      */
     public void addActionListener(ActionListener listener){
@@ -1063,6 +1127,7 @@ public class Discussion extends JComponent
 
     /**
      * ActionListenerを削除する。
+     *
      * @param listener リスナー
      */
     public void removeActionListener(ActionListener listener){
@@ -1079,6 +1144,7 @@ public class Discussion extends JComponent
 
     /**
      * ActionListenerを列挙する。
+     *
      * @return すべてのActionListener
      */
     public ActionListener[] getActionListeners(){
@@ -1087,6 +1153,7 @@ public class Discussion extends JComponent
 
     /**
      * AnchorHitListenerを追加する。
+     *
      * @param listener リスナー
      */
     public void addAnchorHitListener(AnchorHitListener listener){
@@ -1096,6 +1163,7 @@ public class Discussion extends JComponent
 
     /**
      * AnchorHitListenerを削除する。
+     *
      * @param listener リスナー
      */
     public void removeAnchorHitListener(AnchorHitListener listener){
@@ -1105,6 +1173,7 @@ public class Discussion extends JComponent
 
     /**
      * AnchorHitListenerを列挙する。
+     *
      * @return すべてのAnchorHitListener
      */
     public AnchorHitListener[] getAnchorHitListeners(){
@@ -1113,6 +1182,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param <T> {@inheritDoc}
      * @param listenerType {@inheritDoc}
      * @return {@inheritDoc}
@@ -1138,6 +1208,7 @@ public class Discussion extends JComponent
 
         /**
          * コンストラクタ。
+         *
          * @param command コマンド
          * @throws NullPointerException 引数がnull
          */
@@ -1150,6 +1221,7 @@ public class Discussion extends JComponent
 
         /**
          * {@inheritDoc}
+         *
          * @param event {@inheritDoc}
          */
         @Override
@@ -1224,6 +1296,7 @@ public class Discussion extends JComponent
 
         /**
          * {@inheritDoc}
+         *
          * @param comp {@inheritDoc}
          * @param x {@inheritDoc}
          * @param y {@inheritDoc}
@@ -1266,6 +1339,4 @@ public class Discussion extends JComponent
         }
     }
 
-    // TODO シンプルモードの追加
-    // Period変更を追跡するリスナ化
 }

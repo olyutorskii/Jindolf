@@ -41,7 +41,17 @@ import jp.sfjp.jindolf.glyph.TalkDraw;
 import jp.sourceforge.jindolf.corelib.TalkType;
 
 /**
- * 発言ブラウザを内包するPeriodビューワ。
+ * 各Periodのビュー。
+ *
+ * <P>Periodの内容が反映される。
+ *
+ * <p>キャプション(村名、Period名)、
+ * リミット(更新時刻)、
+ * プルダウンリストによる会話セレクタ
+ * の管理制御を担当する。
+ *
+ * <p>会話表示{@link Discussion}のスクロール制御
+ * を担当する。
  */
 @SuppressWarnings("serial")
 public class PeriodView extends JPanel implements ItemListener{
@@ -49,6 +59,7 @@ public class PeriodView extends JPanel implements ItemListener{
     private static final Color COLOR_SELECT = new Color(0xffff80);
     private static final Color COLOR_NORMALBG = Color.BLACK;
     private static final Color COLOR_SIMPLEBG = Color.WHITE;
+
 
     private Period period;
 
@@ -62,8 +73,10 @@ public class PeriodView extends JPanel implements ItemListener{
 
     private DialogPref dialogPref = new DialogPref();
 
+
     /**
-     * 発言ブラウザを内包するPeriodビューワを生成する。
+     * コンストラクタ。
+     *
      * @param period 日
      */
     @SuppressWarnings("LeakingThisInConstructor")
@@ -155,8 +168,10 @@ public class PeriodView extends JPanel implements ItemListener{
 
     /**
      * Periodを更新する。
-     * 古いPeriodの表示内容は消える。
+     *
+     * <p>古いPeriodの表示内容は消える。
      * 新しいPeriodの表示内容はまだ反映されない。
+     *
      * @param period 新しいPeriod
      */
     public void setPeriod(Period period){
@@ -171,6 +186,7 @@ public class PeriodView extends JPanel implements ItemListener{
 
     /**
      * 現在のPeriodを返す。
+     *
      * @return 現在のPeriod
      */
     public Period getPeriod(){
@@ -178,7 +194,7 @@ public class PeriodView extends JPanel implements ItemListener{
     }
 
     /**
-     * 上部のGUI(村名、発言一覧)を、Periodの状態に合わせて更新する。
+     * 上部の村名、会話プルダウンリストを、Periodの状態に合わせて更新する。
      */
     private void updateTopPanel(){
         if(this.period == null){
@@ -232,6 +248,7 @@ public class PeriodView extends JPanel implements ItemListener{
 
     /**
      * フォント描画設定を変更する。
+     *
      * @param fontInfo フォント設定
      */
     // TODO スクロール位置の復元
@@ -245,7 +262,8 @@ public class PeriodView extends JPanel implements ItemListener{
     }
 
     /**
-     * 発言表示設定を更新する。
+     * 会話表示設定を変更する。
+     *
      * @param pref 表示設定
      */
     public void setDialogPref(DialogPref pref){
@@ -260,15 +278,17 @@ public class PeriodView extends JPanel implements ItemListener{
     }
 
     /**
-     * ビューポート内の発言ブラウザを返す。
-     * @return 内部ブラウザ
+     * ビューポート内の会話表示{@link Discussion}を返す。
+     *
+     * @return 会話表示
      */
     public Discussion getDiscussion(){
         return this.discussion;
     }
 
     /**
-     * スクロール位置を返す。
+     * 縦スクロール位置を返す。
+     *
      * @return スクロール位置
      */
     public int getVerticalPosition(){
@@ -278,7 +298,8 @@ public class PeriodView extends JPanel implements ItemListener{
     }
 
     /**
-     * スクロール位置を設定する。
+     * 縦スクロール位置を設定する。
+     *
      * @param pos スクロール位置
      */
     public void setVerticalPosition(int pos){
@@ -289,7 +310,9 @@ public class PeriodView extends JPanel implements ItemListener{
 
     /**
      * {@inheritDoc}
-     * コンボボックス操作のリスナ。
+     *
+     * <p>コンボボックス操作(会話プルダウンリスト)のリスナ。
+     *
      * @param event コンボボックス操作イベント {@inheritDoc}
      */
     @Override
@@ -306,7 +329,8 @@ public class PeriodView extends JPanel implements ItemListener{
     }
 
     /**
-     * 任意の発言が表示されるようスクロールする。
+     * 任意の会話が表示域に収まるようスクロールを試みる。
+     *
      * @param talk 発言
      */
     public void scrollToTalk(Talk talk){
@@ -339,7 +363,9 @@ public class PeriodView extends JPanel implements ItemListener{
 
         /**
          * {@inheritDoc}
-         * Talkのアンカー表記と発言者名を描画する。
+         *
+         * <p>Talkのアンカー表記と発言者名を描画する。
+         *
          * @param list {@inheritDoc}
          * @param value {@inheritDoc}
          * @param index {@inheritDoc}
