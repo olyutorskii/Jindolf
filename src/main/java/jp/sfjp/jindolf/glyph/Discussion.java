@@ -1012,7 +1012,7 @@ public class Discussion extends JComponent
     /**
      * 選択文字列をクリップボードにコピーする。
      *
-     * @return 選択文字列
+     * @return 選択文字列。なければnull
      */
     public CharSequence copySelected(){
         CharSequence selected = getSelected();
@@ -1264,6 +1264,7 @@ public class Discussion extends JComponent
         private TalkDraw lastPopupedTalkDraw;
         private Anchor lastPopupedAnchor;
 
+
         /**
          * コンストラクタ。
          */
@@ -1294,8 +1295,13 @@ public class Discussion extends JComponent
             return;
         }
 
+
         /**
          * {@inheritDoc}
+         *
+         * <p>状況に応じてボタン群をマスクする。
+         *
+         * <p>ポップアップクリックの対象となった会話やアンカーを記録する。
          *
          * @param comp {@inheritDoc}
          * @param x {@inheritDoc}
@@ -1304,39 +1310,29 @@ public class Discussion extends JComponent
         @Override
         public void show(Component comp, int x, int y){
             Point point = new Point(x, y);
-
             this.lastPopupedTalkDraw = getHittedTalkDraw(point);
-            if(this.lastPopupedTalkDraw != null){
-                this.menuSelTalk.setEnabled(true);
-                this.menuWebTalk.setEnabled(true);
-            }else{
-                this.menuSelTalk.setEnabled(false);
-                this.menuWebTalk.setEnabled(false);
-            }
+            boolean talkPointed = this.lastPopupedTalkDraw != null;
 
-            if(this.lastPopupedTalkDraw != null){
+            if(talkPointed){
                 this.lastPopupedAnchor =
                         this.lastPopupedTalkDraw.getAnchor(point);
             }else{
                 this.lastPopupedAnchor = null;
             }
+            boolean anchorPointed = this.lastPopupedAnchor != null;
 
-            if(this.lastPopupedAnchor != null){
-                this.menuJumpAnchor.setEnabled(true);
-            }else{
-                this.menuJumpAnchor.setEnabled(false);
-            }
+            boolean hasSelectedText = getSelected() != null;
 
-            if(getSelected() != null){
-                this.menuCopy.setEnabled(true);
-            }else{
-                this.menuCopy.setEnabled(false);
-            }
+            this.menuSelTalk    .setEnabled(talkPointed);
+            this.menuWebTalk    .setEnabled(talkPointed);
+            this.menuJumpAnchor .setEnabled(anchorPointed);
+            this.menuCopy       .setEnabled(hasSelectedText);
 
             super.show(comp, x, y);
 
             return;
         }
+
     }
 
 }
