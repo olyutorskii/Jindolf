@@ -23,7 +23,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.io.IOException;
-import java.util.EventListener;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -39,7 +39,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.MouseInputListener;
 import javax.swing.text.DefaultEditorKit;
 import jp.sfjp.jindolf.data.Anchor;
@@ -101,12 +100,6 @@ public class Discussion extends JComponent
 
     private final DiscussionPopup popup = new DiscussionPopup();
 
-    private final EventListenerList thisListenerList =
-            new EventListenerList();
-
-    private final Action copySelectedAction =
-            new ProxyAction(ActionManager.CMD_COPY);
-
 
     /**
      * コンストラクタ。
@@ -134,9 +127,8 @@ public class Discussion extends JComponent
 
         setComponentPopupMenu(this.popup);
 
-        updateInputMap();
-        ActionMap actionMap = getActionMap();
-        actionMap.put(DefaultEditorKit.copyAction, this.copySelectedAction);
+        modifyInputMap();
+        modifyActionMap();
 
         setColorDesign();
 
@@ -1082,7 +1074,7 @@ public class Discussion extends JComponent
         super.updateUI();
         this.popup.updateUI();
 
-        updateInputMap();
+        modifyInputMap();
 
         return;
     }
@@ -1091,30 +1083,48 @@ public class Discussion extends JComponent
      * COPY処理を行うキーの設定をJTextFieldから流用する。
      *
      * <p>おそらくはCtrl-C。MacならCommand-Cかも。
+     *
+     * <p>キー設定はLookAndFeelにより異なる可能性がある。
      */
-    private void updateInputMap(){
+    private void modifyInputMap(){
         InputMap thisInputMap = getInputMap();
 
+        JComponent sampleComp = new JTextField();
         InputMap sampleInputMap;
-        sampleInputMap = new JTextField().getInputMap();
-        KeyStroke[] strokes = sampleInputMap.allKeys();
-        for(KeyStroke stroke : strokes){
-            Object bind = sampleInputMap.get(stroke);
-            if(bind.equals(DefaultEditorKit.copyAction)){
-                thisInputMap.put(stroke, DefaultEditorKit.copyAction);
-            }
-        }
+        sampleInputMap = sampleComp.getInputMap();
 
+        KeyStroke[] strokes = sampleInputMap.allKeys();
+        Arrays.stream(strokes).filter((stroke) -> {
+            Object binding = sampleInputMap.get(stroke);
+            return DefaultEditorKit.copyAction.equals(binding);
+        }).forEach((stroke) ->
+            thisInputMap.put(stroke, DefaultEditorKit.copyAction)
+        );
+
+        return;
+    }
+
+    /**
+     * COPY処理を行うActionを割り当てる。
+     */
+    private void modifyActionMap(){
+        ActionMap actionMap = getActionMap();
+        Action copyAction = new CopySelAction();
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
         return;
     }
 
     /**
      * ActionListenerを追加する。
      *
+     * <p>対象となるActionは、
+     * COPYキー操作によって選択文字列からクリップボードへの
+     * コピーが指示される場合のみ。
+     *
      * @param listener リスナー
      */
     public void addActionListener(ActionListener listener){
-        this.thisListenerList.add(ActionListener.class, listener);
+        this.listenerList.add(ActionListener.class, listener);
 
         this.popup.menuCopy       .addActionListener(listener);
         this.popup.menuSelTalk    .addActionListener(listener);
@@ -1131,7 +1141,7 @@ public class Discussion extends JComponent
      * @param listener リスナー
      */
     public void removeActionListener(ActionListener listener){
-        this.thisListenerList.remove(ActionListener.class, listener);
+        this.listenerList.remove(ActionListener.class, listener);
 
         this.popup.menuCopy       .removeActionListener(listener);
         this.popup.menuSelTalk    .removeActionListener(listener);
@@ -1148,7 +1158,33 @@ public class Discussion extends JComponent
      * @return すべてのActionListener
      */
     public ActionListener[] getActionListeners(){
-        return this.thisListenerList.getListeners(ActionListener.class);
+        return this.listenerList.getListeners(ActionListener.class);
+    }
+
+    /**
+     * 登録済みリスナに対しActionEventを発火する。
+     *
+     * <p>対象となるActionは、
+     * COPYキー操作によって選択文字列からクリップボードへの
+     * コピーが指示される場合のみ。
+     *
+     * @param event イベント
+     */
+    protected void fireActionPerformed(ActionEvent event) {
+        Object source  = event.getSource();
+        int id         = event.getID();
+        String actcmd  = event.getActionCommand();
+        long when      = event.getWhen();
+        int modifiers  = event.getModifiers();
+
+        ActionEvent newEvent =
+                new ActionEvent(source, id, actcmd, when, modifiers);
+
+        for(ActionListener listener : getActionListeners()){
+            listener.actionPerformed(newEvent);
+        }
+
+        return;
     }
 
     /**
@@ -1157,7 +1193,7 @@ public class Discussion extends JComponent
      * @param listener リスナー
      */
     public void addAnchorHitListener(AnchorHitListener listener){
-        this.thisListenerList.add(AnchorHitListener.class, listener);
+        this.listenerList.add(AnchorHitListener.class, listener);
         return;
     }
 
@@ -1167,7 +1203,7 @@ public class Discussion extends JComponent
      * @param listener リスナー
      */
     public void removeAnchorHitListener(AnchorHitListener listener){
-        this.thisListenerList.remove(AnchorHitListener.class, listener);
+        this.listenerList.remove(AnchorHitListener.class, listener);
         return;
     }
 
@@ -1177,72 +1213,43 @@ public class Discussion extends JComponent
      * @return すべてのAnchorHitListener
      */
     public AnchorHitListener[] getAnchorHitListeners(){
-        return this.thisListenerList.getListeners(AnchorHitListener.class);
+        return this.listenerList.getListeners(AnchorHitListener.class);
     }
 
+
     /**
-     * {@inheritDoc}
+     * COPYキーボード操作受信用ダミーAction。
      *
-     * @param <T> {@inheritDoc}
-     * @param listenerType {@inheritDoc}
-     * @return {@inheritDoc}
+     * <p>COPYキー押下イベントはCOPYコマンド実行イベントに変換され、
+     * {@link Discussion}のリスナへ通知される。
      */
-    @Override
-    public <T extends EventListener> T[] getListeners(Class<T> listenerType){
-        T[] result;
-        result = this.thisListenerList.getListeners(listenerType);
-
-        if(result.length <= 0){
-            result = super.getListeners(listenerType);
-        }
-
-        return result;
-    }
-
-    /**
-     * キーボード入力用ダミーAction。
-     */
-    private class ProxyAction extends AbstractAction{
-
-        private final String command;
+    private class CopySelAction extends AbstractAction{
 
         /**
          * コンストラクタ。
-         *
-         * @param command コマンド
-         * @throws NullPointerException 引数がnull
          */
-        public ProxyAction(String command) throws NullPointerException{
+        CopySelAction() throws NullPointerException{
             super();
-            if(command == null) throw new NullPointerException();
-            this.command = command;
             return;
         }
 
         /**
          * {@inheritDoc}
          *
-         * @param event {@inheritDoc}
+         * @param event COPYキーボード押下イベント
          */
         @Override
         public void actionPerformed(ActionEvent event){
-            Object source  = event.getSource();
-            int id         = event.getID();
-            String actcmd  = this.command;
-            long when      = event.getWhen();
-            int modifiers  = event.getModifiers();
-
-            for(ActionListener listener : getActionListeners()){
-                ActionEvent newEvent = new ActionEvent(source,
-                                                       id,
-                                                       actcmd,
-                                                       when,
-                                                       modifiers );
-                listener.actionPerformed(newEvent);
-            }
-
+            ActionEvent newEvent =
+                    new ActionEvent(
+                            this,
+                            ActionEvent.ACTION_PERFORMED,
+                            ActionManager.CMD_COPY
+                    );
+            fireActionPerformed(newEvent);
             return;
         }
+
     }
 
     /**
