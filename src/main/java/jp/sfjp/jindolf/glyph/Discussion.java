@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -70,7 +71,7 @@ import jp.sfjp.jindolf.view.TopicFilter;
  * など
  */
 @SuppressWarnings("serial")
-public class Discussion extends JComponent
+public final class Discussion extends JComponent
         implements Scrollable, MouseInputListener, ComponentListener{
 
     private static final Color COLOR_NORMALBG = Color.BLACK;
@@ -99,6 +100,8 @@ public class Discussion extends JComponent
     private int lastWidth = -1;
 
     private final DiscussionPopup popup = new DiscussionPopup();
+    private Talk activeTalk;
+    private Anchor activeAnchor;
 
 
     /**
@@ -1019,9 +1022,8 @@ public class Discussion extends JComponent
      * @return コピーした文字列
      */
     public CharSequence copyTalk(){
-        TalkDraw talkDraw = this.popup.lastPopupedTalkDraw;
-        if(talkDraw == null) return null;
-        Talk talk = talkDraw.getTalk();
+        Talk talk = getActiveTalk();
+        if(talk == null) return null;
 
         StringBuilder selected = new StringBuilder();
 
@@ -1046,36 +1048,56 @@ public class Discussion extends JComponent
     }
 
     /**
-     * ポップアップメニュートリガ座標に会話があればそれを返す。
+     * ポップアップメニュートリガなどの要因による
+     * 特定の会話への指示があればそれを返す。
      *
      * @return 会話
      */
-    public Talk getPopupedTalk(){
-        TalkDraw talkDraw = this.popup.lastPopupedTalkDraw;
-        if(talkDraw == null) return null;
-        Talk talk = talkDraw.getTalk();
-        return talk;
+    public Talk getActiveTalk(){
+        return this.activeTalk;
     }
 
     /**
-     * ポップアップメニュートリガ座標にアンカーがあればそれを返す。
+     * ポップアップメニュートリガなどの要因による
+     * 特定の会話への指示があればそれを設定する。
+     *
+     * @param talk 会話
+     */
+    public void setActiveTalk(Talk talk){
+        this.activeTalk = talk;
+        return;
+    }
+
+    /**
+     * ポップアップメニュートリガなどの要因による
+     * 特定のアンカーへの指示があればそれを返す。
      *
      * @return アンカー
      */
-    public Anchor getPopupedAnchor(){
-        return this.popup.lastPopupedAnchor;
+    public Anchor getActiveAnchor(){
+        return this.activeAnchor;
+    }
+
+    /**
+     * ポップアップメニュートリガなどの要因による
+     * 特定のアンカーへの指示があればそれを設定する。
+     *
+     * @param anchor アンカー
+     */
+    public void setActiveAnchor(Anchor anchor){
+        this.activeAnchor = anchor;
+        return;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * <p>キーバインディング設定が変わる可能性あり。
      */
     @Override
     public void updateUI(){
         super.updateUI();
-        this.popup.updateUI();
-
         modifyInputMap();
-
         return;
     }
 
@@ -1117,21 +1139,15 @@ public class Discussion extends JComponent
     /**
      * ActionListenerを追加する。
      *
-     * <p>対象となるActionは、
+     * <p>通知対象となるActionは、
      * COPYキー操作によって選択文字列からクリップボードへの
-     * コピーが指示される場合のみ。
+     * コピーが指示される場合とポップアップメニューの押下。
      *
      * @param listener リスナー
      */
     public void addActionListener(ActionListener listener){
         this.listenerList.add(ActionListener.class, listener);
-
-        this.popup.menuCopy       .addActionListener(listener);
-        this.popup.menuSelTalk    .addActionListener(listener);
-        this.popup.menuJumpAnchor .addActionListener(listener);
-        this.popup.menuWebTalk    .addActionListener(listener);
-        this.popup.menuSummary    .addActionListener(listener);
-
+        this.popup.addActionListener(listener);
         return;
     }
 
@@ -1142,13 +1158,7 @@ public class Discussion extends JComponent
      */
     public void removeActionListener(ActionListener listener){
         this.listenerList.remove(ActionListener.class, listener);
-
-        this.popup.menuCopy       .removeActionListener(listener);
-        this.popup.menuSelTalk    .removeActionListener(listener);
-        this.popup.menuJumpAnchor .removeActionListener(listener);
-        this.popup.menuWebTalk    .removeActionListener(listener);
-        this.popup.menuSummary    .removeActionListener(listener);
-
+        this.popup.removeActionListener(listener);
         return;
     }
 
@@ -1255,7 +1265,7 @@ public class Discussion extends JComponent
     /**
      * ポップアップメニュー。
      */
-    private class DiscussionPopup extends JPopupMenu{
+    private static final class DiscussionPopup extends JPopupMenu{
 
         private final JMenuItem menuCopy =
                 new JMenuItem("選択範囲をコピー");
@@ -1268,16 +1278,26 @@ public class Discussion extends JComponent
         private final JMenuItem menuSummary =
                 new JMenuItem("発言を集計...");
 
-        private TalkDraw lastPopupedTalkDraw;
-        private Anchor lastPopupedAnchor;
-
 
         /**
          * コンストラクタ。
          */
-        public DiscussionPopup(){
+        DiscussionPopup(){
             super();
 
+            design();
+            setCommand();
+
+            Icon icon = GUIUtils.getWWWIcon();
+            this.menuWebTalk.setIcon(icon);
+
+            return;
+        }
+
+        /**
+         * メニューのデザイン。
+         */
+        private void design(){
             add(this.menuCopy);
             add(this.menuSelTalk);
             addSeparator();
@@ -1285,23 +1305,25 @@ public class Discussion extends JComponent
             add(this.menuWebTalk);
             addSeparator();
             add(this.menuSummary);
-
-            this.menuCopy
-                .setActionCommand(ActionManager.CMD_COPY);
-            this.menuSelTalk
-                .setActionCommand(ActionManager.CMD_COPYTALK);
-            this.menuJumpAnchor
-                .setActionCommand(ActionManager.CMD_JUMPANCHOR);
-            this.menuWebTalk
-                .setActionCommand(ActionManager.CMD_WEBTALK);
-            this.menuSummary
-                .setActionCommand(ActionManager.CMD_DAYSUMMARY);
-
-            this.menuWebTalk.setIcon(GUIUtils.getWWWIcon());
-
             return;
         }
 
+        /**
+         * アクションコマンドの設定。
+         */
+        private void setCommand(){
+            this.menuCopy
+                    .setActionCommand(ActionManager.CMD_COPY);
+            this.menuSelTalk
+                    .setActionCommand(ActionManager.CMD_COPYTALK);
+            this.menuJumpAnchor
+                    .setActionCommand(ActionManager.CMD_JUMPANCHOR);
+            this.menuWebTalk
+                    .setActionCommand(ActionManager.CMD_WEBTALK);
+            this.menuSummary
+                    .setActionCommand(ActionManager.CMD_DAYSUMMARY);
+            return;
+        }
 
         /**
          * {@inheritDoc}
@@ -1310,34 +1332,90 @@ public class Discussion extends JComponent
          *
          * <p>ポップアップクリックの対象となった会話やアンカーを記録する。
          *
-         * @param comp {@inheritDoc}
+         * @param invoker {@inheritDoc}
          * @param x {@inheritDoc}
          * @param y {@inheritDoc}
          */
         @Override
-        public void show(Component comp, int x, int y){
-            Point point = new Point(x, y);
-            this.lastPopupedTalkDraw = getHittedTalkDraw(point);
-            boolean talkPointed = this.lastPopupedTalkDraw != null;
-
-            if(talkPointed){
-                this.lastPopupedAnchor =
-                        this.lastPopupedTalkDraw.getAnchor(point);
-            }else{
-                this.lastPopupedAnchor = null;
+        public void show(Component invoker, int x, int y){
+            if( ! (invoker instanceof Discussion) ){
+                super.show(invoker, x, y);
+                return;
             }
-            boolean anchorPointed = this.lastPopupedAnchor != null;
+            Discussion dis = (Discussion) invoker;
 
-            boolean hasSelectedText = getSelected() != null;
+            Point point = new Point(x, y);
+
+            boolean talkPointed = false;
+            Talk activeTalk = null;
+            Anchor activeAnchor = null;
+
+            TalkDraw popupTalkDraw = dis.getHittedTalkDraw(point);
+            if(popupTalkDraw != null){
+                talkPointed = true;
+                activeTalk   = popupTalkDraw.getTalk();
+                activeAnchor = popupTalkDraw.getAnchor(point);
+            }
+
+            dis.setActiveTalk(activeTalk);
+            dis.setActiveAnchor(activeAnchor);
+
+            boolean anchorPointed = activeAnchor != null;
+            boolean hasSelectedText = dis.getSelected() != null;
 
             this.menuSelTalk    .setEnabled(talkPointed);
             this.menuWebTalk    .setEnabled(talkPointed);
             this.menuJumpAnchor .setEnabled(anchorPointed);
             this.menuCopy       .setEnabled(hasSelectedText);
 
-            super.show(comp, x, y);
+            super.show(invoker, x, y);
 
             return;
+        }
+
+        /**
+         * ActionListenerを追加する。
+         *
+         * <p>受信対象はポップアップメニュー押下。
+         *
+         * @param listener リスナー
+         */
+        public void addActionListener(ActionListener listener){
+            this.listenerList.add(ActionListener.class, listener);
+
+            this.menuCopy       .addActionListener(listener);
+            this.menuSelTalk    .addActionListener(listener);
+            this.menuJumpAnchor .addActionListener(listener);
+            this.menuWebTalk    .addActionListener(listener);
+            this.menuSummary    .addActionListener(listener);
+
+            return;
+        }
+
+        /**
+         * ActionListenerを削除する。
+         *
+         * @param listener リスナー
+         */
+        public void removeActionListener(ActionListener listener){
+            this.listenerList.remove(ActionListener.class, listener);
+
+            this.menuCopy       .removeActionListener(listener);
+            this.menuSelTalk    .removeActionListener(listener);
+            this.menuJumpAnchor .removeActionListener(listener);
+            this.menuWebTalk    .removeActionListener(listener);
+            this.menuSummary    .removeActionListener(listener);
+
+            return;
+        }
+
+        /**
+         * ActionListenerを列挙する。
+         *
+         * @return すべてのActionListener
+         */
+        public ActionListener[] getActionListeners(){
+            return this.listenerList.getListeners(ActionListener.class);
         }
 
     }

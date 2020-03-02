@@ -539,7 +539,7 @@ public class Controller
         if(periodView == null) return;
 
         Discussion discussion = periodView.getDiscussion();
-        Talk talk = discussion.getPopupedTalk();
+        Talk talk = discussion.getActiveTalk();
         if(talk == null) return;
 
         Period period = periodView.getPeriod();
@@ -1146,7 +1146,7 @@ public class Controller
 
         TabBrowser browser = this.topView.getTabBrowser();
         Village village = getVillage();
-        final Anchor anchor = discussion.getPopupedAnchor();
+        final Anchor anchor = discussion.getActiveAnchor();
         if(anchor == null) return;
 
         Runnable task = () -> {
