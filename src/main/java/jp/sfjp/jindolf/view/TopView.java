@@ -320,9 +320,6 @@ public class TopView extends JPanel{
     public void showVillageInfo(Village village){
         this.tabBrowser.setVillage(village);
         this.cardLayout.show(this.cards, BROWSECARD);
-        this.tabBrowser.repaint();
-        this.tabBrowser.revalidate();
-
         return;
     }
 
