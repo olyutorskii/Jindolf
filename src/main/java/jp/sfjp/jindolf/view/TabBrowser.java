@@ -38,6 +38,9 @@ import jp.sfjp.jindolf.glyph.FontInfo;
 @SuppressWarnings("serial")
 public final class TabBrowser extends JTabbedPane{
 
+    private static final int PERIODTAB_OFFSET = 1;
+
+
     private Village village;
 
     private final VillageInfoPanel villageInfo = new VillageInfoPanel();
@@ -103,16 +106,17 @@ public final class TabBrowser extends JTabbedPane{
      */
     private void modifyTabCount(int periods){
         for(;;){   // 短ければタブ追加
-            int lastTabIndex = getTabCount() - 1;
-            if(periods <= lastTabIndex) break;
+            int periodTabs = getTabCount() - PERIODTAB_OFFSET;
+            if(periods <= periodTabs) break;
             String tabTitle = "";
             Component dummy = new JPanel();
             addTab(tabTitle, dummy);
         }
 
         for(;;){   // 長ければ余分なタブ削除
+            int periodTabs = getTabCount() - PERIODTAB_OFFSET;
+            if(periods >= periodTabs) break;
             int lastTabIndex = getTabCount() - 1;
-            if(periods >= lastTabIndex) break;
             remove(lastTabIndex);
         }
 
@@ -127,7 +131,7 @@ public final class TabBrowser extends JTabbedPane{
             PeriodView periodView = buildPeriodView(period);
             String caption = period.getCaption();
 
-            int tabIndex = period.getDay() + 1;
+            int tabIndex = period.getDay() + PERIODTAB_OFFSET;
 
             setComponentAt(tabIndex, periodView);
             setTitleAt(tabIndex, caption);
@@ -232,9 +236,10 @@ public final class TabBrowser extends JTabbedPane{
      */
     public List<PeriodView> getPeriodViewList(){
         int tabCount = getTabCount();
-        List<PeriodView> result = new ArrayList<>(tabCount - 1);
+        int periodCount = tabCount - PERIODTAB_OFFSET;
+        List<PeriodView> result = new ArrayList<>(periodCount);
 
-        for(int tabIndex = 1; tabIndex < tabCount; tabIndex++){
+        for(int tabIndex = PERIODTAB_OFFSET; tabIndex < tabCount; tabIndex++){
             Component component = getComponent(tabIndex);
             PeriodView periodView = (PeriodView) component;
             result.add(periodView);
@@ -252,7 +257,9 @@ public final class TabBrowser extends JTabbedPane{
      * @return 指定されたPeriodView
      */
     public PeriodView getPeriodView(int tabIndex){
-        if(tabIndex < 1 || getTabCount() <= tabIndex) return null;
+        if(tabIndex < PERIODTAB_OFFSET || getTabCount() <= tabIndex){
+            return null;
+        }
 
         Component component = getComponentAt(tabIndex);
         if( ! (component instanceof PeriodView) ) return null;
