@@ -101,12 +101,10 @@ public final class TabBrowser extends JTabbedPane{
      *
      * @param periods Periodの数(エピローグを含む)
      */
-    private void modifyTabCount(int periods){ // TODO 0でも大丈夫?
-        int maxPeriodDays = periods - 1;
-
+    private void modifyTabCount(int periods){
         for(;;){   // 短ければタブ追加
             int lastTabIndex = getTabCount() - 1;
-            if(tabIndexToPeriodDays(lastTabIndex) >= maxPeriodDays) break;
+            if(periods <= lastTabIndex) break;
             String tabTitle = "";
             Component dummy = new JPanel();
             addTab(tabTitle, dummy);
@@ -114,7 +112,7 @@ public final class TabBrowser extends JTabbedPane{
 
         for(;;){   // 長ければ余分なタブ削除
             int lastTabIndex = getTabCount() - 1;
-            if(tabIndexToPeriodDays(lastTabIndex) <= maxPeriodDays) break;
+            if(periods >= lastTabIndex) break;
             remove(lastTabIndex);
         }
 
@@ -122,35 +120,20 @@ public final class TabBrowser extends JTabbedPane{
     }
 
     /**
-     * Period日付指定からタブインデックス値への変換。
-     *
-     * <p>エピローグ(0日目)のタブインデックスは1。
-     * 1日目Periodのタブインデックスは2。
-     *
-     * @param days Period日付指定
-     * @return タブインデックス。存在しないタブの場合は負の値。
+     * Period表示するタブ全てのコンポーネント本体とタイトルを埋める。
      */
-    public int periodDaysToTabIndex(int days){
-        if(days < 0) return -1;
-        int tabIndex = days+1;
-        if(tabIndex >= getTabCount()) return -1;
-        return tabIndex;
-    }
+    private void fillPeriodTab(){
+        this.village.getPeriodList().forEach(period ->{
+            PeriodView periodView = buildPeriodView(period);
+            String caption = period.getCaption();
 
-    /**
-     * タブインデックス値からPeriod日付指定への変換。
-     *
-     * <p>エピローグタブのPeriod日付は0。
-     * 1日目PeriodタブのPeriod日付は1。
-     *
-     * @param tabIndex タブインデックス
-     * @return Period日付指定。存在しないタブの場合は負の値。
-     */
-    private int tabIndexToPeriodDays(int tabIndex){
-        if(tabIndex < 0) return -1;
-        if(tabIndex >= getTabCount()) return -1;
-        int days = tabIndex - 1;
-        return days;
+            int tabIndex = period.getDay() + 1;
+
+            setComponentAt(tabIndex, periodView);
+            setTitleAt(tabIndex, caption);
+        });
+
+        return;
     }
 
     /**
@@ -189,17 +172,7 @@ public final class TabBrowser extends JTabbedPane{
 
         int periodNum = this.village.getPeriodSize();
         modifyTabCount(periodNum);
-
-        for(int periodDays = 0; periodDays < periodNum; periodDays++){
-            Period period = this.village.getPeriod(periodDays);
-            PeriodView periodView = buildPeriodView(period);
-
-            int tabIndex = periodDaysToTabIndex(periodDays);
-            setComponentAt(tabIndex, periodView);
-
-            String caption = period.getCaption();
-            setTitleAt(tabIndex, caption);
-        }
+        fillPeriodTab();
 
         repaint();
         revalidate();
@@ -279,8 +252,7 @@ public final class TabBrowser extends JTabbedPane{
      * @return 指定されたPeriodView
      */
     public PeriodView getPeriodView(int tabIndex){
-        if(tabIndexToPeriodDays(tabIndex) < 0) return null;
-        if(tabIndex >= getTabCount()) return null;
+        if(tabIndex < 1 || getTabCount() <= tabIndex) return null;
 
         Component component = getComponentAt(tabIndex);
         if( ! (component instanceof PeriodView) ) return null;
