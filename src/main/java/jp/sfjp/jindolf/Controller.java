@@ -1167,13 +1167,13 @@ public class Controller
                     return;
                 }
 
-                final Talk targetTalk = talkList.get(0);
-                final Period targetPeriod = targetTalk.getPeriod();
-                final int tabIndex = targetPeriod.getDay() + 1;
-                final PeriodView target = browser.getPeriodView(tabIndex);
+                Talk targetTalk = talkList.get(0);
+                Period targetPeriod = targetTalk.getPeriod();
+                int periodIndex = targetPeriod.getDay();
+                PeriodView target = browser.getPeriodView(periodIndex);
 
                 EventQueue.invokeLater(() -> {
-                    browser.setSelectedIndex(tabIndex);
+                    browser.showPeriodTab(periodIndex);
                     target.setPeriod(targetPeriod);
                     target.scrollToTalk(targetTalk);
                 });

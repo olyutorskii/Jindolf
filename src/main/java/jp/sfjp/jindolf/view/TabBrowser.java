@@ -91,7 +91,7 @@ public final class TabBrowser extends JTabbedPane{
         modifyTabCount(0);
 
         updateVillageInfo();
-        selectVillageInfoTab();
+        showVillageInfoTab();
 
         repaint();
         revalidate();
@@ -169,7 +169,7 @@ public final class TabBrowser extends JTabbedPane{
         }
 
         if(this.village != oldVillage){
-            selectVillageInfoTab();
+            showVillageInfoTab();
         }
 
         updateVillageInfo();
@@ -190,14 +190,6 @@ public final class TabBrowser extends JTabbedPane{
     private void updateVillageInfo(){
         Village target = getVillage();
         this.villageInfo.updateVillage(target);
-        return;
-    }
-
-    /**
-     * 村情報表示タブを選択表示する。
-     */
-    private void selectVillageInfoTab(){
-        setSelectedIndex(0);
         return;
     }
 
@@ -249,14 +241,15 @@ public final class TabBrowser extends JTabbedPane{
     }
 
     /**
-     * 指定したタブインデックスに関連付けられたPeriodViewを返す。
+     * 指定したPeriod日付に関連付けられたPeriodViewを返す。
      *
      * <p>Periodに関係ないタブが指定されたらnullを返す。
      *
-     * @param tabIndex タブインデックス
+     * @param periodIndex Period日付インデックス
      * @return 指定されたPeriodView
      */
-    public PeriodView getPeriodView(int tabIndex){
+    public PeriodView getPeriodView(int periodIndex){
+        int tabIndex = periodIndex + PERIODTAB_OFFSET;
         if(tabIndex < PERIODTAB_OFFSET || getTabCount() <= tabIndex){
             return null;
         }
@@ -277,36 +270,8 @@ public final class TabBrowser extends JTabbedPane{
      */
     public PeriodView currentPeriodView(){
         int tabIndex = getSelectedIndex();
-        PeriodView result = getPeriodView(tabIndex);
-        return result;
-    }
-
-    /**
-     * 指定したタブインデックスに関連付けられたDiscussionを返す。
-     *
-     * <p>Periodに関係ないタブが指定されたらnullを返す。
-     *
-     * @param tabIndex タブインデックス
-     * @return 指定されたDiscussion
-     */
-    private Discussion getDiscussion(int tabIndex){
-        PeriodView periodView = getPeriodView(tabIndex);
-        if(periodView == null) return null;
-
-        Discussion result = periodView.getDiscussion();
-        return result;
-    }
-
-    /**
-     * 現在タブ選択中のDiscussionを返す。
-     *
-     * <p>Periodに関係ないタブが選択されていたらnullを返す。
-     *
-     * @return 現在選択中のDiscussion
-     */
-    public Discussion currentDiscussion(){
-        int tabIndex = getSelectedIndex();
-        Discussion result = getDiscussion(tabIndex);
+        int periodIndex = tabIndex - PERIODTAB_OFFSET;
+        PeriodView result = getPeriodView(periodIndex);
         return result;
     }
 
@@ -343,6 +308,25 @@ public final class TabBrowser extends JTabbedPane{
             periodView.setDialogPref(this.dialogPref);
         });
 
+        return;
+    }
+
+    /**
+     * 村情報表示タブを選択表示する。
+     */
+    private void showVillageInfoTab(){
+        setSelectedIndex(0);
+        return;
+    }
+
+    /**
+     * 指定した日付インデックスのPeriodのタブを表示する。
+     *
+     * @param periodIndex 日付インデックス
+     */
+    public void showPeriodTab(int periodIndex){
+        int tabIndex = periodIndex + PERIODTAB_OFFSET;
+        setSelectedIndex(tabIndex);
         return;
     }
 
