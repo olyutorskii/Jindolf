@@ -51,6 +51,8 @@ import jp.sfjp.jindolf.data.Village;
  */
 public class ServerAccess{
 
+    private static final int BUFLEN_CONTENT = 200 * 1024;
+
     private static final String USER_AGENT = HttpUtils.getUserAgentName();
     private static final String JINRO_CGI = "./index.rb";
 
@@ -70,7 +72,11 @@ public class ServerAccess{
     private final AuthManager authManager;
 
     private final Charset charset;
+    private final boolean isSJIS;
+    private final boolean isUTF8;
+
     private Proxy proxy = Proxy.NO_PROXY;
+
     private long lastServerMs;
     private long lastLocalMs;
     private long lastSystemMs;
@@ -92,6 +98,18 @@ public class ServerAccess{
         this.baseURL = baseURL;
         this.authManager = new AuthManager(this.baseURL);
         this.charset = charset;
+
+        String charsetName = this.charset.name();
+        if("Shift_JIS".equalsIgnoreCase(charsetName)){
+            this.isSJIS = true;
+            this.isUTF8 = false;
+        }else if("UTF-8".equalsIgnoreCase(charsetName)){
+            this.isSJIS = false;
+            this.isUTF8 = true;
+        }else{
+            throw new IllegalArgumentException(charsetName);
+        }
+        assert this.isSJIS ^ this.isUTF8;
 
         return;
     }
@@ -235,12 +253,12 @@ public class ServerAccess{
             throws IOException{
         DecodeNotifier decoder;
         ContentBuilder builder;
-        if(this.charset.name().equalsIgnoreCase("Shift_JIS")){
+        if(this.isSJIS){
             decoder = new SjisNotifier();
-            builder = new ContentBuilderSJ(200 * 1024);
-        }else if(this.charset.name().equalsIgnoreCase("UTF-8")){
+            builder = new ContentBuilderSJ(BUFLEN_CONTENT);
+        }else if(this.isUTF8){
             decoder = new DecodeNotifier(this.charset.newDecoder());
-            builder = new ContentBuilder(200 * 1024);
+            builder = new ContentBuilder(BUFLEN_CONTENT);
         }else{
             assert false;
             return null;
