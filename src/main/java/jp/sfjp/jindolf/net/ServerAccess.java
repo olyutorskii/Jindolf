@@ -414,8 +414,8 @@ public class ServerAccess{
      * @throws java.io.IOException ネットワークエラー
      */
     public HtmlSequence getHTMLBoneHead(Village village) throws IOException{
-        String villageID = village.getVillageID();
-        return downloadHTML("?vid=" + villageID + "&meslog=");
+        String query = village.getCGIQuery();
+        return downloadHTML(query + "&meslog=");
     }
 
     /**
