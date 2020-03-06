@@ -294,10 +294,11 @@ public class ServerAccess{
             return null;
         }
 
-        InputStream stream = TallyInputStream.getInputStream(connection);
-        DecodedContent html = downloadHTMLStream(stream);
+        DecodedContent html;
+        try(InputStream is = TallyInputStream.getInputStream(connection)){
+            html = downloadHTMLStream(is);
+        }
 
-        stream.close();
         connection.disconnect();
 
         HtmlSequence hseq = new HtmlSequence(url, datems, html);
@@ -342,10 +343,10 @@ public class ServerAccess{
 
         byte[] authBytes = authData.getBytes(ENC_POST);
 
-        OutputStream os = TallyOutputStream.getOutputStream(connection);
-        os.write(authBytes);
-        os.flush();
-        os.close();
+        try(OutputStream os = TallyOutputStream.getOutputStream(connection)){
+            os.write(authBytes);
+            os.flush();
+        }
 
         updateLastAccess(connection);
 
@@ -442,8 +443,9 @@ public class ServerAccess{
             return null;
         }
 
+        String urlTxt = absolute.toString();
         BufferedImage image;
-        image = getImageCache(absolute.toString());
+        image = getImageCache(urlTxt);
         if(image != null) return image;
 
         HttpURLConnection connection =
@@ -465,13 +467,13 @@ public class ServerAccess{
             return null;
         }
 
-        InputStream stream = TallyInputStream.getInputStream(connection);
-        image = ImageIO.read(stream);
-        stream.close();
+        try(InputStream is = TallyInputStream.getInputStream(connection)){
+            image = ImageIO.read(is);
+        }
 
         connection.disconnect();
 
-        putImageCache(absolute.toString(), image);
+        putImageCache(urlTxt, image);
 
         return image;
     }
