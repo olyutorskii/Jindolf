@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Cookieを用いた人狼BBSサーバとの認証管理を行う。
@@ -29,10 +30,10 @@ import java.util.List;
  *
  * <p>2020-02現在、認証が必要なHTTP通信は発生しない。
  */
-public class AuthManager{
+class AuthManager{
 
     /** ログアウト用のPOSTデータ。 */
-    public static final String POST_LOGOUT;
+    static final String POST_LOGOUT;
 
     private static final String COOKIE_LOGIN = "login";
     private static final String ENC_POST = "UTF-8";
@@ -58,8 +59,8 @@ public class AuthManager{
      * @param bbsUri 人狼BBSサーバURI
      * @throws NullPointerException 引数がnull
      */
-    public AuthManager(URI bbsUri) throws NullPointerException{
-        if(bbsUri == null) throw new NullPointerException();
+    AuthManager(URI bbsUri){
+        Objects.nonNull(bbsUri);
         this.baseURI = bbsUri;
         return;
     }
@@ -69,10 +70,10 @@ public class AuthManager{
      *
      * @param bbsUrl 人狼BBSサーバURL
      * @throws NullPointerException 引数がnull
-     * @throws IllegalArgumentException 不正な書式
+     * @throws IllegalArgumentException 不正なURL書式
      */
-    public AuthManager(URL bbsUrl)
-            throws NullPointerException, IllegalArgumentException{
+    AuthManager(URL bbsUrl)
+            throws IllegalArgumentException{
         this(urlToUri(bbsUrl));
         return;
     }
@@ -90,8 +91,8 @@ public class AuthManager{
      * @throws IllegalArgumentException 不正な書式
      */
     private static URI urlToUri(URL url)
-            throws NullPointerException, IllegalArgumentException{
-        if(url == null) throw new NullPointerException();
+            throws IllegalArgumentException{
+        Objects.nonNull(url);
 
         URI uri;
         try{
@@ -121,10 +122,8 @@ public class AuthManager{
      * RFC1866 8.2.1
      * </a>
      */
-    public static String encodeForm4Post(String formData){
-        if(formData == null){
-            return null;
-        }
+    protected static String encodeForm4Post(String formData){
+        Objects.nonNull(formData);
 
         String result;
         try{
@@ -144,8 +143,10 @@ public class AuthManager{
      * @return 符号化された文字列
      * @see #encodeForm4Post(java.lang.String)
      */
-    public static String encodeForm4Post(char[] formData){
-        return encodeForm4Post(new String(formData));
+    protected static String encodeForm4Post(char[] formData){
+        String txt = new String(formData);
+        String result = encodeForm4Post(txt);
+        return result;
     }
 
     /**
@@ -156,15 +157,11 @@ public class AuthManager{
      * @return POSTデータ
      */
     public static String buildLoginPostData(String userID, char[] password){
-        String id = encodeForm4Post(userID);
-        if(id == null || id.isEmpty()){
-            return null;
-        }
+        Objects.nonNull(userID);
+        Objects.nonNull(password);
 
+        String id = encodeForm4Post(userID);
         String pw = encodeForm4Post(password);
-        if(pw == null || pw.isEmpty()){
-            return null;
-        }
 
         StringBuilder postData = new StringBuilder();
         postData.append("cmd=login");
@@ -178,28 +175,6 @@ public class AuthManager{
 
 
     /**
-     * 人狼BBSサーバのベースURIを返す。
-     *
-     * @return ベースURI
-     */
-    public URI getBaseURI(){
-        return this.baseURI;
-    }
-
-    /**
-     * この人狼BBSサーバ管轄下の全Cookieを列挙する。
-     *
-     * <p>他サーバ由来のCookie群との区別はCookieドメイン名で判断される。
-     *
-     * @param cookieStore Cookie記憶域
-     * @return 人狼BBSサーバ管轄下のCookieのリスト
-     */
-    public List<HttpCookie> getCookieList(CookieStore cookieStore){
-        List<HttpCookie> cookieList = cookieStore.get(this.baseURI);
-        return cookieList;
-    }
-
-    /**
      * このサーバの認証Cookieを取得する。
      *
      * <p>G国での認証Cookie名は"login"。
@@ -209,8 +184,8 @@ public class AuthManager{
      * @param cookieStore Cookie記憶域
      * @return 認証Cookie。認証された状態に無いときはnull。
      */
-    public HttpCookie getAuthCookie(CookieStore cookieStore){
-        List<HttpCookie> cookieList = getCookieList(cookieStore);
+    protected HttpCookie getAuthCookie(CookieStore cookieStore){
+        List<HttpCookie> cookieList = cookieStore.get(this.baseURI);
         for(HttpCookie cookie : cookieList){
             String cookieName = cookie.getName();
             if(COOKIE_LOGIN.equals(cookieName)) return cookie;
@@ -224,7 +199,7 @@ public class AuthManager{
      *
      * @return ログイン中ならtrue
      */
-    public boolean hasLoggedIn(){
+    boolean hasLoggedIn(){
         assert COOKIE_MANAGER == CookieHandler.getDefault();
         CookieStore cookieStore = COOKIE_MANAGER.getCookieStore();
 
@@ -244,7 +219,7 @@ public class AuthManager{
      *
      * <p>ログアウトと同じ意味。
      */
-    public void clearAuthentication(){
+    void clearAuthentication(){
         assert COOKIE_MANAGER == CookieHandler.getDefault();
         CookieStore cookieStore = COOKIE_MANAGER.getCookieStore();
 
