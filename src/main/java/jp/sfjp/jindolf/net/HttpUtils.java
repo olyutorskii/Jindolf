@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.sfjp.jindolf.VerInfo;
@@ -52,6 +53,7 @@ public final class HttpUtils{
 
     /**
      * ネットワークのスループット報告用文字列を生成する。
+     *
      * @param size 転送サイズ(バイト数)
      * @param nano 所要時間(ナノ秒)
      * @return スループット文字列。引数のいずれかが0以下なら空文字列
@@ -80,6 +82,7 @@ public final class HttpUtils{
 
     /**
      * HTTPセッションの各種結果を文字列化する。
+     *
      * @param conn HTTPコネクション
      * @param size 転送サイズ
      * @param nano 転送に要したナノ秒
@@ -117,55 +120,49 @@ public final class HttpUtils{
     }
 
     /**
-     * ユーザエージェント名を返す。
-     * @return ユーザエージェント名
+     * HTTP UserAgent名を返す。
+     *
+     * @return UserAgent名
+     * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.5.3">
+     * User-Agent</a>
      */
     public static String getUserAgentName(){
         StringBuilder result = new StringBuilder();
-        result.append(VerInfo.TITLE).append("/").append(VerInfo.VERSION);
+        result.append(VerInfo.TITLE).append('/').append(VerInfo.VERSION);
 
         StringBuilder rawComment = new StringBuilder();
-        if(EnvInfo.OS_NAME != null){
-            if(rawComment.length() > 0) rawComment.append("; ");
-            rawComment.append(EnvInfo.OS_NAME);
-        }
-        if(EnvInfo.OS_VERSION != null){
-            if(rawComment.length() > 0) rawComment.append("; ");
-            rawComment.append(EnvInfo.OS_VERSION);
-        }
-        if(EnvInfo.OS_ARCH != null){
-            if(rawComment.length() > 0) rawComment.append("; ");
-            rawComment.append(EnvInfo.OS_ARCH);
-        }
-        if(EnvInfo.JAVA_VENDOR != null){
-            if(rawComment.length() > 0) rawComment.append("; ");
-            rawComment.append(EnvInfo.JAVA_VENDOR);
-        }
-        if(EnvInfo.JAVA_VERSION != null){
-            if(rawComment.length() > 0) rawComment.append("; ");
-            rawComment.append(EnvInfo.JAVA_VERSION);
-        }
+        Arrays.asList(
+            EnvInfo.OS_NAME,
+            EnvInfo.OS_VERSION,
+            EnvInfo.OS_ARCH,
+            EnvInfo.JAVA_VENDOR,
+            EnvInfo.JAVA_VERSION
+        ).stream().forEach(info -> {
+            if(rawComment.length() > 0) rawComment.append(";\u0020");
+            rawComment.append(info);
+        });
 
-        CharSequence comment = escapeHttpComment(rawComment);
-        if(comment != null) result.append(" ").append(comment);
+        if(rawComment.length() > 0){
+            CharSequence comment = escapeHttpComment(rawComment);
+            result.append('\u0020').append(comment);
+        }
 
         return result.toString();
     }
 
     /**
      * 与えられた文字列からHTTPコメントを生成する。
+     *
      * @param comment コメント
      * @return HTTPコメント
      */
     public static String escapeHttpComment(CharSequence comment){
-        if(comment == null) return null;
-        if(comment.length() <= 0) return null;
-
         String result = comment.toString();
+
         result = result.replaceAll("\\(", "\\\\(");
         result = result.replaceAll("\\)", "\\\\)");
         result = result.replaceAll("[\\u0000-\\u001f]", "?");
-        result = result.replaceAll("[\\u007f-\\uffff]", "?");
+        result = result.replaceAll("[\\u007f-\\x{10ffff}]", "?");
         result = "(" + result + ")";
 
         return result;
@@ -173,6 +170,7 @@ public final class HttpUtils{
 
     /**
      * HTTP応答からCharsetを取得する。
+     *
      * @param connection HTTP接続
      * @return Charset文字列
      */
@@ -184,6 +182,7 @@ public final class HttpUtils{
 
     /**
      * ContentTypeからCharsetを取得する。
+     *
      * @param contentType ContentType
      * @return Charset文字列
      */
