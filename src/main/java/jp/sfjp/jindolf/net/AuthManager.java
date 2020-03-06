@@ -21,9 +21,13 @@ import java.util.List;
 /**
  * Cookieを用いた人狼BBSサーバとの認証管理を行う。
  *
+ * <p>Cookie管理はVM内で共有される。
+ *
  * <p>2012-10現在、サポートするのはG国のみ。
  *
  * <p>2012-10より、Cookie "uniqID" の送出も必要になった模様。
+ *
+ * <p>2020-02現在、認証が必要なHTTP通信は発生しない。
  */
 public class AuthManager{
 
@@ -50,6 +54,7 @@ public class AuthManager{
 
     /**
      * コンストラクタ。
+     *
      * @param bbsUri 人狼BBSサーバURI
      * @throws NullPointerException 引数がnull
      */
@@ -61,6 +66,7 @@ public class AuthManager{
 
     /**
      * コンストラクタ。
+     *
      * @param bbsUrl 人狼BBSサーバURL
      * @throws NullPointerException 引数がnull
      * @throws IllegalArgumentException 不正な書式
@@ -74,7 +80,10 @@ public class AuthManager{
 
     /**
      * URLからURIへ変換する。
-     * 書式に関する例外は非チェック例外へ変換される。
+     *
+     * <p>書式に関する例外は
+     * 非チェック例外{@link IllegalArgumentException}へ変換される。
+     *
      * @param url URL
      * @return URI
      * @throws NullPointerException 引数がnull
@@ -130,6 +139,7 @@ public class AuthManager{
 
     /**
      * 配列版{@link #encodeForm4Post(java.lang.String)}。
+     *
      * @param formData 元の文字列
      * @return 符号化された文字列
      * @see #encodeForm4Post(java.lang.String)
@@ -140,6 +150,7 @@ public class AuthManager{
 
     /**
      * ログイン用POSTデータを生成する。
+     *
      * @param userID 人狼BBSアカウント名
      * @param password パスワード
      * @return POSTデータ
@@ -168,6 +179,7 @@ public class AuthManager{
 
     /**
      * 人狼BBSサーバのベースURIを返す。
+     *
      * @return ベースURI
      */
     public URI getBaseURI(){
@@ -175,8 +187,10 @@ public class AuthManager{
     }
 
     /**
-     * 人狼BBSサーバ管轄下の全Cookieを列挙する。
-     * 他サーバ由来のCookie群との区別はCookieドメイン名で判断される。
+     * この人狼BBSサーバ管轄下の全Cookieを列挙する。
+     *
+     * <p>他サーバ由来のCookie群との区別はCookieドメイン名で判断される。
+     *
      * @param cookieStore Cookie記憶域
      * @return 人狼BBSサーバ管轄下のCookieのリスト
      */
@@ -186,7 +200,7 @@ public class AuthManager{
     }
 
     /**
-     * 認証Cookieを取得する。
+     * このサーバの認証Cookieを取得する。
      *
      * <p>G国での認証Cookie名は"login"。
      *
@@ -206,7 +220,8 @@ public class AuthManager{
     }
 
     /**
-     * 現在ログイン中か否か判別する。
+     * このサーバに現在ログイン中か否か認証状態により判別する。
+     *
      * @return ログイン中ならtrue
      */
     public boolean hasLoggedIn(){
@@ -223,7 +238,11 @@ public class AuthManager{
     }
 
     /**
-     * 認証情報をクリアする。
+     * このサーバの認証情報をクリアする。
+     *
+     * <p>以降、BBSサーバへ認証情報は送られなくなる。
+     *
+     * <p>ログアウトと同じ意味。
      */
     public void clearAuthentication(){
         assert COOKIE_MANAGER == CookieHandler.getDefault();

@@ -33,6 +33,21 @@ import jp.sfjp.jindolf.data.Village;
 
 /**
  * 国ごとの人狼BBSサーバとの通信を一手に引き受ける。
+ *
+ * <p>受信対象はHTMLと各種アイコンJPEG画像。
+ *
+ * <p>プロクシサーバを介したHTTP通信を管理する。
+ *
+ * <p>国ごとに文字コードを保持し、HTML文書のデコードに用いられる。
+ *
+ * <p>画像(40種強)はキャッシュ管理が行われる。
+ *
+ * <p>進行中の村の参加者しか知り得ないHTML要素(赤ログその他)を受信するための
+ * 認証情報をCookieで管理する。
+ * ※ 2020-02現在、進行中の村は存在しないゆえ、
+ * Cookie認証を必要とする国は人狼BBSに存在しない。
+ *
+ * <p>最後にHTTP受信が行われた時刻を保持する。
  */
 public class ServerAccess{
 
@@ -63,7 +78,9 @@ public class ServerAccess{
 
     /**
      * 人狼BBSサーバとの接続管理を生成する。
-     * この時点ではまだ通信は行われない。
+     *
+     * <p>この時点ではまだ通信は行われない。
+     *
      * @param baseURL 国別のベースURL
      * @param charset 国のCharset
      * @throws IllegalArgumentException 不正なURL
@@ -82,6 +99,12 @@ public class ServerAccess{
 
     /**
      * 画像キャッシュを検索する。
+     *
+     * <p>キーは画像URL文字列。
+     *
+     * <p>ソフト参照オブジェクトの解放などにより、
+     * キャッシュの状況は変化する。
+     *
      * @param key キー
      * @return キャッシュされた画像。キャッシュされていなければnull。
      */
@@ -107,7 +130,10 @@ public class ServerAccess{
     }
 
     /**
-     * 画像キャッシュに登録する。
+     * キャッシュに画像を登録する。
+     *
+     * <p>キーは画像URL文字列。
+     *
      * @param key キー
      * @param image キャッシュしたい画像。
      */
@@ -125,7 +151,8 @@ public class ServerAccess{
     }
 
     /**
-     * HTTP-Proxyを返す。
+     * HTTP通信に使われるProxyを返す。
+     *
      * @return HTTP-Proxy
      */
     public Proxy getProxy(){
@@ -133,7 +160,8 @@ public class ServerAccess{
     }
 
     /**
-     * HTTP-Proxyを設定する。
+     * HTTP通信に使われるProxyを設定する。
+     *
      * @param proxy HTTP-Proxy。nullならProxyなしと解釈される。
      */
     public void setProxy(Proxy proxy){
@@ -144,6 +172,7 @@ public class ServerAccess{
 
     /**
      * 国のベースURLを返す。
+     *
      * @return ベースURL
      */
     public URL getBaseURL(){
@@ -152,6 +181,7 @@ public class ServerAccess{
 
     /**
      * 与えられたクエリーとCGIのURLから新たにURLを合成する。
+     *
      * @param query クエリー
      * @return 新たなURL
      */
@@ -171,7 +201,8 @@ public class ServerAccess{
     }
 
     /**
-     * エンコーディングされた入力ストリームから文字列を生成する。
+     * エンコーディングされた入力ストリームからHTML文字列を受信する。
+     *
      * @param istream 入力ストリーム
      * @return 文字列
      * @throws java.io.IOException 入出力エラー（おそらくネットワーク関連）
@@ -206,6 +237,7 @@ public class ServerAccess{
 
     /**
      * 与えられたクエリーを用いてHTMLデータを取得する。
+     *
      * @param query HTTP-GET クエリー
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
@@ -219,6 +251,7 @@ public class ServerAccess{
 
     /**
      * 与えられたURLを用いてHTMLデータを取得する。
+     *
      * @param url URL
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
@@ -264,6 +297,7 @@ public class ServerAccess{
 
     /**
      * 絶対または相対URLの指すパーマネントなイメージ画像をダウンロードする。
+     *
      * @param url 画像URL文字列
      * @return 画像イメージ
      * @throws java.io.IOException ネットワークエラー
@@ -314,6 +348,9 @@ public class ServerAccess{
 
     /**
      * 指定された認証情報をPOSTする。
+     *
+     * <p>ログイン動作を模した物。
+     *
      * @param authData 認証情報
      * @return 認証情報が受け入れられたらtrue
      * @throws java.io.IOException ネットワークエラー
@@ -354,6 +391,7 @@ public class ServerAccess{
 
     /**
      * トップページのHTMLデータを取得する。
+     *
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
      */
@@ -363,6 +401,9 @@ public class ServerAccess{
 
     /**
      * 国に含まれる村一覧HTMLデータを取得する。
+     *
+     * <p>wolf国には存在しない。
+     *
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
      */
@@ -372,8 +413,10 @@ public class ServerAccess{
 
     /**
      * 指定された村のPeriod一覧のHTMLデータを取得する。
-     * 現在ゲーム進行中の村にも可能。
+     *
+     * <p>現在ゲーム進行中の村にも可能。
      * ※ 古国では使えないよ！
+     *
      * @param village 村
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
@@ -385,7 +428,9 @@ public class ServerAccess{
 
     /**
      * 指定された村の最新PeriodのHTMLデータをロードする。
-     * 既にGAMEOVERの村ではPeriod一覧のHTMLデータとなる。
+     *
+     * <p>既にGAMEOVERの村ではPeriod一覧のHTMLデータとなる。
+     *
      * @param village 村
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
@@ -397,6 +442,7 @@ public class ServerAccess{
 
     /**
      * 指定された村の最新PeriodのHTMLデータのURLを取得する。
+     *
      * @param village 村
      * @return URL
      */
@@ -408,6 +454,7 @@ public class ServerAccess{
 
     /**
      * 指定されたPeriodのHTMLデータをロードする。
+     *
      * @param period Period
      * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
@@ -419,6 +466,7 @@ public class ServerAccess{
 
     /**
      * 指定されたPeriodのHTMLデータのURLを取得する。
+     *
      * @param period 日
      * @return URL
      */
@@ -430,6 +478,7 @@ public class ServerAccess{
 
     /**
      * 最終アクセス時刻を更新する。
+     *
      * @param connection HTTP接続
      * @return リソース送信時刻
      */
@@ -441,7 +490,10 @@ public class ServerAccess{
     }
 
     /**
-     * 与えられたユーザIDとパスワードでログイン処理を行う。
+     * 与えられたユーザIDとパスワードでログイン処理と認証を行う。
+     *
+     * <p>すでに認証済みならなにもしない。
+     *
      * @param userID ユーザID
      * @param password パスワード
      * @return ログインに成功すればtrue
@@ -467,6 +519,9 @@ public class ServerAccess{
 
     /**
      * ログアウト処理を行う。
+     *
+     * <p>認証済みでなければなにもしない。
+     *
      * @throws java.io.IOException ネットワーク入出力エラー
      */
     public void logout() throws IOException{
@@ -485,7 +540,8 @@ public class ServerAccess{
     // TODO シャットダウンフックでログアウトさせようかな…
 
     /**
-     * ログイン中か否か判定する。
+     * ログイン中か否か認証情報で判定する。
+     *
      * @return ログイン中ならtrue
      */
     public boolean hasLoggedIn(){
