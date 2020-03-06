@@ -16,6 +16,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,12 +34,12 @@ import java.util.Objects;
  */
 class AuthManager{
 
+    private static final String COOKIE_LOGIN = "login";
+    private static final String ENC_POST = StandardCharsets.UTF_8.name();
+    private static final String PARAM_REDIR;
+
     /** ログアウト用のPOSTデータ。 */
     static final String POST_LOGOUT;
-
-    private static final String COOKIE_LOGIN = "login";
-    private static final String ENC_POST = "UTF-8";
-    private static final String PARAM_REDIR;
 
     private static final CookieManager COOKIE_MANAGER;
 
@@ -163,13 +165,11 @@ class AuthManager{
         String id = encodeForm4Post(userID);
         String pw = encodeForm4Post(password);
 
-        StringBuilder postData = new StringBuilder();
-        postData.append("cmd=login");
-        postData.append('&').append(PARAM_REDIR);
-        postData.append('&').append("user_id=").append(id);
-        postData.append('&').append("password=").append(pw);
+        String result = MessageFormat.format(
+                "cmd=login&{0}&user_id={1}&password={2}",
+                PARAM_REDIR, id, pw
+        );
 
-        String result = postData.toString();
         return result;
     }
 
