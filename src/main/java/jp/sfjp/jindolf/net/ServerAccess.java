@@ -19,7 +19,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -53,16 +53,16 @@ public class ServerAccess{
 
     private static final String USER_AGENT = HttpUtils.getUserAgentName();
     private static final String JINRO_CGI = "./index.rb";
+
     private static final
             Map<String, SoftReference<BufferedImage>> IMAGE_CACHE;
+    private static final Object CACHE_LOCK = new Object();
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
-    private static final String ENC_POST = "UTF-8";
+    private static final String ENC_POST = StandardCharsets.UTF_8.name();
 
     static{
-        Map<String, SoftReference<BufferedImage>> cache =
-                new HashMap<>();
-        IMAGE_CACHE = Collections.synchronizedMap(cache);
+        IMAGE_CACHE = new HashMap<>();
     }
 
 
@@ -113,17 +113,15 @@ public class ServerAccess{
 
         BufferedImage image;
 
-        synchronized(IMAGE_CACHE){
+        // atomic get and remove
+        synchronized(CACHE_LOCK){
             SoftReference<BufferedImage> ref = IMAGE_CACHE.get(key);
             if(ref == null) return null;
 
-            Object referent = ref.get();
-            if(referent == null){
+            image = ref.get();
+            if(image == null){
                 IMAGE_CACHE.remove(key);
-                return null;
             }
-
-            image = (BufferedImage) referent;
         }
 
         return image;
@@ -140,7 +138,8 @@ public class ServerAccess{
     private static void putImageCache(String key, BufferedImage image){
         if(key == null || image == null) return;
 
-        synchronized(IMAGE_CACHE){
+        // atomic get and put
+        synchronized(CACHE_LOCK){
             if(getImageCache(key) != null) return;
             SoftReference<BufferedImage> ref =
                     new SoftReference<>(image);
@@ -149,6 +148,7 @@ public class ServerAccess{
 
         return;
     }
+
 
     /**
      * HTTP通信に使われるProxyを返す。
@@ -182,7 +182,7 @@ public class ServerAccess{
     /**
      * 与えられたクエリーとCGIのURLから新たにURLを合成する。
      *
-     * @param query クエリー
+     * @param query ?から始まるクエリー
      * @return 新たなURL
      */
     protected URL getQueryURL(String query){
@@ -198,6 +198,30 @@ public class ServerAccess{
             return null;
         }
         return result;
+    }
+
+    /**
+     * 指定された村の最新PeriodのHTMLデータのURLを取得する。
+     *
+     * @param village 村
+     * @return URL
+     */
+    public URL getVillageURL(Village village){
+        String query = village.getCGIQuery();
+        URL url = getQueryURL(query);
+        return url;
+    }
+
+    /**
+     * 指定されたPeriodのHTMLデータのURLを取得する。
+     *
+     * @param period 日
+     * @return URL
+     */
+    public URL getPeriodURL(Period period){
+        String query = period.getCGIQuery();
+        URL url = getQueryURL(query);
+        return url;
     }
 
     /**
@@ -233,20 +257,6 @@ public class ServerAccess{
         }
 
         return builder.getContent();
-    }
-
-    /**
-     * 与えられたクエリーを用いてHTMLデータを取得する。
-     *
-     * @param query HTTP-GET クエリー
-     * @return HTMLデータ
-     * @throws java.io.IOException ネットワークエラー
-     */
-    protected HtmlSequence downloadHTML(String query)
-            throws IOException{
-        URL url = getQueryURL(query);
-        HtmlSequence result = downloadHTML(url);
-        return result;
     }
 
     /**
@@ -296,54 +306,17 @@ public class ServerAccess{
     }
 
     /**
-     * 絶対または相対URLの指すパーマネントなイメージ画像をダウンロードする。
+     * 与えられたクエリーを用いてHTMLデータを取得する。
      *
-     * @param url 画像URL文字列
-     * @return 画像イメージ
+     * @param query HTTP-GET クエリー
+     * @return HTMLデータ
      * @throws java.io.IOException ネットワークエラー
      */
-    public BufferedImage downloadImage(String url) throws IOException{
-        URL absolute;
-        try{
-            URL base = getBaseURL();
-            absolute = new URL(base, url);
-        }catch(MalformedURLException e){
-            assert false;
-            return null;
-        }
-
-        BufferedImage image;
-        image = getImageCache(absolute.toString());
-        if(image != null) return image;
-
-        HttpURLConnection connection =
-                (HttpURLConnection) absolute.openConnection(this.proxy);
-        connection.setRequestProperty("Accept", "*/*");
-        connection.setRequestProperty("User-Agent", USER_AGENT);
-        connection.setUseCaches(true);
-        connection.setInstanceFollowRedirects(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("GET");
-
-        connection.connect();
-
-        int responseCode       = connection.getResponseCode();
-        if(responseCode != HttpURLConnection.HTTP_OK){
-            String logMessage =  "イメージのダウンロードに失敗しました。";
-            logMessage += HttpUtils.formatHttpStat(connection, 0, 0);
-            LOGGER.warning(logMessage);
-            return null;
-        }
-
-        InputStream stream = TallyInputStream.getInputStream(connection);
-        image = ImageIO.read(stream);
-        stream.close();
-
-        connection.disconnect();
-
-        putImageCache(absolute.toString(), image);
-
-        return image;
+    protected HtmlSequence downloadHTML(String query)
+            throws IOException{
+        URL url = getQueryURL(query);
+        HtmlSequence result = downloadHTML(url);
+        return result;
     }
 
     /**
@@ -441,18 +414,6 @@ public class ServerAccess{
     }
 
     /**
-     * 指定された村の最新PeriodのHTMLデータのURLを取得する。
-     *
-     * @param village 村
-     * @return URL
-     */
-    public URL getVillageURL(Village village){
-        String villageID = village.getVillageID();
-        URL url = getQueryURL("?vid=" + villageID);
-        return url;
-    }
-
-    /**
      * 指定されたPeriodのHTMLデータをロードする。
      *
      * @param period Period
@@ -465,15 +426,54 @@ public class ServerAccess{
     }
 
     /**
-     * 指定されたPeriodのHTMLデータのURLを取得する。
+     * 絶対または相対URLの指すパーマネントなイメージ画像をダウンロードする。
      *
-     * @param period 日
-     * @return URL
+     * @param url 画像URL文字列
+     * @return 画像イメージ
+     * @throws java.io.IOException ネットワークエラー
      */
-    public URL getPeriodURL(Period period){
-        String query = period.getCGIQuery();
-        URL url = getQueryURL(query);
-        return url;
+    public BufferedImage downloadImage(String url) throws IOException{
+        URL absolute;
+        try{
+            URL base = getBaseURL();
+            absolute = new URL(base, url);
+        }catch(MalformedURLException e){
+            assert false;
+            return null;
+        }
+
+        BufferedImage image;
+        image = getImageCache(absolute.toString());
+        if(image != null) return image;
+
+        HttpURLConnection connection =
+                (HttpURLConnection) absolute.openConnection(this.proxy);
+        connection.setRequestProperty("Accept", "*/*");
+        connection.setRequestProperty("User-Agent", USER_AGENT);
+        connection.setUseCaches(true);
+        connection.setInstanceFollowRedirects(true);
+        connection.setDoInput(true);
+        connection.setRequestMethod("GET");
+
+        connection.connect();
+
+        int responseCode       = connection.getResponseCode();
+        if(responseCode != HttpURLConnection.HTTP_OK){
+            String logMessage =  "イメージのダウンロードに失敗しました。";
+            logMessage += HttpUtils.formatHttpStat(connection, 0, 0);
+            LOGGER.warning(logMessage);
+            return null;
+        }
+
+        InputStream stream = TallyInputStream.getInputStream(connection);
+        image = ImageIO.read(stream);
+        stream.close();
+
+        connection.disconnect();
+
+        putImageCache(absolute.toString(), image);
+
+        return image;
     }
 
     /**

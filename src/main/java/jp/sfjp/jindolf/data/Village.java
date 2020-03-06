@@ -59,6 +59,7 @@ public class Village{
 
     /**
      * Villageを生成する。
+     *
      * @param parentLand Villageの所属する国
      * @param villageID 村のID
      * @param villageName 村の名前
@@ -78,6 +79,7 @@ public class Village{
 
     /**
      * 所属する国を返す。
+     *
      * @return 村の所属する国（Land）
      */
     public Land getParentLand(){
@@ -86,6 +88,7 @@ public class Village{
 
     /**
      * 村のID文字列を返す。
+     *
      * @return 村ID
      */
     public String getVillageID(){
@@ -94,6 +97,7 @@ public class Village{
 
     /**
      * 村のID数値を返す。
+     *
      * @return 村ID
      */
     public int getVillageIDNum(){
@@ -102,6 +106,7 @@ public class Village{
 
     /**
      * 村の名前を返す。
+     *
      * @return 村の名前
      */
     public String getVillageName(){
@@ -125,6 +130,7 @@ public class Village{
 
     /**
      * 村の長い名前を返す。
+     *
      * @return 村の長い名前
      */
     public String getVillageFullName(){
@@ -133,6 +139,7 @@ public class Village{
 
     /**
      * 村の状態を返す。
+     *
      * @return 村の状態
      */
     public VillageState getState(){
@@ -141,6 +148,7 @@ public class Village{
 
     /**
      * 村の状態を設定する。
+     *
      * @param state 村の状態
      */
     public void setState(VillageState state){
@@ -150,6 +158,7 @@ public class Village{
 
     /**
      * プロローグを返す。
+     *
      * @return プロローグ
      */
     public Period getPrologue(){
@@ -161,6 +170,7 @@ public class Village{
 
     /**
      * エピローグを返す。
+     *
      * @return エピローグ
      */
     public Period getEpilogue(){
@@ -172,6 +182,7 @@ public class Village{
 
     /**
      * 指定された日付の進行日を返す。
+     *
      * @param day 日付
      * @return Period
      */
@@ -185,6 +196,7 @@ public class Village{
 
     /**
      * PROGRESS状態のPeriodの総数を返す。
+     *
      * @return PROGRESS状態のPeriod総数
      */
     public int getProgressDays(){
@@ -197,7 +209,9 @@ public class Village{
 
     /**
      * 指定されたPeriodインデックスのPeriodを返す。
-     * プロローグやエピローグへのアクセスも可能。
+     *
+     * <p>プロローグやエピローグへのアクセスも可能。
+     *
      * @param day Periodインデックス
      * @return Period
      */
@@ -207,6 +221,7 @@ public class Village{
 
     /**
      * 指定されたアンカーの対象のPeriodを返す。
+     *
      * @param anchor アンカー
      * @return Period
      */
@@ -226,6 +241,7 @@ public class Village{
 
     /**
      * Period総数を返す。
+     *
      * @return Period総数
      */
     public int getPeriodSize(){
@@ -234,6 +250,7 @@ public class Village{
 
     /**
      * Periodへのリストを返す。
+     *
      * @return Periodのリスト。
      */
     public List<Period> getPeriodList(){
@@ -242,6 +259,7 @@ public class Village{
 
     /**
      * 指定した名前で村に登録されているAvatarを返す。
+     *
      * @param fullName Avatarの名前
      * @return Avatar
      */
@@ -266,6 +284,7 @@ public class Village{
 
     /**
      * Avatarの顔画像を事前にロードする。
+     *
      * @param avatar Avatar
      */
     private void preloadAvatarFace(Avatar avatar){
@@ -288,6 +307,7 @@ public class Village{
 
     /**
      * Avatarを村に登録する。
+     *
      * @param avatar Avatar
      */
     // 未知のAvatar出現時の処理が不完全
@@ -303,6 +323,7 @@ public class Village{
 
     /**
      * 村に登録されたAvatarの顔イメージを返す。
+     *
      * @param avatar Avatar
      * @return 顔イメージ
      */
@@ -313,6 +334,7 @@ public class Village{
 
     /**
      * 村に登録されたAvatarの全身像イメージを返す。
+     *
      * @param avatar Avatar
      * @return 全身イメージ
      */
@@ -338,6 +360,7 @@ public class Village{
 
     /**
      * 村に登録されたAvatarのモノクロ顔イメージを返す。
+     *
      * @param avatar Avatar
      * @return 顔イメージ
      */
@@ -354,6 +377,7 @@ public class Village{
 
     /**
      * 村に登録されたAvatarの全身像イメージを返す。
+     *
      * @param avatar Avatar
      * @return 全身イメージ
      */
@@ -370,6 +394,7 @@ public class Village{
 
     /**
      * 国に登録された墓イメージを返す。
+     *
      * @return 墓イメージ
      */
     public BufferedImage getGraveImage(){
@@ -379,6 +404,7 @@ public class Village{
 
     /**
      * 国に登録された墓イメージ(大)を返す。
+     *
      * @return 墓イメージ(大)
      */
     public BufferedImage getGraveBodyImage(){
@@ -388,12 +414,13 @@ public class Village{
 
     /**
      * 村にアクセスするためのCGIクエリーを返す。
+     *
      * @return CGIクエリー
      */
-    public CharSequence getCGIQuery(){
+    public String getCGIQuery(){
         StringBuilder result = new StringBuilder();
         result.append("?vid=").append(getVillageID());
-        return result;
+        return result.toString();
     }
 
     /**
@@ -414,6 +441,7 @@ public class Village{
 
     /**
      * 次回更新月を返す。
+     *
      * @return 更新月(1-12)
      */
     public int getLimitMonth(){
@@ -422,6 +450,7 @@ public class Village{
 
     /**
      * 次回更新日を返す。
+     *
      * @return 更新日(1-31)
      */
     public int getLimitDay(){
@@ -430,6 +459,7 @@ public class Village{
 
     /**
      * 次回更新時を返す。
+     *
      * @return 更新時(0-23)
      */
     public int getLimitHour(){
@@ -438,6 +468,7 @@ public class Village{
 
     /**
      * 次回更新分を返す。
+     *
      * @return 更新分(0-59)
      */
     public int getLimitMinute(){
@@ -446,6 +477,7 @@ public class Village{
 
     /**
      * 有効な村か否か判定する。
+     *
      * @return 無効な村ならfalse
      */
     public boolean isValid(){
@@ -454,8 +486,10 @@ public class Village{
 
     /**
      * Periodリストの指定したインデックスにPeriodを上書きする。
-     * リストのサイズと同じインデックスを指定する事が許される。
+     *
+     * <p>リストのサイズと同じインデックスを指定する事が許される。
      * その場合の動作はList.addと同じ。
+     *
      * @param index Periodリストのインデックス。
      * @param period 上書きするPeriod
      * @throws java.lang.IndexOutOfBoundsException インデックスの指定がおかしい
@@ -475,6 +509,7 @@ public class Village{
 
     /**
      * アンカーに一致する会話(Talk)のリストを取得する。
+     *
      * @param anchor アンカー
      * @return Talkのリスト
      */
@@ -519,8 +554,10 @@ public class Village{
 
     /**
      * {@inheritDoc}
-     * 村の文字列表現を返す。
+     *
+     * <p>村の文字列表現を返す。
      * 村の名前と等しい。
+     *
      * @return 村の名前
      */
     @Override
