@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -39,6 +40,8 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.ConfigStore;
@@ -1198,6 +1201,26 @@ public class Controller
     }
 
     /**
+     * ローカルなXMLファイルを読み込む。
+     */
+    private void actionOpenXml(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        FileFilter filter;
+        filter = new FileNameExtensionFilter("XML files (*.xml)", "xml", "XML");
+        chooser.setFileFilter(filter);
+
+        int result = chooser.showOpenDialog(getTopFrame());
+        if(result != JFileChooser.APPROVE_OPTION) return;
+        File selected = chooser.getSelectedFile();
+
+        //System.out.println(selected);
+
+        return;
+    }
+
+    /**
      * 指定した国の村一覧を読み込むジョブを投下。
      * @param land 国
      */
@@ -1418,6 +1441,9 @@ public class Controller
         switch(cmd){
         case ActionManager.CMD_ACCOUNT:
             actionShowAccount();
+            break;
+        case ActionManager.CMD_OPENXML:
+            actionOpenXml();
             break;
         case ActionManager.CMD_EXIT:
             actionExit();
