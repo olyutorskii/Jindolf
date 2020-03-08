@@ -10,10 +10,11 @@ package jp.sfjp.jindolf.view;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
@@ -32,13 +33,19 @@ import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.util.GUIUtils;
 
 /**
- * メニュー、ボタン、その他各種Actionを伴うイベントを生成する
+ * メニュー、ボタン、その他各種Actionを伴うイベントを発火する
  * コンポーネントの一括管理。
+ *
+ * <p>メニューバー、ツールバーを提供する。
+ *
+ * <p>アプリの状況に応じてメニューやボタンの一部の操作をマスクする。
  */
 public class ActionManager{
 
     /** アクション{@value}。 */
     public static final String CMD_ACCOUNT    = "ACCOUNT";
+    /** アクション{@value}。 */
+    public static final String CMD_OPENXML    = "OPENXML";
     /** アクション{@value}。 */
     public static final String CMD_EXIT       = "EXIT";
     /** アクション{@value}。 */
@@ -135,8 +142,7 @@ public class ActionManager{
     }
 
 
-    private final Set<AbstractButton> actionItems =
-            new HashSet<>();
+    private final List<AbstractButton> actionItems = new ArrayList<>(100);
     private final Map<String, JMenuItem> namedMenuItems =
             new HashMap<>();
     private final Map<String, JButton> namedToolButtons =
@@ -155,7 +161,7 @@ public class ActionManager{
     private final JMenu menuLook;
     private final ButtonGroup landfGroup = new ButtonGroup();
     private final Map<ButtonModel, String> landfMap =
-        new HashMap<>();
+        new ConcurrentHashMap<>();
 
     private final JToolBar browseToolBar;
 
@@ -166,7 +172,7 @@ public class ActionManager{
     public ActionManager(){
         super();
 
-        this.menuFile       = buildMenu("Jindolf",  KeyEvent.VK_F);
+        this.menuFile       = buildMenu("ファイル", KeyEvent.VK_F);
         this.menuEdit       = buildMenu("編集",     KeyEvent.VK_E);
         this.menuVillage    = buildMenu("村",       KeyEvent.VK_V);
         this.menuDay        = buildMenu("日",       KeyEvent.VK_D);
@@ -209,6 +215,7 @@ public class ActionManager{
      */
     private void setupMenuItems(){
         buildMenuItem(CMD_ACCOUNT, "アカウント管理", KeyEvent.VK_M);
+        buildMenuItem(CMD_OPENXML, "XMLを読み込む", KeyEvent.VK_O);
         buildMenuItem(CMD_EXIT, "終了", KeyEvent.VK_X);
         buildMenuItem(CMD_COPY, "選択範囲をコピー", KeyEvent.VK_C);
         buildMenuItem(CMD_SHOWFIND, "検索...", KeyEvent.VK_F);
@@ -414,7 +421,7 @@ public class ActionManager{
     }
 
     /**
-     * 全てのボタンにアクションリスナーを登録する。
+     * 管理下の全てのボタンにアクションリスナーを登録する。
      *
      * @param listener アクションリスナー
      */
@@ -432,6 +439,7 @@ public class ActionManager{
      */
     private JMenuBar buildMenuBar(){
         this.menuFile.add(getMenuItem(CMD_ACCOUNT));
+        this.menuFile.add(getMenuItem(CMD_OPENXML));
         this.menuFile.addSeparator();
         this.menuFile.add(getMenuItem(CMD_EXIT));
 
