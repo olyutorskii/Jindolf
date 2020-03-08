@@ -1360,8 +1360,8 @@ public class Controller
         String landName = land.getLandDef().getLandName();
         setFrameTitle(landName);
 
-        this.actionManager.appearVillage(false);
-        this.actionManager.appearPeriod(false);
+        this.actionManager.villageExpose(false);
+        this.actionManager.periodExpose(false);
 
         this.topView.showLandInfo(land);
 
@@ -1375,7 +1375,7 @@ public class Controller
      */
     private void selectedVillage(Village village){
         setFrameTitle(village.getVillageFullName());
-        this.actionManager.appearVillage(true);
+        this.actionManager.villageExpose(true);
 
         Runnable task = () -> {
             try{
@@ -1651,7 +1651,7 @@ public class Controller
                 boolean hasCurrentPeriod;
                 if(periodView == null) hasCurrentPeriod = false;
                 else                   hasCurrentPeriod = true;
-                Controller.this.actionManager.appearPeriod(hasCurrentPeriod);
+                Controller.this.actionManager.periodExpose(hasCurrentPeriod);
             }
 
             return;

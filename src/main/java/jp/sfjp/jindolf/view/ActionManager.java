@@ -185,8 +185,8 @@ public class ActionManager{
         this.menuBar       = buildMenuBar();
         this.browseToolBar = buildBrowseToolBar();
 
-        appearVillageImpl(false);
-        appearPeriodImpl(false);
+        villageExposeImpl(false);
+        periodExposeImpl(false);
 
         return;
     }
@@ -522,8 +522,8 @@ public class ActionManager{
      *
      * @param appear 表示されているときはtrue
      */
-    private void appearPeriodImpl(boolean appear){
-        if(appear) appearVillageImpl(appear);
+    private void periodExposeImpl(boolean appear){
+        if(appear) villageExposeImpl(appear);
 
         this.menuEdit.setEnabled(appear);
         this.menuDay .setEnabled(appear);
@@ -541,8 +541,8 @@ public class ActionManager{
      *
      * @param appear 表示されているときはtrue
      */
-    public void appearPeriod(boolean appear){
-        appearPeriodImpl(appear);
+    public void periodExpose(boolean appear){
+        periodExposeImpl(appear);
         return;
     }
 
@@ -551,8 +551,8 @@ public class ActionManager{
      *
      * @param appear 表示されているときはtrue
      */
-    private void appearVillageImpl(boolean appear){
-        if( ! appear) appearPeriodImpl(appear);
+    private void villageExposeImpl(boolean appear){
+        if( ! appear) periodExposeImpl(appear);
 
         this.menuVillage.setEnabled(appear);
 
@@ -564,8 +564,8 @@ public class ActionManager{
      *
      * @param appear 表示されているときはtrue
      */
-    public void appearVillage(boolean appear){
-        appearVillageImpl(appear);
+    public void villageExpose(boolean appear){
+        villageExposeImpl(appear);
         return;
     }
 
