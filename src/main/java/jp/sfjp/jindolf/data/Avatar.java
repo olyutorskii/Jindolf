@@ -7,8 +7,6 @@
 
 package jp.sfjp.jindolf.data;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,11 +15,7 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import jp.sfjp.jindolf.dxchg.XmlUtils;
 import jp.sourceforge.jindolf.corelib.PreDefAvatar;
-import org.xml.sax.SAXException;
 
 /**
  * Avatar またの名をキャラクター。
@@ -37,36 +31,26 @@ public class Avatar implements Comparable<Avatar> {
     private static final Pattern AVATAR_PATTERN;
 
     static{
-        List<PreDefAvatar>  predefs;
-        try{
-            DocumentBuilder builder = XmlUtils.createDocumentBuilder();
-            predefs = PreDefAvatar.buildPreDefAvatarList(builder);
-        }catch(   IOException
-                | ParserConfigurationException
-                | SAXException
-                | URISyntaxException
-                e){
-            throw new ExceptionInInitializerError(e);
-        }
-
+        List<PreDefAvatar>  predefs = CoreData.getPreDefAvatarList();
         AVATAR_LIST = buildAvatarList(predefs);
 
         AVATAR_MAP = new HashMap<>();
-        for(Avatar avatar : AVATAR_LIST){
+        AVATAR_LIST.forEach((avatar) -> {
             String fullName = avatar.getFullName();
             AVATAR_MAP.put(fullName, avatar);
-        }
+        });
 
         StringBuilder avatarGroupRegex = new StringBuilder();
-        for(Avatar avatar : AVATAR_LIST){
-            String fullName = avatar.getFullName();
+        AVATAR_LIST.stream().map((avatar) ->
+            avatar.getFullName()
+        ).forEachOrdered((fullName) -> {
             if(avatarGroupRegex.length() > 0){
                 avatarGroupRegex.append('|');
             }
             avatarGroupRegex.append('(')
-                            .append(Pattern.quote(fullName))
-                            .append(')');
-        }
+                    .append(Pattern.quote(fullName))
+                    .append(')');
+        });
         AVATAR_PATTERN = Pattern.compile(avatarGroupRegex.toString());
 
         AVATAR_GERD = getPredefinedAvatar("楽天家 ゲルト");
