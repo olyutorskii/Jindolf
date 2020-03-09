@@ -28,7 +28,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import jp.sfjp.jindolf.ResourceManager;
 import jp.sfjp.jindolf.data.Land;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 
 /**
  * 国一覧Tree周辺コンポーネント群。
@@ -151,13 +151,13 @@ public class LandsTree
     }
 
     /**
-     * 管理下のLandsModelを返す。
-     * @return LandsModel
+     * 管理下のLandsTreeModelを返す。
+     * @return LandsTreeModel
      */
-    private LandsModel getLandsModel(){
+    private LandsTreeModel getLandsModel(){
         TreeModel model = this.treeView.getModel();
-        if(model instanceof LandsModel){
-            return (LandsModel) model;
+        if(model instanceof LandsTreeModel){
+            return (LandsTreeModel) model;
         }
         return null;
     }
@@ -179,7 +179,7 @@ public class LandsTree
 
         final TreePath lastPath = this.treeView.getSelectionPath();
 
-        LandsModel model = getLandsModel();
+        LandsTreeModel model = getLandsModel();
         if(model != null){
             model.setAscending(this.ascending);
         }

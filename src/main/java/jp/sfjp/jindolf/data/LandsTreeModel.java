@@ -32,7 +32,7 @@ import org.xml.sax.SAXException;
  * 国一覧と村一覧を管理。
  * JTreeのモデルも兼用。
  */
-public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
+public class LandsTreeModel implements TreeModel{ // ComboBoxModelも付けるか？
 
     private static final String ROOT = "ROOT";
     private static final int SECTION_INTERVAL = 100;
@@ -55,7 +55,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
      * コンストラクタ。
      * この時点ではまだ国一覧が読み込まれない。
      */
-    public LandsModel(){
+    public LandsTreeModel(){
         super();
         return;
     }

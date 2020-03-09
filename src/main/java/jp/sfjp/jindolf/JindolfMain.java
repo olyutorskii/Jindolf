@@ -21,7 +21,7 @@ import jp.sfjp.jindolf.config.CmdOption;
 import jp.sfjp.jindolf.config.ConfigStore;
 import jp.sfjp.jindolf.config.EnvInfo;
 import jp.sfjp.jindolf.config.OptionInfo;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.log.LogUtils;
 import jp.sfjp.jindolf.log.LoggingDispatcher;
 import jp.sfjp.jindolf.util.GUIUtils;
@@ -311,7 +311,7 @@ public final class JindolfMain {
      * @return アプリケーションのトップフレーム
      */
     private static JFrame buildMVC(AppSetting appSetting){
-        LandsModel model = new LandsModel();
+        LandsTreeModel model = new LandsTreeModel();
         WindowManager windowManager = new WindowManager();
         ActionManager actionManager = new ActionManager();
 

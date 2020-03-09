@@ -49,7 +49,7 @@ import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.Anchor;
 import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.data.Land;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
@@ -105,7 +105,7 @@ public class Controller
             "このLook&Feel[{0}]を生成する事ができません。";
 
 
-    private final LandsModel model;
+    private final LandsTreeModel model;
     private final WindowManager windowManager;
     private final ActionManager actionManager;
     private final AppSetting appSetting;
@@ -131,7 +131,7 @@ public class Controller
      * @param setting アプリ設定
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public Controller(LandsModel model,
+    public Controller(LandsTreeModel model,
                       WindowManager windowManager,
                       ActionManager actionManager,
                       AppSetting setting){
