@@ -127,7 +127,7 @@ public final class TabBrowser extends JTabbedPane{
      * Period表示するタブ全てのコンポーネント本体とタイトルを埋める。
      */
     private void fillPeriodTab(){
-        this.village.getPeriodList().forEach(period ->{
+        this.village.getPeriodList().stream().forEachOrdered(period ->{
             PeriodView periodView = buildPeriodView(period);
             String caption = period.getCaption();
 
