@@ -57,6 +57,7 @@ import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.data.html.PeriodLoader;
 import jp.sfjp.jindolf.data.html.VillageInfoLoader;
 import jp.sfjp.jindolf.data.html.VillageListLoader;
+import jp.sfjp.jindolf.data.xml.VillageLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
@@ -1215,6 +1216,12 @@ public class Controller
         if(result != JFileChooser.APPROVE_OPTION) return;
         File selected = chooser.getSelectedFile();
 
+        Village village;
+        try{
+            village = VillageLoader.parseVillage(selected);
+        }catch(IOException e){
+            System.out.println(e);
+        }
         //System.out.println(selected);
 
         return;
