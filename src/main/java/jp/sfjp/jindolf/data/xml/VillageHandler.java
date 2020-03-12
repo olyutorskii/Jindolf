@@ -33,15 +33,6 @@ public class VillageHandler implements ContentHandler{
     private static final String NS_JINARCHIVE =
             "http://jindolf.sourceforge.jp/xml/ns/501";
 
-    private static final Map<String, PeriodType> periodTypeMap =
-            new HashMap<>();
-
-    static{
-        periodTypeMap.put("prologue", PeriodType.PROLOGUE);
-        periodTypeMap.put("progress", PeriodType.PROGRESS);
-        periodTypeMap.put("epilogue", PeriodType.EPILOGUE);
-    }
-
 
     private String nsPfx;
 
@@ -72,12 +63,54 @@ public class VillageHandler implements ContentHandler{
 
 
     /**
+     * 属性値を得る。
+     *
+     * @param atts 属性集合
+     * @param attrName 属性名
+     * @return 属性値
+     */
+    private static String attrValue(Attributes atts, String attrName){
+        String result = atts.getValue("", attrName);
+        return result;
+    }
+
+    /**
+     * Period種別をデコードする。
+     *
+     * @param type 属性値
+     * @return Period種別
+     * @throws SAXException 不正な属性値
+     */
+    private static PeriodType decodePeriodType(String type)
+            throws SAXException{
+        PeriodType result;
+
+        switch(type){
+            case "prologue":
+                result = PeriodType.PROLOGUE;
+                break;
+            case "progress":
+                result = PeriodType.PROGRESS;
+                break;
+            case "epilogue":
+                result = PeriodType.EPILOGUE;
+                break;
+            default:
+                assert false;
+                throw new SAXException("invalid period type:" + type);
+        }
+
+        return result;
+    }
+
+    /**
      * 会話種別をデコードする。
      *
      * @param type 属性値
      * @return 会話種別
+     * @throws SAXException 不正な属性値
      */
-    private static TalkType decodeTalkType(String type){
+    private static TalkType decodeTalkType(String type) throws SAXException{
         TalkType result;
 
         switch(type){
@@ -95,9 +128,39 @@ public class VillageHandler implements ContentHandler{
                 break;
             default:
                 assert false;
-                throw new AssertionError();
+                throw new SAXException("invalid talk type: " + type);
         }
 
+        return result;
+    }
+
+    /**
+     * hour値をデコードする。
+     *
+     * <p>例: 22:49:00+09:00 の 22
+     *
+     * @param txt 属性値
+     * @return hour値
+     */
+    private static int decodeHour(String txt){
+        int d1 = txt.charAt(0) - '0';
+        int d0 = txt.charAt(1) - '0';
+        int result = d1 * 10 + d0;
+        return result;
+    }
+
+    /**
+     * minute値をデコードする。
+     *
+     * <p>例: 22:49:00+09:00 の 49
+     *
+     * @param txt 属性値
+     * @return minute値
+     */
+    private static int decodeMinute(String txt){
+        int d1 = txt.charAt(3) - '0';
+        int d0 = txt.charAt(4) - '0';
+        int result = d1 * 10 + d0;
         return result;
     }
 
@@ -141,10 +204,10 @@ public class VillageHandler implements ContentHandler{
      * @param atts 属性
      */
     private void startVillage(Attributes atts){
-        String landId = atts.getValue("", "landId");
-        String vid    = atts.getValue("", "vid");
-        String name   = atts.getValue("", "fullName");
-        String state  = atts.getValue("", "state");
+        String landId = attrValue(atts, "landId");
+        String vid    = attrValue(atts, "vid");
+        String name   = attrValue(atts, "fullName");
+        String state  = attrValue(atts, "state");
 
         this.land = CoreData.getLandDefList().stream()
                 .filter(landDef -> landDef.getLandId().equals(landId))
@@ -152,8 +215,12 @@ public class VillageHandler implements ContentHandler{
                 .findFirst().get();
 
         this.village = new Village(this.land, vid, name);
+
         this.village.setState(VillageState.GAMEOVER);
+
         this.talkNo = 0;
+        this.period = null;
+
         return;
     }
 
@@ -163,17 +230,15 @@ public class VillageHandler implements ContentHandler{
      * @param atts 属性
      */
     private void startAvatar(Attributes atts){
-        String avatarId = atts.getValue("", "avatarId");
-        String fullName = atts.getValue("", "fullName");
-        String shortName = atts.getValue("", "shortName");
-        String faceIconUri = atts.getValue("", "faceIconURI");
+        String avatarId    = attrValue(atts, "avatarId");
+        String fullName    = attrValue(atts, "fullName");
+        String shortName   = attrValue(atts, "shortName");
+        String faceIconUri = attrValue(atts, "faceIconURI");
 
         Avatar avatar = Avatar.getPredefinedAvatar(fullName);
 
         this.village.addAvatar(avatar);
         this.idAvatarMap.put(avatarId, avatar);
-
-        System.out.println(avatar);
 
         return;
     }
@@ -183,14 +248,16 @@ public class VillageHandler implements ContentHandler{
      *
      * @param atts 属性
      */
-    private void startPeriod(Attributes atts){
-        String typeAttr = atts.getValue("", "type");
-        String dayAttr = atts.getValue("", "day");
+    private void startPeriod(Attributes atts) throws SAXException{
+        String typeAttr = attrValue(atts, "type");
+        String dayAttr  = attrValue(atts, "day");
 
-        PeriodType periodType = periodTypeMap.get(typeAttr);
+        PeriodType periodType = decodePeriodType(typeAttr);
         int day = Integer.parseInt(dayAttr);
 
         this.period = new Period(this.village, periodType, day);
+
+        // append tail
         int periodIdx = this.village.getPeriodSize();
         this.village.setPeriod(periodIdx, this.period);
 
@@ -202,16 +269,19 @@ public class VillageHandler implements ContentHandler{
      *
      * @param atts 属性
      */
-    private void startTalk(Attributes atts){
-        String type = atts.getValue("", "type");
-        String avatarId = atts.getValue("", "avatarId");
-        String xname = atts.getValue("", "xname");
-        String time = atts.getValue("", "time");
+    private void startTalk(Attributes atts) throws SAXException{
+        String type     = attrValue(atts, "type");
+        String avatarId = attrValue(atts, "avatarId");
+        String xname    = attrValue(atts, "xname");
+        String time     = attrValue(atts, "time");
+
         this.talkAvatar = this.idAvatarMap.get(avatarId);
         this.talkType = decodeTalkType(type);
         this.messageId = xname;
         this.content.setLength(0);
         this.talkTime = time;
+
+        return;
     }
 
     /**
@@ -220,24 +290,20 @@ public class VillageHandler implements ContentHandler{
     private void endTalk(){
         int no = 0;
         if(this.talkType == TalkType.PUBLIC){
-            no = this.talkNo++;
+            no = ++this.talkNo;
         }
 
-        int d0;
-        int d1;
-        d1 = this.talkTime.charAt(0) - '0';
-        d0 = this.talkTime.charAt(1) - '0';
-        int hour = d1 * 10 + d0;
-        d1 = this.talkTime.charAt(3) - '0';
-        d0 = this.talkTime.charAt(4) - '0';
-        int minute = d1 * 10 + d0;
+        int hour   = decodeHour  (this.talkTime);
+        int minute = decodeMinute(this.talkTime);
+
+        String dialog = this.content.toString();
 
         Talk talk = new Talk(
                 this.period,
                 this.talkType, this.talkAvatar,
                 no, this.messageId,
                 hour, minute,
-                this.content.toString()
+                dialog
         );
 
         this.period.addTopic(talk);
@@ -247,6 +313,8 @@ public class VillageHandler implements ContentHandler{
         this.messageId = null;
         this.content.setLength(0);
         this.talkTime = null;
+
+        return;
     }
 
     /**
