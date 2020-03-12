@@ -51,6 +51,7 @@ public class VillageHandler implements ContentHandler{
     private final StringBuilder content = new StringBuilder(250);
 
     private final Map<String, Avatar> idAvatarMap = new HashMap<>();
+    private Map<String, ElemTag> qNameMap = ElemTag.getQNameMap("");
 
 
     /**
@@ -164,6 +165,20 @@ public class VillageHandler implements ContentHandler{
         return result;
     }
 
+    /**
+     * decode ElemTag.
+     *
+     * @param uri URI of namespace
+     * @param localName local name
+     * @param qName Qname
+     * @return
+     */
+    private ElemTag decodeElemTag(String uri,
+                                  String localName,
+                                  String qName){
+        ElemTag result = this.qNameMap.get(qName);
+        return result;
+    }
 
     /**
      * パースした結果のVillageを返す。
@@ -382,6 +397,7 @@ public class VillageHandler implements ContentHandler{
             throws SAXException {
         if(NS_JINARCHIVE.equals(uri)){
             this.nsPfx = prefix;
+            this.qNameMap = ElemTag.getQNameMap(this.nsPfx);
         }
         return;
     }
@@ -413,24 +429,23 @@ public class VillageHandler implements ContentHandler{
                              String qName,
                              Attributes atts)
             throws SAXException {
-        if( ! NS_JINARCHIVE.equals(uri)){
-            return;
-        }
+        ElemTag tag = decodeElemTag(uri, localName, qName);
+        if(tag == null) return;
 
-        switch(localName){
-            case "village":
+        switch(tag){
+            case VILLAGE:
                 startVillage(atts);
                 break;
-            case "avatar":
+            case AVATAR:
                 startAvatar(atts);
                 break;
-            case "period":
+            case PERIOD:
                 startPeriod(atts);
                 break;
-            case "talk":
+            case TALK:
                 startTalk(atts);
                 break;
-            case "li":
+            case LI:
                 startLi(atts);
                 break;
             default:
@@ -451,14 +466,14 @@ public class VillageHandler implements ContentHandler{
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        if( ! NS_JINARCHIVE.equals(uri)){
-            return;
-        }
-        switch(localName){
-            case "talk":
+        ElemTag tag = decodeElemTag(uri, localName, qName);
+        if(tag == null) return;
+
+        switch(tag){
+            case TALK:
                 endTalk();
                 break;
-            case "li":
+            case LI:
                 endLi();
                 break;
             default:

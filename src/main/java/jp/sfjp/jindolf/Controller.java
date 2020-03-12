@@ -1216,15 +1216,18 @@ public class Controller
         if(result != JFileChooser.APPROVE_OPTION) return;
         File selected = chooser.getSelectedFile();
 
-        Village village;
-        try{
-            village = VillageLoader.parseVillage(selected);
-        }catch(IOException e){
-            System.out.println(e);
-            return;
-        }
-
-        selectedVillage(village);
+        submitHeavyBusyTask(() -> {
+            Village village;
+            try{
+                village = VillageLoader.parseVillage(selected);
+            }catch(IOException e){
+                System.out.println(e);
+                return;
+            }
+            EventQueue.invokeLater(() -> {
+                selectedVillage(village);
+            });
+        }, "XML読み込み中", "XML読み込み完了");
 
         return;
     }
