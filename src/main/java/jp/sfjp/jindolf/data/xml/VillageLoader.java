@@ -40,6 +40,10 @@ public class VillageLoader {
             "http://xml.org/sax/features/external-parameter-entities";
     private static final String F_LOAD_EXTERNAL_DTD =
             "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+    private static final String F_NAMESPACE =
+            "http://xml.org/sax/features/namespaces";
+    private static final String F_NAMESPACEPFX =
+            "http://xml.org/sax/features/namespace-prefixes";
 
 
     /**
@@ -164,6 +168,9 @@ public class VillageLoader {
      *
      * @param schema スキーマ
      * @return ファクトリ
+     * @see <a href="https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html">
+     *     XML External Entity Prevention Cheat Sheet
+     * </a>
      */
     private static SAXParserFactory buildFactory(Schema schema){
         SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -174,10 +181,12 @@ public class VillageLoader {
 
         try{
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-//            factory.setFeature(F_DISALLOW_DOCTYPE_DECL, true);
+            //factory.setFeature(F_DISALLOW_DOCTYPE_DECL, true);
             factory.setFeature(F_EXTERNAL_GENERAL_ENTITIES, false);
             factory.setFeature(F_EXTERNAL_PARAMETER_ENTITIES, false);
             factory.setFeature(F_LOAD_EXTERNAL_DTD, false);
+            factory.setFeature(F_NAMESPACE, true);
+            factory.setFeature(F_NAMESPACEPFX, true);
         }catch(   ParserConfigurationException
                 | SAXNotRecognizedException
                 | SAXNotSupportedException e ){

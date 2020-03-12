@@ -1221,8 +1221,10 @@ public class Controller
             village = VillageLoader.parseVillage(selected);
         }catch(IOException e){
             System.out.println(e);
+            return;
         }
-        //System.out.println(selected);
+
+        selectedVillage(village);
 
         return;
     }
