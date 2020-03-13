@@ -9,13 +9,18 @@ package jp.sfjp.jindolf.data.xml;
 
 import java.util.HashMap;
 import java.util.Map;
+import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.CoreData;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
+import jp.sfjp.jindolf.data.Topic;
 import jp.sfjp.jindolf.data.Village;
+import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.PeriodType;
+import jp.sourceforge.jindolf.corelib.SysEventType;
 import jp.sourceforge.jindolf.corelib.TalkType;
 import jp.sourceforge.jindolf.corelib.VillageState;
 import org.xml.sax.Attributes;
@@ -46,6 +51,8 @@ public class VillageHandler implements ContentHandler{
     private TalkType talkType;
     private String messageId;
     private String talkTime;
+
+    private SysEventType sysEventType;
 
     private boolean inLine;
     private final StringBuilder content = new StringBuilder(250);
@@ -354,6 +361,87 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * SysEvent 開始の受信。
+     *
+     * @param type SysEvent種別
+     */
+    private void startSysEvent(SysEventType type, Attributes atts){
+        this.sysEventType = type;
+
+        if(this.sysEventType == SysEventType.ASSAULT){
+            String byWhom = attrValue(atts, "byWhom");
+            String xname  = attrValue(atts, "xname");
+            String time   = attrValue(atts, "time");
+
+            this.talkAvatar = this.idAvatarMap.get(byWhom);
+            this.talkType = TalkType.WOLFONLY;
+            this.messageId = xname;
+            this.talkTime = time;
+        }
+
+        this.content.setLength(0);
+        return;
+    }
+
+    /**
+     * SysEvent 終了の受信。
+     *
+     * @return パースしたSysEvent。
+     */
+    private SysEvent endSysEvent(){
+        SysEvent ev = null;
+        Topic topic;
+        if(this.sysEventType == SysEventType.ASSAULT){
+            int hour   = decodeHour  (this.talkTime);
+            int minute = decodeMinute(this.talkTime);
+
+            String dialog = this.content.toString();
+
+            Talk talk = new Talk(
+                    this.period,
+                    this.talkType, this.talkAvatar,
+                    0, this.messageId,
+                    hour, minute,
+                    dialog );
+            topic = talk;
+            this.talkType = null;
+            this.talkAvatar = null;
+            this.talkTime = null;
+            this.messageId = null;
+        }else{
+            ev = buildSysEvent();
+            topic = ev;
+        }
+
+        this.period.addTopic(topic);
+
+        this.content.setLength(0);
+        this.sysEventType = null;
+
+        return ev;
+    }
+
+    /**
+     * SystemEvent 生成共通処理。
+     *
+     * <p>イベントファミリ、イベントタイプ、会話テキストが設定される。
+     *
+     * @return SystemEvent
+     */
+    private SysEvent buildSysEvent(){
+        SysEvent ev = new SysEvent();
+
+        EventFamily eventFamily = this.sysEventType.getEventFamily();
+        ev.setSysEventType(this.sysEventType);
+        ev.setEventFamily(eventFamily);
+
+        DecodedContent dc = new DecodedContent(this.content);
+        ev.setContent(dc);
+
+        return ev;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @param locator {@inheritDoc}
@@ -432,6 +520,11 @@ public class VillageHandler implements ContentHandler{
         ElemTag tag = decodeElemTag(uri, localName, qName);
         if(tag == null) return;
 
+        if(tag.isSysEventTag()){
+            startSysEvent(tag.getSystemEventType(), atts);
+            return;
+        }
+
         switch(tag){
             case VILLAGE:
                 startVillage(atts);
@@ -468,6 +561,11 @@ public class VillageHandler implements ContentHandler{
             throws SAXException {
         ElemTag tag = decodeElemTag(uri, localName, qName);
         if(tag == null) return;
+
+        if(tag.isSysEventTag()){
+            endSysEvent();
+            return;
+        }
 
         switch(tag){
             case TALK:
