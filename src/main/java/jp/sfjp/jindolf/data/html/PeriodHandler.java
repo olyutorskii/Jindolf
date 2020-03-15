@@ -19,6 +19,7 @@ import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Topic;
@@ -76,6 +77,7 @@ class PeriodHandler extends HtmlAdapter {
     private final List<Integer> integerList = new LinkedList<>();
     private final List<CharSequence>  charseqList =
         new LinkedList<>();
+    private final List<Player> playerList = new LinkedList<>();
 
 
     /**
@@ -158,6 +160,7 @@ class PeriodHandler extends HtmlAdapter {
         this.roleList.clear();
         this.integerList.clear();
         this.charseqList.clear();
+        this.playerList.clear();
         return;
     }
 
@@ -536,8 +539,10 @@ class PeriodHandler extends HtmlAdapter {
                                 SeqRange avatarRange)
             throws HtmlParseException{
         Avatar newAvatar = toAvatar(content, avatarRange);
-        this.integerList.add(entryNo);
-        this.avatarList.add(newAvatar);
+        Player player = new Player();
+        player.setAvatar(newAvatar);
+        player.setEntryNo(entryNo);
+        this.playerList.add(player);
         return;
     }
 
@@ -888,6 +893,7 @@ class PeriodHandler extends HtmlAdapter {
         event.addRoleList(this.roleList);
         event.addIntegerList(this.integerList);
         event.addCharSequenceList(this.charseqList);
+        event.addPlayerList(this.playerList);
 
         this.period.addTopic(event);
 

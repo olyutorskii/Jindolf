@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.data.xml;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import jp.osdn.jindolf.parser.content.DecodedContent;
@@ -14,6 +15,7 @@ import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.CoreData;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Topic;
@@ -45,14 +47,10 @@ public class VillageHandler implements ContentHandler{
     private Village village;
     private Period period;
 
-    private Avatar talkAvatar;
+    private Talk talk;
     private int talkNo;
 
-    private TalkType talkType;
-    private String messageId;
-    private String talkTime;
-
-    private SysEventType sysEventType;
+    private SysEvent sysEvent;
 
     private boolean inLine;
     private final StringBuilder content = new StringBuilder(250);
@@ -215,8 +213,6 @@ public class VillageHandler implements ContentHandler{
         this.nsPfx = null;
         this.land = null;
         this.period = null;
-        this.messageId = null;
-        this.talkTime = null;
         return;
     }
 
@@ -297,11 +293,20 @@ public class VillageHandler implements ContentHandler{
         String xname    = attrValue(atts, "xname");
         String time     = attrValue(atts, "time");
 
-        this.talkAvatar = this.idAvatarMap.get(avatarId);
-        this.talkType = decodeTalkType(type);
-        this.messageId = xname;
+        TalkType talkType = decodeTalkType(type);
+        Avatar talkAvatar = this.idAvatarMap.get(avatarId);
+        int hour   = decodeHour  (time);
+        int minute = decodeMinute(time);
+
+        this.talk = new Talk(
+                this.period,
+                talkType, talkAvatar,
+                0, xname,
+                hour, minute,
+                ""
+        );
+
         this.content.setLength(0);
-        this.talkTime = time;
 
         return;
     }
@@ -311,30 +316,17 @@ public class VillageHandler implements ContentHandler{
      */
     private void endTalk(){
         int no = 0;
-        if(this.talkType == TalkType.PUBLIC){
+        if(this.talk.getTalkType() == TalkType.PUBLIC){
             no = ++this.talkNo;
         }
 
-        int hour   = decodeHour  (this.talkTime);
-        int minute = decodeMinute(this.talkTime);
-
         String dialog = this.content.toString();
-
-        Talk talk = new Talk(
-                this.period,
-                this.talkType, this.talkAvatar,
-                no, this.messageId,
-                hour, minute,
-                dialog
-        );
-
-        this.period.addTopic(talk);
-
-        this.talkType = null;
-        this.talkAvatar = null;
-        this.messageId = null;
         this.content.setLength(0);
-        this.talkTime = null;
+
+        this.talk.setTalkNo(no);
+        this.talk.setDialog(dialog);
+
+        this.period.addTopic(this.talk);
 
         return;
     }
@@ -365,21 +357,28 @@ public class VillageHandler implements ContentHandler{
      *
      * @param type SysEvent種別
      */
-    private void startSysEvent(SysEventType type, Attributes atts){
-        this.sysEventType = type;
+    private void startSysEvent(ElemTag tag, Attributes atts){
+        this.sysEvent = new SysEvent();
 
-        if(this.sysEventType == SysEventType.ASSAULT){
-            String byWhom = attrValue(atts, "byWhom");
-            String xname  = attrValue(atts, "xname");
-            String time   = attrValue(atts, "time");
+        SysEventType type = tag.getSystemEventType();
+        EventFamily eventFamily = type.getEventFamily();
+        this.sysEvent.setSysEventType(type);
+        this.sysEvent.setEventFamily(eventFamily);
 
-            this.talkAvatar = this.idAvatarMap.get(byWhom);
-            this.talkType = TalkType.WOLFONLY;
-            this.messageId = xname;
-            this.talkTime = time;
+        if(this.sysEvent.getSysEventType() == SysEventType.ASSAULT){
+            startAssault(atts);
+        }else{
+            switch(tag){
+                case ONSTAGE:
+                    startOnStage(atts);
+                    break;
+                default:
+                    break;
+            }
         }
 
         this.content.setLength(0);
+
         return;
     }
 
@@ -388,57 +387,81 @@ public class VillageHandler implements ContentHandler{
      *
      * @return パースしたSysEvent。
      */
-    private SysEvent endSysEvent(){
-        SysEvent ev = null;
+    private void endSysEvent(){
         Topic topic;
-        if(this.sysEventType == SysEventType.ASSAULT){
-            int hour   = decodeHour  (this.talkTime);
-            int minute = decodeMinute(this.talkTime);
-
-            String dialog = this.content.toString();
-
-            Talk talk = new Talk(
-                    this.period,
-                    this.talkType, this.talkAvatar,
-                    0, this.messageId,
-                    hour, minute,
-                    dialog );
-            topic = talk;
-            this.talkType = null;
-            this.talkAvatar = null;
-            this.talkTime = null;
-            this.messageId = null;
+        if(this.sysEvent.getSysEventType() == SysEventType.ASSAULT){
+            endAssault();
+            topic = this.talk;
         }else{
-            ev = buildSysEvent();
-            topic = ev;
+            DecodedContent decoded = new DecodedContent(this.content);
+            this.sysEvent.setContent(decoded);
+            topic = this.sysEvent;
         }
 
         this.period.addTopic(topic);
 
         this.content.setLength(0);
-        this.sysEventType = null;
 
-        return ev;
+        return;
     }
 
     /**
-     * SystemEvent 生成共通処理。
+     * assault要素開始の受信。
      *
-     * <p>イベントファミリ、イベントタイプ、会話テキストが設定される。
-     *
-     * @return SystemEvent
+     * @param atts 属性
      */
-    private SysEvent buildSysEvent(){
-        SysEvent ev = new SysEvent();
+    private void startAssault(Attributes atts){
+        String byWhom = attrValue(atts, "byWhom");
+        String xname  = attrValue(atts, "xname");
+        String time   = attrValue(atts, "time");
 
-        EventFamily eventFamily = this.sysEventType.getEventFamily();
-        ev.setSysEventType(this.sysEventType);
-        ev.setEventFamily(eventFamily);
+        Avatar talkAvatar = this.idAvatarMap.get(byWhom);
 
-        DecodedContent dc = new DecodedContent(this.content);
-        ev.setContent(dc);
+        int hour   = decodeHour  (time);
+        int minute = decodeMinute(time);
 
-        return ev;
+        this.talk = new Talk(
+                this.period,
+                TalkType.WOLFONLY, talkAvatar,
+                0, xname,
+                hour, minute,
+                ""
+        );
+
+        return;
+    }
+
+    /**
+     * assault要素終了の受信。
+     */
+    private void endAssault(){
+        String dialog = this.content.toString();
+        this.content.setLength(0);
+
+        this.talk.setDialog(dialog);
+
+        return;
+    }
+
+    /**
+     * onStage要素開始の受信。
+     *
+     * @param atts 属性
+     */
+    private void startOnStage(Attributes atts){
+        String entryNo  = attrValue(atts, "entryNo");
+        String avatarId = attrValue(atts, "avatarId");
+
+        Avatar avatar = this.idAvatarMap.get(avatarId);
+        int entry = Integer.parseInt(entryNo);
+
+        Player player = new Player();
+        player.setAvatar(avatar);
+        player.setEntryNo(entry);
+
+        this.sysEvent.addPlayerList(Collections.singletonList(player));
+
+        return;
     }
 
     /**
@@ -521,7 +544,7 @@ public class VillageHandler implements ContentHandler{
         if(tag == null) return;
 
         if(tag.isSysEventTag()){
-            startSysEvent(tag.getSystemEventType(), atts);
+            startSysEvent(tag, atts);
             return;
         }
 

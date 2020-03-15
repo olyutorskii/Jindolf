@@ -34,12 +34,12 @@ public class Talk implements Topic{
     private final Period homePeriod;
     private final TalkType talkType;
     private final Avatar avatar;
-    private final int talkNo;
     private final String messageID;
     private final int hour;
     private final int minute;
-    private final CharSequence dialog;
     private final int charNum;
+    private int talkNo;
+    private CharSequence dialog;
     private int count = -1;
 
 
@@ -200,6 +200,18 @@ public class Talk implements Topic{
     }
 
     /**
+     * 公開発言番号を設定する。
+     *
+     * <p>0以下の値は公開発言番号を持たないと判断される。
+     *
+     * @param talkNo 公開発言番号
+     */
+    public void setTalkNo(int talkNo){
+        this.talkNo = talkNo;
+        return;
+    }
+
+    /**
      * 公開発言番号の有無を返す。
      *
      * @return 公開発言番号が割り当てられているならtrueを返す。
@@ -254,6 +266,16 @@ public class Talk implements Topic{
      */
     public CharSequence getDialog(){
         return this.dialog;
+    }
+
+    /**
+     * 会話データを設定する。
+     *
+     * @param seq 会話データ
+     */
+    public void setDialog(CharSequence seq){
+        this.dialog = seq;
+        return;
     }
 
     /**

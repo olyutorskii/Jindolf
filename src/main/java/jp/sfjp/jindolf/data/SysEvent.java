@@ -33,6 +33,9 @@ public class SysEvent implements Topic{
     private final List<Integer>  integerList = new LinkedList<>();
     private final List<CharSequence>  charseqList =
             new LinkedList<>();
+    /** for playerList and onStage. */
+    private final List<Player> playerList = new LinkedList<>();
+
 
     /**
      * コンストラクタ。
@@ -139,6 +142,16 @@ public class SysEvent implements Topic{
     }
 
     /**
+     * Playerリストを返す。
+     * @return Playerリスト
+     */
+    public List<Player> getPlayerList(){
+        List<Player> result =
+                Collections.unmodifiableList(this.playerList);
+        return result;
+    }
+
+    /**
      * Avatar一覧を追加する。
      * @param list Avatar一覧
      */
@@ -171,6 +184,16 @@ public class SysEvent implements Topic{
      */
     public void addCharSequenceList(List<CharSequence> list){
         this.charseqList.addAll(list);
+        return;
+    }
+
+    /**
+     * Player一覧を追加する。
+     *
+     * @param list Player一覧
+     */
+    public void addPlayerList(List<Player> list){
+        this.playerList.addAll(list);
         return;
     }
 

@@ -211,11 +211,10 @@ public class GameSummary{
 
         eventList = this.eventMap.get(SysEventType.ONSTAGE);
         for(SysEvent event : eventList){
-            avatarList  = event.getAvatarList();
-            integerList = event.getIntegerList();
-            Avatar onstageAvatar = avatarList.get(0);
+            Player player = event.getPlayerList().get(0);
+            Avatar onstageAvatar = player.getAvatar();
             Player onstagePlayer = registPlayer(onstageAvatar);
-            onstagePlayer.setEntryNo(integerList.get(0));
+            onstagePlayer.setEntryNo(player.getEntryNo());
         }
 
         eventList = this.eventMap.get(SysEventType.PLAYERLIST);
