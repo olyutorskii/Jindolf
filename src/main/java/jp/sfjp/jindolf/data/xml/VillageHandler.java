@@ -9,6 +9,8 @@ package jp.sfjp.jindolf.data.xml;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
@@ -20,7 +22,9 @@ import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Topic;
 import jp.sfjp.jindolf.data.Village;
+import jp.sourceforge.jindolf.corelib.Destiny;
 import jp.sourceforge.jindolf.corelib.EventFamily;
+import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.PeriodType;
 import jp.sourceforge.jindolf.corelib.SysEventType;
 import jp.sourceforge.jindolf.corelib.TalkType;
@@ -56,6 +60,8 @@ public class VillageHandler implements ContentHandler{
     private final StringBuilder content = new StringBuilder(250);
 
     private final Map<String, Avatar> idAvatarMap = new HashMap<>();
+    private final List<Player> playerList = new LinkedList<>();
+
     private Map<String, ElemTag> qNameMap = ElemTag.getQNameMap("");
 
 
@@ -171,6 +177,49 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * roleをデコードする。
+     *
+     * @param role role属性値
+     * @return GameRole種別
+     * @throws SAXException 不正な値
+     */
+    private static GameRole decodeRole(String role) throws SAXException{
+        GameRole result;
+
+        switch(role){
+            case "innocent":
+                result = GameRole.INNOCENT;
+                break;
+            case "wolf":
+                result = GameRole.WOLF;
+                break;
+            case "seer":
+                result = GameRole.SEER;
+                break;
+            case "shaman":
+                result = GameRole.SHAMAN;
+                break;
+            case "madman":
+                result = GameRole.MADMAN;
+                break;
+            case "hunter":
+                result = GameRole.HUNTER;
+                break;
+            case "frater":
+                result = GameRole.FRATER;
+                break;
+            case "hamster":
+                result = GameRole.HAMSTER;
+                break;
+            default:
+                assert false;
+                throw new SAXException("invalid role: " + role);
+        }
+
+        return result;
+    }
+
+    /**
      * decode ElemTag.
      *
      * @param uri URI of namespace
@@ -200,6 +249,7 @@ public class VillageHandler implements ContentHandler{
     private void resetBefore(){
         this.idAvatarMap.clear();
         this.content.setLength(0);
+        this.playerList.clear();
         this.inLine = false;
         return;
     }
@@ -210,6 +260,7 @@ public class VillageHandler implements ContentHandler{
     private void resetAfter(){
         this.idAvatarMap.clear();
         this.content.setLength(0);
+        this.playerList.clear();
         this.nsPfx = null;
         this.land = null;
         this.period = null;
@@ -279,6 +330,14 @@ public class VillageHandler implements ContentHandler{
         int periodIdx = this.village.getPeriodSize();
         this.village.setPeriod(periodIdx, this.period);
 
+        return;
+    }
+
+    /**
+     * period要素終了の受信。
+     */
+    private void endPeriod(){
+        this.period.setFullOpen(true);
         return;
     }
 
@@ -353,6 +412,25 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * playerList要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startPlayerList(Attributes atts){
+        this.playerList.clear();
+        return;
+    }
+
+    /**
+     * playerList要素終了を受信する。
+     */
+    private void endPlayerList(){
+        this.sysEvent.addPlayerList(this.playerList);
+        this.playerList.clear();
+        return;
+    }
+
+    /**
      * SysEvent 開始の受信。
      *
      * @param type SysEvent種別
@@ -372,6 +450,9 @@ public class VillageHandler implements ContentHandler{
                 case ONSTAGE:
                     startOnStage(atts);
                     break;
+                case PLAYERLIST:
+                    startPlayerList(atts);
+                    break;
                 default:
                     break;
             }
@@ -389,18 +470,29 @@ public class VillageHandler implements ContentHandler{
      */
     private void endSysEvent(){
         Topic topic;
-        if(this.sysEvent.getSysEventType() == SysEventType.ASSAULT){
+        SysEventType eventType = this.sysEvent.getSysEventType();
+        if(eventType == SysEventType.ASSAULT){
             endAssault();
             topic = this.talk;
         }else{
+            switch(eventType){
+                case PLAYERLIST:
+                    endPlayerList();
+                    break;
+                default:
+                    break;
+            }
+
             DecodedContent decoded = new DecodedContent(this.content);
             this.sysEvent.setContent(decoded);
+
             topic = this.sysEvent;
         }
 
         this.period.addTopic(topic);
 
         this.content.setLength(0);
+        this.sysEvent = null;
 
         return;
     }
@@ -460,6 +552,38 @@ public class VillageHandler implements ContentHandler{
         player.setEntryNo(entry);
 
         this.sysEvent.addPlayerList(Collections.singletonList(player));
+
+        return;
+    }
+
+    /**
+     * playerInfo要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startPlayerInfo(Attributes atts) throws SAXException{
+        String playerId = attrValue(atts, "playerId");
+        String avatarId = attrValue(atts, "avatarId");
+        String survive = attrValue(atts, "survive");
+        String role = attrValue(atts, "role");
+        String uri = attrValue(atts, "uri");
+
+        Avatar avatar = this.idAvatarMap.get(avatarId);
+        GameRole gameRole = decodeRole(role);
+        if(uri == null) uri = "";
+
+        Player player = new Player();
+
+        player.setAvatar(avatar);
+        player.setRole(gameRole);
+        player.setIdName(playerId);
+        player.setUrlText(uri);
+        if("true".equals(survive) || "1".equals(survive)){
+            player.setObitDay(-1);
+            player.setDestiny(Destiny.ALIVE);
+        }
+
+        this.playerList.add(player);
 
         return;
     }
@@ -564,6 +688,9 @@ public class VillageHandler implements ContentHandler{
             case LI:
                 startLi(atts);
                 break;
+            case PLAYERINFO:
+                startPlayerInfo(atts);
+                break;
             default:
                 break;
         }
@@ -591,6 +718,9 @@ public class VillageHandler implements ContentHandler{
         }
 
         switch(tag){
+            case PERIOD:
+                endPeriod();
+                break;
             case TALK:
                 endTalk();
                 break;
