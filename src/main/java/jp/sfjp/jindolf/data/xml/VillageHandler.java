@@ -79,145 +79,13 @@ public class VillageHandler implements ContentHandler{
      *
      * @param atts 属性集合
      * @param attrName 属性名
-     * @return 属性値
+     * @return 属性値。なければnull。
      */
     private static String attrValue(Attributes atts, String attrName){
         String result = atts.getValue("", attrName);
         return result;
     }
 
-    /**
-     * Period種別をデコードする。
-     *
-     * @param type 属性値
-     * @return Period種別
-     * @throws SAXException 不正な属性値
-     */
-    private static PeriodType decodePeriodType(String type)
-            throws SAXException{
-        PeriodType result;
-
-        switch(type){
-            case "prologue":
-                result = PeriodType.PROLOGUE;
-                break;
-            case "progress":
-                result = PeriodType.PROGRESS;
-                break;
-            case "epilogue":
-                result = PeriodType.EPILOGUE;
-                break;
-            default:
-                assert false;
-                throw new SAXException("invalid period type:" + type);
-        }
-
-        return result;
-    }
-
-    /**
-     * 会話種別をデコードする。
-     *
-     * @param type 属性値
-     * @return 会話種別
-     * @throws SAXException 不正な属性値
-     */
-    private static TalkType decodeTalkType(String type) throws SAXException{
-        TalkType result;
-
-        switch(type){
-            case "public":
-                result = TalkType.PUBLIC;
-                break;
-            case "wolf":
-                result = TalkType.WOLFONLY;
-                break;
-            case "private":
-                result = TalkType.PRIVATE;
-                break;
-            case "grave":
-                result = TalkType.GRAVE;
-                break;
-            default:
-                assert false;
-                throw new SAXException("invalid talk type: " + type);
-        }
-
-        return result;
-    }
-
-    /**
-     * hour値をデコードする。
-     *
-     * <p>例: 22:49:00+09:00 の 22
-     *
-     * @param txt 属性値
-     * @return hour値
-     */
-    private static int decodeHour(String txt){
-        int d1 = txt.charAt(0) - '0';
-        int d0 = txt.charAt(1) - '0';
-        int result = d1 * 10 + d0;
-        return result;
-    }
-
-    /**
-     * minute値をデコードする。
-     *
-     * <p>例: 22:49:00+09:00 の 49
-     *
-     * @param txt 属性値
-     * @return minute値
-     */
-    private static int decodeMinute(String txt){
-        int d1 = txt.charAt(3) - '0';
-        int d0 = txt.charAt(4) - '0';
-        int result = d1 * 10 + d0;
-        return result;
-    }
-
-    /**
-     * roleをデコードする。
-     *
-     * @param role role属性値
-     * @return GameRole種別
-     * @throws SAXException 不正な値
-     */
-    private static GameRole decodeRole(String role) throws SAXException{
-        GameRole result;
-
-        switch(role){
-            case "innocent":
-                result = GameRole.INNOCENT;
-                break;
-            case "wolf":
-                result = GameRole.WOLF;
-                break;
-            case "seer":
-                result = GameRole.SEER;
-                break;
-            case "shaman":
-                result = GameRole.SHAMAN;
-                break;
-            case "madman":
-                result = GameRole.MADMAN;
-                break;
-            case "hunter":
-                result = GameRole.HUNTER;
-                break;
-            case "frater":
-                result = GameRole.FRATER;
-                break;
-            case "hamster":
-                result = GameRole.HAMSTER;
-                break;
-            default:
-                assert false;
-                throw new SAXException("invalid role: " + role);
-        }
-
-        return result;
-    }
 
     /**
      * decode ElemTag.
@@ -321,7 +189,7 @@ public class VillageHandler implements ContentHandler{
         String typeAttr = attrValue(atts, "type");
         String dayAttr  = attrValue(atts, "day");
 
-        PeriodType periodType = decodePeriodType(typeAttr);
+        PeriodType periodType = XmlDecoder.decodePeriodType(typeAttr);
         int day = Integer.parseInt(dayAttr);
 
         this.period = new Period(this.village, periodType, day);
@@ -352,10 +220,10 @@ public class VillageHandler implements ContentHandler{
         String xname    = attrValue(atts, "xname");
         String time     = attrValue(atts, "time");
 
-        TalkType talkType = decodeTalkType(type);
+        TalkType talkType = XmlDecoder.decodeTalkType(type);
         Avatar talkAvatar = this.idAvatarMap.get(avatarId);
-        int hour   = decodeHour  (time);
-        int minute = decodeMinute(time);
+        int hour   = XmlDecoder.decodeHour  (time);
+        int minute = XmlDecoder.decodeMinute(time);
 
         this.talk = new Talk(
                 this.period,
@@ -509,8 +377,8 @@ public class VillageHandler implements ContentHandler{
 
         Avatar talkAvatar = this.idAvatarMap.get(byWhom);
 
-        int hour   = decodeHour  (time);
-        int minute = decodeMinute(time);
+        int hour   = XmlDecoder.decodeHour  (time);
+        int minute = XmlDecoder.decodeMinute(time);
 
         this.talk = new Talk(
                 this.period,
@@ -569,7 +437,7 @@ public class VillageHandler implements ContentHandler{
         String uri = attrValue(atts, "uri");
 
         Avatar avatar = this.idAvatarMap.get(avatarId);
-        GameRole gameRole = decodeRole(role);
+        GameRole gameRole = XmlDecoder.decodeRole(role);
         if(uri == null) uri = "";
 
         Player player = new Player();
