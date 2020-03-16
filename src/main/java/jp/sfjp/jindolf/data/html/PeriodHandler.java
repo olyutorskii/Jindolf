@@ -24,6 +24,7 @@ import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Topic;
 import jp.sfjp.jindolf.data.Village;
+import jp.sourceforge.jindolf.corelib.Destiny;
 import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.PeriodType;
@@ -700,15 +701,18 @@ class PeriodHandler extends HtmlAdapter {
         CharSequence account = this.converter
                                    .convert(content, loginRange);
 
-        Integer liveOrDead;
-        if(isLiving) liveOrDead = 1;
-        else         liveOrDead = 0;
+        Player player = new Player();
 
-        this.avatarList.add(who);
-        this.charseqList.add(anchor);
-        this.charseqList.add(account);
-        this.integerList.add(liveOrDead);
-        this.roleList.add(role);
+        player.setAvatar(who);
+        player.setRole(role);
+        player.setIdName(account.toString());
+        player.setUrlText(anchor.toString());
+        if(isLiving){
+            player.setObitDay(-1);
+            player.setDestiny(Destiny.ALIVE);
+        }
+
+        this.playerList.add(player);
 
         return;
     }

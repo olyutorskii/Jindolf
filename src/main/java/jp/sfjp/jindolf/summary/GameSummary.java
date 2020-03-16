@@ -135,10 +135,10 @@ public class GameSummary{
      */
     private void summarize(){
         buildEventMap();
+        buildPlayerList();
 
         summarizeTime();
         summarizeWinner();
-        summarizePlayers();
 
         for(Period period : this.village.getPeriodList()){
             summarizePeriod(period);
@@ -159,15 +159,53 @@ public class GameSummary{
             this.eventMap.put(type, eventList);
         }
 
-        for(Period period : this.village.getPeriodList()){
-            for(Topic topic : period.getTopicList()){
-                if( ! (topic instanceof SysEvent) ) continue;
-                SysEvent event = (SysEvent) topic;
-                SysEventType type = event.getSysEventType();
-                List<SysEvent> eventList = this.eventMap.get(type);
-                eventList.add(event);
-            }
-        }
+        this.village.getPeriodList().stream()
+                .flatMap(period -> period.getTopicList().stream())
+                .filter(topic -> (topic instanceof SysEvent) )
+                .map(topic -> (SysEvent) topic)
+                .forEachOrdered(event -> {
+                    SysEventType type = event.getSysEventType();
+                    List<SysEvent> eventList = this.eventMap.get(type);
+                    eventList.add(event);
+                });
+
+        return;
+    }
+
+    /**
+     * playerListイベントとonStageイベントの内容を付き合わせ、
+     * Player一覧情報を完成させる。
+     *
+     * <p>プロローグで失踪したPlayerは対象外。
+     */
+    private void buildPlayerList(){
+        List<SysEvent> playerListEventList =
+                this.eventMap.get(SysEventType.PLAYERLIST);
+        assert playerListEventList.size() == 1;
+        SysEvent playerListEvent = playerListEventList.get(0);
+
+        List<Player> players = playerListEvent.getPlayerList();
+        players.forEach( player -> {
+            Avatar avatar = player.getAvatar();
+            this.playerMap.put(avatar, player);
+        });
+
+        List<SysEvent> onStageEventList =
+                this.eventMap.get(SysEventType.ONSTAGE);
+        onStageEventList.stream()
+                .map(onStageEvent -> onStageEvent.getPlayerList().get(0))
+                .forEachOrdered(onStagePlayer -> {
+                    Avatar avatar = onStagePlayer.getAvatar();
+                    Player listPlayer = this.playerMap.get(avatar);
+                    if(listPlayer != null){
+                        int entryNo = onStagePlayer.getEntryNo();
+                        listPlayer.setEntryNo(entryNo);
+                        this.playerList.add(listPlayer);
+                    }else{
+                        assert true;
+                        // プレイヤー失踪？
+                    }
+                });
 
         return;
     }
@@ -194,56 +232,6 @@ public class GameSummary{
         }
 
         if(this.winner == null) assert false;
-
-        return;
-    }
-
-    /**
-     * 参加者集計。
-     */
-    private void summarizePlayers(){
-        List<SysEvent> eventList;
-
-        List<Avatar>       avatarList;
-        List<GameRole>     roleList;
-        List<Integer>      integerList;
-        List<CharSequence> textList;
-
-        eventList = this.eventMap.get(SysEventType.ONSTAGE);
-        for(SysEvent event : eventList){
-            Player player = event.getPlayerList().get(0);
-            Avatar onstageAvatar = player.getAvatar();
-            Player onstagePlayer = registPlayer(onstageAvatar);
-            onstagePlayer.setEntryNo(player.getEntryNo());
-        }
-
-        eventList = this.eventMap.get(SysEventType.PLAYERLIST);
-        assert eventList.size() == 1;
-        SysEvent event = eventList.get(0);
-
-        avatarList  = event.getAvatarList();
-        roleList    = event.getRoleList();
-        integerList = event.getIntegerList();
-        textList    = event.getCharSequenceList();
-        int avatarNum = avatarList.size();
-        for(int idx = 0; idx < avatarNum; idx++){
-            Avatar avatar = avatarList.get(idx);
-            GameRole role = roleList.get(idx);
-            CharSequence urlText = textList.get(idx * 2);
-            CharSequence idName  = textList.get(idx * 2 + 1);
-            int liveOrDead = integerList.get(idx);
-
-            Player player = registPlayer(avatar);
-            player.setRole(role);
-            player.setUrlText(urlText.toString());
-            player.setIdName(idName.toString());
-            if(liveOrDead != 0){        // 生存
-                player.setObitDay(-1);
-                player.setDestiny(Destiny.ALIVE);
-            }
-
-            this.playerList.add(player);
-        }
 
         return;
     }
