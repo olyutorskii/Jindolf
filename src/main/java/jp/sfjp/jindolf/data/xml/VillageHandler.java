@@ -16,6 +16,7 @@ import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.CoreData;
 import jp.sfjp.jindolf.data.Land;
+import jp.sfjp.jindolf.data.Nominated;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
@@ -61,6 +62,7 @@ public class VillageHandler implements ContentHandler{
 
     private final Map<String, Avatar> idAvatarMap = new HashMap<>();
     private final List<Player> playerList = new LinkedList<>();
+    private final List<Nominated> nominatedList = new LinkedList<>();
 
     private Map<String, ElemTag> qNameMap = ElemTag.getQNameMap("");
 
@@ -118,6 +120,7 @@ public class VillageHandler implements ContentHandler{
         this.idAvatarMap.clear();
         this.content.setLength(0);
         this.playerList.clear();
+        this.nominatedList.clear();
         this.inLine = false;
         return;
     }
@@ -129,6 +132,7 @@ public class VillageHandler implements ContentHandler{
         this.idAvatarMap.clear();
         this.content.setLength(0);
         this.playerList.clear();
+        this.nominatedList.clear();
         this.nsPfx = null;
         this.land = null;
         this.period = null;
@@ -299,6 +303,32 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * execution要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startExecution(Attributes atts){
+        String victimId = attrValue(atts, "victim");
+
+        if(victimId != null){
+            Avatar victim = this.idAvatarMap.get(victimId);
+            List<Avatar> single = Collections.singletonList(victim);
+            this.sysEvent.addAvatarList(single);
+        }
+
+        return;
+    }
+
+    /**
+     * execution要素終了を受信する。
+     */
+    private void endExecution(){
+        this.sysEvent.addNominatedList(this.nominatedList);
+        this.nominatedList.clear();
+        return;
+    }
+
+    /**
      * SysEvent 開始の受信。
      *
      * @param type SysEvent種別
@@ -320,6 +350,9 @@ public class VillageHandler implements ContentHandler{
                     break;
                 case PLAYERLIST:
                     startPlayerList(atts);
+                    break;
+                case EXECUTION:
+                    startExecution(atts);
                     break;
                 default:
                     break;
@@ -346,6 +379,9 @@ public class VillageHandler implements ContentHandler{
             switch(eventType){
                 case PLAYERLIST:
                     endPlayerList();
+                    break;
+                case EXECUTION:
+                    endExecution();
                     break;
                 default:
                     break;
@@ -457,6 +493,24 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * nominated要素開始の受信。
+     *
+     * @param atts 属性
+     */
+    private void startNominated(Attributes atts){
+        String avatarId = attrValue(atts, "avatarId");
+        String countTxt = attrValue(atts, "count");
+
+        Avatar avatar = this.idAvatarMap.get(avatarId);
+        int count = Integer.parseInt(countTxt);
+
+        Nominated nominated = new Nominated(avatar, count);
+        this.nominatedList.add(nominated);
+
+        return;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @param locator {@inheritDoc}
@@ -558,6 +612,9 @@ public class VillageHandler implements ContentHandler{
                 break;
             case PLAYERINFO:
                 startPlayerInfo(atts);
+                break;
+            case NOMINATED:
+                startNominated(atts);
                 break;
             default:
                 break;

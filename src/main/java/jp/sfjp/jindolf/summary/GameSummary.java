@@ -268,8 +268,9 @@ public class GameSummary{
         SysEventType eventType = sysEvent.getSysEventType();
         switch(eventType){
         case EXECUTION:  // G国のみ
-            if(integerList.get(avatarTotal - 1) > 0) break;  // 処刑無し
-            Player executedPl = registPlayer(lastAvatar);
+            Avatar executed = sysEvent.getExecutedAvatar();
+            if(executed == null) break;
+            Player executedPl = registPlayer(executed);
             executedPl.setDestiny(Destiny.EXECUTED);
             executedPl.setObitDay(day);
             break;

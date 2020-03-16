@@ -35,6 +35,8 @@ public class SysEvent implements Topic{
             new LinkedList<>();
     /** for playerList and onStage. */
     private final List<Player> playerList = new LinkedList<>();
+    /** for execution. */
+    private final List<Nominated> nominatedList = new LinkedList<>();
 
 
     /**
@@ -143,11 +145,23 @@ public class SysEvent implements Topic{
 
     /**
      * Playerリストを返す。
+     *
      * @return Playerリスト
      */
     public List<Player> getPlayerList(){
         List<Player> result =
                 Collections.unmodifiableList(this.playerList);
+        return result;
+    }
+
+    /**
+     * Nominatedリストを返す。
+     *
+     * @return Nominatedリスト
+     */
+    public List<Nominated> getNominatedList(){
+        List<Nominated> result =
+                Collections.unmodifiableList(this.nominatedList);
         return result;
     }
 
@@ -198,6 +212,16 @@ public class SysEvent implements Topic{
     }
 
     /**
+     * Nominated一覧を追加する。
+     *
+     * @param list Nominated一覧
+     */
+    public void addNominatedList(List<Nominated> list){
+        this.nominatedList.addAll(list);
+        return;
+    }
+
+    /**
      * システムイベントを解析し、処刑されたAvatarを返す。
      * G国運用中の時点で、処刑者が出るのはCOUNTINGとEXECUTIONのみ。
      * @return 処刑されたAvatar。いなければnull
@@ -218,14 +242,8 @@ public class SysEvent implements Topic{
             }
             break;
         case EXECUTION:
-            if(this.avatarList.isEmpty()) return null;
-            avatarNum = this.avatarList.size();
-            List<Integer> intList = getIntegerList();
-            int intNum = intList.size();
-            assert intNum > 0;
-            if(avatarNum != intNum || intList.get(intNum - 1) <= 0){
-                lastAvatar = this.avatarList.get(avatarNum - 1);
-                result = lastAvatar;
+            if( ! this.avatarList.isEmpty()){
+                result = this.avatarList.get(0);
             }
             break;
         case COUNTING2:

@@ -18,6 +18,7 @@ import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.Nominated;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
@@ -79,6 +80,7 @@ class PeriodHandler extends HtmlAdapter {
     private final List<CharSequence>  charseqList =
         new LinkedList<>();
     private final List<Player> playerList = new LinkedList<>();
+    private final List<Nominated> nominatedList = new LinkedList<>();
 
 
     /**
@@ -162,6 +164,7 @@ class PeriodHandler extends HtmlAdapter {
         this.integerList.clear();
         this.charseqList.clear();
         this.playerList.clear();
+        this.nominatedList.clear();
         return;
     }
 
@@ -720,9 +723,7 @@ class PeriodHandler extends HtmlAdapter {
     /**
      * {@inheritDoc}
      *
-     * <p>G国処刑に伴い、Avatarリストに投票先が1件、
-     * intリストに得票数が1件追加される。
-     * 最後に被処刑者がAvatarリストに1件、負の値がintリストに1件追加される。
+     * <p>G国処刑に伴い、被処刑者がいればAvatarリストに1件追加される。
      *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
@@ -736,8 +737,12 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         Avatar who = toAvatar(content, avatarRange);
 
-        this.avatarList.add(who);
-        this.integerList.add(votes);
+        if(votes <= 0){
+            this.avatarList.add(who);
+        }else{
+            Nominated nominated = new Nominated(who, votes);
+            this.nominatedList.add(nominated);
+        }
 
         return;
     }
@@ -898,6 +903,7 @@ class PeriodHandler extends HtmlAdapter {
         event.addIntegerList(this.integerList);
         event.addCharSequenceList(this.charseqList);
         event.addPlayerList(this.playerList);
+        event.addNominatedList(this.nominatedList);
 
         this.period.addTopic(event);
 
