@@ -329,6 +329,19 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * suddenDeath要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startSuddenDeath(Attributes atts){
+        String avatarId = attrValue(atts, "avatarId");
+        Avatar avatar = this.idAvatarMap.get(avatarId);
+        List<Avatar> single = Collections.singletonList(avatar);
+        this.sysEvent.addAvatarList(single);
+        return;
+    }
+
+    /**
      * SysEvent 開始の受信。
      *
      * @param type SysEvent種別
@@ -353,6 +366,9 @@ public class VillageHandler implements ContentHandler{
                     break;
                 case EXECUTION:
                     startExecution(atts);
+                    break;
+                case SUDDENDEATH:
+                    startSuddenDeath(atts);
                     break;
                 default:
                     break;
