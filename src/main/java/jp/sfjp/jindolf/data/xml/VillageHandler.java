@@ -15,6 +15,7 @@ import java.util.Map;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.CoreData;
+import jp.sfjp.jindolf.data.InterPlay;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.data.Nominated;
 import jp.sfjp.jindolf.data.Period;
@@ -63,6 +64,7 @@ public class VillageHandler implements ContentHandler{
     private final Map<String, Avatar> idAvatarMap = new HashMap<>();
     private final List<Player> playerList = new LinkedList<>();
     private final List<Nominated> nominatedList = new LinkedList<>();
+    private final List<InterPlay> interPlayList = new LinkedList<>();
 
     private Map<String, ElemTag> qNameMap = ElemTag.getQNameMap("");
 
@@ -121,6 +123,7 @@ public class VillageHandler implements ContentHandler{
         this.content.setLength(0);
         this.playerList.clear();
         this.nominatedList.clear();
+        this.interPlayList.clear();
         this.inLine = false;
         return;
     }
@@ -133,6 +136,7 @@ public class VillageHandler implements ContentHandler{
         this.content.setLength(0);
         this.playerList.clear();
         this.nominatedList.clear();
+        this.interPlayList.clear();
         this.nsPfx = null;
         this.land = null;
         this.period = null;
@@ -329,6 +333,23 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * counting要素終了を受信する。
+     */
+    private void endCounting(){
+        this.sysEvent.addInterPlayList(this.interPlayList);
+        this.interPlayList.clear();
+        return;
+    }
+
+    /**
+     * counting2要素終了を受信する。
+     */
+    private void endCounting2(){
+        endCounting();
+        return;
+    }
+
+    /**
      * suddenDeath要素開始を受信する。
      *
      * @param atts 属性
@@ -337,6 +358,20 @@ public class VillageHandler implements ContentHandler{
         String avatarId = attrValue(atts, "avatarId");
         Avatar avatar = this.idAvatarMap.get(avatarId);
         List<Avatar> single = Collections.singletonList(avatar);
+        this.sysEvent.addAvatarList(single);
+        return;
+    }
+
+    /**
+     * counting要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startCounting(Attributes atts){
+        String victimId = attrValue(atts, "victim");
+        if(victimId == null) return;
+        Avatar victim = this.idAvatarMap.get(victimId);
+        List<Avatar> single = Collections.singletonList(victim);
         this.sysEvent.addAvatarList(single);
         return;
     }
@@ -370,6 +405,9 @@ public class VillageHandler implements ContentHandler{
                 case SUDDENDEATH:
                     startSuddenDeath(atts);
                     break;
+                case COUNTING:
+                    startCounting(atts);
+                    break;
                 default:
                     break;
             }
@@ -398,6 +436,12 @@ public class VillageHandler implements ContentHandler{
                     break;
                 case EXECUTION:
                     endExecution();
+                    break;
+                case COUNTING:
+                    endCounting();
+                    break;
+                case COUNTING2:
+                    endCounting2();
                     break;
                 default:
                     break;
@@ -527,6 +571,24 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * vote要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startVote(Attributes atts){
+        String byWhomId = attrValue(atts, "byWhom");
+        String targetId = attrValue(atts, "target");
+
+        Avatar byWhom = this.idAvatarMap.get(byWhomId);
+        Avatar target = this.idAvatarMap.get(targetId);
+
+        InterPlay interPlay = new InterPlay(byWhom, target);
+        this.interPlayList.add(interPlay);
+
+        return;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @param locator {@inheritDoc}
@@ -632,6 +694,8 @@ public class VillageHandler implements ContentHandler{
             case NOMINATED:
                 startNominated(atts);
                 break;
+            case VOTE:
+                startVote(atts);
             default:
                 break;
         }

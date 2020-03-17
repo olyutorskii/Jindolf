@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.GameRole;
@@ -37,6 +38,8 @@ public class SysEvent implements Topic{
     private final List<Player> playerList = new LinkedList<>();
     /** for execution. */
     private final List<Nominated> nominatedList = new LinkedList<>();
+    /** for vote, judge, counting, etc. */
+    private final List<InterPlay> interPlayList = new LinkedList<>();
 
 
     /**
@@ -166,6 +169,17 @@ public class SysEvent implements Topic{
     }
 
     /**
+     * InterPlayリストを返す。
+     *
+     * @return InterPlayリスト
+     */
+    public List<InterPlay> getInterPlayList(){
+        List<InterPlay> result =
+                Collections.unmodifiableList(this.interPlayList);
+        return result;
+    }
+
+    /**
      * Avatar一覧を追加する。
      * @param list Avatar一覧
      */
@@ -222,6 +236,15 @@ public class SysEvent implements Topic{
     }
 
     /**
+     * InterPlay一覧を追加する。
+     * @param list InterPlay一覧
+     */
+    public void addInterPlayList(List<InterPlay> list){
+        this.interPlayList.addAll(list);
+        return;
+    }
+
+    /**
      * システムイベントを解析し、処刑されたAvatarを返す。
      * G国運用中の時点で、処刑者が出るのはCOUNTINGとEXECUTIONのみ。
      * @return 処刑されたAvatar。いなければnull
@@ -229,18 +252,8 @@ public class SysEvent implements Topic{
     public Avatar getExecutedAvatar(){
         Avatar result = null;
 
-        int avatarNum;
-        Avatar lastAvatar;
-
         switch(this.sysEventType){
         case COUNTING:
-            if(this.avatarList.isEmpty()) return null;
-            avatarNum = this.avatarList.size();
-            if(avatarNum % 2 != 0){
-                lastAvatar = this.avatarList.get(avatarNum - 1);
-                result = lastAvatar;
-            }
-            break;
         case EXECUTION:
             if( ! this.avatarList.isEmpty()){
                 result = this.avatarList.get(0);
@@ -272,15 +285,11 @@ public class SysEvent implements Topic{
             return result;
         }
 
-        int size = this.avatarList.size();
-        assert size >= 2;
-        int limit = size - 1;
-        if(size % 2 != 0) limit--;
+        Set<Avatar> voterSet = this.interPlayList.stream()
+                .map(interPlay -> interPlay.getByWhom())
+                .collect(Collectors.toSet());
 
-        for(int idx = 0; idx <= limit; idx += 2){
-            Avatar avatar = this.avatarList.get(idx);
-            result.add(avatar);
-        }
+        result.addAll(voterSet);
 
         return result;
     }

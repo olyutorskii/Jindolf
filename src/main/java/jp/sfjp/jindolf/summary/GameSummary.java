@@ -281,8 +281,9 @@ public class GameSummary{
             suddenDeathPlayer.setObitDay(day);
             break;
         case COUNTING:  // G国COUNTING2は運命に関係なし
-            if(avatarTotal % 2 == 0) break;  // 処刑無し
-            Player executedPlayer = registPlayer(lastAvatar);
+            Avatar victim = sysEvent.getExecutedAvatar();
+            if(victim == null) break;
+            Player executedPlayer = registPlayer(victim);
             executedPlayer.setDestiny(Destiny.EXECUTED);
             executedPlayer.setObitDay(day);
             break;

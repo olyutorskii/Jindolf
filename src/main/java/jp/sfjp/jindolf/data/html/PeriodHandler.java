@@ -18,6 +18,7 @@ import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.InterPlay;
 import jp.sfjp.jindolf.data.Nominated;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Player;
@@ -81,6 +82,7 @@ class PeriodHandler extends HtmlAdapter {
         new LinkedList<>();
     private final List<Player> playerList = new LinkedList<>();
     private final List<Nominated> nominatedList = new LinkedList<>();
+    private final List<InterPlay> interPlayList = new LinkedList<>();
 
 
     /**
@@ -165,6 +167,7 @@ class PeriodHandler extends HtmlAdapter {
         this.charseqList.clear();
         this.playerList.clear();
         this.nominatedList.clear();
+        this.interPlayList.clear();
         return;
     }
 
@@ -621,12 +624,18 @@ class PeriodHandler extends HtmlAdapter {
                                  SeqRange voteByRange,
                                  SeqRange voteToRange)
             throws HtmlParseException{
-        if(voteByRange.isValid()){
-            Avatar voteBy = toAvatar(content, voteByRange);
-            this.avatarList.add(voteBy);
+        if( ! voteByRange.isValid()){
+            Avatar victim = toAvatar(content, voteToRange);
+            this.avatarList.add(victim);
+            return;
         }
+
+        Avatar voteBy = toAvatar(content, voteByRange);
         Avatar voteTo = toAvatar(content, voteToRange);
-        this.avatarList.add(voteTo);
+
+        InterPlay interPlay = new InterPlay(voteBy, voteTo);
+        this.interPlayList.add(interPlay);
+
         return;
     }
 
@@ -904,6 +913,7 @@ class PeriodHandler extends HtmlAdapter {
         event.addCharSequenceList(this.charseqList);
         event.addPlayerList(this.playerList);
         event.addNominatedList(this.nominatedList);
+        event.addInterPlayList(this.interPlayList);
 
         this.period.addTopic(event);
 
