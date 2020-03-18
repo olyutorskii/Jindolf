@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.InterPlay;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
@@ -331,9 +332,10 @@ public class GameSummary{
         List<SysEvent> eventList = this.eventMap.get(SysEventType.JUDGE);
 
         for(SysEvent event : eventList){
-            List<Avatar> avatarList  = event.getAvatarList();
-            Avatar avatar = avatarList.get(1);
-            Player seered = getPlayer(avatar);
+            List<InterPlay> interPlayList = event.getInterPlayList();
+            InterPlay judge = interPlayList.get(0);
+            Avatar target = judge.getTarget();
+            Player seered = getPlayer(target);
             GameRole role = seered.getRole();
             switch(role){
             case WOLF:    this.ctScryWolf++;    break;
@@ -396,9 +398,10 @@ public class GameSummary{
 
         eventList = this.eventMap.get(SysEventType.GUARD);
         for(SysEvent event : eventList){
-            List<Avatar> avatarList = event.getAvatarList();
-            Avatar avatar = avatarList.get(1);
-            Player guarded = getPlayer(avatar);
+            List<InterPlay> interPlayList = event.getInterPlayList();
+            InterPlay guard = interPlayList.get(0);
+            Avatar target = guard.getTarget();
+            Player guarded = getPlayer(target);
             GameRole guardedRole = guarded.getRole();
             switch(guardedRole){
             case WOLF:    this.ctGuardWolf++;    break;

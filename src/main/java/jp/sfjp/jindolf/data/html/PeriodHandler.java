@@ -861,8 +861,8 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         Avatar guardBy = toAvatar(content, guardByRange);
         Avatar guardTo = toAvatar(content, guardToRange);
-        this.avatarList.add(guardBy);
-        this.avatarList.add(guardTo);
+        InterPlay interPlay = new InterPlay(guardBy, guardTo);
+        this.interPlayList.add(interPlay);
         return;
     }
 
@@ -884,8 +884,8 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         Avatar judgeBy = toAvatar(content, judgeByRange);
         Avatar judgeTo = toAvatar(content, judgeToRange);
-        this.avatarList.add(judgeBy);
-        this.avatarList.add(judgeTo);
+        InterPlay interPlay = new InterPlay(judgeBy, judgeTo);
+        this.interPlayList.add(interPlay);
         return;
     }
 

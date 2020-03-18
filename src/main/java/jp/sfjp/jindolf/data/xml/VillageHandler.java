@@ -377,6 +377,46 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * judge要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startJudge(Attributes atts){
+        startSimpleInterPlay(atts);
+        return;
+    }
+
+    /**
+     * guard要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startGuard(Attributes atts){
+        startSimpleInterPlay(atts);
+        return;
+    }
+
+    /**
+     * SystemEvent内の単一InterPlayを抽出する。
+     *
+     * @param atts 属性
+     */
+    private void startSimpleInterPlay(Attributes atts){
+        String byWhomId = attrValue(atts, "byWhom");
+        String targetId = attrValue(atts, "target");
+
+        Avatar byWhom = this.idAvatarMap.get(byWhomId);
+        Avatar target = this.idAvatarMap.get(targetId);
+
+        InterPlay interPlay = new InterPlay(byWhom, target);
+        List<InterPlay> single = Collections.singletonList(interPlay);
+
+        this.sysEvent.addInterPlayList(single);
+
+        return;
+    }
+
+    /**
      * SysEvent 開始の受信。
      *
      * @param type SysEvent種別
@@ -407,6 +447,12 @@ public class VillageHandler implements ContentHandler{
                     break;
                 case COUNTING:
                     startCounting(atts);
+                    break;
+                case JUDGE:
+                    startJudge(atts);
+                    break;
+                case GUARD:
+                    startGuard(atts);
                     break;
                 default:
                     break;
