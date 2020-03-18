@@ -189,6 +189,7 @@ public class GameSummary{
         players.forEach( player -> {
             Avatar avatar = player.getAvatar();
             this.playerMap.put(avatar, player);
+            this.playerList.add(player);
         });
 
         List<SysEvent> onStageEventList =
@@ -201,7 +202,6 @@ public class GameSummary{
                     if(listPlayer != null){
                         int entryNo = onStagePlayer.getEntryNo();
                         listPlayer.setEntryNo(entryNo);
-                        this.playerList.add(listPlayer);
                     }else{
                         assert true;
                         // プレイヤー失踪？

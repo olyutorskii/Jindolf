@@ -817,6 +817,7 @@ public class VillageHandler implements ContentHandler{
                 break;
             case VOTE:
                 startVote(atts);
+                break;
             case AVATARREF:
                 startAvatarRef(atts);
                 break;
