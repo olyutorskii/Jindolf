@@ -376,6 +376,36 @@ public class VillageHandler implements ContentHandler{
      * @param atts 属性
      */
     private void startSuddenDeath(Attributes atts){
+        startSimpleAvatarAttr(atts);
+        return;
+    }
+
+    /**
+     * vanish要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startVanish(Attributes atts){
+        startSimpleAvatarAttr(atts);
+        return;
+    }
+
+    /**
+     * checkout要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startCheckOut(Attributes atts){
+        startSimpleAvatarAttr(atts);
+        return;
+    }
+
+    /**
+     * Avatar参照を一つだけ含む要素を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startSimpleAvatarAttr(Attributes atts){
         String avatarId = attrValue(atts, "avatarId");
         Avatar avatar = this.idAvatarMap.get(avatarId);
         List<Avatar> single = Collections.singletonList(avatar);
@@ -474,6 +504,12 @@ public class VillageHandler implements ContentHandler{
                     break;
                 case GUARD:
                     startGuard(atts);
+                    break;
+                case VANISH:
+                    startVanish(atts);
+                    break;
+                case CHECKOUT:
+                    startCheckOut(atts);
                     break;
                 default:
                     break;

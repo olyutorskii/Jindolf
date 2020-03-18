@@ -680,6 +680,38 @@ class PeriodHandler extends HtmlAdapter {
     /**
      * {@inheritDoc}
      *
+     * @param content {@inheritDoc}
+     * @param avatarRange {@inheritDoc}
+     * @throws HtmlParseException {@inheritDoc}
+     */
+    @Override
+    public void sysEventCheckout(DecodedContent content,
+                                 SeqRange avatarRange)
+            throws HtmlParseException {
+        Avatar checkouted = toAvatar(content, avatarRange);
+        this.avatarList.add(checkouted);
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param content {@inheritDoc}
+     * @param avatarRange {@inheritDoc}
+     * @throws HtmlParseException {@inheritDoc}
+     */
+    @Override
+    public void sysEventVanish(DecodedContent content,
+                               SeqRange avatarRange)
+            throws HtmlParseException {
+        Avatar vanished = toAvatar(content, avatarRange);
+        this.avatarList.add(vanished);
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * <p>プレイヤー情報開示に伴い、
      * Avatarリストに1件、
      * 文字列リストにURLとプレイヤー名の2件、
