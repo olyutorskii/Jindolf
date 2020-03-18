@@ -62,6 +62,7 @@ public class VillageHandler implements ContentHandler{
     private final StringBuilder content = new StringBuilder(250);
 
     private final Map<String, Avatar> idAvatarMap = new HashMap<>();
+    private final List<Avatar> avatarList = new LinkedList<>();
     private final List<Player> playerList = new LinkedList<>();
     private final List<Nominated> nominatedList = new LinkedList<>();
     private final List<InterPlay> interPlayList = new LinkedList<>();
@@ -121,6 +122,7 @@ public class VillageHandler implements ContentHandler{
     private void resetBefore(){
         this.idAvatarMap.clear();
         this.content.setLength(0);
+        this.avatarList.clear();
         this.playerList.clear();
         this.nominatedList.clear();
         this.interPlayList.clear();
@@ -134,6 +136,7 @@ public class VillageHandler implements ContentHandler{
     private void resetAfter(){
         this.idAvatarMap.clear();
         this.content.setLength(0);
+        this.avatarList.clear();
         this.playerList.clear();
         this.nominatedList.clear();
         this.interPlayList.clear();
@@ -350,6 +353,24 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * murdered要素終了を受信する。
+     */
+    private void endMurdered(){
+        this.sysEvent.addAvatarList(this.avatarList);
+        this.avatarList.clear();
+        return;
+    }
+
+    /**
+     * survivor要素終了を受信する。
+     */
+    private void endSurvivor(){
+        this.sysEvent.addAvatarList(this.avatarList);
+        this.avatarList.clear();
+        return;
+    }
+
+    /**
      * suddenDeath要素開始を受信する。
      *
      * @param atts 属性
@@ -488,6 +509,12 @@ public class VillageHandler implements ContentHandler{
                     break;
                 case COUNTING2:
                     endCounting2();
+                    break;
+                case MURDERED:
+                    endMurdered();
+                    break;
+                case SURVIVOR:
+                    endSurvivor();
                     break;
                 default:
                     break;
@@ -635,6 +662,18 @@ public class VillageHandler implements ContentHandler{
     }
 
     /**
+     * avatarRef要素開始を受信する。
+     *
+     * @param atts 属性
+     */
+    private void startAvatarRef(Attributes atts){
+        String avatarId = attrValue(atts, "avatarId");
+        Avatar avatar = this.idAvatarMap.get(avatarId);
+        this.avatarList.add(avatar);
+        return;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @param locator {@inheritDoc}
@@ -742,6 +781,9 @@ public class VillageHandler implements ContentHandler{
                 break;
             case VOTE:
                 startVote(atts);
+            case AVATARREF:
+                startAvatarRef(atts);
+                break;
             default:
                 break;
         }
