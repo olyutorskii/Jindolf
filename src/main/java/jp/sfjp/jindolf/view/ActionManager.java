@@ -527,13 +527,11 @@ public class ActionManager{
     }
 
     /**
-     * Periodが選択表示されている状況か通知を受ける。
+     * Periodの選択表示状況に応じてUIをマスクする。
      *
-     * @param appear 表示されているときはtrue
+     * @param appear Periodタブが選択されているときはtrue
      */
     private void exposePeriodImpl(boolean appear){
-        if(appear) exposeVillageImpl(appear);
-
         this.menuEdit.setEnabled(appear);
         this.menuDay .setEnabled(appear);
 
@@ -546,9 +544,9 @@ public class ActionManager{
     }
 
     /**
-     * Periodが選択表示されている状況か通知を受ける。
+     * Periodの選択表示状況に応じてUIをマスクする。
      *
-     * @param appear 表示されているときはtrue
+     * @param appear Periodタブが選択されているときはtrue
      */
     public void exposePeriod(boolean appear){
         exposePeriodImpl(appear);
@@ -556,22 +554,25 @@ public class ActionManager{
     }
 
     /**
-     * 村が選択表示されている状況か通知を受ける。
+     * 村ツリーの選択表示状況に応じてUIをマスクする。
      *
-     * @param appear 表示されているときはtrue
+     * @param appear 村ノードが選択されているときはtrue
      */
     private void exposeVillageImpl(boolean appear){
-        if( ! appear) exposePeriodImpl(appear);
-
         this.menuVillage.setEnabled(appear);
+
+        getMenuItem(CMD_RELOAD)    .setEnabled(appear);
+        getMenuItem(CMD_ALLPERIOD) .setEnabled(appear);
+
+        getToolButton(CMD_RELOAD)  .setEnabled(appear);
 
         return;
     }
 
     /**
-     * 村が選択表示されている状況か通知を受ける。
+     * 村ツリーの選択表示状況に応じてUIをマスクする。
      *
-     * @param appear 表示されているときはtrue
+     * @param appear 村ノードが選択されているときはtrue
      */
     public void exposeVillage(boolean appear){
         exposeVillageImpl(appear);
@@ -579,29 +580,29 @@ public class ActionManager{
     }
 
     /**
-     * ローカルXML村が選択表示されている状況か通知を受ける。
+     * ローカルXML村の表示状況に応じてUIをマスクする。
      *
      * <p>単一および全日程Periodの強制読み込みが抑止される。
      *
-     * @param appear 表示されているときはtrue
+     * @param appear ローカルXMLが表示されているときはtrue
      */
     private void exposeVillageLocalImpl(boolean appear){
-        if( ! appear) exposePeriodImpl(appear);
-
         this.menuVillage.setEnabled(appear);
 
-        getMenuItem(CMD_RELOAD).setEnabled(appear);
-        getMenuItem(CMD_ALLPERIOD).setEnabled(appear);
+        getMenuItem(CMD_RELOAD)    .setEnabled( ! appear);
+        getMenuItem(CMD_ALLPERIOD) .setEnabled( ! appear);
 
-        getToolButton(CMD_RELOAD).setEnabled(appear);
+        getToolButton(CMD_RELOAD)  .setEnabled( ! appear);
 
         return;
     }
 
     /**
-     * ローカルXML村が選択表示されている状況か通知を受ける。
+     * ローカルXML村の表示状況に応じてUIをマスクする。
      *
-     * @param appear 表示されているときはtrue
+     * <p>単一および全日程Periodの強制読み込みが抑止される。
+     *
+     * @param appear ローカルXMLが表示されているときはtrue
      */
     public void exposeVillageLocal(boolean appear){
         exposeVillageLocalImpl(appear);
