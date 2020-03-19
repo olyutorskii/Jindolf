@@ -37,7 +37,7 @@ public class Talk implements Topic{
     private final String messageID;
     private final int hour;
     private final int minute;
-    private final int charNum;
+    private int charNum;
     private int talkNo;
     private CharSequence dialog;
     private int count = -1;
@@ -275,6 +275,7 @@ public class Talk implements Topic{
      */
     public void setDialog(CharSequence seq){
         this.dialog = seq;
+        this.charNum = this.dialog.length();
         return;
     }
 
