@@ -46,6 +46,8 @@ public class VillageHandler implements ContentHandler{
     private static final String NS_JINARCHIVE =
             "http://jindolf.sourceforge.jp/xml/ns/501";
 
+    private static final int TALKTYPE_NUM = TalkType.values().length;
+
 
     private String nsPfx;
 
@@ -60,6 +62,10 @@ public class VillageHandler implements ContentHandler{
 
     private boolean inLine;
     private final StringBuilder content = new StringBuilder(250);
+
+    /** 非別、Avatar別、会話種別の会話通し番号。 */
+    private final Map<Avatar, int[]> countMap =
+            new HashMap<>();
 
     private final Map<String, Avatar> idAvatarMap = new HashMap<>();
     private final List<Avatar> avatarList = new LinkedList<>();
@@ -121,6 +127,7 @@ public class VillageHandler implements ContentHandler{
      */
     private void resetBefore(){
         this.idAvatarMap.clear();
+        this.countMap.clear();
         this.content.setLength(0);
         this.avatarList.clear();
         this.playerList.clear();
@@ -135,6 +142,7 @@ public class VillageHandler implements ContentHandler{
      */
     private void resetAfter(){
         this.idAvatarMap.clear();
+        this.countMap.clear();
         this.content.setLength(0);
         this.avatarList.clear();
         this.playerList.clear();
@@ -217,7 +225,28 @@ public class VillageHandler implements ContentHandler{
      */
     private void endPeriod(){
         this.period.setFullOpen(true);
+        this.countMap.clear();
         return;
+    }
+
+    /**
+     * 日別、Avatar別、会話種ごとに発言回数をインクリメントする。
+     *
+     * @param targetAvatar 対象Avatar
+     * @param targetType 対象会話種
+     * @return 現時点でのカウント数
+     */
+    private int countUp(Avatar targetAvatar, TalkType targetType){
+        int[] avatarCount = this.countMap.get(targetAvatar);
+        if(avatarCount == null){
+            avatarCount = new int[TALKTYPE_NUM];
+            this.countMap.put(targetAvatar, avatarCount);
+        }
+
+        int typeIdx = targetType.ordinal();
+        int count = ++avatarCount[typeIdx];
+
+        return count;
     }
 
     /**
@@ -243,6 +272,9 @@ public class VillageHandler implements ContentHandler{
                 hour, minute,
                 ""
         );
+
+        int count = countUp(talkAvatar, talkType);
+        this.talk.setCount(count);
 
         this.content.setLength(0);
 
