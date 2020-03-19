@@ -1301,7 +1301,9 @@ public class Controller
 
             if(wasHot && ! period.isHot() ){
                 try{
-                    VillageInfoLoader.updateVillageInfo(village);
+                    if( ! village.hasSchedule() ){
+                        VillageInfoLoader.updateVillageInfo(village);
+                    }
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
@@ -1414,7 +1416,9 @@ public class Controller
 
         Runnable task = () -> {
             try{
-                VillageInfoLoader.updateVillageInfo(village);
+                if( ! village.hasSchedule() ){
+                    VillageInfoLoader.updateVillageInfo(village);
+                }
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
