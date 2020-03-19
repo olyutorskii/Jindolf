@@ -157,6 +157,16 @@ public class Village{
     }
 
     /**
+     * 日程及び更新時刻を持っているか判定する。
+     *
+     * @return 日程が不明ならtrue
+     */
+    public boolean hasSchedule(){
+        boolean result = ! this.periodList.isEmpty();
+        return result;
+    }
+
+    /**
      * プロローグを返す。
      *
      * @return プロローグ

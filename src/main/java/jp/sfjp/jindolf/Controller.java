@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -39,6 +40,8 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.ConfigStore;
@@ -46,7 +49,7 @@ import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.Anchor;
 import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.data.Land;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
@@ -54,6 +57,7 @@ import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.data.html.PeriodLoader;
 import jp.sfjp.jindolf.data.html.VillageInfoLoader;
 import jp.sfjp.jindolf.data.html.VillageListLoader;
+import jp.sfjp.jindolf.data.xml.VillageLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
@@ -102,7 +106,7 @@ public class Controller
             "このLook&Feel[{0}]を生成する事ができません。";
 
 
-    private final LandsModel model;
+    private final LandsTreeModel model;
     private final WindowManager windowManager;
     private final ActionManager actionManager;
     private final AppSetting appSetting;
@@ -116,6 +120,8 @@ public class Controller
     private final ChangeListener filterWatcher =
             new FilterWatcher();
 
+    private boolean isLocalXml = false;
+
     private final Executor executor = Executors.newCachedThreadPool();
     private volatile boolean isBusyNow;
 
@@ -128,7 +134,7 @@ public class Controller
      * @param setting アプリ設定
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public Controller(LandsModel model,
+    public Controller(LandsTreeModel model,
                       WindowManager windowManager,
                       ActionManager actionManager,
                       AppSetting setting){
@@ -1198,6 +1204,38 @@ public class Controller
     }
 
     /**
+     * ローカルなXMLファイルを読み込む。
+     */
+    private void actionOpenXml(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        FileFilter filter;
+        filter = new FileNameExtensionFilter("XML files (*.xml)", "xml", "XML");
+        chooser.setFileFilter(filter);
+
+        int result = chooser.showOpenDialog(getTopFrame());
+        if(result != JFileChooser.APPROVE_OPTION) return;
+        File selected = chooser.getSelectedFile();
+
+        submitHeavyBusyTask(() -> {
+            Village village;
+            try{
+                village = VillageLoader.parseVillage(selected);
+            }catch(IOException e){
+                System.out.println(e);
+                return;
+            }
+            EventQueue.invokeLater(() -> {
+                this.isLocalXml = true;
+                selectedVillage(village);
+            });
+        }, "XML読み込み中", "XML読み込み完了");
+
+        return;
+    }
+
+    /**
      * 指定した国の村一覧を読み込むジョブを投下。
      * @param land 国
      */
@@ -1266,7 +1304,9 @@ public class Controller
 
             if(wasHot && ! period.isHot() ){
                 try{
-                    VillageInfoLoader.updateVillageInfo(village);
+                    if( ! village.hasSchedule() ){
+                        VillageInfoLoader.updateVillageInfo(village);
+                    }
                 }catch(IOException e){
                     showNetworkError(village, e);
                     return;
@@ -1360,8 +1400,8 @@ public class Controller
         String landName = land.getLandDef().getLandName();
         setFrameTitle(landName);
 
-        this.actionManager.appearVillage(false);
-        this.actionManager.appearPeriod(false);
+        this.actionManager.exposeVillage(false);
+        this.actionManager.exposePeriod(false);
 
         this.topView.showLandInfo(land);
 
@@ -1375,11 +1415,17 @@ public class Controller
      */
     private void selectedVillage(Village village){
         setFrameTitle(village.getVillageFullName());
-        this.actionManager.appearVillage(true);
+        if(this.isLocalXml){
+            this.actionManager.exposeVillageLocal(true);
+        }else{
+            this.actionManager.exposeVillage(true);
+        }
 
         Runnable task = () -> {
             try{
-                VillageInfoLoader.updateVillageInfo(village);
+                if( ! village.hasSchedule() ){
+                    VillageInfoLoader.updateVillageInfo(village);
+                }
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
@@ -1418,6 +1464,9 @@ public class Controller
         switch(cmd){
         case ActionManager.CMD_ACCOUNT:
             actionShowAccount();
+            break;
+        case ActionManager.CMD_OPENXML:
+            actionOpenXml();
             break;
         case ActionManager.CMD_EXIT:
             actionExit();
@@ -1651,7 +1700,14 @@ public class Controller
                 boolean hasCurrentPeriod;
                 if(periodView == null) hasCurrentPeriod = false;
                 else                   hasCurrentPeriod = true;
-                Controller.this.actionManager.appearPeriod(hasCurrentPeriod);
+                Controller.this.actionManager.exposePeriod(hasCurrentPeriod);
+                if(hasCurrentPeriod){
+                    if(Controller.this.isLocalXml){
+                        Controller.this.actionManager.exposeVillageLocal(hasCurrentPeriod);
+                    }else{
+                        Controller.this.actionManager.exposeVillage(hasCurrentPeriod);
+                    }
+                }
             }
 
             return;
@@ -1692,6 +1748,7 @@ public class Controller
                 selectedLand(land);
             }else if(selObj instanceof Village){
                 Village village = (Village) selObj;
+                Controller.this.isLocalXml = false;
                 selectedVillage(village);
             }
 

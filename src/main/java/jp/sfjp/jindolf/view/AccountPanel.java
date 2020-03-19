@@ -37,7 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.data.Land;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.dxchg.TextPopup;
 import jp.sfjp.jindolf.net.ServerAccess;
 import jp.sfjp.jindolf.util.GUIUtils;
@@ -411,7 +411,7 @@ public class AccountPanel
      * @param model 国情報
      * @throws NullPointerException 引数がnull
      */
-    public void setModel(LandsModel model) throws NullPointerException{
+    public void setModel(LandsTreeModel model) throws NullPointerException{
         if(model == null) throw new NullPointerException();
 
         this.landUserIDMap.clear();

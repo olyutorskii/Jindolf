@@ -137,7 +137,7 @@ public final class HttpUtils{
             EnvInfo.OS_ARCH,
             EnvInfo.JAVA_VENDOR,
             EnvInfo.JAVA_VERSION
-        ).stream().forEach(info -> {
+        ).stream().forEachOrdered(info -> {
             if(rawComment.length() > 0) rawComment.append(";\u0020");
             rawComment.append(info);
         });

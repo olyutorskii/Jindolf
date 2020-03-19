@@ -22,13 +22,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.InterPlay;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
-import jp.sfjp.jindolf.data.Topic;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.dxchg.FaceIconSet;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
@@ -109,40 +111,38 @@ public class GameSummary{
 
     /**
      * プレイヤーのリストから役職バランス文字列を得る。
-     * ex) "村村占霊狂狼"
+     *
+     * <p>ex) "村村占霊狂狼"
+     *
      * @param players プレイヤーのリスト
      * @return 役職バランス文字列
      */
     public static String getRoleBalanceSequence(List<Player> players){
-        List<GameRole> roleList = new LinkedList<>();
-        for(Player player : players){
-            GameRole role = player.getRole();
-            roleList.add(role);
-        }
-        Collections.sort(roleList, GameRole.getPowerBalanceComparator());
-
         StringBuilder result = new StringBuilder();
-        for(GameRole role : roleList){
-            char ch = role.getShortName();
-            result.append(ch);
-        }
+
+        players.stream()
+                .map(player -> player.getRole())
+                .sorted(GameRole.getPowerBalanceComparator())
+                .map(role -> role.getShortName())
+                .forEachOrdered(ch -> result.append(ch));
 
         return result.toString();
     }
+
 
     /**
      * サマライズ処理。
      */
     private void summarize(){
         buildEventMap();
+        buildPlayerList();
 
         summarizeTime();
         summarizeWinner();
-        summarizePlayers();
 
-        for(Period period : this.village.getPeriodList()){
+        this.village.getPeriodList().forEach(period -> {
             summarizePeriod(period);
-        }
+        });
 
         summarizeJudge();
         summarizeGuard();
@@ -154,20 +154,58 @@ public class GameSummary{
      * SysEventの種別ごとに集計する。
      */
     private void buildEventMap(){
-        for(SysEventType type : SysEventType.values()){
-            List<SysEvent> eventList = new LinkedList<>();
-            this.eventMap.put(type, eventList);
-        }
+        Stream.of(SysEventType.values())
+                .forEach(type -> {
+                    this.eventMap.put(type, new LinkedList<>());
+                });
 
-        for(Period period : this.village.getPeriodList()){
-            for(Topic topic : period.getTopicList()){
-                if( ! (topic instanceof SysEvent) ) continue;
-                SysEvent event = (SysEvent) topic;
-                SysEventType type = event.getSysEventType();
-                List<SysEvent> eventList = this.eventMap.get(type);
-                eventList.add(event);
-            }
-        }
+        this.village.getPeriodList().stream()
+                .flatMap(period -> period.getTopicList().stream())
+                .filter(topic -> (topic instanceof SysEvent) )
+                .map(topic -> (SysEvent) topic)
+                .forEachOrdered(event -> {
+                    SysEventType type = event.getSysEventType();
+                    List<SysEvent> eventList = this.eventMap.get(type);
+                    eventList.add(event);
+                });
+
+        return;
+    }
+
+    /**
+     * playerListイベントとonStageイベントの内容を付き合わせ、
+     * Player一覧情報を完成させる。
+     *
+     * <p>プロローグで失踪したPlayerは対象外。
+     */
+    private void buildPlayerList(){
+        List<SysEvent> playerListEventList =
+                this.eventMap.get(SysEventType.PLAYERLIST);
+        assert playerListEventList.size() == 1;
+        SysEvent playerListEvent = playerListEventList.get(0);
+
+        List<Player> players = playerListEvent.getPlayerList();
+        players.forEach( player -> {
+            Avatar avatar = player.getAvatar();
+            this.playerMap.put(avatar, player);
+            this.playerList.add(player);
+        });
+
+        List<SysEvent> onStageEventList =
+                this.eventMap.get(SysEventType.ONSTAGE);
+        onStageEventList.stream()
+                .map(onStageEvent -> onStageEvent.getPlayerList().get(0))
+                .forEachOrdered(onStagePlayer -> {
+                    Avatar avatar = onStagePlayer.getAvatar();
+                    Player listPlayer = this.playerMap.get(avatar);
+                    if(listPlayer != null){
+                        int entryNo = onStagePlayer.getEntryNo();
+                        listPlayer.setEntryNo(entryNo);
+                    }else{
+                        assert true;
+                        // プレイヤー失踪？
+                    }
+                });
 
         return;
     }
@@ -199,116 +237,67 @@ public class GameSummary{
     }
 
     /**
-     * 参加者集計。
-     */
-    private void summarizePlayers(){
-        List<SysEvent> eventList;
-
-        List<Avatar>       avatarList;
-        List<GameRole>     roleList;
-        List<Integer>      integerList;
-        List<CharSequence> textList;
-
-        eventList = this.eventMap.get(SysEventType.ONSTAGE);
-        for(SysEvent event : eventList){
-            avatarList  = event.getAvatarList();
-            integerList = event.getIntegerList();
-            Avatar onstageAvatar = avatarList.get(0);
-            Player onstagePlayer = registPlayer(onstageAvatar);
-            onstagePlayer.setEntryNo(integerList.get(0));
-        }
-
-        eventList = this.eventMap.get(SysEventType.PLAYERLIST);
-        assert eventList.size() == 1;
-        SysEvent event = eventList.get(0);
-
-        avatarList  = event.getAvatarList();
-        roleList    = event.getRoleList();
-        integerList = event.getIntegerList();
-        textList    = event.getCharSequenceList();
-        int avatarNum = avatarList.size();
-        for(int idx = 0; idx < avatarNum; idx++){
-            Avatar avatar = avatarList.get(idx);
-            GameRole role = roleList.get(idx);
-            CharSequence urlText = textList.get(idx * 2);
-            CharSequence idName  = textList.get(idx * 2 + 1);
-            int liveOrDead = integerList.get(idx);
-
-            Player player = registPlayer(avatar);
-            player.setRole(role);
-            player.setUrlText(urlText.toString());
-            player.setIdName(idName.toString());
-            if(liveOrDead != 0){        // 生存
-                player.setObitDay(-1);
-                player.setDestiny(Destiny.ALIVE);
-            }
-
-            this.playerList.add(player);
-        }
-
-        return;
-    }
-
-    /**
      * Periodのサマライズ。
+     *
      * @param period Period
      */
     private void summarizePeriod(Period period){
         int day = period.getDay();
-        for(Topic topic : period.getTopicList()){
-            if(topic instanceof SysEvent){
-                SysEvent sysEvent = (SysEvent) topic;
-                summarizeDestiny(day, sysEvent);
-            }
-        }
+
+        period.getTopicList().stream()
+                .filter(topic -> topic instanceof SysEvent)
+                .map(topic -> (SysEvent) topic)
+                .forEachOrdered(sysEvent -> {
+                    summarizeDestiny(day, sysEvent);
+                });
 
         return;
     }
 
     /**
      * 各プレイヤー運命のサマライズ。
+     *
      * @param day 日
      * @param sysEvent システムイベント
      */
     private void summarizeDestiny(int day, SysEvent sysEvent){
-        List<Avatar>  avatarList  = sysEvent.getAvatarList();
-        List<Integer> integerList = sysEvent.getIntegerList();
-
-        int avatarTotal = avatarList.size();
-        Avatar lastAvatar = null;
-        if(avatarTotal > 0) lastAvatar = avatarList.get(avatarTotal - 1);
+        List<Avatar> deadAvatars = new LinkedList<>();
+        Destiny destiny;
 
         SysEventType eventType = sysEvent.getSysEventType();
+
         switch(eventType){
+        case COUNTING:   // G国COUNTING2は運命に関係なし
         case EXECUTION:  // G国のみ
-            if(integerList.get(avatarTotal - 1) > 0) break;  // 処刑無し
-            Player executedPl = registPlayer(lastAvatar);
-            executedPl.setDestiny(Destiny.EXECUTED);
-            executedPl.setObitDay(day);
+            Avatar executedAvatar = sysEvent.getExecutedAvatar();
+            if(executedAvatar == null) return;
+            deadAvatars.add(executedAvatar);
+            destiny = Destiny.EXECUTED;
             break;
         case SUDDENDEATH:
+            List<Avatar>  avatarList = sysEvent.getAvatarList();
             Avatar suddenDeathAvatar = avatarList.get(0);
-            Player suddenDeathPlayer = registPlayer(suddenDeathAvatar);
-            suddenDeathPlayer.setDestiny(Destiny.SUDDENDEATH);
-            suddenDeathPlayer.setObitDay(day);
-            break;
-        case COUNTING:  // G国COUNTING2は運命に関係なし
-            if(avatarTotal % 2 == 0) break;  // 処刑無し
-            Player executedPlayer = registPlayer(lastAvatar);
-            executedPlayer.setDestiny(Destiny.EXECUTED);
-            executedPlayer.setObitDay(day);
+            deadAvatars.add(suddenDeathAvatar);
+            destiny = Destiny.SUDDENDEATH;
             break;
         case MURDERED:
-            for(Avatar avatar : avatarList){
-                Player player = registPlayer(avatar);
-                player.setDestiny(Destiny.EATEN);
-                player.setObitDay(day);
-            }
             // TODO E国ハム溶け処理は後回し
+            sysEvent.getAvatarList().stream()
+                    .forEach(avatar -> {
+                        deadAvatars.add(avatar);
+                    });
+            destiny = Destiny.EATEN;
             break;
         default:
-            break;
+            return;
         }
+
+        deadAvatars.stream()
+                .map(avatar -> getPlayer(avatar))
+                .forEach(player -> {
+                    player.setDestiny(destiny);
+                    player.setObitDay(day);
+                });
 
         return;
     }
@@ -317,21 +306,17 @@ public class GameSummary{
      * 会話時刻のサマライズ。
      */
     private void summarizeTime(){
-        for(Period period : this.village.getPeriodList()){
-            for(Topic topic : period.getTopicList()){
-                if( ! (topic instanceof Talk) ) continue;
-                Talk talk = (Talk) topic;
+        this.village.getPeriodList().stream()
+                .flatMap(period -> period.getTopicList().stream())
+                .filter(topic -> topic instanceof Talk)
+                .mapToLong(topic -> ((Talk) topic).getTimeFromID())
+                .forEach(epoch -> {
+                    if(this.talk1stTimeMs  < 0) this.talk1stTimeMs  = epoch;
+                    if(this.talkLastTimeMs < 0) this.talkLastTimeMs = epoch;
 
-                long epoch = talk.getTimeFromID();
-
-                if(this.talk1stTimeMs  < 0) this.talk1stTimeMs  = epoch;
-                if(this.talkLastTimeMs < 0) this.talkLastTimeMs = epoch;
-
-                if(epoch < this.talk1stTimeMs ) this.talk1stTimeMs  = epoch;
-                if(epoch > this.talkLastTimeMs) this.talkLastTimeMs = epoch;
-            }
-        }
-
+                    if(epoch < this.talk1stTimeMs ) this.talk1stTimeMs  = epoch;
+                    if(epoch > this.talkLastTimeMs) this.talkLastTimeMs = epoch;
+                });
         return;
     }
 
@@ -342,9 +327,10 @@ public class GameSummary{
         List<SysEvent> eventList = this.eventMap.get(SysEventType.JUDGE);
 
         for(SysEvent event : eventList){
-            List<Avatar> avatarList  = event.getAvatarList();
-            Avatar avatar = avatarList.get(1);
-            Player seered = getPlayer(avatar);
+            List<InterPlay> interPlayList = event.getInterPlayList();
+            InterPlay judge = interPlayList.get(0);
+            Avatar target = judge.getTarget();
+            Player seered = getPlayer(target);
             GameRole role = seered.getRole();
             switch(role){
             case WOLF:    this.ctScryWolf++;    break;
@@ -359,6 +345,7 @@ public class GameSummary{
 
     /**
      * 占い師の活動を文字列化する。
+     *
      * @return 占い師の活動
      */
     public CharSequence dumpSeerActivity(){
@@ -407,9 +394,10 @@ public class GameSummary{
 
         eventList = this.eventMap.get(SysEventType.GUARD);
         for(SysEvent event : eventList){
-            List<Avatar> avatarList = event.getAvatarList();
-            Avatar avatar = avatarList.get(1);
-            Player guarded = getPlayer(avatar);
+            List<InterPlay> interPlayList = event.getInterPlayList();
+            InterPlay guard = interPlayList.get(0);
+            Avatar target = guard.getTarget();
+            Player guarded = getPlayer(target);
             GameRole guardedRole = guarded.getRole();
             switch(guardedRole){
             case WOLF:    this.ctGuardWolf++;    break;
@@ -419,15 +407,16 @@ public class GameSummary{
             }
         }
 
-        for(Period period : this.village.getPeriodList()){
+        this.village.getPeriodList().forEach(period -> {
             summarizeGjPeriod(period);
-        }
+        });
 
         return;
     }
 
     /**
      * 狩人GJの日ごとの集計。
+     *
      * @param period 日
      */
     private void summarizeGjPeriod(Period period){
@@ -485,6 +474,7 @@ public class GameSummary{
 
     /**
      * 狩人の活動を文字列化する。
+     *
      * @return 狩人の活動
      */
     public CharSequence dumpHunterActivity(){
@@ -558,6 +548,7 @@ public class GameSummary{
 
     /**
      * 処刑概観を文字列化する。
+     *
      * @return 文字列化した処刑概観
      */
     public CharSequence dumpExecutionInfo(){
@@ -597,6 +588,7 @@ public class GameSummary{
 
     /**
      * 襲撃概観を文字列化する。
+     *
      * @return 文字列化した襲撃概観
      */
     public CharSequence dumpAssaultInfo(){
@@ -636,23 +628,28 @@ public class GameSummary{
 
     /**
      * まとめサイト用投票Boxを生成する。
+     *
      * @return 投票BoxのWikiテキスト
      */
     public CharSequence dumpVoteBox(){
         StringBuilder wikiText = new StringBuilder();
 
-        for(Player player : getCastingPlayerList()){
-            Avatar avatar = player.getAvatar();
-            if(avatar == Avatar.AVATAR_GERD) continue;
-            GameRole role = player.getRole();
-            CharSequence fullName = avatar.getFullName();
-            CharSequence roleName = role.getRoleName();
-            StringBuilder line = new StringBuilder();
-            line.append("[").append(roleName).append("] ").append(fullName);
-            if(wikiText.length() > 0) wikiText.append(',');
-            wikiText.append(WolfBBS.escapeWikiSyntax(line));
-            wikiText.append("[0]");
-        }
+        getCastingPlayerList().stream()
+                .filter(player ->
+                        ! player.getAvatar().equals(Avatar.AVATAR_GERD)
+                )
+                .forEach(player -> {
+                    Avatar avatar = player.getAvatar();
+                    GameRole role = player.getRole();
+                    CharSequence fullName = avatar.getFullName();
+                    CharSequence roleName = role.getRoleName();
+                    StringBuilder line = new StringBuilder();
+                    line.append("[").append(roleName).append("] ")
+                            .append(fullName);
+                    if(wikiText.length() > 0) wikiText.append(',');
+                    wikiText.append(WolfBBS.escapeWikiSyntax(line));
+                    wikiText.append("[0]");
+                });
 
         wikiText.insert(0, "#vote(").append(")\n");
 
@@ -661,6 +658,7 @@ public class GameSummary{
 
     /**
      * まとめサイト用キャスト表を生成する。
+     *
      * @param iconSet 顔アイコンセット
      * @return キャスト表のWikiテキスト
      */
@@ -809,6 +807,7 @@ public class GameSummary{
 
     /**
      * 村詳細情報を出力する。
+     *
      * @return 村詳細情報
      */
     public CharSequence dumpVillageWiki(){
@@ -911,6 +910,7 @@ public class GameSummary{
 
     /**
      * 最初の発言の時刻を得る。
+     *
      * @return 時刻
      */
     public Date get1stTalkDate(){
@@ -919,6 +919,7 @@ public class GameSummary{
 
     /**
      * 最後の発言の時刻を得る。
+     *
      * @return 時刻
      */
     public Date getLastTalkDate(){
@@ -927,6 +928,7 @@ public class GameSummary{
 
     /**
      * 指定した日の生存者一覧を得る。
+     *
      * @param day 日
      * @return 生存者一覧
      */
@@ -946,32 +948,34 @@ public class GameSummary{
         }
 
         if(period.isEpilogue()){
-            for(Player player : this.playerList){
-                if(player.getDestiny() == Destiny.ALIVE){
-                    result.add(player);
-                }
-            }
+            this.playerList.stream()
+                    .filter(player -> player.getDestiny() == Destiny.ALIVE)
+                    .forEachOrdered(player -> {
+                        result.add(player);
+                    });
             return result;
         }
 
-        for(Topic topic : period.getTopicList()){
-            if( ! (topic instanceof SysEvent) ) continue;
-            SysEvent sysEvent = (SysEvent) topic;
-            if(sysEvent.getSysEventType() == SysEventType.SURVIVOR){
-                List<Avatar> avatarList = sysEvent.getAvatarList();
-                for(Avatar avatar : avatarList){
+        period.getTopicList().stream()
+                .filter(topic -> topic instanceof SysEvent)
+                .map(topic -> (SysEvent) topic)
+                .filter(sysEvent ->
+                        sysEvent.getSysEventType() == SysEventType.SURVIVOR
+                )
+                .flatMap(sysEvent -> sysEvent.getAvatarList().stream())
+                .forEachOrdered(avatar -> {
                     Player player = getPlayer(avatar);
                     result.add(player);
-                }
-            }
-        }
+                });
 
         return result;
     }
 
     /**
      * プレイヤー一覧を得る。
-     * 参加エントリー順
+     *
+     * <p>参加エントリー順
+     *
      * @return プレイヤーのリスト
      */
     public List<Player> getPlayerList(){
@@ -981,6 +985,7 @@ public class GameSummary{
 
     /**
      * キャスティング表用にソートされたプレイヤー一覧を得る。
+     *
      * @return プレイヤーのリスト
      */
     public List<Player> getCastingPlayerList(){
@@ -993,23 +998,20 @@ public class GameSummary{
 
     /**
      * 指定された役職のプレイヤー一覧を得る。
+     *
      * @param role 役職
      * @return 役職に合致するプレイヤーのリスト
      */
     public List<Player> getRoledPlayerList(GameRole role){
-        List<Player> result = new LinkedList<>();
-
-        for(Player player : this.playerList){
-            if(player.getRole() == role){
-                result.add(player);
-            }
-        }
-
+        List<Player> result = this.playerList.stream()
+                .filter(player -> player.getRole() == role)
+                .collect(Collectors.toList());
         return result;
     }
 
     /**
      * 勝利陣営を得る。
+     *
      * @return 勝利した陣営
      */
     public Team getWinnerTeam(){
@@ -1018,18 +1020,21 @@ public class GameSummary{
 
     /**
      * 突然死者数を得る。
+     *
      * @return 突然死者数
      */
     public int countSuddenDeath(){
-        int suddenDeath = 0;
-        for(Player player : this.playerList){
-            if(player.getDestiny() == Destiny.SUDDENDEATH) suddenDeath++;
-        }
-        return suddenDeath;
+        long suddenDeath = this.playerList.stream()
+                .filter(player -> player.getDestiny() == Destiny.SUDDENDEATH)
+                .count();
+
+        int result = (int) suddenDeath;
+        return result;
     }
 
     /**
      * 参加プレイヤー総数を得る。
+     *
      * @return プレイヤー総数
      */
     public int countAvatarNum(){
@@ -1039,7 +1044,9 @@ public class GameSummary{
 
     /**
      * AvatarからPlayerを得る。
-     * 参加していないAvatarならnullを返す。
+     *
+     * <p>参加していないAvatarならnullを返す。
+     *
      * @param avatar Avatar
      * @return Player
      */
@@ -1049,24 +1056,9 @@ public class GameSummary{
     }
 
     /**
-     * AvatarからPlayerを得る。
-     * 無ければ新規に作る。
-     * @param avatar Avatar
-     * @return Player
-     */
-    private Player registPlayer(Avatar avatar){
-        Player player = getPlayer(avatar);
-        if(player == null){
-            player = new Player();
-            player.setAvatar(avatar);
-            this.playerMap.put(avatar, player);
-        }
-        return player;
-    }
-
-    /**
      * プレイヤーのソート仕様の記述。
-     * まとめサイトのキャスト表向け。
+     *
+     * <p>まとめサイトのキャスト表向け。
      */
     private static final class CastingComparator
             implements Comparator<Player> {
@@ -1081,6 +1073,7 @@ public class GameSummary{
 
         /**
          * {@inheritDoc}
+         *
          * @param p1 {@inheritDoc}
          * @param p2 {@inheritDoc}
          * @return {@inheritDoc}

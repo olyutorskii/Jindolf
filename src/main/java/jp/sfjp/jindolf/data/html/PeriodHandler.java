@@ -18,11 +18,15 @@ import jp.osdn.jindolf.parser.PageType;
 import jp.osdn.jindolf.parser.SeqRange;
 import jp.osdn.jindolf.parser.content.DecodedContent;
 import jp.sfjp.jindolf.data.Avatar;
+import jp.sfjp.jindolf.data.InterPlay;
+import jp.sfjp.jindolf.data.Nominated;
 import jp.sfjp.jindolf.data.Period;
+import jp.sfjp.jindolf.data.Player;
 import jp.sfjp.jindolf.data.SysEvent;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Topic;
 import jp.sfjp.jindolf.data.Village;
+import jp.sourceforge.jindolf.corelib.Destiny;
 import jp.sourceforge.jindolf.corelib.EventFamily;
 import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.PeriodType;
@@ -76,6 +80,9 @@ class PeriodHandler extends HtmlAdapter {
     private final List<Integer> integerList = new LinkedList<>();
     private final List<CharSequence>  charseqList =
         new LinkedList<>();
+    private final List<Player> playerList = new LinkedList<>();
+    private final List<Nominated> nominatedList = new LinkedList<>();
+    private final List<InterPlay> interPlayList = new LinkedList<>();
 
 
     /**
@@ -158,6 +165,9 @@ class PeriodHandler extends HtmlAdapter {
         this.roleList.clear();
         this.integerList.clear();
         this.charseqList.clear();
+        this.playerList.clear();
+        this.nominatedList.clear();
+        this.interPlayList.clear();
         return;
     }
 
@@ -536,8 +546,10 @@ class PeriodHandler extends HtmlAdapter {
                                 SeqRange avatarRange)
             throws HtmlParseException{
         Avatar newAvatar = toAvatar(content, avatarRange);
-        this.integerList.add(entryNo);
-        this.avatarList.add(newAvatar);
+        Player player = new Player();
+        player.setAvatar(newAvatar);
+        player.setEntryNo(entryNo);
+        this.playerList.add(player);
         return;
     }
 
@@ -612,12 +624,18 @@ class PeriodHandler extends HtmlAdapter {
                                  SeqRange voteByRange,
                                  SeqRange voteToRange)
             throws HtmlParseException{
-        if(voteByRange.isValid()){
-            Avatar voteBy = toAvatar(content, voteByRange);
-            this.avatarList.add(voteBy);
+        if( ! voteByRange.isValid()){
+            Avatar victim = toAvatar(content, voteToRange);
+            this.avatarList.add(victim);
+            return;
         }
+
+        Avatar voteBy = toAvatar(content, voteByRange);
         Avatar voteTo = toAvatar(content, voteToRange);
-        this.avatarList.add(voteTo);
+
+        InterPlay interPlay = new InterPlay(voteBy, voteTo);
+        this.interPlayList.add(interPlay);
+
         return;
     }
 
@@ -662,6 +680,38 @@ class PeriodHandler extends HtmlAdapter {
     /**
      * {@inheritDoc}
      *
+     * @param content {@inheritDoc}
+     * @param avatarRange {@inheritDoc}
+     * @throws HtmlParseException {@inheritDoc}
+     */
+    @Override
+    public void sysEventCheckout(DecodedContent content,
+                                 SeqRange avatarRange)
+            throws HtmlParseException {
+        Avatar checkouted = toAvatar(content, avatarRange);
+        this.avatarList.add(checkouted);
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param content {@inheritDoc}
+     * @param avatarRange {@inheritDoc}
+     * @throws HtmlParseException {@inheritDoc}
+     */
+    @Override
+    public void sysEventVanish(DecodedContent content,
+                               SeqRange avatarRange)
+            throws HtmlParseException {
+        Avatar vanished = toAvatar(content, avatarRange);
+        this.avatarList.add(vanished);
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * <p>プレイヤー情報開示に伴い、
      * Avatarリストに1件、
      * 文字列リストにURLとプレイヤー名の2件、
@@ -695,15 +745,18 @@ class PeriodHandler extends HtmlAdapter {
         CharSequence account = this.converter
                                    .convert(content, loginRange);
 
-        Integer liveOrDead;
-        if(isLiving) liveOrDead = 1;
-        else         liveOrDead = 0;
+        Player player = new Player();
 
-        this.avatarList.add(who);
-        this.charseqList.add(anchor);
-        this.charseqList.add(account);
-        this.integerList.add(liveOrDead);
-        this.roleList.add(role);
+        player.setAvatar(who);
+        player.setRole(role);
+        player.setIdName(account.toString());
+        player.setUrlText(anchor.toString());
+        if(isLiving){
+            player.setObitDay(-1);
+            player.setDestiny(Destiny.ALIVE);
+        }
+
+        this.playerList.add(player);
 
         return;
     }
@@ -711,9 +764,7 @@ class PeriodHandler extends HtmlAdapter {
     /**
      * {@inheritDoc}
      *
-     * <p>G国処刑に伴い、Avatarリストに投票先が1件、
-     * intリストに得票数が1件追加される。
-     * 最後に被処刑者がAvatarリストに1件、負の値がintリストに1件追加される。
+     * <p>G国処刑に伴い、被処刑者がいればAvatarリストに1件追加される。
      *
      * @param content {@inheritDoc}
      * @param avatarRange {@inheritDoc}
@@ -727,8 +778,12 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         Avatar who = toAvatar(content, avatarRange);
 
-        this.avatarList.add(who);
-        this.integerList.add(votes);
+        if(votes <= 0){
+            this.avatarList.add(who);
+        }else{
+            Nominated nominated = new Nominated(who, votes);
+            this.nominatedList.add(nominated);
+        }
 
         return;
     }
@@ -838,8 +893,8 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         Avatar guardBy = toAvatar(content, guardByRange);
         Avatar guardTo = toAvatar(content, guardToRange);
-        this.avatarList.add(guardBy);
-        this.avatarList.add(guardTo);
+        InterPlay interPlay = new InterPlay(guardBy, guardTo);
+        this.interPlayList.add(interPlay);
         return;
     }
 
@@ -861,8 +916,8 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         Avatar judgeBy = toAvatar(content, judgeByRange);
         Avatar judgeTo = toAvatar(content, judgeToRange);
-        this.avatarList.add(judgeBy);
-        this.avatarList.add(judgeTo);
+        InterPlay interPlay = new InterPlay(judgeBy, judgeTo);
+        this.interPlayList.add(interPlay);
         return;
     }
 
@@ -888,6 +943,9 @@ class PeriodHandler extends HtmlAdapter {
         event.addRoleList(this.roleList);
         event.addIntegerList(this.integerList);
         event.addCharSequenceList(this.charseqList);
+        event.addPlayerList(this.playerList);
+        event.addNominatedList(this.nominatedList);
+        event.addInterPlayList(this.interPlayList);
 
         this.period.addTopic(event);
 
