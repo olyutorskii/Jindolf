@@ -35,7 +35,7 @@ public final class Jindolf {
      * Jindolf のスタートアップエントリ。
      *
      * <p>互換性検査が行われた後、
-     * JRE1.7解除版エントリ{@link JindolfJre17}
+     * JRE1.8解除版エントリ{@link JindolfJre18}
      * に制御を渡す。
      *
      * @param args コマンドライン引数
@@ -46,7 +46,7 @@ public final class Jindolf {
         exitCode = JreChecker.checkJre();
         if(exitCode != 0) System.exit(exitCode);
 
-        exitCode = JindolfJre17.main(args);
+        exitCode = JindolfJre18.main(args);
         if(exitCode != 0) System.exit(exitCode);
 
         // デーモンスレッドがいなければ、(アプリ画面が出ていなければ)
