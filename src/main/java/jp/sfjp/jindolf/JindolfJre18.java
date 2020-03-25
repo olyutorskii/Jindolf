@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JOptionPane;
 
 /**
- * JRE1.7の利用が解禁されたJindolfエントリ。
+ * JRE1.8の利用が解禁されたJindolfエントリ。
  *
  * <p>起動クラスJindolfの下請けとしての機能が想定される。
  *
@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
  *
  * <p>各種診断を通過した後、JindolfMainに制御を渡す。
  */
-public final class JindolfJre17 {
+public final class JindolfJre18 {
 
     /** GUI環境に接続できないときの終了コード。 */
     public static final int EXIT_CODE_HEADLESS = 1;
@@ -72,7 +72,7 @@ public final class JindolfJre17 {
     /**
      * 隠しコンストラクタ。
      */
-    private JindolfJre17(){
+    private JindolfJre18(){
         assert false;
     }
 
@@ -200,7 +200,7 @@ public final class JindolfJre17 {
     /**
      * Jindolf のスタートアップエントリ。
      *
-     * <p>ここからJRE1.7の利用が解禁される。
+     * <p>ここからJRE1.8の利用が解禁される。
      *
      * <p>最終的に{@link JindolfMain}へ制御が渡される。
      *

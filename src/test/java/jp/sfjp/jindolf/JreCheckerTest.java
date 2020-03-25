@@ -58,7 +58,7 @@ public class JreCheckerTest {
     @Test
     public void testHas11Runtime() {
         System.out.println("has11Runtime");
-        assertTrue(JreChecker.has11Runtime());
+        assertTrue(JreChecker.has1_1Runtime());
         return;
     }
 
@@ -68,7 +68,7 @@ public class JreCheckerTest {
     @Test
     public void testHas12Runtime() {
         System.out.println("has12Runtime");
-        assertTrue(JreChecker.has12Runtime());
+        assertTrue(JreChecker.has1_2Runtime());
         return;
     }
 
@@ -78,7 +78,7 @@ public class JreCheckerTest {
     @Test
     public void testHas13Runtime() {
         System.out.println("has13Runtime");
-        assertTrue(JreChecker.has13Runtime());
+        assertTrue(JreChecker.has1_3Runtime());
         return;
     }
 
@@ -88,7 +88,7 @@ public class JreCheckerTest {
     @Test
     public void testHas14Runtime() {
         System.out.println("has14Runtime");
-        assertTrue(JreChecker.has14Runtime());
+        assertTrue(JreChecker.has1_4Runtime());
         return;
     }
 
@@ -98,7 +98,7 @@ public class JreCheckerTest {
     @Test
     public void testHas15Runtime() {
         System.out.println("has15Runtime");
-        assertTrue(JreChecker.has15Runtime());
+        assertTrue(JreChecker.has1_5Runtime());
         return;
     }
 
@@ -108,7 +108,7 @@ public class JreCheckerTest {
     @Test
     public void testHas16Runtime() {
         System.out.println("has16Runtime");
-        assertTrue(JreChecker.has16Runtime());
+        assertTrue(JreChecker.has1_6Runtime());
         return;
     }
 
@@ -118,7 +118,17 @@ public class JreCheckerTest {
     @Test
     public void testHas17Runtime() {
         System.out.println("has17Runtime");
-        assertTrue(JreChecker.has17Runtime());
+        assertTrue(JreChecker.has1_7Runtime());
+        return;
+    }
+
+    /**
+     * Test of has18Runtime method, of class JreChecker.
+     */
+    @Test
+    public void testHas18Runtime() {
+        System.out.println("has18Runtime");
+        assertTrue(JreChecker.has1_8Runtime());
         return;
     }
 
