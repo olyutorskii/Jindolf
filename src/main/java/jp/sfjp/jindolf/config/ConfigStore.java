@@ -55,44 +55,32 @@ public class ConfigStore {
 
     private boolean useStoreFile;
     private boolean isImplicitPath;
-    private File configPath;
+    private File configDir;
 
 
     /**
      * コンストラクタ。
-     * @param useStoreFile 設定ディレクトリへの永続化機能を使うならtrue
-     * @param configPath 設定ディレクトリ。
-     *     設定ディレクトリを使わない場合は無視され、nullとして扱われる。
-     */
-    public ConfigStore(boolean useStoreFile, File configPath ){
-        this(useStoreFile, true, configPath);
-        return;
-    }
-
-    /**
-     * コンストラクタ。
-     * @param useStoreFile 設定ディレクトリへの永続化機能を使うならtrue
-     * @param isImplicitPath コマンドラインで指定されたディレクトリならfalse
-     * @param configPath 設定ディレクトリ。
-     *     設定ディレクトリを使わない場合は無視され、nullとして扱われる。
+     *
+     * @param useStoreFile 設定ディレクトリ内への
+     *     セーブデータ機能を使うならtrue
+     * @param isImplicitPath 起動コマンドラインから指定された
+     *     設定ディレクトリの場合false
+     * @param configDirPath 設定ディレクトリ。
+     *     設定ディレクトリを使わない場合は無視される。
      */
     public ConfigStore(boolean useStoreFile,
-                         boolean isImplicitPath,
-                         File configPath ){
+                       boolean isImplicitPath,
+                       File configDirPath ){
         super();
 
         this.useStoreFile = useStoreFile;
 
         if(this.useStoreFile){
             this.isImplicitPath = isImplicitPath;
+            this.configDir = configDirPath;
         }else{
             this.isImplicitPath = true;
-        }
-
-        if(this.useStoreFile){
-            this.configPath = configPath;
-        }else{
-            this.configPath = null;
+            this.configDir = null;
         }
 
         return;
@@ -101,6 +89,7 @@ public class ConfigStore {
 
     /**
      * 設定ディレクトリを使うか否か判定する。
+     *
      * @return 設定ディレクトリを使うならtrue。
      */
     public boolean useStoreFile(){
@@ -109,13 +98,11 @@ public class ConfigStore {
 
     /**
      * 設定ディレクトリを返す。
+     *
      * @return 設定ディレクトリ。設定ディレクトリを使わない場合はnull
      */
-    public File getConfigPath(){
-        File result;
-        if(this.useStoreFile) result = this.configPath;
-        else                  result = null;
-        return result;
+    public File getConfigDir(){
+        return this.configDir;
     }
 
     /**
@@ -126,13 +113,13 @@ public class ConfigStore {
     public void prepareConfigDir(){
         if( ! this.useStoreFile ) return;
 
-        if( ! this.configPath.exists() ){
+        if( ! this.configDir.exists() ){
             File created =
-                ConfigFile.buildConfigDirectory(this.configPath,
+                ConfigFile.buildConfigDirectory(this.configDir,
                                                 this.isImplicitPath );
             ConfigFile.checkAccessibility(created);
         }else{
-            ConfigFile.checkAccessibility(this.configPath);
+            ConfigFile.checkAccessibility(this.configDir);
         }
 
         return;
@@ -140,11 +127,14 @@ public class ConfigStore {
 
     /**
      * ロックファイルの取得を試みる。
+     *
+     * <p>ロックに失敗したが処理を続行する場合、
+     * 設定ディレクトリは使わないものとして続行する。
      */
     public void tryLock(){
         if( ! this.useStoreFile ) return;
 
-        File lockFile = new File(this.configPath, LOCKFILE);
+        File lockFile = new File(this.configDir, LOCKFILE);
         InterVMLock lock = new InterVMLock(lockFile);
 
         lock.tryLock();
@@ -153,7 +143,8 @@ public class ConfigStore {
             ConfigFile.confirmLockError(lock);
             if( ! lock.isFileOwner() ){
                 this.useStoreFile = false;
-                this.configPath = null;
+                this.isImplicitPath = true;
+                this.configDir = null;
             }
         }
 
@@ -162,6 +153,7 @@ public class ConfigStore {
 
     /**
      * 設定ディレクトリ上のOBJECT型JSONファイルを読み込む。
+     *
      * @param file JSONファイルの相対パス。
      * @return JSON object。
      *     設定ディレクトリを使わない設定、
@@ -178,6 +170,7 @@ public class ConfigStore {
 
     /**
      * 設定ディレクトリ上のJSONファイルを読み込む。
+     *
      * @param file JSONファイルの相対パス
      * @return JSON objectまたはarray。
      *     設定ディレクトリを使わない設定、
@@ -191,8 +184,8 @@ public class ConfigStore {
         if(file.isAbsolute()){
             absFile = file;
         }else{
-            if(this.configPath == null) return null;
-            absFile = new File(this.configPath, file.getPath());
+            if(this.configDir == null) return null;
+            absFile = new File(this.configDir, file.getPath());
             if( ! absFile.exists() ) return null;
             if( ! absFile.isAbsolute() ) return null;
         }
@@ -257,6 +250,7 @@ public class ConfigStore {
 
     /**
      * 文字ストリーム上のJSONデータを読み込む。
+     *
      * @param reader 文字ストリーム
      * @return JSON objectまたはarray。
      * @throws IOException 入力エラー
@@ -270,6 +264,7 @@ public class ConfigStore {
 
     /**
      * 設定ディレクトリ上のJSONファイルに書き込む。
+     *
      * @param file JSONファイルの相対パス
      * @param root JSON objectまたはarray
      * @return 正しくセーブが行われればtrue。
@@ -279,7 +274,7 @@ public class ConfigStore {
         if( ! this.useStoreFile ) return false;
 
         // TODO テンポラリファイルを用いたより安全なファイル更新
-        File absFile = new File(this.configPath, file.getPath());
+        File absFile = new File(this.configDir, file.getPath());
         String absPath = absFile.getPath();
 
         absFile.delete();
@@ -351,6 +346,7 @@ public class ConfigStore {
 
     /**
      * 文字ストリームにJSONデータを書き込む。
+     *
      * @param writer 文字ストリーム出力
      * @param root JSON objectまたはarray
      * @throws IOException 出力エラー
@@ -364,6 +360,7 @@ public class ConfigStore {
 
     /**
      * 検索履歴ファイルを読み込む。
+     *
      * @return 履歴データ。履歴を読まないもしくは読めない場合はnull
      */
     public JsObject loadHistoryConfig(){
@@ -373,6 +370,7 @@ public class ConfigStore {
 
     /**
      * 原稿ファイルを読み込む。
+     *
      * @return 原稿データ。原稿を読まないもしくは読めない場合はnull
      */
     public JsObject loadDraftConfig(){
@@ -382,6 +380,7 @@ public class ConfigStore {
 
     /**
      * ネットワーク設定ファイルを読み込む。
+     *
      * @return ネットワーク設定データ。
      *     設定を読まないもしくは読めない場合はnull
      */
@@ -392,6 +391,7 @@ public class ConfigStore {
 
     /**
      * 台詞表示設定ファイルを読み込む。
+     *
      * @return 台詞表示設定データ。
      *     設定を読まないもしくは読めない場合はnull
      */
@@ -402,6 +402,7 @@ public class ConfigStore {
 
     /**
      * 検索履歴ファイルに書き込む。
+     *
      * @param root 履歴データ
      * @return 書き込まなかったもしくは書き込めなかった場合はfalse
      */
@@ -412,6 +413,7 @@ public class ConfigStore {
 
     /**
      * 原稿ファイルに書き込む。
+     *
      * @param root 原稿データ
      * @return 書き込まなかったもしくは書き込めなかった場合はfalse
      */
@@ -422,6 +424,7 @@ public class ConfigStore {
 
     /**
      * ネットワーク設定ファイルに書き込む。
+     *
      * @param root ネットワーク設定
      * @return 書き込まなかったもしくは書き込めなかった場合はfalse
      */
@@ -432,6 +435,7 @@ public class ConfigStore {
 
     /**
      * 台詞表示設定ファイルに書き込む。
+     *
      * @param root 台詞表示設定
      * @return 書き込まなかったもしくは書き込めなかった場合はfalse
      */
