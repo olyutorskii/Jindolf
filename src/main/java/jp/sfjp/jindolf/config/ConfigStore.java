@@ -122,6 +122,11 @@ public class ConfigStore {
             ConfigFile.checkAccessibility(this.configDir);
         }
 
+        File imgDir = new File(this.configDir, "img");
+        if( ! imgDir.exists()){
+            ConfigFile.buildImageCacheDir(imgDir);
+        }
+
         return;
     }
 

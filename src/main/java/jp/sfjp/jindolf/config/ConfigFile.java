@@ -10,13 +10,18 @@ package jp.sfjp.jindolf.config;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import jp.sfjp.jindolf.ResourceManager;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.view.LockErrorPane;
 
@@ -162,6 +167,36 @@ public final class ConfigFile{
         touchReadme(absPath);
 
         return absPath;
+    }
+
+    /**
+     * ローカル画像キャッシュディレクトリを作る。
+     *
+     * <p>作られたディレクトリ内に
+     * ファイルavatarCache.jsonが作られる。
+     *
+     * @param imgCacheDir ローカル画像キャッシュディレクトリ
+     */
+    public static void buildImageCacheDir(File imgCacheDir){
+        if(imgCacheDir.exists()) return;
+
+        String jsonRes = "resources/image/avatarCache.json";
+        InputStream is = ResourceManager.getResourceAsStream(jsonRes);
+        if(is == null) return;
+
+        imgCacheDir.mkdirs();
+        ConfigFile.checkAccessibility(imgCacheDir);
+
+        Path cachePath = imgCacheDir.toPath();
+        Path jsonLeaf = Paths.get("avatarCache.json");
+        Path path = cachePath.resolve(jsonLeaf);
+        try{
+            Files.copy(is, path);
+        }catch(IOException e){
+            abortCantAccessConfigDir(path.toFile());
+        }
+
+        return;
     }
 
     /**
