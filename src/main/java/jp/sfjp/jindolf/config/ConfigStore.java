@@ -23,6 +23,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jp.sourceforge.jovsonz.JsComposition;
@@ -45,6 +47,11 @@ public class ConfigStore {
     public static final File NETCONFIG_FILE = new File("netconfig.json");
     /** 台詞表示設定ファイル。 */
     public static final File TALKCONFIG_FILE = new File("talkconfig.json");
+    /** ローカル画像格納ディレクトリ。 */
+    public static final Path LOCALIMG_DIR = Paths.get("img");
+    /** ローカル画像設定ファイル。 */
+    public static final Path LOCALIMGCONFIG_PATH =
+            Paths.get("avatarCache.json");
 
     private static final String LOCKFILE = "lock";
 
@@ -103,6 +110,20 @@ public class ConfigStore {
      */
     public File getConfigDir(){
         return this.configDir;
+    }
+
+    /**
+     * ローカル画像格納ディレクトリを返す。
+     *
+     * @return 格納ディレクトリ。格納ディレクトリを使わない場合はnull
+     */
+    public Path getLocalImgDir(){
+        if(this.configDir == null) return null;
+
+        Path configPath = this.configDir.toPath();
+        Path result = configPath.resolve(LOCALIMG_DIR);
+
+        return result;
     }
 
     /**
@@ -402,6 +423,18 @@ public class ConfigStore {
      */
     public JsObject loadTalkConfig(){
         JsObject result = loadJsObject(TALKCONFIG_FILE);
+        return result;
+    }
+
+    /**
+     * ローカル画像設定ファイルを読み込む。
+     *
+     * @return ローカル画像設定データ。
+     *     設定を読まないもしくは読めない場合はnull
+     */
+    public JsObject loadLocalImgConfig(){
+        Path path = LOCALIMG_DIR.resolve(LOCALIMGCONFIG_PATH);
+        JsObject result = loadJsObject(path.toFile());
         return result;
     }
 
