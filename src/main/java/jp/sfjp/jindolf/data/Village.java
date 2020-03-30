@@ -56,6 +56,8 @@ public class Village{
     private final Map<Avatar, BufferedImage> bodyMonoImageMap =
             new HashMap<>();
 
+    private boolean isLocalArchive = false;
+
 
     /**
      * Villageを生成する。
@@ -559,6 +561,25 @@ public class Village{
         for(Period period : this.periodList){
             period.unload();
         }
+        return;
+    }
+
+    /**
+     * この村がローカルなアーカイブに由来するものであるか判定する。
+     *
+     * @return ローカルなアーカイブによる村であればtrue
+     */
+    public boolean isLocalArchive(){
+        return this.isLocalArchive;
+    }
+
+    /**
+     * この村がローカルなアーカイブに由来するものであるか設定する。
+     *
+     * @param flag ローカルなアーカイブによる村であればtrue
+     */
+    public void setLocalArchive(boolean flag){
+        this.isLocalArchive = flag;
         return;
     }
 
