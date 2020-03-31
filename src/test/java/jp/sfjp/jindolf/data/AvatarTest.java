@@ -7,8 +7,6 @@
 package jp.sfjp.jindolf.data;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,50 +61,6 @@ public class AvatarTest {
         result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertNotNull(result);
         assertTrue(result.equals(result));
-        result = Avatar.getAvatarByFullname((CharSequence)"農夫 ヤコブ");
-        assertNotNull(result);
-        assertTrue(result.equals(result));
-        return;
-    }
-
-    /**
-     * Test of lookingAtAvatar method, of class Avatar.
-     */
-    @Test
-    public void testMatchAvatar(){
-        System.out.println("matchAvatar");
-        Matcher matcher;
-        Avatar avatar;
-
-        Pattern pattern = Pattern.compile(".+");
-
-        matcher = pattern.matcher("農夫 ヤコブ");
-        avatar = Avatar.lookingAtAvatar(matcher);
-        assertNotNull(avatar);
-        assertEquals("農夫 ヤコブ", avatar.getFullName());
-
-        matcher = pattern.matcher("農夫 ヤコブXYZ");
-        avatar = Avatar.lookingAtAvatar(matcher);
-        assertNotNull(avatar);
-        assertEquals("農夫 ヤコブ", avatar.getFullName());
-
-        matcher = pattern.matcher("ABC農夫 ヤコブ");
-        avatar = Avatar.lookingAtAvatar(matcher);
-        assertNull(avatar);
-
-        matcher = pattern.matcher("農夫 ヤコブならず者 ディーター");
-        avatar = Avatar.lookingAtAvatar(matcher);
-        assertNotNull(avatar);
-        assertEquals("農夫 ヤコブ", avatar.getFullName());
-        int regionStart;
-        int regionEnd;
-        regionStart = matcher.end();
-        regionEnd = matcher.regionEnd();
-        matcher.region(regionStart, regionEnd);
-        avatar = Avatar.lookingAtAvatar(matcher);
-        assertNotNull(avatar);
-        assertEquals("ならず者 ディーター", avatar.getFullName());
-
         return;
     }
 
