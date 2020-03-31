@@ -191,7 +191,7 @@ public class VillageHandler implements ContentHandler{
         String shortName   = attrValue(atts, "shortName");
         String faceIconUri = attrValue(atts, "faceIconURI");
 
-        Avatar avatar = Avatar.getPredefinedAvatar(fullName);
+        Avatar avatar = Avatar.getAvatarByFullname(fullName);
 
         this.village.addAvatar(avatar);
         this.idAvatarMap.put(avatarId, avatar);

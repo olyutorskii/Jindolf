@@ -279,7 +279,7 @@ public class Village{
         // TODO CharSequenceにできない？
         Avatar avatar;
 
-        avatar = Avatar.getPredefinedAvatar(fullName);
+        avatar = Avatar.getAvatarByFullname(fullName);
         if( avatar != null ){
             preloadAvatarFace(avatar);
             return avatar;

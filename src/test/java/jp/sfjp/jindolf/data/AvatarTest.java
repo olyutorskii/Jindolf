@@ -54,16 +54,16 @@ public class AvatarTest {
     }
 
     /**
-     * Test of getPredefinedAvatar method, of class Avatar.
+     * Test of getAvatarByFullname method, of class Avatar.
      */
     @Test
-    public void testGetPredefinedAvatar(){
+    public void testGetAvatarByFullname(){
         System.out.println("getPredefinedAvatar");
         Avatar result;
-        result = Avatar.getPredefinedAvatar("農夫 ヤコブ");
+        result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertNotNull(result);
         assertTrue(result.equals(result));
-        result = Avatar.getPredefinedAvatar((CharSequence)"農夫 ヤコブ");
+        result = Avatar.getAvatarByFullname((CharSequence)"農夫 ヤコブ");
         assertNotNull(result);
         assertTrue(result.equals(result));
         return;
@@ -116,7 +116,7 @@ public class AvatarTest {
     @Test
     public void testGetFullName(){
         System.out.println("getFullName");
-        Avatar result = Avatar.getPredefinedAvatar("農夫 ヤコブ");
+        Avatar result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertNotNull(result);
         assertEquals("農夫 ヤコブ", result.getFullName());
         return;
@@ -128,7 +128,7 @@ public class AvatarTest {
     @Test
     public void testGetJobTitle(){
         System.out.println("getJobTitle");
-        Avatar result = Avatar.getPredefinedAvatar("農夫 ヤコブ");
+        Avatar result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertNotNull(result);
         assertEquals("農夫", result.getJobTitle());
         return;
@@ -140,7 +140,7 @@ public class AvatarTest {
     @Test
     public void testGetName(){
         System.out.println("getName");
-        Avatar result = Avatar.getPredefinedAvatar("農夫 ヤコブ");
+        Avatar result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertNotNull(result);
         assertEquals("ヤコブ", result.getName());
         return;
@@ -152,7 +152,7 @@ public class AvatarTest {
     @Test
     public void testGetIdNum(){
         System.out.println("getIdNum");
-        Avatar result = Avatar.getPredefinedAvatar("農夫 ヤコブ");
+        Avatar result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertNotNull(result);
         assertEquals(15, result.getIdNum());
         return;
@@ -164,7 +164,7 @@ public class AvatarTest {
     @Test
     public void testEquals(){
         System.out.println("equals");
-        Avatar result = Avatar.getPredefinedAvatar("農夫 ヤコブ");
+        Avatar result = Avatar.getAvatarByFullname("農夫 ヤコブ");
         assertTrue(result.equals(result));
         return;
     }
@@ -175,9 +175,9 @@ public class AvatarTest {
     @Test
     public void testCompareTo(){
         System.out.println("compareTo");
-        Avatar avatar1 = Avatar.getPredefinedAvatar("農夫 ヤコブ");
-        Avatar avatar2 = Avatar.getPredefinedAvatar("シスター フリーデル");
-        Avatar avatar3 = Avatar.getPredefinedAvatar("羊飼い カタリナ");
+        Avatar avatar1 = Avatar.getAvatarByFullname("農夫 ヤコブ");
+        Avatar avatar2 = Avatar.getAvatarByFullname("シスター フリーデル");
+        Avatar avatar3 = Avatar.getAvatarByFullname("羊飼い カタリナ");
         assertTrue(avatar1.compareTo(avatar2) < 0);
         assertTrue(avatar2.compareTo(avatar3) > 0);
         assertTrue(avatar2.compareTo(avatar2) == 0);

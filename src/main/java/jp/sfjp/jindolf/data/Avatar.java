@@ -7,7 +7,6 @@
 
 package jp.sfjp.jindolf.data;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +14,25 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import jp.sourceforge.jindolf.corelib.PreDefAvatar;
 
 /**
  * Avatar またの名をキャラクター。
+ *
+ * <p>ゲルトもAvatarである。
+ * 墓石は「Avatarの状態」であってAvatarそのものではない。
+ *
+ * <p>プロローグが終わり参加プレイヤーが固定されるまでの間、
+ * 複数のプレイヤーが同一Avatarを担当しうる。
+ *
+ * <p>Avatar同士は通し番号により一意に順序づけられる。
+ *
+ * <p>設計メモ: 未知のAvatar出現に備え、
+ * {@link PreDefAvatar}と分離したクラスとして設計された。
+ *
+ * <p>2020-03現在、既知のAvatarは最大20種類で固定。
+ * Z国含め未知のAvatarが追加されるケースは今後考慮しない。
  */
 public class Avatar implements Comparable<Avatar> {
 
@@ -26,7 +40,8 @@ public class Avatar implements Comparable<Avatar> {
     public static final Avatar AVATAR_GERD;
 
     private static final List<Avatar>        AVATAR_LIST;
-    private static final Map<String, Avatar> AVATAR_MAP;
+    private static final Map<String, Avatar> AVATAR_FN_MAP;
+    private static final Map<String, Avatar> AVATAR_ID_MAP;
 
     private static final Pattern AVATAR_PATTERN;
 
@@ -34,10 +49,13 @@ public class Avatar implements Comparable<Avatar> {
         List<PreDefAvatar>  predefs = CoreData.getPreDefAvatarList();
         AVATAR_LIST = buildAvatarList(predefs);
 
-        AVATAR_MAP = new HashMap<>();
-        AVATAR_LIST.forEach((avatar) -> {
+        AVATAR_FN_MAP = new HashMap<>();
+        AVATAR_ID_MAP = new HashMap<>();
+        AVATAR_LIST.forEach(avatar -> {
             String fullName = avatar.getFullName();
-            AVATAR_MAP.put(fullName, avatar);
+            String avatarId = avatar.getIdentifier();
+            AVATAR_FN_MAP.put(fullName, avatar);
+            AVATAR_ID_MAP.put(avatarId, avatar);
         });
 
         StringBuilder avatarGroupRegex = new StringBuilder();
@@ -53,7 +71,7 @@ public class Avatar implements Comparable<Avatar> {
         });
         AVATAR_PATTERN = Pattern.compile(avatarGroupRegex.toString());
 
-        AVATAR_GERD = getPredefinedAvatar("楽天家 ゲルト");
+        AVATAR_GERD = getAvatarByFullname("楽天家 ゲルト");
 
         assert AVATAR_LIST instanceof RandomAccess;
         assert AVATAR_GERD != null;
@@ -69,16 +87,17 @@ public class Avatar implements Comparable<Avatar> {
 
 
     /**
-     * Avatarを生成する。
+     * constructor.
+     *
      * @param name 名前
      * @param jobTitle 職業名
      * @param idNum 通し番号
      * @param identifier 識別文字列
      */
     private Avatar(String name,
-                    String jobTitle,
-                    int idNum,
-                    String identifier ){
+                   String jobTitle,
+                   int idNum,
+                   String identifier ){
         this.name = name.intern();
         this.jobTitle = jobTitle.intern();
         this.idNum = idNum;
@@ -92,7 +111,8 @@ public class Avatar implements Comparable<Avatar> {
     }
 
     /**
-     * Avatarを生成する。
+     * constructor.
+     *
      * @param fullName フルネーム
      */
     // TODO 当面は呼ばれないはず。Z国とか向け。
@@ -122,33 +142,42 @@ public class Avatar implements Comparable<Avatar> {
 
 
     /**
-     * 定義済みAvatar群の生成。
+     * 定義済みAvatarのAvatarリストを生成する。
+     *
      * @param predefs 定義済みAvatar元データ群
      * @return ソートされた定義済みAvatarのリスト
      */
     private static List<Avatar> buildAvatarList(List<PreDefAvatar> predefs){
-        List<Avatar> result = new ArrayList<>(predefs.size());
+        List<Avatar> result;
 
-        for(PreDefAvatar preDefAvatar : predefs){
-            String shortName = preDefAvatar.getShortName();
-            String jobTitle  = preDefAvatar.getJobTitle();
-            int serialNo     = preDefAvatar.getSerialNo();
-            String avatarId  = preDefAvatar.getAvatarId();
-            Avatar avatar = new Avatar(shortName,
-                                       jobTitle,
-                                       serialNo,
-                                       avatarId );
-            result.add(avatar);
-        }
+        result = predefs.stream()
+                .map(preDefAvatar -> toAvatar(preDefAvatar))
+                .sorted()
+                .collect(Collectors.toList());
 
-        Collections.sort(result);
         result = Collections.unmodifiableList(result);
 
         return result;
     }
 
     /**
+     * 定義済みAvatarからAvatarへの変換を行う。
+     *
+     * @param pre 定義済みAvatar
+     * @return Avatar
+     */
+    private static Avatar toAvatar(PreDefAvatar pre){
+        String shortName = pre.getShortName();
+        String jobTitle  = pre.getJobTitle();
+        int serialNo     = pre.getSerialNo();
+        String avatarId  = pre.getAvatarId();
+        Avatar result = new Avatar(shortName, jobTitle, serialNo, avatarId);
+        return result;
+    }
+
+    /**
      * 定義済みAvatar群のリストを返す。
+     *
      * @return Avatarのリスト
      */
     public static List<Avatar> getPredefinedAvatarList(){
@@ -156,24 +185,26 @@ public class Avatar implements Comparable<Avatar> {
     }
 
     /**
-     * 定義済みAvatarを返す。
-     * @param fullName Avatarのフルネーム
+     * フルネームに合致するAvatarを返す。
+     *
+     * @param fullNameArg Avatarのフルネーム
      * @return Avatar。フルネームが一致するAvatarが無ければnull
      */
     // TODO 20キャラ程度ならListをなめる方が早いか？
-    public static Avatar getPredefinedAvatar(String fullName){
-        return AVATAR_MAP.get(fullName);
+    public static Avatar getAvatarByFullname(String fullNameArg){
+        return AVATAR_FN_MAP.get(fullNameArg);
     }
 
     /**
-     * 定義済みAvatarを返す。
-     * @param fullName Avatarのフルネーム
+     * フルネームに合致するAvatarを返す。
+     *
+     * @param fullNameArg Avatarのフルネーム
      * @return Avatar。フルネームが一致するAvatarが無ければnull
      */
-    public static Avatar getPredefinedAvatar(CharSequence fullName){
+    public static Avatar getAvatarByFullname(CharSequence fullNameArg){
         for(Avatar avatar : AVATAR_LIST){
             String avatarName = avatar.getFullName();
-            if(avatarName.contentEquals(fullName)){
+            if(avatarName.contentEquals(fullNameArg)){
                 return avatar;
             }
         }
@@ -181,7 +212,19 @@ public class Avatar implements Comparable<Avatar> {
     }
 
     /**
+     * IDに合致するAvatarを返す。
+     *
+     * @param avatarId AvatarのID
+     * @return Avatar。IDが一致するAvatarが無ければnull
+     */
+    // TODO 20キャラ程度ならListをなめる方が早いか？
+    public static Avatar getAvatarById(String avatarId){
+        return AVATAR_ID_MAP.get(avatarId);
+    }
+
+    /**
      * 定義済みAvatar名に一致しないか調べる。
+     *
      * @param matcher マッチャ
      * @return 一致したAvatar。一致しなければnull。
      */
@@ -202,6 +245,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * フルネームを取得する。
+     *
      * @return フルネーム
      */
     public String getFullName(){
@@ -210,6 +254,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 職業名を取得する。
+     *
      * @return 職業名
      */
     public String getJobTitle(){
@@ -218,6 +263,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 通常名を取得する。
+     *
      * @return 通常名
      */
     public String getName(){
@@ -226,6 +272,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 通し番号を返す。
+     *
      * @return 通し番号
      */
     public int getIdNum(){
@@ -234,6 +281,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 識別文字列を返す。
+     *
      * @return 識別文字列
      */
     public String getIdentifier(){
@@ -242,6 +290,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * {@inheritDoc}
+     *
      * @param obj {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -266,6 +315,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -275,6 +325,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -284,6 +335,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * {@inheritDoc}
+     *
      * 通し番号順に順序づける。
      * @param avatar {@inheritDoc}
      * @return {@inheritDoc}
