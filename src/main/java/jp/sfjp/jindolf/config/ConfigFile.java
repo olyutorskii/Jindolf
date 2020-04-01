@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +37,7 @@ public final class ConfigFile{
     private static final String JINCONF     = "Jindolf";
     private static final String JINCONF_DOT = ".jindolf";
     private static final String FILE_README = "README.txt";
-    private static final Charset CHARSET_README = Charset.forName("UTF-8");
+    private static final Charset CHARSET_README = StandardCharsets.UTF_8;
 
     private static final String MSG_POST =
             "<ul>"

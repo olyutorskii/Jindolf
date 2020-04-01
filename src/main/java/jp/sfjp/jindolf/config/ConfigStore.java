@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
@@ -55,7 +56,7 @@ public class ConfigStore {
 
     private static final String LOCKFILE = "lock";
 
-    private static final Charset CHARSET_JSON = Charset.forName("UTF-8");
+    private static final Charset CHARSET_JSON = StandardCharsets.UTF_8;
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
