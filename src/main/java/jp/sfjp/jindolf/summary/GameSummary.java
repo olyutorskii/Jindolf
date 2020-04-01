@@ -457,7 +457,8 @@ public class GameSummary{
         if(sysEvent == null) return;
 
         if(hasAssaultTried){
-            Avatar guarded = sysEvent.getAvatarList().get(1);
+            InterPlay inter = sysEvent.getInterPlayList().get(0);
+            Avatar guarded = inter.getTarget();
             Player guardedPlayer = getPlayer(guarded);
             GameRole guardedRole = guardedPlayer.getRole();
             switch(guardedRole){
