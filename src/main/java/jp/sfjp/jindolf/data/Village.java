@@ -7,14 +7,12 @@
 
 package jp.sfjp.jindolf.data;
 
-import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import jp.sfjp.jindolf.util.GUIUtils;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.VillageState;
 
@@ -47,14 +45,7 @@ public class Village{
     private final Map<String, Avatar> avatarMap =
             new HashMap<>();
 
-    private final Map<Avatar, BufferedImage> faceImageMap =
-            new HashMap<>();
-    private final Map<Avatar, BufferedImage> bodyImageMap =
-            new HashMap<>();
-    private final Map<Avatar, BufferedImage> faceMonoImageMap =
-            new HashMap<>();
-    private final Map<Avatar, BufferedImage> bodyMonoImageMap =
-            new HashMap<>();
+    private final AvatarPics avatarPics;
 
     private boolean isLocalArchive = false;
 
@@ -74,6 +65,8 @@ public class Village{
 
         this.isValid = this.parentLand.getLandDef()
                        .isValidVillageId(this.villageIDNum);
+
+        this.avatarPics = new AvatarPics(this.parentLand);
 
         return;
     }
@@ -296,122 +289,12 @@ public class Village{
     }
 
     /**
-     * 村に登録されたAvatarの顔イメージを返す。
+     * Avatar画像管理を返す。
      *
-     * @param avatar Avatar
-     * @return 顔イメージ
+     * @return 画像管理
      */
-    public BufferedImage getAvatarFaceImage(Avatar avatar){
-        BufferedImage result;
-        result = this.faceImageMap.get(avatar);
-        if(result != null) return result;
-
-        Land land = getParentLand();
-        LandDef landDef = land.getLandDef();
-
-        String template = landDef.getFaceURITemplate();
-        int serialNo = avatar.getIdNum();
-        result = getAvatarImage(template, serialNo);
-
-        this.faceImageMap.put(avatar, result);
-
-        return result;
-    }
-
-    /**
-     * 村に登録されたAvatarの全身像イメージを返す。
-     *
-     * @param avatar Avatar
-     * @return 全身イメージ
-     */
-    public BufferedImage getAvatarBodyImage(Avatar avatar){
-        BufferedImage result;
-        result = this.bodyImageMap.get(avatar);
-        if(result != null) return result;
-
-        Land land = getParentLand();
-        LandDef landDef = land.getLandDef();
-
-        String template = landDef.getBodyURITemplate();
-        int serialNo = avatar.getIdNum();
-        result = getAvatarImage(template, serialNo);
-
-        this.bodyImageMap.put(avatar, result);
-
-        return result;
-    }
-
-    /**
-     * 各国URLテンプレートと通し番号から
-     * イメージをダウンロードする。
-     *
-     * @param template テンプレート
-     * @param serialNo Avatarの通し番号
-     * @return 顔もしくは全身像イメージ
-     */
-    private BufferedImage getAvatarImage(String template, int serialNo){
-        Land land = getParentLand();
-        String uri = MessageFormat.format(template, serialNo);
-
-        BufferedImage result;
-        result = land.downloadImage(uri);
-        if(result == null) result = GUIUtils.getNoImage();
-
-        return result;
-    }
-
-    /**
-     * 村に登録されたAvatarのモノクロ顔イメージを返す。
-     *
-     * @param avatar Avatar
-     * @return 顔イメージ
-     */
-    public BufferedImage getAvatarFaceMonoImage(Avatar avatar){
-        BufferedImage result;
-        result = this.faceMonoImageMap.get(avatar);
-        if(result == null){
-            result = getAvatarFaceImage(avatar);
-            result = GUIUtils.createMonoImage(result);
-            this.faceMonoImageMap.put(avatar, result);
-        }
-        return result;
-    }
-
-    /**
-     * 村に登録されたAvatarの全身像イメージを返す。
-     *
-     * @param avatar Avatar
-     * @return 全身イメージ
-     */
-    public BufferedImage getAvatarBodyMonoImage(Avatar avatar){
-        BufferedImage result;
-        result = this.bodyMonoImageMap.get(avatar);
-        if(result == null){
-            result = getAvatarBodyImage(avatar);
-            result = GUIUtils.createMonoImage(result);
-            this.bodyMonoImageMap.put(avatar, result);
-        }
-        return result;
-    }
-
-    /**
-     * 国に登録された墓イメージを返す。
-     *
-     * @return 墓イメージ
-     */
-    public BufferedImage getGraveImage(){
-        BufferedImage result = getParentLand().getGraveIconImage();
-        return result;
-    }
-
-    /**
-     * 国に登録された墓イメージ(大)を返す。
-     *
-     * @return 墓イメージ(大)
-     */
-    public BufferedImage getGraveBodyImage(){
-        BufferedImage result = getParentLand().getGraveBodyImage();
-        return result;
+    public AvatarPics getAvatarPics(){
+        return this.avatarPics;
     }
 
     /**
