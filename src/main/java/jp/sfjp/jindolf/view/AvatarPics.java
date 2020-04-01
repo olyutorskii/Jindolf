@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.util.GUIUtils;
@@ -23,24 +24,34 @@ public class AvatarPics {
 
     private final Land land;
 
-    private final Map<Avatar, BufferedImage> faceImageMap =
-            new HashMap<>();
-    private final Map<Avatar, BufferedImage> bodyImageMap =
-            new HashMap<>();
-    private final Map<Avatar, BufferedImage> faceMonoImageMap =
-            new HashMap<>();
-    private final Map<Avatar, BufferedImage> bodyMonoImageMap =
-            new HashMap<>();
+    private final Map<Avatar, BufferedImage> faceImageMap;
+    private final Map<Avatar, BufferedImage> bodyImageMap;
+    private final Map<Avatar, BufferedImage> faceMonoImageMap;
+    private final Map<Avatar, BufferedImage> bodyMonoImageMap;
+
+    private BufferedImage graveImage;
+    private BufferedImage graveBodyImage;
 
 
     /**
-     * COnstructor.
+     * Constructor.
      *
      * @param land 国
      */
     public AvatarPics(Land land){
         super();
+
+        Objects.nonNull(land);
         this.land = land;
+
+        this.faceImageMap     = new HashMap<>();
+        this.bodyImageMap     = new HashMap<>();
+        this.faceMonoImageMap = new HashMap<>();
+        this.bodyMonoImageMap = new HashMap<>();
+
+        this.graveImage     = null;
+        this.graveBodyImage = null;
+
         return;
     }
 
@@ -68,6 +79,19 @@ public class AvatarPics {
     }
 
     /**
+     * Avatarの顔イメージを設定する。
+     *
+     * @param avatar Avatar
+     * @param image イメージ
+     */
+    public void setAvatarFaceImage(Avatar avatar, BufferedImage image){
+        this.faceImageMap.remove(avatar);
+        this.faceMonoImageMap.remove(avatar);
+        this.faceImageMap.put(avatar, image);
+        return;
+    }
+
+    /**
      * Avatarの全身像イメージを返す。
      *
      * @param avatar Avatar
@@ -87,6 +111,19 @@ public class AvatarPics {
         this.bodyImageMap.put(avatar, result);
 
         return result;
+    }
+
+    /**
+     * Avatarの全身像イメージを設定する。
+     *
+     * @param avatar Avatar
+     * @param image イメージ
+     */
+    public void setAvatarBodyImage(Avatar avatar, BufferedImage image){
+        this.bodyImageMap.remove(avatar);
+        this.bodyMonoImageMap.remove(avatar);
+        this.bodyImageMap.put(avatar, image);
+        return;
     }
 
     /**
@@ -142,23 +179,65 @@ public class AvatarPics {
     }
 
     /**
-     * 国に登録された墓イメージを返す。
+     * 国別の墓イメージを返す。
      *
      * @return 墓イメージ
      */
     public BufferedImage getGraveImage(){
+        if(this.graveImage != null) return this.graveImage;
+
         BufferedImage result = this.land.getGraveIconImage();
+        this.graveImage = result;
+
         return result;
     }
 
     /**
-     * 国に登録された墓イメージ(大)を返す。
+     * 墓イメージを設定する。
+     *
+     * @param image イメージ
+     */
+    public void setGraveImage(BufferedImage image){
+        this.graveImage = image;
+        return;
+    }
+
+    /**
+     * 国別の墓イメージ(大)を返す。
      *
      * @return 墓イメージ(大)
      */
     public BufferedImage getGraveBodyImage(){
+        if(this.graveBodyImage != null) return this.graveBodyImage;
+
         BufferedImage result = this.land.getGraveBodyImage();
+        this.graveBodyImage = result;
+
         return result;
+    }
+
+    /**
+     * 墓イメージ(大)を設定する。
+     *
+     * @param image イメージ
+     */
+    public void setGraveBodyImage(BufferedImage image){
+        this.graveBodyImage = image;
+        return;
+    }
+
+    /**
+     * 全画像のキャッシュへの格納を試みる。
+     */
+    public void preload(){
+        for(Avatar avatar : Avatar.getPredefinedAvatarList()){
+            getAvatarFaceImage(avatar);
+            getAvatarBodyImage(avatar);
+            getAvatarFaceMonoImage(avatar);
+            getAvatarBodyMonoImage(avatar);
+            getGraveImage();
+            getGraveBodyImage();
+        }
     }
 
 }

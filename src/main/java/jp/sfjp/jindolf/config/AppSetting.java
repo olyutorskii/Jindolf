@@ -19,10 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.glyph.Font2Json;
 import jp.sfjp.jindolf.glyph.FontInfo;
 import jp.sfjp.jindolf.net.ProxyInfo;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sourceforge.jovsonz.JsBoolean;
 import jp.sourceforge.jovsonz.JsObject;
 import jp.sourceforge.jovsonz.JsPair;
@@ -411,6 +413,31 @@ public class AppSetting{
 
         JsObject jsonBody = (JsObject) bodyConfig;
         parseImgMap(jsonBody, this.avatarBodyMap);
+
+        return;
+    }
+
+    /**
+     * ローカル代替イメージを画像キャッシュに反映させる。
+     *
+     * @param avatarPics 画像キャッシュ
+     */
+    public void applyLocalImage(AvatarPics avatarPics){
+        BufferedImage graveImage     = this.avatarFaceMap.get("tomb");
+        BufferedImage graveBodyImage = this.avatarBodyMap.get("tomb");
+
+        avatarPics.setGraveImage(graveImage);
+        avatarPics.setGraveBodyImage(graveBodyImage);
+
+        for(Avatar avatar : Avatar.getPredefinedAvatarList()){
+            String avatarId = avatar.getIdentifier();
+
+            BufferedImage faceImage = this.avatarFaceMap.get(avatarId);
+            BufferedImage bodyImage = this.avatarBodyMap.get(avatarId);
+
+            avatarPics.setAvatarFaceImage(avatar, faceImage);
+            avatarPics.setAvatarBodyImage(avatar, bodyImage);
+        }
 
         return;
     }

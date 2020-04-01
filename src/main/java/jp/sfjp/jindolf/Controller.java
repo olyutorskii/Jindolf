@@ -78,6 +78,7 @@ import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.StringUtils;
 import jp.sfjp.jindolf.view.AccountPanel;
 import jp.sfjp.jindolf.view.ActionManager;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sfjp.jindolf.view.FilterPanel;
 import jp.sfjp.jindolf.view.FindPanel;
 import jp.sfjp.jindolf.view.HelpFrame;
@@ -1224,8 +1225,11 @@ public class Controller
                 System.out.println(e);
                 return;
             }
+            village.setLocalArchive(true);
+            AvatarPics avatarPics = village.getAvatarPics();
+            this.appSetting.applyLocalImage(avatarPics);
+            avatarPics.preload();
             EventQueue.invokeLater(() -> {
-                village.setLocalArchive(true);
                 selectedVillage(village);
             });
         }, "XML読み込み中", "XML読み込み完了");
