@@ -7,53 +7,50 @@
 
 package jp.sfjp.jindolf.data;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import jp.sourceforge.jindolf.corelib.PreDefAvatar;
 
 /**
  * Avatar またの名をキャラクター。
+ *
+ * <p>ゲルトもAvatarである。
+ * 墓石は「Avatarの状態」であってAvatarそのものではない。
+ *
+ * <p>プロローグが終わり参加プレイヤーが固定されるまでの間、
+ * 複数のプレイヤーが同一Avatarを担当しうる。
+ *
+ * <p>Avatar同士は通し番号により一意に順序づけられる。
+ *
+ * <p>設計メモ: 未知のAvatar出現に備え、
+ * {@link PreDefAvatar}と分離したクラスとして設計された。
+ *
+ * <p>2020-03現在、Avatarは20インスタンスで固定。
+ * Z国含め未知のAvatarが追加されるケースは今後考慮しない。
  */
 public class Avatar implements Comparable<Avatar> {
 
     /** ゲルト。 */
     public static final Avatar AVATAR_GERD;
 
-    private static final List<Avatar>        AVATAR_LIST;
-    private static final Map<String, Avatar> AVATAR_MAP;
+    private static final List<Avatar>        AVATAR_LIST = buildAvatarList();
+    private static final Map<String, Avatar> AVATAR_FN_MAP = new HashMap<>();
+    private static final Map<String, Avatar> AVATAR_ID_MAP = new HashMap<>();
 
-    private static final Pattern AVATAR_PATTERN;
 
     static{
-        List<PreDefAvatar>  predefs = CoreData.getPreDefAvatarList();
-        AVATAR_LIST = buildAvatarList(predefs);
-
-        AVATAR_MAP = new HashMap<>();
-        AVATAR_LIST.forEach((avatar) -> {
+        AVATAR_LIST.forEach(avatar -> {
             String fullName = avatar.getFullName();
-            AVATAR_MAP.put(fullName, avatar);
+            String avatarId = avatar.getIdentifier();
+            AVATAR_FN_MAP.put(fullName, avatar);
+            AVATAR_ID_MAP.put(avatarId, avatar);
         });
 
-        StringBuilder avatarGroupRegex = new StringBuilder();
-        AVATAR_LIST.stream().map((avatar) ->
-            avatar.getFullName()
-        ).forEachOrdered((fullName) -> {
-            if(avatarGroupRegex.length() > 0){
-                avatarGroupRegex.append('|');
-            }
-            avatarGroupRegex.append('(')
-                    .append(Pattern.quote(fullName))
-                    .append(')');
-        });
-        AVATAR_PATTERN = Pattern.compile(avatarGroupRegex.toString());
-
-        AVATAR_GERD = getPredefinedAvatar("楽天家 ゲルト");
+        AVATAR_GERD = getAvatarById("gerd");
 
         assert AVATAR_LIST instanceof RandomAccess;
         assert AVATAR_GERD != null;
@@ -65,20 +62,24 @@ public class Avatar implements Comparable<Avatar> {
     private final String fullName;
     private final int idNum;
     private final String identifier;
-    private final int hashNum;
 
 
     /**
-     * Avatarを生成する。
+     * constructor.
+     *
+     * <p>全ての引数は他のインスタンスに対しユニークでなければならない。
+     *
      * @param name 名前
      * @param jobTitle 職業名
      * @param idNum 通し番号
      * @param identifier 識別文字列
      */
     private Avatar(String name,
-                    String jobTitle,
-                    int idNum,
-                    String identifier ){
+                   String jobTitle,
+                   int idNum,
+                   String identifier ){
+        super();
+
         this.name = name.intern();
         this.jobTitle = jobTitle.intern();
         this.idNum = idNum;
@@ -86,69 +87,50 @@ public class Avatar implements Comparable<Avatar> {
 
         this.fullName = (this.jobTitle + " " + this.name).intern();
 
-        this.hashNum = this.fullName.hashCode() ^ this.idNum;
-
-        return;
-    }
-
-    /**
-     * Avatarを生成する。
-     * @param fullName フルネーム
-     */
-    // TODO 当面は呼ばれないはず。Z国とか向け。
-    public Avatar(String fullName){
-        this.fullName = fullName.intern();
-        this.idNum = -1;
-
-        String[] tokens = this.fullName.split("\\p{Blank}+", 2);
-        if(tokens.length == 1){
-            this.jobTitle = null;
-            this.name = this.fullName;
-        }else if(tokens.length == 2){
-            this.jobTitle = tokens[0].intern();
-            this.name = tokens[1].intern();
-        }else{
-            this.jobTitle = null;
-            this.name = null;
-            assert false;
-        }
-
-        this.identifier = "???".intern();
-
-        this.hashNum = this.fullName.hashCode() ^ this.idNum;
-
         return;
     }
 
 
     /**
-     * 定義済みAvatar群の生成。
-     * @param predefs 定義済みAvatar元データ群
+     * Avatarリストを生成する。
+     *
+     * Avatarの全インスタンスはこのリストに含まれる。
+     *
      * @return ソートされた定義済みAvatarのリスト
      */
-    private static List<Avatar> buildAvatarList(List<PreDefAvatar> predefs){
-        List<Avatar> result = new ArrayList<>(predefs.size());
+    private static List<Avatar> buildAvatarList(){
+        List<Avatar> result;
 
-        for(PreDefAvatar preDefAvatar : predefs){
-            String shortName = preDefAvatar.getShortName();
-            String jobTitle  = preDefAvatar.getJobTitle();
-            int serialNo     = preDefAvatar.getSerialNo();
-            String avatarId  = preDefAvatar.getAvatarId();
-            Avatar avatar = new Avatar(shortName,
-                                       jobTitle,
-                                       serialNo,
-                                       avatarId );
-            result.add(avatar);
-        }
+        List<PreDefAvatar>  predefs = CoreData.getPreDefAvatarList();
+        result = predefs.stream()
+                .map(preDefAvatar -> toAvatar(preDefAvatar))
+                .sorted()
+                .collect(Collectors.toList());
 
-        Collections.sort(result);
         result = Collections.unmodifiableList(result);
 
         return result;
     }
 
     /**
+     * 定義済みAvatarからAvatarへの変換を行う。
+     *
+     * @param pre 定義済みAvatar
+     * @return Avatar
+     */
+    private static Avatar toAvatar(PreDefAvatar pre){
+        String shortName = pre.getShortName();
+        String jobTitle  = pre.getJobTitle();
+        int serialNo     = pre.getSerialNo();
+        String avatarId  = pre.getAvatarId();
+
+        Avatar result = new Avatar(shortName, jobTitle, serialNo, avatarId);
+        return result;
+    }
+
+    /**
      * 定義済みAvatar群のリストを返す。
+     *
      * @return Avatarのリスト
      */
     public static List<Avatar> getPredefinedAvatarList(){
@@ -156,52 +138,29 @@ public class Avatar implements Comparable<Avatar> {
     }
 
     /**
-     * 定義済みAvatarを返す。
-     * @param fullName Avatarのフルネーム
+     * フルネームに合致するAvatarを返す。
+     *
+     * @param fullNameArg Avatarのフルネーム
      * @return Avatar。フルネームが一致するAvatarが無ければnull
      */
-    // TODO 20キャラ程度ならListをなめる方が早いか？
-    public static Avatar getPredefinedAvatar(String fullName){
-        return AVATAR_MAP.get(fullName);
+    public static Avatar getAvatarByFullname(String fullNameArg){
+        return AVATAR_FN_MAP.get(fullNameArg);
     }
 
     /**
-     * 定義済みAvatarを返す。
-     * @param fullName Avatarのフルネーム
-     * @return Avatar。フルネームが一致するAvatarが無ければnull
+     * IDに合致するAvatarを返す。
+     *
+     * @param avatarId AvatarのID
+     * @return Avatar。IDが一致するAvatarが無ければnull
      */
-    public static Avatar getPredefinedAvatar(CharSequence fullName){
-        for(Avatar avatar : AVATAR_LIST){
-            String avatarName = avatar.getFullName();
-            if(avatarName.contentEquals(fullName)){
-                return avatar;
-            }
-        }
-        return null;
+    public static Avatar getAvatarById(String avatarId){
+        return AVATAR_ID_MAP.get(avatarId);
     }
 
-    /**
-     * 定義済みAvatar名に一致しないか調べる。
-     * @param matcher マッチャ
-     * @return 一致したAvatar。一致しなければnull。
-     */
-    public static Avatar lookingAtAvatar(Matcher matcher){
-        matcher.usePattern(AVATAR_PATTERN);
-
-        if( ! matcher.lookingAt() ) return null;
-        int groupCt = matcher.groupCount();
-        for(int group = 1; group <= groupCt; group++){
-            if(matcher.start(group) >= 0){
-                Avatar avatar = AVATAR_LIST.get(group - 1);
-                return avatar;
-            }
-        }
-
-        return null;
-    }
 
     /**
      * フルネームを取得する。
+     *
      * @return フルネーム
      */
     public String getFullName(){
@@ -210,6 +169,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 職業名を取得する。
+     *
      * @return 職業名
      */
     public String getJobTitle(){
@@ -218,6 +178,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 通常名を取得する。
+     *
      * @return 通常名
      */
     public String getName(){
@@ -226,6 +187,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * 通し番号を返す。
+     *
      * @return 通し番号
      */
     public int getIdNum(){
@@ -233,7 +195,8 @@ public class Avatar implements Comparable<Avatar> {
     }
 
     /**
-     * 識別文字列を返す。
+     * AvatarID識別文字列を返す。
+     *
      * @return 識別文字列
      */
     public String getIdentifier(){
@@ -242,39 +205,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * {@inheritDoc}
-     * @param obj {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object obj){
-        if(this == obj){
-            return true;
-        }
-
-        if( ! (obj instanceof Avatar) ){
-            return false;
-        }
-        Avatar other = (Avatar) obj;
-
-        boolean nameMatch = this.fullName.equals(other.fullName);
-        boolean idMatch = this.idNum == other.idNum;
-
-        if(nameMatch && idMatch) return true;
-
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public int hashCode(){
-        return this.hashNum;
-    }
-
-    /**
-     * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -284,6 +215,7 @@ public class Avatar implements Comparable<Avatar> {
 
     /**
      * {@inheritDoc}
+     *
      * 通し番号順に順序づける。
      * @param avatar {@inheritDoc}
      * @return {@inheritDoc}

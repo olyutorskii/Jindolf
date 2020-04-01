@@ -10,13 +10,18 @@ package jp.sfjp.jindolf.config;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import jp.sfjp.jindolf.ResourceManager;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.view.LockErrorPane;
 
@@ -48,22 +53,31 @@ public final class ConfigFile{
      * 隠れコンストラクタ。
      */
     private ConfigFile(){
-        super();
+        assert false;
         return;
     }
 
 
     /**
      * 暗黙的な設定格納ディレクトリを返す。
-     * 起動元JARファイルと同じディレクトリに、
+     *
+     * <ul>
+     *
+     * <li>起動元JARファイルと同じディレクトリに、
      * アクセス可能なディレクトリ"Jindolf"が
      * すでに存在していればそれを返す。
-     * 起動元JARファイルおよび"Jindolf"が発見できなければ、
+     *
+     * <li>起動元JARファイルおよび"Jindolf"が発見できなければ、
      * MacOSX環境の場合"~/Library/Application Support/Jindolf/"を返す。
      * Windows環境の場合"%USERPROFILE%\Jindolf\"を返す。
-     * それ以外の環境(Linux,etc?)の場合"~/.jindolf/"を返す。
-     * 返すディレクトリが存在しているか否か、
+     *
+     * <li>それ以外の環境(Linux,etc?)の場合"~/.jindolf/"を返す。
+     *
+     * </ul>
+     *
+     * <p>返すディレクトリが存在しているか否か、
      * アクセス可能か否かは呼び出し元で判断せよ。
+     *
      * @return 設定格納ディレクトリ
      */
     public static File getImplicitConfigDirectory(){
@@ -91,14 +105,16 @@ public final class ConfigFile{
 
     /**
      * まだ存在しない設定格納ディレクトリを新規に作成する。
-     * エラーがあればダイアログ提示とともにVM終了する。
+     *
+     * <p>エラーがあればダイアログ提示とともにVM終了する。
+     *
      * @param confPath 設定格納ディレクトリ
      * @param isImplicitPath ディレクトリが暗黙的に指定されたものならtrue。
      * @return 新規に作成した設定格納ディレクトリ
      * @throws IllegalArgumentException すでにそのディレクトリは存在する。
      */
     public static File buildConfigDirectory(File confPath,
-                                               boolean isImplicitPath )
+                                            boolean isImplicitPath )
             throws IllegalArgumentException{
         if(confPath.exists()) throw new IllegalArgumentException();
 
@@ -154,9 +170,41 @@ public final class ConfigFile{
     }
 
     /**
+     * ローカル画像キャッシュディレクトリを作る。
+     *
+     * <p>作られたディレクトリ内に
+     * ファイルavatarCache.jsonが作られる。
+     *
+     * @param imgCacheDir ローカル画像キャッシュディレクトリ
+     */
+    public static void buildImageCacheDir(File imgCacheDir){
+        if(imgCacheDir.exists()) return;
+
+        String jsonRes = "resources/image/avatarCache.json";
+        InputStream is = ResourceManager.getResourceAsStream(jsonRes);
+        if(is == null) return;
+
+        imgCacheDir.mkdirs();
+        ConfigFile.checkAccessibility(imgCacheDir);
+
+        Path cachePath = imgCacheDir.toPath();
+        Path jsonLeaf = Paths.get("avatarCache.json");
+        Path path = cachePath.resolve(jsonLeaf);
+        try{
+            Files.copy(is, path);
+        }catch(IOException e){
+            abortCantAccessConfigDir(path.toFile());
+        }
+
+        return;
+    }
+
+    /**
      * 設定ディレクトリ操作の
      * 共通エラーメッセージ確認ダイアログを表示する。
-     * 閉じるまで待つ。
+     *
+     * <p>閉じるまで待つ。
+     *
      * @param seq メッセージ
      */
     private static void showErrorMessage(CharSequence seq){
@@ -170,7 +218,9 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリ操作の
      * 共通エラーメッセージ確認ダイアログを表示する。
-     * 閉じるまで待つ。
+     *
+     * <p>閉じるまで待つ。
+     *
      * @param seq メッセージ
      */
     private static void showWarnMessage(CharSequence seq){
@@ -184,7 +234,9 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリ操作の
      * 情報提示メッセージ確認ダイアログを表示する。
-     * 閉じるまで待つ。
+     *
+     * <p>閉じるまで待つ。
+     *
      * @param seq メッセージ
      */
     private static void showInfoMessage(CharSequence seq){
@@ -197,6 +249,7 @@ public final class ConfigFile{
 
     /**
      * ダイアログを表示し、閉じられるまで待つ。
+     *
      * @param pane ダイアログの元となるペイン
      */
     private static void showDialog(JOptionPane pane){
@@ -222,6 +275,7 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリのルートファイルシステムもしくはドライブレターに
      * アクセスできないエラーをダイアログに提示し、VM終了する。
+     *
      * @param path 設定ディレクトリ
      * @param preMessage メッセージ前半
      */
@@ -242,6 +296,7 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリの祖先に書き込めないエラーをダイアログで提示し、
      * VM終了する。
+     *
      * @param existsAncestor 存在するもっとも近い祖先
      * @param preMessage メッセージ前半
      */
@@ -262,6 +317,7 @@ public final class ConfigFile{
 
     /**
      * 設定ディレクトリを新規に生成してよいかダイアログで問い合わせる。
+     *
      * @param existsAncestor 存在するもっとも近い祖先
      * @param preMessage メッセージ前半
      * @return 生成してよいと指示があればtrue
@@ -312,6 +368,7 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリが生成できないエラーをダイアログで提示し、
      * VM終了する。
+     *
      * @param path 生成できなかったディレクトリ
      */
     private static void abortCantBuildConfigDir(File path){
@@ -330,6 +387,7 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリへアクセスできないエラーをダイアログで提示し、
      * VM終了する。
+     *
      * @param path アクセスできないディレクトリ
      */
     private static void abortCantAccessConfigDir(File path){
@@ -349,6 +407,7 @@ public final class ConfigFile{
 
     /**
      * ファイルに書き込めないエラーをダイアログで提示し、VM終了する。
+     *
      * @param file 書き込めなかったファイル
      */
     private static void abortCantWrite(File file){
@@ -365,7 +424,9 @@ public final class ConfigFile{
 
     /**
      * 指定されたディレクトリにREADMEファイルを生成する。
-     * 生成できなければダイアログ表示とともにVM終了する。
+     *
+     * <p>生成できなければダイアログ表示とともにVM終了する。
+     *
      * @param path READMEの格納ディレクトリ
      */
     private static void touchReadme(File path){
@@ -413,6 +474,7 @@ public final class ConfigFile{
     /**
      * 設定ディレクトリがアクセス可能でなければ
      * エラーダイアログを出してVM終了する。
+     *
      * @param confDir 設定ディレクトリ
      */
     public static void checkAccessibility(File confDir){
@@ -425,6 +487,7 @@ public final class ConfigFile{
 
     /**
      * センタリングされたファイル名表示のHTML表記を出力する。
+     *
      * @param path ファイル
      * @return HTML表記
      */
@@ -437,10 +500,13 @@ public final class ConfigFile{
 
     /**
      * ロックエラーダイアログの表示。
-     * 呼び出しから戻ってもまだロックオブジェクトが
+     *
+     * <p>呼び出しから戻ってもまだロックオブジェクトが
      * ロックファイルのオーナーでない場合、
      * 今後設定ディレクトリは一切使わずに起動を続行するものとする。
-     * ロックファイルの強制解除に失敗した場合はVM終了する。
+     *
+     * <p>ロックファイルの強制解除に失敗した場合はVM終了する。
+     *
      * @param lock エラーを起こしたロック
      */
     public static void confirmLockError(InterVMLock lock){

@@ -120,8 +120,6 @@ public class Controller
     private final ChangeListener filterWatcher =
             new FilterWatcher();
 
-    private boolean isLocalXml = false;
-
     private final Executor executor = Executors.newCachedThreadPool();
     private volatile boolean isBusyNow;
 
@@ -1227,7 +1225,7 @@ public class Controller
                 return;
             }
             EventQueue.invokeLater(() -> {
-                this.isLocalXml = true;
+                village.setLocalArchive(true);
                 selectedVillage(village);
             });
         }, "XML読み込み中", "XML読み込み完了");
@@ -1415,7 +1413,7 @@ public class Controller
      */
     private void selectedVillage(Village village){
         setFrameTitle(village.getVillageFullName());
-        if(this.isLocalXml){
+        if(village.isLocalArchive()){
             this.actionManager.exposeVillageLocal(true);
         }else{
             this.actionManager.exposeVillage(true);
@@ -1702,7 +1700,8 @@ public class Controller
                 else                   hasCurrentPeriod = true;
                 Controller.this.actionManager.exposePeriod(hasCurrentPeriod);
                 if(hasCurrentPeriod){
-                    if(Controller.this.isLocalXml){
+                    Village village = getVillage();
+                    if(village.isLocalArchive()){
                         Controller.this.actionManager.exposeVillageLocal(hasCurrentPeriod);
                     }else{
                         Controller.this.actionManager.exposeVillage(hasCurrentPeriod);
@@ -1748,7 +1747,7 @@ public class Controller
                 selectedLand(land);
             }else if(selObj instanceof Village){
                 Village village = (Village) selObj;
-                Controller.this.isLocalXml = false;
+                village.setLocalArchive(false);
                 selectedVillage(village);
             }
 

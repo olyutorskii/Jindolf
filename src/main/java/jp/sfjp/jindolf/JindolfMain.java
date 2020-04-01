@@ -31,7 +31,7 @@ import jp.sfjp.jindolf.view.WindowManager;
 /**
  * Jindolf スタートアップクラス。
  *
- * <p>{@link JindolfJre17}の下請けとして本格的なJindolf起動処理に入る。
+ * <p>{@link JindolfJre18}の下請けとして本格的なJindolf起動処理に入る。
  */
 public final class JindolfMain {
 
@@ -137,7 +137,7 @@ public final class JindolfMain {
 
         ConfigStore configStore = appSetting.getConfigStore();
         if(configStore.useStoreFile()){
-            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigPath());
+            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigDir());
         }else{
             LOGGER.info(LOG_NOCONF);
         }

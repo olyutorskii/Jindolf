@@ -121,7 +121,7 @@ class PeriodHandler extends HtmlAdapter {
                               .toString();
         Avatar result = village.getAvatar(fullName);
         if(result == null){
-            result = new Avatar(fullName);
+            result = Avatar.getAvatarByFullname(fullName);
             village.addAvatar(result);
         }
 
