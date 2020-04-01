@@ -270,51 +270,14 @@ public class Village{
     }
 
     /**
-     * 指定した名前で村に登録されているAvatarを返す。
+     * 指定したフルネームで村に登録されているAvatarを返す。
      *
      * @param fullName Avatarの名前
      * @return Avatar
      */
     public Avatar getAvatar(String fullName){
-        // TODO CharSequenceにできない？
-        Avatar avatar;
-
-        avatar = Avatar.getAvatarByFullname(fullName);
-        if( avatar != null ){
-            preloadAvatarFace(avatar);
-            return avatar;
-        }
-
-        avatar = this.avatarMap.get(fullName);
-        if( avatar != null ){
-            preloadAvatarFace(avatar);
-            return avatar;
-        }
-
-        return null;
-    }
-
-    /**
-     * Avatarの顔画像を事前にロードする。
-     *
-     * @param avatar Avatar
-     */
-    private void preloadAvatarFace(Avatar avatar){
-        if(this.faceImageMap.get(avatar) != null) return;
-
-        Land land = getParentLand();
-        LandDef landDef = land.getLandDef();
-
-        String template = landDef.getFaceURITemplate();
-        int serialNo = avatar.getIdNum();
-        String uri = MessageFormat.format(template, serialNo);
-
-        BufferedImage image = land.downloadImage(uri);
-        if(image == null) image = GUIUtils.getNoImage();
-
-        this.faceImageMap.put(avatar, image);
-
-        return;
+        Avatar avatar = this.avatarMap.get(fullName);
+        return avatar;
     }
 
     /**
@@ -322,14 +285,13 @@ public class Village{
      *
      * @param avatar Avatar
      */
-    // 未知のAvatar出現時の処理が不完全
     public void addAvatar(Avatar avatar){
         if(avatar == null) return;
+
         String fullName = avatar.getFullName();
+        if(this.avatarMap.get(fullName) != null) return;
+
         this.avatarMap.put(fullName, avatar);
-
-        preloadAvatarFace(avatar);
-
         return;
     }
 
@@ -339,9 +301,21 @@ public class Village{
      * @param avatar Avatar
      * @return 顔イメージ
      */
-    // TODO 失敗したらプロローグを強制読み込みして再トライしたい
     public BufferedImage getAvatarFaceImage(Avatar avatar){
-        return this.faceImageMap.get(avatar);
+        BufferedImage result;
+        result = this.faceImageMap.get(avatar);
+        if(result != null) return result;
+
+        Land land = getParentLand();
+        LandDef landDef = land.getLandDef();
+
+        String template = landDef.getFaceURITemplate();
+        int serialNo = avatar.getIdNum();
+        result = getAvatarImage(template, serialNo);
+
+        this.faceImageMap.put(avatar, result);
+
+        return result;
     }
 
     /**
@@ -360,12 +334,28 @@ public class Village{
 
         String template = landDef.getBodyURITemplate();
         int serialNo = avatar.getIdNum();
-        String uri = MessageFormat.format(template, serialNo);
-
-        result = land.downloadImage(uri);
-        if(result == null) result = GUIUtils.getNoImage();
+        result = getAvatarImage(template, serialNo);
 
         this.bodyImageMap.put(avatar, result);
+
+        return result;
+    }
+
+    /**
+     * 各国URLテンプレートと通し番号から
+     * イメージをダウンロードする。
+     *
+     * @param template テンプレート
+     * @param serialNo Avatarの通し番号
+     * @return 顔もしくは全身像イメージ
+     */
+    private BufferedImage getAvatarImage(String template, int serialNo){
+        Land land = getParentLand();
+        String uri = MessageFormat.format(template, serialNo);
+
+        BufferedImage result;
+        result = land.downloadImage(uri);
+        if(result == null) result = GUIUtils.getNoImage();
 
         return result;
     }
