@@ -9,7 +9,6 @@ package jp.sfjp.jindolf;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +33,7 @@ import jp.sfjp.jindolf.view.FlexiIcon;
  * リカバリの対象外とする。(ビルド工程の不手際扱い。)
  *
  * @see java.lang.Class#getResource
+ * @see java.lang.ClassLoader#getResource
  */
 public final class ResourceManager {
 
@@ -43,15 +43,13 @@ public final class ResourceManager {
      * <p>相対リソース名の起点となる。
      */
     public static final Package DEF_ROOT_PACKAGE;
-    /** デフォルトで用いられるクラスローダ。 */
+
+    private static final Class<?> ROOT_KLASS = Jindolf.class;
+
     private static final ClassLoader DEF_LOADER;
 
-    /** リソース名セパレータ文字。 */
-    private static final char RES_SEPCHAR = '/';
-    /** パッケージ名セパレータ文字。 */
     private static final char PKG_SEPCHAR = '.';
-
-    /** リソース名セパレータ文字列。 */
+    private static final char RES_SEPCHAR = '/';
     private static final String RES_SEPARATOR =
             Character.toString(RES_SEPCHAR);
 
@@ -60,10 +58,8 @@ public final class ResourceManager {
     private static final int BTN_SZ = 24;
 
     static{
-        Class<?> rootKlass = Jindolf.class;
-
-        DEF_ROOT_PACKAGE = rootKlass.getPackage();
-        DEF_LOADER = rootKlass.getClassLoader();
+        DEF_ROOT_PACKAGE = ROOT_KLASS.getPackage();
+        DEF_LOADER = ROOT_KLASS.getClassLoader();
     }
 
 
@@ -78,14 +74,16 @@ public final class ResourceManager {
     /**
      * リソース名が絶対パスか否か判定する。
      *
-     * <p>リソース名が「/」で始まる場合絶対パスとみなされる。
+     * <p>リソース名が「/」で始まる場合、
+     * {@link Class}用の絶対パスとみなされる。
      *
-     * <p>このリソース名は{@link Class}用であって
-     * {@link ClassLoader}用ではない。
+     * <p>「/」で始まるリソース名表記は{@link Class}用であって
+     * {@link ClassLoader}では不要。
      *
      * @param resPath リソース名
      * @return 絶対パスならtrueを返す。
      * @see java.lang.Class#getResource
+     * @see java.lang.ClassLoader#getResource
      */
     private static boolean isAbsoluteResourcePath(String resPath){
         if (resPath.startsWith(RES_SEPARATOR)) return true;
@@ -103,8 +101,12 @@ public final class ResourceManager {
      * {@link Class}用ではないので、
      * 頭に「/」が付かない。
      *
+     * <p>パッケージ「com.example.test」の
+     * リソース名前置詞は「com/example/test/」
+     *
      * @param pkg パッケージ設定。nullは無名パッケージと認識される。
      * @return リソース名前置詞。無名パッケージの場合は空文字列が返る。
+     * @see java.lang.ClassLoader#getResource
      * @see java.lang.Class#getResource
      */
     private static String getResourcePrefix(Package pkg){
@@ -115,6 +117,8 @@ public final class ResourceManager {
         if( ! result.isEmpty() ){
             result += RES_SEPARATOR;
         }
+
+        assert result.charAt(0) != RES_SEPCHAR;
 
         return result;
     }
@@ -165,6 +169,8 @@ public final class ResourceManager {
             String pfx = getResourcePrefix(rootPkg);
             fullName = pfx + resPath;
         }
+
+        assert ! isAbsoluteResourcePath(fullName);
 
         URL result = loader.getResource(fullName);
 
@@ -291,18 +297,11 @@ public final class ResourceManager {
     public static Properties getProperties(String resPath){
         InputStream is = getResourceAsStream(resPath);
         if(is == null) return null;
-        is = new BufferedInputStream(is);
 
         Properties properties = new Properties();
 
-        try{
-            properties.load(is);
-        }catch(IOException e){
-            properties = null;
-        }
-
-        try{
-            is.close();
+        try(InputStream pis = new BufferedInputStream(is)){
+            properties.load(pis);
         }catch(IOException e){
             properties = null;
         }
@@ -319,31 +318,23 @@ public final class ResourceManager {
      * @return テキスト。リソースが読み込めなければnull。
      */
     public static String getTextFile(String resPath){
-        InputStream is = getResourceAsStream(resPath);
+        InputStream is;
+        is = getResourceAsStream(resPath);
         if(is == null) return null;
         is = new BufferedInputStream(is);
 
         Reader reader = new InputStreamReader(is, CS_UTF8);
-        reader = new BufferedReader(reader);
-        LineNumberReader lineReader = new LineNumberReader(reader);
 
         StringBuilder result = new StringBuilder();
 
-        for(;;){
-            String line;
-            try{
+        try(LineNumberReader lineReader = new LineNumberReader(reader)){
+            for(;;){
+                String line;
                 line = lineReader.readLine();
-            }catch(IOException e){
-                result = null;
-                break;
+                if(line == null) break;
+                if(line.startsWith("#")) continue;
+                result.append(line).append('\n');
             }
-            if(line == null) break;
-            if(line.startsWith("#")) continue;
-            result.append(line).append('\n');
-        }
-
-        try{
-            lineReader.close();
         }catch(IOException e){
             result = null;
         }
