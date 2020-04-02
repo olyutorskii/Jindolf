@@ -9,14 +9,27 @@ package jp.sfjp.jindolf.config;
 
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import jp.sfjp.jindolf.data.Avatar;
 import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.glyph.Font2Json;
 import jp.sfjp.jindolf.glyph.FontInfo;
 import jp.sfjp.jindolf.net.ProxyInfo;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sourceforge.jovsonz.JsBoolean;
 import jp.sourceforge.jovsonz.JsObject;
 import jp.sourceforge.jovsonz.JsPair;
+import jp.sourceforge.jovsonz.JsString;
+import jp.sourceforge.jovsonz.JsTypes;
 import jp.sourceforge.jovsonz.JsValue;
 
 /**
@@ -35,6 +48,8 @@ public class AppSetting{
     private static final String HASH_ALIGNBALOON = "alignBaloonWidth";
     private static final String HASH_PROXY       = "proxy";
 
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
+
 
     private final OptionInfo optInfo;
     private final ConfigStore configStore;
@@ -48,6 +63,10 @@ public class AppSetting{
 
     private JsValue loadedNetConfig;
     private JsValue loadedTalkConfig;
+
+    private final Map<String, BufferedImage> avatarFaceMap = new HashMap<>();
+    private final Map<String, BufferedImage> avatarBodyMap = new HashMap<>();
+
 
     /**
      * コンストラクタ。
@@ -334,6 +353,96 @@ public class AppSetting{
     }
 
     /**
+     * JSONをパースしAvatar-Image間マップに反映させる。
+     *
+     * @param json JSON構造
+     * @param map マップ
+     */
+    private void parseImgMap(JsObject json, Map<String, BufferedImage> map){
+        Path imgDir = this.configStore.getLocalImgDir();
+
+        List<JsPair> pairList = json.getPairList();
+        for(JsPair pair : pairList){
+            String avatarId = pair.getName();
+            JsValue value = pair.getValue();
+
+            if(value.getJsTypes() != JsTypes.STRING) continue;
+            JsString sVal = (JsString)value;
+            String imgName = sVal.toRawString();
+
+            Path imgPath = Paths.get(imgName);
+            Path full = imgDir.resolve(imgPath);
+            File file = full.toFile();
+            if(        ! file.isAbsolute()
+                    || ! file.exists()
+                    || ! file.isFile()
+                    || ! file.canRead() ){
+                LOGGER.info("failed to access local image " + file.getPath());
+                continue;
+            }
+
+            BufferedImage image;
+            try {
+                image = ImageIO.read(file);
+            }catch(IOException e){
+                LOGGER.info("failed to load local image " + file.getPath());
+                continue;
+            }
+
+            map.put(avatarId, image);
+        }
+
+        return;
+    }
+
+    /**
+     * ローカル画像設定をロードする。
+     */
+    private void loadLocalImageConfig(){
+        JsObject root = this.configStore.loadLocalImgConfig();
+        if(root == null) return;
+
+        JsValue faceConfig = root.getValue("avatarFace");
+        JsValue bodyConfig = root.getValue("avatarBody");
+        if(faceConfig.getJsTypes() != JsTypes.OBJECT) return;
+        if(bodyConfig.getJsTypes() != JsTypes.OBJECT) return;
+
+        JsObject jsonFace = (JsObject) faceConfig;
+        parseImgMap(jsonFace, this.avatarFaceMap);
+
+
+        JsObject jsonBody = (JsObject) bodyConfig;
+        parseImgMap(jsonBody, this.avatarBodyMap);
+
+        return;
+    }
+
+    /**
+     * ローカル代替イメージを画像キャッシュに反映させる。
+     *
+     * @param avatarPics 画像キャッシュ
+     */
+    public void applyLocalImage(AvatarPics avatarPics){
+        BufferedImage graveImage     = this.avatarFaceMap.get("tomb");
+        BufferedImage graveBodyImage = this.avatarBodyMap.get("tomb");
+
+        avatarPics.setGraveImage(graveImage);
+        avatarPics.setGraveBodyImage(graveBodyImage);
+
+        for(Avatar avatar : Avatar.getPredefinedAvatarList()){
+            String avatarId = avatar.getIdentifier();
+
+            BufferedImage faceImage = this.avatarFaceMap.get(avatarId);
+            BufferedImage bodyImage = this.avatarBodyMap.get(avatarId);
+
+            avatarPics.setAvatarFaceImage(avatar, faceImage);
+            avatarPics.setAvatarBodyImage(avatar, bodyImage);
+        }
+
+        return;
+    }
+
+    /**
      * ネットワーク設定をセーブする。
      */
     private void saveNetConfig(){
@@ -392,6 +501,7 @@ public class AppSetting{
     public void loadConfig(){
         loadNetConfig();
         loadTalkConfig();
+        loadLocalImageConfig();
         return;
     }
 

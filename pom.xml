@@ -487,6 +487,8 @@
                     <include>**/*.gif</include>
                     <include>**/*.jpeg</include>
                     <include>**/*.jpg</include>
+
+                    <include>**/*.json</include>
                 </includes>
                 <excludes>
                     <exclude>**/version.properties</exclude>

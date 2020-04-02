@@ -50,6 +50,7 @@ import jp.sfjp.jindolf.data.Topic;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.glyph.TalkDraw;
 import jp.sfjp.jindolf.util.GUIUtils;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sourceforge.jindolf.corelib.TalkType;
 
 /**
@@ -451,8 +452,9 @@ public class DaySummary extends JDialog
                 Avatar avatar = (Avatar) value;
 
                 Village village = DaySummary.this.period.getVillage();
-                Image image = village.getAvatarFaceImage(avatar);
-                if(image == null) image = village.getGraveImage();
+                AvatarPics avatarPics = village.getAvatarPics();
+                Image image = avatarPics.getAvatarFaceImage(avatar);
+                if(image == null) image = avatarPics.getGraveImage();
                 if(image != null){
                     ImageIcon icon = new ImageIcon(image);
                     setIcon(icon);

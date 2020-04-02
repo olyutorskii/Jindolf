@@ -172,7 +172,7 @@ public class HelpFrame extends JFrame
 
         if(configStore.useStoreFile()){
             info.append("設定格納ディレクトリ : ")
-                .append(configStore.getConfigPath().getPath());
+                .append(configStore.getConfigDir().getPath());
         }else{
             info.append("※ 設定格納ディレクトリは使っていません。");
         }

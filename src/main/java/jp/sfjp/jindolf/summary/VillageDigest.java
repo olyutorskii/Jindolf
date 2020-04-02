@@ -52,6 +52,7 @@ import jp.sfjp.jindolf.dxchg.WebButton;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.Monodizer;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sourceforge.jindolf.corelib.GameRole;
 import jp.sourceforge.jindolf.corelib.Team;
 
@@ -756,7 +757,8 @@ public class VillageDigest
             this.nextPlayer.setEnabled(true);
         }
 
-        Image image = this.village.getAvatarFaceImage(avatar);
+        AvatarPics avatarPics = this.village.getAvatarPics();
+        Image image = avatarPics.getAvatarFaceImage(avatar);
         this.faceIcon.setImage(image);
         this.faceLabel.setIcon(null);          // なぜかこれが必要
         this.faceLabel.setIcon(this.faceIcon);
