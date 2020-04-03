@@ -42,15 +42,6 @@ public class Period{
 
 
     /**
-     * この Period が進行中の村の最新日で、
-     * 今まさに次々と発言が蓄積されているときは
-     * true になる。
-     * ※重要: Hot な Period は meslog クエリーを使ってダウンロードできない。
-     */
-    private boolean isHot;
-
-
-    /**
      * Periodを生成する。
      * この段階では発言データのロードは行われない。
      * デフォルトで非Hot状態。
@@ -104,8 +95,6 @@ public class Period{
         this.day         = day;
 
         unload();
-
-        this.isHot = isHot;
 
         return;
     }
@@ -167,22 +156,6 @@ public class Period{
     }
 
     /**
-     * Hotか否か返す。
-     * @return Hotか否か
-     */
-    public boolean isHot(){
-        return this.isHot;
-    }
-
-    /**
-     * Hotか否か設定する。
-     * @param isHotArg Hot指定
-     */
-    public void setHot(boolean isHotArg){
-        this.isHot = isHotArg;
-    }
-
-    /**
      * プロローグか否か判定する。
      * @return プロローグならtrue
      */
@@ -218,11 +191,6 @@ public class Period{
 
         Village village = getVillage();
         result.append(village.getCGIQuery());
-
-        if(isHot()){
-            result.append("&mes=all");   // 全表示指定
-            return result.toString();
-        }
 
         Land land = village.getParentLand();
         LandDef ldef = land.getLandDef();
@@ -409,8 +377,6 @@ public class Period{
         this.limitMinute = 0;
         this.loginName = null;
         this.isFullOpen = false;
-
-        this.isHot = false;
 
         this.topicList.clear();
 

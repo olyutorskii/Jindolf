@@ -522,7 +522,6 @@ public class Controller
         URL url = server.getPeriodURL(period);
 
         String urlText = url.toString();
-        if(period.isHot()) urlText += "#bottom";
 
         WebIPCDialog.showDialog(getTopFrame(), urlText);
 
@@ -1264,8 +1263,6 @@ public class Controller
      * @param force trueならPeriodデータを強制再読み込み。
      */
     private void updatePeriod(final boolean force){
-        TabBrowser tabBrowser = this.topView.getTabBrowser();
-
         Village village = getVillage();
         if(village == null) return;
 
@@ -1283,26 +1280,11 @@ public class Controller
         if(period == null) return;
 
         Runnable task = () -> {
-            boolean wasHot = period.isHot();
             try{
                 PeriodLoader.parsePeriod(period, force);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
-            }
-
-            if(wasHot && ! period.isHot() ){
-                try{
-                    if( ! village.hasSchedule() ){
-                        VillageInfoLoader.updateVillageInfo(village);
-                    }
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                EventQueue.invokeLater(() -> {
-                    tabBrowser.setVillage(village);
-                });
             }
 
             EventQueue.invokeLater(() -> {

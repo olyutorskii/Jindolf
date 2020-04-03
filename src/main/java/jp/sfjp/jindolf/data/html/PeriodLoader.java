@@ -78,9 +78,6 @@ public final class PeriodLoader {
         HtmlSequence html = server.getHTMLPeriod(period);
         DecodedContent content = html.getContent();
 
-        // 2020-02の時点でHotなPeriodは存在しない。
-        boolean wasHot = period.isHot();
-
         period.clearTopicList();
 
         HtmlParser parser = new HtmlParser();
@@ -98,15 +95,6 @@ public final class PeriodLoader {
 
         parser.reset();
         handler.reset();
-
-        /*
-            2020-02の時点で、
-            日付更新によるリロードを必要とするHotなPeriodは存在しない。
-        */
-        if(wasHot && ! period.isHot() ){
-            parsePeriod(period, true);
-            return;
-        }
 
         return;
     }

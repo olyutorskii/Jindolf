@@ -288,8 +288,6 @@ class PeriodHandler extends HtmlAdapter {
 
         if( ! anchorRange.isValid() ) return;
 
-        this.period.setHot(false);
-
         return;
     }
 
