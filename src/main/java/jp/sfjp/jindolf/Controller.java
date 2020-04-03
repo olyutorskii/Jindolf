@@ -792,13 +792,12 @@ public class Controller
         for(PeriodView periodView : browser.getPeriodViewList()){
             Period period = periodView.getPeriod();
             if(period == null) continue;
-            if(period.isFullOpen()) continue;
             String message =
                     period.getDay()
                     + "日目のデータを読み込んでいます";
             updateStatusBar(message);
             try{
-                PeriodLoader.parsePeriod(period, true);
+                PeriodLoader.parsePeriod(period, false);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;

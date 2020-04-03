@@ -18,19 +18,12 @@ import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.net.HtmlSequence;
 import jp.sfjp.jindolf.net.ServerAccess;
-import jp.sourceforge.jindolf.corelib.PeriodType;
-import jp.sourceforge.jindolf.corelib.VillageState;
 
 /**
  * 人狼各国のHTTPサーバから各村の個別の日(Period)をHTMLで取得する。
  *
  * <p>Periodには、プレイヤー同士の会話や
  * システムが自動生成するメッセージが正しい順序で納められる。
- *
- * <p>※ 人狼BBS:G国におけるG2087村のエピローグが終了した段階で、
- * 人狼BBSは過去ログの提供しか行っていない。
- * だがこのクラスには進行中の村の各日をパースするための
- * 冗長な処理(Hot判定、fullopen判定etc.)が若干残っている。
  */
 public final class PeriodLoader {
 
@@ -58,19 +51,6 @@ public final class PeriodLoader {
         if( ! force && period.hasLoaded() ) return;
 
         Village village = period.getVillage();
-
-        /*
-            プレイ中の村でプロローグでもエピローグでもない日は
-            灰ログetc.の非開示情報が含まれる。
-            ※ 2020-02の時点で非開示情報の含まれるPeriodは存在しない。
-               (常にFullOpen)
-        */
-        boolean isOpen = true;
-        if(    village.getState() == VillageState.PROGRESS
-            && period.getType() == PeriodType.PROGRESS ){
-            isOpen = false;
-        }
-        period.setFullOpen(isOpen);
 
         Land land = village.getParentLand();
         ServerAccess server = land.getServerAccess();
