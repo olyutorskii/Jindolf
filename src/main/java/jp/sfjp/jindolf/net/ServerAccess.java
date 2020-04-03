@@ -12,14 +12,12 @@ import io.bitbucket.olyutorskii.jiocema.DecodeNotifier;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.ref.SoftReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -42,10 +40,8 @@ import jp.sfjp.jindolf.data.Village;
  *
  * <p>画像(40種強)はキャッシュ管理が行われる。
  *
- * <p>進行中の村の参加者しか知り得ないHTML要素(赤ログその他)を受信するための
- * 認証情報をCookieで管理する。
- * ※ 2020-02現在、進行中の村は存在しないゆえ、
- * Cookie認証を必要とする国は人狼BBSに存在しない。
+ * <p>※ 2020-02現在、進行中の村は存在しないゆえ、
+ * Cookie認証処理は削除された。
  *
  * <p>最後にHTTP受信が行われた時刻を保持する。
  */
@@ -61,7 +57,6 @@ public class ServerAccess{
     private static final Object CACHE_LOCK = new Object();
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
-    private static final String ENC_POST = StandardCharsets.UTF_8.name();
 
     static{
         IMAGE_CACHE = new HashMap<>();
@@ -69,7 +64,6 @@ public class ServerAccess{
 
 
     private final URL baseURL;
-    private final AuthManager authManager;
 
     private final Charset charset;
     private final boolean isSJIS;
@@ -96,7 +90,6 @@ public class ServerAccess{
         super();
 
         this.baseURL = baseURL;
-        this.authManager = new AuthManager(this.baseURL);
         this.charset = charset;
 
         String charsetName = this.charset.name();
@@ -339,49 +332,6 @@ public class ServerAccess{
     }
 
     /**
-     * 指定された認証情報をPOSTする。
-     *
-     * <p>ログイン動作を模した物。
-     *
-     * @param authData 認証情報
-     * @return 認証情報が受け入れられたらtrue
-     * @throws java.io.IOException ネットワークエラー
-     */
-    protected boolean postAuthData(String authData) throws IOException{
-        URL url = getQueryURL("");
-        HttpURLConnection connection =
-                (HttpURLConnection) url.openConnection(this.proxy);
-        connection.setRequestProperty("Accept", "*/*");
-        connection.setRequestProperty("User-Agent", USER_AGENT);
-        connection.setUseCaches(false);
-        connection.setInstanceFollowRedirects(false);
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-
-        byte[] authBytes = authData.getBytes(ENC_POST);
-
-        try(OutputStream os = TallyOutputStream.getOutputStream(connection)){
-            os.write(authBytes);
-            os.flush();
-        }
-
-        updateLastAccess(connection);
-
-        connection.disconnect();
-
-        if( ! this.authManager.hasLoggedIn() ){
-            String logMessage =  "認証情報の送信に失敗しました。";
-            LOGGER.warning(logMessage);
-            return false;
-        }
-
-        LOGGER.info("正しく認証が行われました。");
-
-        return true;
-    }
-
-    /**
      * トップページのHTMLデータを取得する。
      *
      * @return HTMLデータ
@@ -507,66 +457,6 @@ public class ServerAccess{
         this.lastLocalMs = System.currentTimeMillis();
         this.lastSystemMs = System.nanoTime() / (1000 * 1000);
         return this.lastServerMs;
-    }
-
-    /**
-     * 与えられたユーザIDとパスワードでログイン処理と認証を行う。
-     *
-     * <p>すでに認証済みならなにもしない。
-     *
-     * @param userID ユーザID
-     * @param password パスワード
-     * @return ログインに成功すればtrue
-     * @throws java.io.IOException ネットワークエラー
-     */
-    public final boolean login(String userID, char[] password)
-            throws IOException{
-        if(this.authManager.hasLoggedIn()){
-            return true;
-        }
-
-        String postText = AuthManager.buildLoginPostData(userID, password);
-        boolean result;
-        try{
-            result = postAuthData(postText);
-        }catch(IOException e){
-            this.authManager.clearAuthentication();
-            throw e;
-        }
-
-        return result;
-    }
-
-    /**
-     * ログアウト処理を行う。
-     *
-     * <p>認証済みでなければなにもしない。
-     *
-     * @throws java.io.IOException ネットワーク入出力エラー
-     */
-    public void logout() throws IOException{
-        if( ! this.authManager.hasLoggedIn() ){
-            return;
-        }
-
-        try{
-            postAuthData(AuthManager.POST_LOGOUT);
-        }finally{
-            this.authManager.clearAuthentication();
-        }
-
-        return;
-    }
-    // TODO シャットダウンフックでログアウトさせようかな…
-
-    /**
-     * ログイン中か否か認証情報で判定する。
-     *
-     * @return ログイン中ならtrue
-     */
-    public boolean hasLoggedIn(){
-        boolean result = this.authManager.hasLoggedIn();
-        return result;
     }
 
 }

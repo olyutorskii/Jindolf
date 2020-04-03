@@ -43,8 +43,6 @@ import jp.sfjp.jindolf.util.GUIUtils;
 public class ActionManager{
 
     /** アクション{@value}。 */
-    public static final String CMD_ACCOUNT    = "ACCOUNT";
-    /** アクション{@value}。 */
     public static final String CMD_OPENXML    = "OPENXML";
     /** アクション{@value}。 */
     public static final String CMD_EXIT       = "EXIT";
@@ -215,7 +213,6 @@ public class ActionManager{
      * setup menu items.
      */
     private void setupMenuItems(){
-        buildMenuItem(CMD_ACCOUNT, "アカウント管理", KeyEvent.VK_M);
         buildMenuItem(CMD_OPENXML, "XMLを読み込む", KeyEvent.VK_O);
         buildMenuItem(CMD_EXIT, "終了", KeyEvent.VK_X);
         buildMenuItem(CMD_COPY, "選択範囲をコピー", KeyEvent.VK_C);
@@ -439,7 +436,6 @@ public class ActionManager{
      * @return メニューバー
      */
     private JMenuBar buildMenuBar(){
-        this.menuFile.add(getMenuItem(CMD_ACCOUNT));
         this.menuFile.add(getMenuItem(CMD_OPENXML));
         this.menuFile.addSeparator();
         this.menuFile.add(getMenuItem(CMD_EXIT));
