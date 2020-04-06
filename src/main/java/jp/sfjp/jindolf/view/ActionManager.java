@@ -79,8 +79,6 @@ public class ActionManager{
     /** アクション{@value}。 */
     public static final String CMD_SHOWFILT   = "SHOWFILT";
     /** アクション{@value}。 */
-    public static final String CMD_SHOWEDIT   = "SHOWEDIT";
-    /** アクション{@value}。 */
     public static final String CMD_SHOWLOG    = "SHOWLOG";
     /** アクション{@value}。 */
     public static final String CMD_HELPDOC    = "HELPDOC";
@@ -231,7 +229,6 @@ public class ActionManager{
         buildMenuItem(CMD_WEBDAY, "この日をブラウザで表示...", KeyEvent.VK_B);
         buildMenuItem(CMD_OPTION, "オプション...", KeyEvent.VK_O);
         buildMenuItem(CMD_SHOWFILT, "発言フィルタ", KeyEvent.VK_F);
-        buildMenuItem(CMD_SHOWEDIT, "発言エディタ", KeyEvent.VK_E);
         buildMenuItem(CMD_SHOWLOG, "ログ表示", KeyEvent.VK_S);
         buildMenuItem(CMD_HELPDOC, "ヘルプ表示", KeyEvent.VK_H);
         buildMenuItem(CMD_SHOWPORTAL, "ポータルサイト...", KeyEvent.VK_P);
@@ -248,7 +245,6 @@ public class ActionManager{
         buildToolButton(CMD_SEARCHPREV, "↑前候補", ICON_SEARCH_PREV);
         buildToolButton(CMD_SEARCHNEXT, "↓次候補", ICON_SEARCH_NEXT);
         buildToolButton(CMD_SHOWFILT, "発言フィルタ", ICON_FILTER);
-        buildToolButton(CMD_SHOWEDIT, "発言エディタ", ICON_EDITOR);
         return;
     }
 
@@ -264,7 +260,6 @@ public class ActionManager{
         getMenuItem(CMD_SEARCHPREV).setIcon(ICON_SEARCH_PREV);
         getMenuItem(CMD_SEARCHNEXT).setIcon(ICON_SEARCH_NEXT);
         getMenuItem(CMD_SHOWFILT)  .setIcon(ICON_FILTER);
-        getMenuItem(CMD_SHOWEDIT)  .setIcon(ICON_EDITOR);
         return;
     }
 
@@ -463,7 +458,6 @@ public class ActionManager{
         this.menuPreference.add(this.menuLook);
 
         this.menuTool.add(getMenuItem(CMD_SHOWFILT));
-        this.menuTool.add(getMenuItem(CMD_SHOWEDIT));
         this.menuTool.add(getMenuItem(CMD_SHOWLOG));
 
         this.menuHelp.add(getMenuItem(CMD_HELPDOC));
@@ -508,7 +502,6 @@ public class ActionManager{
         toolBar.add(getToolButton(CMD_SEARCHPREV));
         toolBar.addSeparator();
         toolBar.add(getToolButton(CMD_SHOWFILT));
-        toolBar.add(getToolButton(CMD_SHOWEDIT));
 
         return toolBar;
     }
