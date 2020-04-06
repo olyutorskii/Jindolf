@@ -284,10 +284,6 @@ class VillageInfoHandler extends HtmlAdapter {
         assert this.village.getPeriodSize() > 0;
         assert lastPeriod != null;
 
-        if(this.village.getState() != VillageState.GAMEOVER){
-            lastPeriod.setHot(true);
-        }
-
         return;
     }
 

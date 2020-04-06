@@ -224,7 +224,6 @@ public class VillageHandler implements ContentHandler{
      * period要素終了の受信。
      */
     private void endPeriod(){
-        this.period.setFullOpen(true);
         this.countMap.clear();
         return;
     }

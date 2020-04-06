@@ -76,7 +76,6 @@ import jp.sfjp.jindolf.summary.DaySummary;
 import jp.sfjp.jindolf.summary.VillageDigest;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.StringUtils;
-import jp.sfjp.jindolf.view.AccountPanel;
 import jp.sfjp.jindolf.view.ActionManager;
 import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sfjp.jindolf.view.FilterPanel;
@@ -173,7 +172,6 @@ public class Controller
         FindPanel findPanel       = this.windowManager.getFindPanel();
         FilterPanel filterPanel   = this.windowManager.getFilterPanel();
         LogFrame logFrame         = this.windowManager.getLogFrame();
-        AccountPanel accountPanel = this.windowManager.getAccountPanel();
         HelpFrame helpFrame       = this.windowManager.getHelpFrame();
 
         topFrame.setJMenuBar(this.actionManager.getMenuBar());
@@ -212,8 +210,6 @@ public class Controller
         DialogPref pref = this.appSetting.getDialogPref();
         periodTab.setDialogPref(pref);
         optionPanel.getDialogPrefPanel().setDialogPref(pref);
-
-        accountPanel.setModel(this.model);
 
         OptionInfo optInfo = this.appSetting.getOptionInfo();
         ConfigStore configStore = this.appSetting.getConfigStore();
@@ -526,7 +522,6 @@ public class Controller
         URL url = server.getPeriodURL(period);
 
         String urlText = url.toString();
-        if(period.isHot()) urlText += "#bottom";
 
         WebIPCDialog.showDialog(getTopFrame(), urlText);
 
@@ -636,15 +631,6 @@ public class Controller
     private void actionShowFilter(){
         FilterPanel filterPanel = this.windowManager.getFilterPanel();
         toggleWindow(filterPanel);
-        return;
-    }
-
-    /**
-     * アカウント管理画面を表示する。
-     */
-    private void actionShowAccount(){
-        AccountPanel accountPanel = this.windowManager.getAccountPanel();
-        toggleWindow(accountPanel);
         return;
     }
 
@@ -806,13 +792,12 @@ public class Controller
         for(PeriodView periodView : browser.getPeriodViewList()){
             Period period = periodView.getPeriod();
             if(period == null) continue;
-            if(period.isFullOpen()) continue;
             String message =
                     period.getDay()
                     + "日目のデータを読み込んでいます";
             updateStatusBar(message);
             try{
-                PeriodLoader.parsePeriod(period, true);
+                PeriodLoader.parsePeriod(period, false);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
@@ -1277,8 +1262,6 @@ public class Controller
      * @param force trueならPeriodデータを強制再読み込み。
      */
     private void updatePeriod(final boolean force){
-        TabBrowser tabBrowser = this.topView.getTabBrowser();
-
         Village village = getVillage();
         if(village == null) return;
 
@@ -1296,26 +1279,11 @@ public class Controller
         if(period == null) return;
 
         Runnable task = () -> {
-            boolean wasHot = period.isHot();
             try{
                 PeriodLoader.parsePeriod(period, force);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
-            }
-
-            if(wasHot && ! period.isHot() ){
-                try{
-                    if( ! village.hasSchedule() ){
-                        VillageInfoLoader.updateVillageInfo(village);
-                    }
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                EventQueue.invokeLater(() -> {
-                    tabBrowser.setVillage(village);
-                });
             }
 
             EventQueue.invokeLater(() -> {
@@ -1464,9 +1432,6 @@ public class Controller
         if(cmd == null) return;
 
         switch(cmd){
-        case ActionManager.CMD_ACCOUNT:
-            actionShowAccount();
-            break;
         case ActionManager.CMD_OPENXML:
             actionOpenXml();
             break;

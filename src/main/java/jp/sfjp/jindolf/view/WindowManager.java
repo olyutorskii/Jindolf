@@ -36,8 +36,6 @@ public class WindowManager {
             getFrameTitle("オプション設定");
     private static final String TITLE_FIND =
             getFrameTitle("発言検索");
-    private static final String TITLE_ACCOUNT =
-            getFrameTitle("アカウント管理");
     private static final String TITLE_DIGEST =
             getFrameTitle("村のダイジェスト");
     private static final String TITLE_DAYSUMMARY =
@@ -53,7 +51,6 @@ public class WindowManager {
     private TalkPreview talkPreview;
     private OptionPanel optionPanel;
     private FindPanel findPanel;
-    private AccountPanel accountPanel;
     private VillageDigest villageDigest;
     private DaySummary daySummary;
     private HelpFrame helpFrame;
@@ -227,34 +224,6 @@ public class WindowManager {
     }
 
     /**
-     * ログインウィンドウを生成する。
-     * @return ログインウィンドウ
-     */
-    protected AccountPanel createAccountPanel(){
-        AccountPanel result;
-
-        result = new AccountPanel(NULLPARENT);
-        result.setTitle(TITLE_ACCOUNT);
-        result.pack();
-        result.setVisible(false);
-
-        this.windowSet.add(result);
-
-        return result;
-    }
-
-    /**
-     * ログインウィンドウを返す。
-     * @return ログインウィンドウ
-     */
-    public AccountPanel getAccountPanel(){
-        if(this.accountPanel == null){
-            this.accountPanel = createAccountPanel();
-        }
-        return this.accountPanel;
-    }
-
-    /**
      * 村ダイジェストウィンドウを生成する。
      * @return 村ダイジェストウィンドウ
      */
@@ -385,7 +354,6 @@ public class WindowManager {
 
         if(this.filterPanel  != null) this.filterPanel.pack();
         if(this.findPanel    != null) this.findPanel.pack();
-        if(this.accountPanel != null) this.accountPanel.pack();
 
         return;
     }
