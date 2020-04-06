@@ -42,8 +42,6 @@ public class ConfigStore {
 
     /** 検索履歴ファイル。 */
     public static final File HIST_FILE = new File("searchHistory.json");
-    /** 原稿ファイル。 */
-    public static final File DRAFT_FILE = new File("draft.json");
     /** ネットワーク設定ファイル。 */
     public static final File NETCONFIG_FILE = new File("netconfig.json");
     /** 台詞表示設定ファイル。 */
@@ -396,16 +394,6 @@ public class ConfigStore {
     }
 
     /**
-     * 原稿ファイルを読み込む。
-     *
-     * @return 原稿データ。原稿を読まないもしくは読めない場合はnull
-     */
-    public JsObject loadDraftConfig(){
-        JsObject result = loadJsObject(DRAFT_FILE);
-        return result;
-    }
-
-    /**
      * ネットワーク設定ファイルを読み込む。
      *
      * @return ネットワーク設定データ。
@@ -447,17 +435,6 @@ public class ConfigStore {
      */
     public boolean saveHistoryConfig(JsComposition<?> root){
         boolean result = saveJson(HIST_FILE, root);
-        return result;
-    }
-
-    /**
-     * 原稿ファイルに書き込む。
-     *
-     * @param root 原稿データ
-     * @return 書き込まなかったもしくは書き込めなかった場合はfalse
-     */
-    public boolean saveDraftConfig(JsComposition<?> root){
-        boolean result = saveJson(DRAFT_FILE, root);
         return result;
     }
 

@@ -61,7 +61,6 @@ import jp.sfjp.jindolf.data.xml.VillageLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
-import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.glyph.AnchorHitEvent;
 import jp.sfjp.jindolf.glyph.AnchorHitListener;
 import jp.sfjp.jindolf.glyph.Discussion;
@@ -100,8 +99,6 @@ public class Controller
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private static final String ERRTITLE_LAF = "Look&Feel";
-    private static final String ERRFORM_LAFLOAD =
-            "このLook&Feel[{0}]を読み込む事ができません。";
     private static final String ERRFORM_LAFGEN =
             "このLook&Feel[{0}]を生成する事ができません。";
 
@@ -167,7 +164,6 @@ public class Controller
         reloadVillageListButton.setEnabled(false);
 
         TopFrame topFrame         = this.windowManager.getTopFrame();
-        TalkPreview talkPreview   = this.windowManager.getTalkPreview();
         OptionPanel optionPanel   = this.windowManager.getOptionPanel();
         FindPanel findPanel       = this.windowManager.getFindPanel();
         FilterPanel filterPanel   = this.windowManager.getFilterPanel();
@@ -193,15 +189,11 @@ public class Controller
 
         ConfigStore config = this.appSetting.getConfigStore();
 
-        JsObject draft = config.loadDraftConfig();
-        talkPreview.putJson(draft);
-
         JsObject history = config.loadHistoryConfig();
         findPanel.putJson(history);
 
         FontInfo fontInfo = this.appSetting.getFontInfo();
         periodTab.setFontInfo(fontInfo);
-        talkPreview.setFontInfo(fontInfo);
         optionPanel.getFontChooser().setFontInfo(fontInfo);
 
         ProxyInfo proxyInfo = this.appSetting.getProxyInfo();
@@ -644,15 +636,6 @@ public class Controller
     }
 
     /**
-     * 発言エディタを表示する。
-     */
-    private void actionTalkPreview(){
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
-        toggleWindow(talkPreview);
-        return;
-    }
-
-    /**
      * オプション設定画面を表示する。
      */
     private void actionOption(){
@@ -694,11 +677,9 @@ public class Controller
 
         this.topView.getTabBrowser().setFontInfo(newFontInfo);
 
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
         OptionPanel optionPanel = this.windowManager.getOptionPanel();
         FontChooser fontChooser = optionPanel.getFontChooser();
 
-        talkPreview.setFontInfo(newFontInfo);
         fontChooser.setFontInfo(newFontInfo);
 
         return;
@@ -1483,9 +1464,6 @@ public class Controller
         case ActionManager.CMD_SHOWFILT:
             actionShowFilter();
             break;
-        case ActionManager.CMD_SHOWEDIT:
-            actionTalkPreview();
-            break;
         case ActionManager.CMD_SHOWLOG:
             actionShowLog();
             break;
@@ -1583,12 +1561,6 @@ public class Controller
         JsObject findConf = findPanel.getJson();
         if( ! findPanel.hasConfChanged(findConf) ){
             configStore.saveHistoryConfig(findConf);
-        }
-
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
-        JsObject draftConf = talkPreview.getJson();
-        if( ! talkPreview.hasConfChanged(draftConf) ){
-            configStore.saveDraftConfig(draftConf);
         }
 
         this.appSetting.saveConfig();

@@ -16,7 +16,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import jp.sfjp.jindolf.VerInfo;
-import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.log.LogFrame;
 import jp.sfjp.jindolf.summary.DaySummary;
 import jp.sfjp.jindolf.summary.VillageDigest;
@@ -30,8 +29,6 @@ public class WindowManager {
             getFrameTitle("発言フィルタ");
     private static final String TITLE_LOGGER =
             getFrameTitle("ログ表示");
-    private static final String TITLE_EDITOR =
-            getFrameTitle("発言エディタ");
     private static final String TITLE_OPTION =
             getFrameTitle("オプション設定");
     private static final String TITLE_FIND =
@@ -48,7 +45,6 @@ public class WindowManager {
 
     private FilterPanel filterPanel;
     private LogFrame logFrame;
-    private TalkPreview talkPreview;
     private OptionPanel optionPanel;
     private FindPanel findPanel;
     private VillageDigest villageDigest;
@@ -70,6 +66,7 @@ public class WindowManager {
 
     /**
      * ウィンドウタイトルに前置詞をつける。
+     *
      * @param text 元タイトル
      * @return タイトル文字列
      */
@@ -81,6 +78,7 @@ public class WindowManager {
 
     /**
      * 発言フィルタウィンドウを生成する。
+     *
      * @return 発言フィルタウィンドウ
      */
     protected FilterPanel createFilterPanel(){
@@ -98,6 +96,7 @@ public class WindowManager {
 
     /**
      * 発言フィルタウィンドウを返す。
+     *
      * @return 発言フィルタウィンドウ
      */
     public FilterPanel getFilterPanel(){
@@ -109,6 +108,7 @@ public class WindowManager {
 
     /**
      * ログウィンドウを生成する。
+     *
      * @return ログウィンドウ
      */
     protected LogFrame createLogFrame(){
@@ -128,6 +128,7 @@ public class WindowManager {
 
     /**
      * ログウィンドウを返す。
+     *
      * @return ログウィンドウ
      */
     public LogFrame getLogFrame(){
@@ -138,36 +139,8 @@ public class WindowManager {
     }
 
     /**
-     * 発言エディタウィンドウを生成する。
-     * @return 発言エディタウィンドウ
-     */
-    protected TalkPreview createTalkPreview(){
-        TalkPreview result;
-
-        result = new TalkPreview();
-        result.setTitle(TITLE_EDITOR);
-        result.pack();
-        result.setSize(700, 500);
-        result.setVisible(false);
-
-        this.windowSet.add(result);
-
-        return result;
-    }
-
-    /**
-     * 発言エディタウィンドウを返す。
-     * @return 発言エディタウィンドウ
-     */
-    public TalkPreview getTalkPreview(){
-        if(this.talkPreview == null){
-            this.talkPreview = createTalkPreview();
-        }
-        return this.talkPreview;
-    }
-
-    /**
      * オプション設定ウィンドウを生成する。
+     *
      * @return オプション設定ウィンドウ
      */
     protected OptionPanel createOptionPanel(){
@@ -186,6 +159,7 @@ public class WindowManager {
 
     /**
      * オプション設定ウィンドウを返す。
+     *
      * @return オプション設定ウィンドウ
      */
     public OptionPanel getOptionPanel(){
@@ -197,6 +171,7 @@ public class WindowManager {
 
     /**
      * 検索ウィンドウを生成する。
+     *
      * @return 検索ウィンドウ
      */
     protected FindPanel createFindPanel(){
@@ -214,6 +189,7 @@ public class WindowManager {
 
     /**
      * 検索ウィンドウを返す。
+     *
      * @return 検索ウィンドウ
      */
     public FindPanel getFindPanel(){
@@ -225,6 +201,7 @@ public class WindowManager {
 
     /**
      * 村ダイジェストウィンドウを生成する。
+     *
      * @return 村ダイジェストウィンドウ
      */
     protected VillageDigest createVillageDigest(){
@@ -243,6 +220,7 @@ public class WindowManager {
 
     /**
      * 村ダイジェストウィンドウを返す。
+     *
      * @return 村ダイジェストウィンドウ
      */
     public VillageDigest getVillageDigest(){
@@ -254,6 +232,7 @@ public class WindowManager {
 
     /**
      * 発言集計ウィンドウを生成する。
+     *
      * @return 発言集計ウィンドウ
      */
     protected DaySummary createDaySummary(){
@@ -272,6 +251,7 @@ public class WindowManager {
 
     /**
      * 発言集計ウィンドウを返す。
+     *
      * @return 発言集計ウィンドウ
      */
     public DaySummary getDaySummary(){
@@ -283,6 +263,7 @@ public class WindowManager {
 
     /**
      * ヘルプウィンドウを生成する。
+     *
      * @return ヘルプウィンドウ
      */
     protected HelpFrame createHelpFrame(){
@@ -301,6 +282,7 @@ public class WindowManager {
 
     /**
      * ヘルプウィンドウを返す。
+     *
      * @return ヘルプウィンドウ
      */
     public HelpFrame getHelpFrame(){
@@ -312,6 +294,7 @@ public class WindowManager {
 
     /**
      * トップフレームを生成する。
+     *
      * @return トップフレーム
      */
     protected TopFrame createTopFrame(){
@@ -323,6 +306,7 @@ public class WindowManager {
 
     /**
      * トップフレームを返す。
+     *
      * @return トップフレーム
      */
     public TopFrame getTopFrame(){
