@@ -61,7 +61,6 @@ import jp.sfjp.jindolf.data.xml.VillageLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
-import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.glyph.AnchorHitEvent;
 import jp.sfjp.jindolf.glyph.AnchorHitListener;
 import jp.sfjp.jindolf.glyph.Discussion;
@@ -76,7 +75,6 @@ import jp.sfjp.jindolf.summary.DaySummary;
 import jp.sfjp.jindolf.summary.VillageDigest;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.StringUtils;
-import jp.sfjp.jindolf.view.AccountPanel;
 import jp.sfjp.jindolf.view.ActionManager;
 import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sfjp.jindolf.view.FilterPanel;
@@ -101,8 +99,6 @@ public class Controller
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private static final String ERRTITLE_LAF = "Look&Feel";
-    private static final String ERRFORM_LAFLOAD =
-            "このLook&Feel[{0}]を読み込む事ができません。";
     private static final String ERRFORM_LAFGEN =
             "このLook&Feel[{0}]を生成する事ができません。";
 
@@ -168,12 +164,10 @@ public class Controller
         reloadVillageListButton.setEnabled(false);
 
         TopFrame topFrame         = this.windowManager.getTopFrame();
-        TalkPreview talkPreview   = this.windowManager.getTalkPreview();
         OptionPanel optionPanel   = this.windowManager.getOptionPanel();
         FindPanel findPanel       = this.windowManager.getFindPanel();
         FilterPanel filterPanel   = this.windowManager.getFilterPanel();
         LogFrame logFrame         = this.windowManager.getLogFrame();
-        AccountPanel accountPanel = this.windowManager.getAccountPanel();
         HelpFrame helpFrame       = this.windowManager.getHelpFrame();
 
         topFrame.setJMenuBar(this.actionManager.getMenuBar());
@@ -195,15 +189,11 @@ public class Controller
 
         ConfigStore config = this.appSetting.getConfigStore();
 
-        JsObject draft = config.loadDraftConfig();
-        talkPreview.putJson(draft);
-
         JsObject history = config.loadHistoryConfig();
         findPanel.putJson(history);
 
         FontInfo fontInfo = this.appSetting.getFontInfo();
         periodTab.setFontInfo(fontInfo);
-        talkPreview.setFontInfo(fontInfo);
         optionPanel.getFontChooser().setFontInfo(fontInfo);
 
         ProxyInfo proxyInfo = this.appSetting.getProxyInfo();
@@ -212,8 +202,6 @@ public class Controller
         DialogPref pref = this.appSetting.getDialogPref();
         periodTab.setDialogPref(pref);
         optionPanel.getDialogPrefPanel().setDialogPref(pref);
-
-        accountPanel.setModel(this.model);
 
         OptionInfo optInfo = this.appSetting.getOptionInfo();
         ConfigStore configStore = this.appSetting.getConfigStore();
@@ -526,7 +514,6 @@ public class Controller
         URL url = server.getPeriodURL(period);
 
         String urlText = url.toString();
-        if(period.isHot()) urlText += "#bottom";
 
         WebIPCDialog.showDialog(getTopFrame(), urlText);
 
@@ -640,29 +627,11 @@ public class Controller
     }
 
     /**
-     * アカウント管理画面を表示する。
-     */
-    private void actionShowAccount(){
-        AccountPanel accountPanel = this.windowManager.getAccountPanel();
-        toggleWindow(accountPanel);
-        return;
-    }
-
-    /**
      * ログ表示画面を表示する。
      */
     private void actionShowLog(){
         LogFrame logFrame = this.windowManager.getLogFrame();
         toggleWindow(logFrame);
-        return;
-    }
-
-    /**
-     * 発言エディタを表示する。
-     */
-    private void actionTalkPreview(){
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
-        toggleWindow(talkPreview);
         return;
     }
 
@@ -708,11 +677,9 @@ public class Controller
 
         this.topView.getTabBrowser().setFontInfo(newFontInfo);
 
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
         OptionPanel optionPanel = this.windowManager.getOptionPanel();
         FontChooser fontChooser = optionPanel.getFontChooser();
 
-        talkPreview.setFontInfo(newFontInfo);
         fontChooser.setFontInfo(newFontInfo);
 
         return;
@@ -806,13 +773,12 @@ public class Controller
         for(PeriodView periodView : browser.getPeriodViewList()){
             Period period = periodView.getPeriod();
             if(period == null) continue;
-            if(period.isFullOpen()) continue;
             String message =
                     period.getDay()
                     + "日目のデータを読み込んでいます";
             updateStatusBar(message);
             try{
-                PeriodLoader.parsePeriod(period, true);
+                PeriodLoader.parsePeriod(period, false);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
@@ -1277,8 +1243,6 @@ public class Controller
      * @param force trueならPeriodデータを強制再読み込み。
      */
     private void updatePeriod(final boolean force){
-        TabBrowser tabBrowser = this.topView.getTabBrowser();
-
         Village village = getVillage();
         if(village == null) return;
 
@@ -1296,26 +1260,11 @@ public class Controller
         if(period == null) return;
 
         Runnable task = () -> {
-            boolean wasHot = period.isHot();
             try{
                 PeriodLoader.parsePeriod(period, force);
             }catch(IOException e){
                 showNetworkError(village, e);
                 return;
-            }
-
-            if(wasHot && ! period.isHot() ){
-                try{
-                    if( ! village.hasSchedule() ){
-                        VillageInfoLoader.updateVillageInfo(village);
-                    }
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                EventQueue.invokeLater(() -> {
-                    tabBrowser.setVillage(village);
-                });
             }
 
             EventQueue.invokeLater(() -> {
@@ -1464,9 +1413,6 @@ public class Controller
         if(cmd == null) return;
 
         switch(cmd){
-        case ActionManager.CMD_ACCOUNT:
-            actionShowAccount();
-            break;
         case ActionManager.CMD_OPENXML:
             actionOpenXml();
             break;
@@ -1517,9 +1463,6 @@ public class Controller
             break;
         case ActionManager.CMD_SHOWFILT:
             actionShowFilter();
-            break;
-        case ActionManager.CMD_SHOWEDIT:
-            actionTalkPreview();
             break;
         case ActionManager.CMD_SHOWLOG:
             actionShowLog();
@@ -1618,12 +1561,6 @@ public class Controller
         JsObject findConf = findPanel.getJson();
         if( ! findPanel.hasConfChanged(findConf) ){
             configStore.saveHistoryConfig(findConf);
-        }
-
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
-        JsObject draftConf = talkPreview.getJson();
-        if( ! talkPreview.hasConfChanged(draftConf) ){
-            configStore.saveDraftConfig(draftConf);
         }
 
         this.appSetting.saveConfig();

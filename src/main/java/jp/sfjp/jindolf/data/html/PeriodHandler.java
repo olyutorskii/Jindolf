@@ -182,7 +182,6 @@ class PeriodHandler extends HtmlAdapter {
             throws HtmlParseException{
         reset();
 
-        this.period.setLoginName(null);
         this.period.clearTopicList();
 
         return;
@@ -205,11 +204,6 @@ class PeriodHandler extends HtmlAdapter {
     @Override
     public void loginName(DecodedContent content, SeqRange loginRange)
             throws HtmlParseException{
-        DecodedContent loginName =
-                this.converter.convert(content, loginRange);
-
-        this.period.setLoginName(loginName.toString());
-
         return;
     }
 
@@ -287,8 +281,6 @@ class PeriodHandler extends HtmlAdapter {
         }
 
         if( ! anchorRange.isValid() ) return;
-
-        this.period.setHot(false);
 
         return;
     }

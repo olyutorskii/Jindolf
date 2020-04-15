@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import jp.sourceforge.jindolf.corelib.LandDef;
 import jp.sourceforge.jindolf.corelib.PeriodType;
@@ -24,7 +25,7 @@ import jp.sourceforge.jindolf.corelib.SysEventType;
  * 人気のないプロローグなどで、
  * 24時間以上の期間を持つPeriodが生成される可能性の考慮が必要。
  */
-public class Period{
+public final class Period{
     // TODO Comparable も implement する？
 
     private final Village homeVillage;
@@ -33,8 +34,6 @@ public class Period{
     private int limitHour;
     private int limitMinute;
     // TODO 更新月日も入れるべきか。
-    private String loginName;
-    private boolean isFullOpen = false;
 
     private final List<Topic> topicList = new LinkedList<>();
     private final List<Topic> unmodList =
@@ -42,50 +41,25 @@ public class Period{
 
 
     /**
-     * この Period が進行中の村の最新日で、
-     * 今まさに次々と発言が蓄積されているときは
-     * true になる。
-     * ※重要: Hot な Period は meslog クエリーを使ってダウンロードできない。
-     */
-    private boolean isHot;
-
-
-    /**
      * Periodを生成する。
-     * この段階では発言データのロードは行われない。
-     * デフォルトで非Hot状態。
+     *
+     * <p>この段階では発言データのロードは行われない。
+     *
      * @param homeVillage 所属するVillage
      * @param periodType Period種別
      * @param day Period通番
      * @throws java.lang.NullPointerException 引数にnullが渡された場合。
      */
     public Period(Village homeVillage,
-                   PeriodType periodType,
-                   int day)
-                   throws NullPointerException{
-        this(homeVillage, periodType, day, false);
-        return;
-    }
+                  PeriodType periodType,
+                  int day){
+        Objects.nonNull(homeVillage);
+        Objects.nonNull(periodType);
 
-    /**
-     * Periodを生成する。
-     * この段階では発言データのロードは行われない。
-     * @param homeVillage 所属するVillage
-     * @param periodType Period種別
-     * @param day Period通番
-     * @param isHot Hotか否か
-     * @throws java.lang.NullPointerException 引数にnullが渡された場合。
-     */
-    private Period(Village homeVillage,
-                    PeriodType periodType,
-                    int day,
-                    boolean isHot)
-                    throws NullPointerException{
-        if(    homeVillage == null
-            || periodType  == null ) throw new NullPointerException();
         if(day < 0){
             throw new IllegalArgumentException("Period day is too small !");
         }
+
         switch(periodType){
         case PROLOGUE:
             assert day == 0;
@@ -105,14 +79,13 @@ public class Period{
 
         unload();
 
-        this.isHot = isHot;
-
         return;
     }
 
 
     /**
      * 所属する村を返す。
+     *
      * @return 村
      */
     public Village getVillage(){
@@ -121,6 +94,7 @@ public class Period{
 
     /**
      * Period種別を返す。
+     *
      * @return 種別
      */
     public PeriodType getType(){
@@ -129,9 +103,11 @@ public class Period{
 
     /**
      * Period通番を返す。
-     * プロローグは常に0番。
-     * n日目のゲーム進行日はn番
-     * エピローグは最後のゲーム進行日+1番
+     *
+     * <p>プロローグは常に0番。
+     * n日目のゲーム進行日はn番。
+     * エピローグは最後のゲーム進行日+1番。
+     *
      * @return Period通番
      */
     public int getDay(){
@@ -152,6 +128,7 @@ public class Period{
 
     /**
      * 更新時刻の文字表記を返す。
+     *
      * @return 更新時刻の文字表記
      */
     public String getLimit(){
@@ -167,23 +144,8 @@ public class Period{
     }
 
     /**
-     * Hotか否か返す。
-     * @return Hotか否か
-     */
-    public boolean isHot(){
-        return this.isHot;
-    }
-
-    /**
-     * Hotか否か設定する。
-     * @param isHotArg Hot指定
-     */
-    public void setHot(boolean isHotArg){
-        this.isHot = isHotArg;
-    }
-
-    /**
      * プロローグか否か判定する。
+     *
      * @return プロローグならtrue
      */
     public boolean isPrologue(){
@@ -193,6 +155,7 @@ public class Period{
 
     /**
      * エピローグか否か判定する。
+     *
      * @return エピローグならtrue
      */
     public boolean isEpilogue(){
@@ -202,6 +165,7 @@ public class Period{
 
     /**
      * 進行日か否か判定する。
+     *
      * @return 進行日ならtrue
      */
     public boolean isProgress(){
@@ -211,6 +175,7 @@ public class Period{
 
     /**
      * このPeriodにアクセスするためのクエリーを生成する。
+     *
      * @return CGIに渡すクエリー
      */
     public String getCGIQuery(){
@@ -218,11 +183,6 @@ public class Period{
 
         Village village = getVillage();
         result.append(village.getCGIQuery());
-
-        if(isHot()){
-            result.append("&mes=all");   // 全表示指定
-            return result.toString();
-        }
 
         Land land = village.getParentLand();
         LandDef ldef = land.getLandDef();
@@ -271,7 +231,9 @@ public class Period{
 
     /**
      * Periodに含まれるTopicのリストを返す。
-     * このリストは上書き操作不能。
+     *
+     * <p>このリストは上書き操作不能。
+     *
      * @return Topicのリスト
      */
     public List<Topic> getTopicList(){
@@ -288,6 +250,7 @@ public class Period{
 
     /**
      * Periodに含まれるTopicの総数を返す。
+     *
      * @return Topic総数
      */
     public int getTopics(){
@@ -296,6 +259,7 @@ public class Period{
 
     /**
      * Topicを追加する。
+     *
      * @param topic Topic
      * @throws java.lang.NullPointerException nullが渡された場合。
      */
@@ -307,7 +271,9 @@ public class Period{
 
     /**
      * Periodのキャプション文字列を返す。
-     * 主な用途はタブ画面の耳のラベルなど。
+     *
+     * <p>主な用途はタブ画面の耳のラベルなど。
+     *
      * @return キャプション文字列
      */
     public String getCaption(){
@@ -333,24 +299,8 @@ public class Period{
     }
 
     /**
-     * このPeriodをダウンロードしたときのログイン名を返す。
-     * @return ログイン名。ログアウト中はnull。
-     */
-    public String getLoginName(){
-        return this.loginName;
-    }
-
-    /**
-     * ログイン名を設定する。
-     * @param loginName ログイン名
-     */
-    public void setLoginName(String loginName){
-        this.loginName = loginName;
-        return;
-    }
-
-    /**
      * 公開発言番号にマッチする発言を返す。
+     *
      * @param talkNo 公開発言番号
      * @return 発言。見つからなければnull
      */
@@ -367,38 +317,12 @@ public class Period{
     }
 
     /**
-     * このPeriodの内容が全て公に開示されたものであるか判定する。
-     *
-     * <p>公に開示とは、非狼プレイヤーでも赤ログを閲覧できる状況を指す。
-     *
-     * <p>※ 2020-02の時点で、全てのPeriodは公に開示されているものとする。
-     *
-     * @return すべて開示されているならtrue
-     */
-    public boolean isFullOpen(){
-        return this.isFullOpen;
-    }
-
-    /**
-     * このPeriodの内容が全て公に開示されたものであるか設定する。
-     *
-     * <p>公に開示とは、非狼プレイヤーでも赤ログを閲覧できる状況を指す。
-     *
-     * <p>※ 2020-02の時点で、全てのPeriodは公に開示されているものとする。
-     *
-     * @param fullOpen すべて開示されているならtrue
-     */
-    public void setFullOpen(boolean fullOpen){
-        this.isFullOpen = fullOpen;
-        return;
-    }
-
-    /**
      * ロード済みか否かチェックする。
+     *
      * @return ロード済みならtrue
      */
     public boolean hasLoaded(){
-        return getTopics() > 0;
+        return ! this.topicList.isEmpty();
     }
 
     /**
@@ -407,10 +331,6 @@ public class Period{
     public void unload(){
         this.limitHour = 0;
         this.limitMinute = 0;
-        this.loginName = null;
-        this.isFullOpen = false;
-
-        this.isHot = false;
 
         this.topicList.clear();
 
@@ -419,8 +339,10 @@ public class Period{
 
     /**
      * 襲撃メッセージの有無を判定する。
-     * 決着が付くまで非狼陣営には見えない。
+     *
+     * <p>決着が付くまで非狼陣営には見えない。
      * 偽装GJでは狼にも見えない。
+     *
      * @return 襲撃メッセージがあればtrue
      */
     public boolean hasAssaultTried(){
@@ -440,6 +362,7 @@ public class Period{
 
     /**
      * 処刑されたAvatarを返す。
+     *
      * @return 処刑されたAvatar。突然死などなんらかの理由でいない場合はnull
      */
     public Avatar getExecutedAvatar(){
@@ -457,6 +380,7 @@ public class Period{
 
     /**
      * 投票に参加したAvatarの集合を返す。
+     *
      * @return 投票に参加したAvatarのSet
      */
     public Set<Avatar> getVoterSet(){
@@ -473,7 +397,9 @@ public class Period{
 
     /**
      * 任意のタイプのシステムイベントを返す。
-     * 複数存在する場合、返すのは最初の一つだけ。
+     *
+     * <p>複数存在する場合、返すのは最初の一つだけ。
+     *
      * @param type イベントタイプ
      * @return システムイベント
      */

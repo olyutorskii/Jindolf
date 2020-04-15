@@ -209,18 +209,8 @@ public class PeriodView extends JPanel implements ItemListener{
 
         String dayCaption   = this.period.getCaption();
         String limitCaption = this.period.getLimit();
-        String account      = this.period.getLoginName();
 
-        String loginout;
-        if(this.period.isFullOpen()){
-            loginout = "";
-        }else if(account != null){
-            loginout = " (ログイン中)";
-        }else{
-            loginout = " (ログアウト中)";
-        }
-
-        String info = villageName + "村 " + dayCaption + loginout;
+        String info = villageName + "村 " + dayCaption;
         this.caption.setText(info);
         this.limit.setText("更新時刻 " + limitCaption);
 
