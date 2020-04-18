@@ -25,6 +25,7 @@ import jp.sfjp.jindolf.glyph.Font2Json;
 import jp.sfjp.jindolf.glyph.FontInfo;
 import jp.sfjp.jindolf.net.ProxyInfo;
 import jp.sfjp.jindolf.view.AvatarPics;
+import jp.sfjp.jindolf.view.LocalAvatarImg;
 import jp.sourceforge.jovsonz.JsBoolean;
 import jp.sourceforge.jovsonz.JsObject;
 import jp.sourceforge.jovsonz.JsPair;
@@ -426,6 +427,13 @@ public class AppSetting{
         BufferedImage graveImage     = this.avatarFaceMap.get("tomb");
         BufferedImage graveBodyImage = this.avatarBodyMap.get("tomb");
 
+        if(graveImage == null){
+            graveImage = LocalAvatarImg.getGraveImage();
+        }
+        if(graveBodyImage == null){
+            graveBodyImage = LocalAvatarImg.getGraveBodyImage();
+        }
+
         avatarPics.setGraveImage(graveImage);
         avatarPics.setGraveBodyImage(graveBodyImage);
 
@@ -434,6 +442,13 @@ public class AppSetting{
 
             BufferedImage faceImage = this.avatarFaceMap.get(avatarId);
             BufferedImage bodyImage = this.avatarBodyMap.get(avatarId);
+
+            if(faceImage == null){
+                faceImage = LocalAvatarImg.getAvatarFaceImage(avatarId);
+            }
+            if(bodyImage == null){
+                bodyImage = LocalAvatarImg.getAvatarBodyImage(avatarId);
+            }
 
             avatarPics.setAvatarFaceImage(avatar, faceImage);
             avatarPics.setAvatarBodyImage(avatar, bodyImage);
