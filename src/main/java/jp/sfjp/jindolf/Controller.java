@@ -89,6 +89,7 @@ import jp.sfjp.jindolf.view.TopView;
 import jp.sfjp.jindolf.view.WindowManager;
 import jp.sourceforge.jindolf.corelib.VillageState;
 import jp.sourceforge.jovsonz.JsObject;
+import org.xml.sax.SAXException;
 
 /**
  * いわゆるMVCでいうとこのコントローラ。
@@ -109,6 +110,8 @@ public class Controller
     private final AppSetting appSetting;
 
     private final TopView topView;
+
+    private final JFileChooser xmlFileChooser = buildFileChooser();
 
     private final VillageTreeWatcher treeVillageWatcher =
             new VillageTreeWatcher();
@@ -237,6 +240,24 @@ public class Controller
             window.setVisible(true);
         }
         return;
+    }
+
+    /**
+     * XMLファイルを選択するためのChooserを生成する。
+     *
+     * @return Chooser
+     */
+    private static JFileChooser buildFileChooser(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        FileFilter filter;
+        filter = new FileNameExtensionFilter("XML files (*.xml)", "xml", "XML");
+        chooser.setFileFilter(filter);
+
+        chooser.setDialogTitle("アーカイブXMLファイルを開く");
+
+        return chooser;
     }
 
 
@@ -610,6 +631,8 @@ public class Controller
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
+
+        this.xmlFileChooser.updateUI();
 
         LOGGER.log(Level.INFO,
                    "Look&Feelが[{0}]に変更されました。", className );
@@ -1172,25 +1195,31 @@ public class Controller
      * ローカルなXMLファイルを読み込む。
      */
     private void actionOpenXml(){
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-        FileFilter filter;
-        filter = new FileNameExtensionFilter("XML files (*.xml)", "xml", "XML");
-        chooser.setFileFilter(filter);
-
-        int result = chooser.showOpenDialog(getTopFrame());
+        int result = this.xmlFileChooser.showOpenDialog(getTopFrame());
         if(result != JFileChooser.APPROVE_OPTION) return;
-        File selected = chooser.getSelectedFile();
+        File selected = this.xmlFileChooser.getSelectedFile();
 
         submitHeavyBusyTask(() -> {
             Village village;
+
             try{
                 village = VillageLoader.parseVillage(selected);
             }catch(IOException e){
-                System.out.println(e);
+                String warnMsg = MessageFormat.format(
+                        "XMLファイル[ {0} ]を読み込むことができません",
+                        selected.getPath()
+                );
+                warnDialog("XML I/O error", warnMsg, e);
+                return;
+            }catch(SAXException e){
+                String warnMsg = MessageFormat.format(
+                        "XMLファイル[ {0} ]の形式が不正なため読み込むことができません",
+                        selected.getPath()
+                );
+                warnDialog("XML form error", warnMsg, e);
                 return;
             }
+
             village.setLocalArchive(true);
             AvatarPics avatarPics = village.getAvatarPics();
             this.appSetting.applyLocalImage(avatarPics);

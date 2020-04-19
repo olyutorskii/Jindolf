@@ -61,8 +61,10 @@ public class VillageLoader {
      * @param xmlFile XMLファイル
      * @return 村
      * @throws IOException I/Oエラー
+     * @throws SAXException XMLの形式エラー
      */
-    public static Village parseVillage(File xmlFile) throws IOException{
+    public static Village parseVillage(File xmlFile)
+            throws IOException, SAXException{
         Objects.nonNull(xmlFile);
 
         boolean isNormal;
@@ -70,7 +72,7 @@ public class VillageLoader {
                 && xmlFile.exists()
                 && xmlFile.canRead();
         if(!isNormal){
-            return null;
+            throw new IOException(xmlFile.getPath() + "を読み込むことができません");
         }
 
         Path path = xmlFile.toPath();
@@ -85,8 +87,10 @@ public class VillageLoader {
      * @param path XMLファイルのPath
      * @return 村
      * @throws IOException I/Oエラー
+     * @throws SAXException XMLの形式エラー
      */
-    public static Village parseVillage(Path path) throws IOException{
+    public static Village parseVillage(Path path)
+            throws IOException, SAXException{
         Objects.nonNull(path);
 
         path = path.normalize();
@@ -96,7 +100,7 @@ public class VillageLoader {
                 && Files.isRegularFile(path)
                 && Files.isReadable(path);
         if(!isNormal){
-            return null;
+            throw new IOException(path.toString() + "を読み込むことができません");
         }
 
         Village result;
@@ -127,8 +131,10 @@ public class VillageLoader {
      * @param istream XML入力
      * @return 村
      * @throws IOException I/Oエラー
+     * @throws SAXException XMLの形式エラー
      */
-    public static Village parseVillage(InputStream istream) throws IOException{
+    public static Village parseVillage(InputStream istream)
+            throws IOException, SAXException{
         InputSource isource = new InputSource(istream);
         Village result = parseVillage(isource);
         return result;
@@ -140,18 +146,15 @@ public class VillageLoader {
      * @param isource XML入力
      * @return 村
      * @throws IOException I/Oエラー
+     * @throws SAXException XMLの形式エラー
      */
-    public static Village parseVillage(InputSource isource) throws IOException{
+    public static Village parseVillage(InputSource isource)
+            throws IOException, SAXException{
         XMLReader reader = buildReader();
         VillageHandler handler = new VillageHandler();
         reader.setContentHandler(handler);
 
-        try{
-            reader.parse(isource);
-        }catch(SAXException e){
-            System.out.println(e);
-            return null;
-        }
+        reader.parse(isource);
 
         Village result = handler.getVillage();
         return result;
