@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import jp.sfjp.jindolf.glyph.Font2Json;
 import jp.sfjp.jindolf.glyph.FontInfo;
 import jp.sfjp.jindolf.net.ProxyInfo;
 import jp.sfjp.jindolf.view.AvatarPics;
+import jp.sfjp.jindolf.view.LocalAvatarImg;
 import jp.sourceforge.jovsonz.JsBoolean;
 import jp.sourceforge.jovsonz.JsObject;
 import jp.sourceforge.jovsonz.JsPair;
@@ -47,6 +49,10 @@ public class AppSetting{
     private static final String HASH_SIMPLEMODE  = "isSimpleMode";
     private static final String HASH_ALIGNBALOON = "alignBaloonWidth";
     private static final String HASH_PROXY       = "proxy";
+
+    private static final String MSG_NOIMG =
+            "画像ファイル{0}が読み込めないため"
+            + "{1}の表示に代替イメージを使います。";
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
@@ -377,7 +383,10 @@ public class AppSetting{
                     || ! file.exists()
                     || ! file.isFile()
                     || ! file.canRead() ){
-                LOGGER.info("failed to access local image " + file.getPath());
+                String msg = MessageFormat.format(
+                        MSG_NOIMG, file.getPath(), avatarId
+                );
+                LOGGER.info(msg);
                 continue;
             }
 
@@ -385,7 +394,10 @@ public class AppSetting{
             try {
                 image = ImageIO.read(file);
             }catch(IOException e){
-                LOGGER.info("failed to load local image " + file.getPath());
+                String msg = MessageFormat.format(
+                        MSG_NOIMG, file.getPath(), avatarId
+                );
+                LOGGER.info(msg);
                 continue;
             }
 
@@ -426,6 +438,13 @@ public class AppSetting{
         BufferedImage graveImage     = this.avatarFaceMap.get("tomb");
         BufferedImage graveBodyImage = this.avatarBodyMap.get("tomb");
 
+        if(graveImage == null){
+            graveImage = LocalAvatarImg.getGraveImage();
+        }
+        if(graveBodyImage == null){
+            graveBodyImage = LocalAvatarImg.getGraveBodyImage();
+        }
+
         avatarPics.setGraveImage(graveImage);
         avatarPics.setGraveBodyImage(graveBodyImage);
 
@@ -434,6 +453,13 @@ public class AppSetting{
 
             BufferedImage faceImage = this.avatarFaceMap.get(avatarId);
             BufferedImage bodyImage = this.avatarBodyMap.get(avatarId);
+
+            if(faceImage == null){
+                faceImage = LocalAvatarImg.getAvatarFaceImage(avatarId);
+            }
+            if(bodyImage == null){
+                bodyImage = LocalAvatarImg.getAvatarBodyImage(avatarId);
+            }
 
             avatarPics.setAvatarFaceImage(avatar, faceImage);
             avatarPics.setAvatarBodyImage(avatar, bodyImage);

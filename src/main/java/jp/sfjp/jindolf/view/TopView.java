@@ -117,7 +117,10 @@ public class TopView extends JPanel{
      */
     private JComponent createInitCard(){
         StringBuilder init = new StringBuilder();
-        init.append("←    村を選択してください");
+        init.append("←    人狼BBSサーバから村を選択してください");
+        init.append("<br/><br/>または「ファイル」メニューから");
+        init.append("<br/>JinArchive形式でダウンロードした");
+        init.append("<br/>アーカイブXMLファイルを開いてください");
         init.insert(0, "<font 'size=+1'>").append("</font>");
         init.insert(0, "<center>").append("</center>");
         init.insert(0, "<body>").append("</body>");

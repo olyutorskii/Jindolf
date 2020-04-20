@@ -211,7 +211,7 @@ public class ActionManager{
      * setup menu items.
      */
     private void setupMenuItems(){
-        buildMenuItem(CMD_OPENXML, "XMLを読み込む", KeyEvent.VK_O);
+        buildMenuItem(CMD_OPENXML, "アーカイブXMLを開く...", KeyEvent.VK_O);
         buildMenuItem(CMD_EXIT, "終了", KeyEvent.VK_X);
         buildMenuItem(CMD_COPY, "選択範囲をコピー", KeyEvent.VK_C);
         buildMenuItem(CMD_SHOWFIND, "検索...", KeyEvent.VK_F);
