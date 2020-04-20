@@ -10,10 +10,11 @@ package jp.sfjp.jindolf.view;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
@@ -32,13 +33,17 @@ import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.util.GUIUtils;
 
 /**
- * メニュー、ボタン、その他各種Actionを伴うイベントを生成する
+ * メニュー、ボタン、その他各種Actionを伴うイベントを発火する
  * コンポーネントの一括管理。
+ *
+ * <p>メニューバー、ツールバーを提供する。
+ *
+ * <p>アプリの状況に応じてメニューやボタンの一部の操作をマスクする。
  */
 public class ActionManager{
 
     /** アクション{@value}。 */
-    public static final String CMD_ACCOUNT    = "ACCOUNT";
+    public static final String CMD_OPENXML    = "OPENXML";
     /** アクション{@value}。 */
     public static final String CMD_EXIT       = "EXIT";
     /** アクション{@value}。 */
@@ -74,8 +79,6 @@ public class ActionManager{
     /** アクション{@value}。 */
     public static final String CMD_SHOWFILT   = "SHOWFILT";
     /** アクション{@value}。 */
-    public static final String CMD_SHOWEDIT   = "SHOWEDIT";
-    /** アクション{@value}。 */
     public static final String CMD_SHOWLOG    = "SHOWLOG";
     /** アクション{@value}。 */
     public static final String CMD_HELPDOC    = "HELPDOC";
@@ -98,7 +101,7 @@ public class ActionManager{
     public static final String CMD_FONTSIZESEL = "FONTSIZESEL";
 
     /** WWWアイコン。 */
-    public static final Icon ICON_WWW = GUIUtils.getWWWIcon();
+    public static final Icon ICON_WWW;
     /** 検索アイコン。 */
     public static final Icon ICON_FIND;
     /** 前検索アイコン。 */
@@ -112,36 +115,30 @@ public class ActionManager{
     /** 発言エディタアイコン。 */
     public static final Icon ICON_EDITOR;
 
-    private static final KeyStroke KEY_F1 = KeyStroke.getKeyStroke("F1");
-    private static final KeyStroke KEY_F3 = KeyStroke.getKeyStroke("F3");
-    private static final KeyStroke KEY_SHIFT_F3 =
-            KeyStroke.getKeyStroke("shift F3");
-    private static final KeyStroke KEY_F5 = KeyStroke.getKeyStroke("F5");
-    private static final KeyStroke KEY_CTRL_F =
-            KeyStroke.getKeyStroke("ctrl F");
+    private static final KeyStroke KEY_F1;
+    private static final KeyStroke KEY_F3;
+    private static final KeyStroke KEY_SHIFT_F3;
+    private static final KeyStroke KEY_F5;
+    private static final KeyStroke KEY_CTRL_F;
 
     static{
-        ICON_FIND =
-            ResourceManager.getButtonIcon("resources/image/tb_find.png");
+        ICON_WWW         = GUIUtils.getWWWIcon();
+        ICON_FIND        = loadIcon("resources/image/tb_find.png");
+        ICON_SEARCH_PREV = loadIcon("resources/image/tb_findprev.png");
+        ICON_SEARCH_NEXT = loadIcon("resources/image/tb_findnext.png");
+        ICON_RELOAD      = loadIcon("resources/image/tb_reload.png");
+        ICON_FILTER      = loadIcon("resources/image/tb_filter.png");
+        ICON_EDITOR      = loadIcon("resources/image/tb_editor.png");
 
-        ICON_SEARCH_PREV =
-            ResourceManager.getButtonIcon("resources/image/tb_findprev.png");
-
-        ICON_SEARCH_NEXT =
-            ResourceManager.getButtonIcon("resources/image/tb_findnext.png");
-
-        ICON_RELOAD =
-            ResourceManager.getButtonIcon("resources/image/tb_reload.png");
-
-        ICON_FILTER =
-            ResourceManager.getButtonIcon("resources/image/tb_filter.png");
-
-        ICON_EDITOR =
-            ResourceManager.getButtonIcon("resources/image/tb_editor.png");
+        KEY_F1       = KeyStroke.getKeyStroke("F1");
+        KEY_F3       = KeyStroke.getKeyStroke("F3");
+        KEY_SHIFT_F3 = KeyStroke.getKeyStroke("shift F3");
+        KEY_F5       = KeyStroke.getKeyStroke("F5");
+        KEY_CTRL_F   = KeyStroke.getKeyStroke("ctrl F");
     }
 
-    private final Set<AbstractButton> actionItems =
-            new HashSet<>();
+
+    private final List<AbstractButton> actionItems = new ArrayList<>(100);
     private final Map<String, JMenuItem> namedMenuItems =
             new HashMap<>();
     private final Map<String, JButton> namedToolButtons =
@@ -160,15 +157,18 @@ public class ActionManager{
     private final JMenu menuLook;
     private final ButtonGroup landfGroup = new ButtonGroup();
     private final Map<ButtonModel, String> landfMap =
-        new HashMap<>();
+        new ConcurrentHashMap<>();
 
     private final JToolBar browseToolBar;
+
 
     /**
      * コンストラクタ。
      */
     public ActionManager(){
-        this.menuFile       = buildMenu("Jindolf",  KeyEvent.VK_F);
+        super();
+
+        this.menuFile       = buildMenu("ファイル", KeyEvent.VK_F);
         this.menuEdit       = buildMenu("編集",     KeyEvent.VK_E);
         this.menuVillage    = buildMenu("村",       KeyEvent.VK_V);
         this.menuDay        = buildMenu("日",       KeyEvent.VK_D);
@@ -178,7 +178,40 @@ public class ActionManager{
 
         this.menuLook = buildLookAndFeelMenu("ルック&フィール", KeyEvent.VK_L);
 
-        buildMenuItem(CMD_ACCOUNT, "アカウント管理", KeyEvent.VK_M);
+        setupMenuItems();
+        setupToolButtons();
+        setupMenuItemIcons();
+
+        registKeyAccelerator();
+
+        this.menuBar       = buildMenuBar();
+        this.browseToolBar = buildBrowseToolBar();
+
+        exposeVillageImpl(false);
+        exposeVillageLocalImpl(false);
+        exposePeriodImpl(false);
+
+        return;
+    }
+
+
+    /**
+     * load icon from resource.
+     *
+     * @param resPath resource path name
+     * @return icon
+     */
+    private static Icon loadIcon(String resPath){
+        Icon result = ResourceManager.getButtonIcon(resPath);
+        return result;
+    }
+
+
+    /**
+     * setup menu items.
+     */
+    private void setupMenuItems(){
+        buildMenuItem(CMD_OPENXML, "アーカイブXMLを開く...", KeyEvent.VK_O);
         buildMenuItem(CMD_EXIT, "終了", KeyEvent.VK_X);
         buildMenuItem(CMD_COPY, "選択範囲をコピー", KeyEvent.VK_C);
         buildMenuItem(CMD_SHOWFIND, "検索...", KeyEvent.VK_F);
@@ -196,19 +229,29 @@ public class ActionManager{
         buildMenuItem(CMD_WEBDAY, "この日をブラウザで表示...", KeyEvent.VK_B);
         buildMenuItem(CMD_OPTION, "オプション...", KeyEvent.VK_O);
         buildMenuItem(CMD_SHOWFILT, "発言フィルタ", KeyEvent.VK_F);
-        buildMenuItem(CMD_SHOWEDIT, "発言エディタ", KeyEvent.VK_E);
         buildMenuItem(CMD_SHOWLOG, "ログ表示", KeyEvent.VK_S);
         buildMenuItem(CMD_HELPDOC, "ヘルプ表示", KeyEvent.VK_H);
         buildMenuItem(CMD_SHOWPORTAL, "ポータルサイト...", KeyEvent.VK_P);
         buildMenuItem(CMD_ABOUT, VerInfo.TITLE + "について...", KeyEvent.VK_A);
+        return;
+    }
 
+    /**
+     * setup toolbuttons.
+     */
+    private void setupToolButtons(){
         buildToolButton(CMD_RELOAD, "選択中の日を強制リロード", ICON_RELOAD);
         buildToolButton(CMD_SHOWFIND,   "検索",     ICON_FIND);
         buildToolButton(CMD_SEARCHPREV, "↑前候補", ICON_SEARCH_PREV);
         buildToolButton(CMD_SEARCHNEXT, "↓次候補", ICON_SEARCH_NEXT);
         buildToolButton(CMD_SHOWFILT, "発言フィルタ", ICON_FILTER);
-        buildToolButton(CMD_SHOWEDIT, "発言エディタ", ICON_EDITOR);
+        return;
+    }
 
+    /**
+     * setup menu item icons.
+     */
+    private void setupMenuItemIcons(){
         getMenuItem(CMD_SHOWPORTAL).setIcon(ICON_WWW);
         getMenuItem(CMD_WEBVILL)   .setIcon(ICON_WWW);
         getMenuItem(CMD_WEBWIKI)   .setIcon(ICON_WWW);
@@ -217,21 +260,12 @@ public class ActionManager{
         getMenuItem(CMD_SEARCHPREV).setIcon(ICON_SEARCH_PREV);
         getMenuItem(CMD_SEARCHNEXT).setIcon(ICON_SEARCH_NEXT);
         getMenuItem(CMD_SHOWFILT)  .setIcon(ICON_FILTER);
-        getMenuItem(CMD_SHOWEDIT)  .setIcon(ICON_EDITOR);
-
-        registKeyAccelerator();
-
-        this.menuBar       = buildMenuBar();
-        this.browseToolBar = buildBrowseToolBar();
-
-        appearVillageImpl(false);
-        appearPeriodImpl(false);
-
         return;
     }
 
     /**
      * メニューを生成する。
+     *
      * @param label メニューラベル
      * @param nemonic ニモニックキー
      * @return メニュー
@@ -249,14 +283,15 @@ public class ActionManager{
 
     /**
      * メニューアイテムを生成する。
+     *
      * @param command アクションコマンド名
      * @param label メニューラベル
      * @param nemonic ニモニックキー
      * @return メニューアイテム
      */
     private JMenuItem buildMenuItem(String command,
-                                      String label,
-                                      int nemonic ){
+                                    String label,
+                                    int nemonic ){
         JMenuItem result = new JMenuItem();
 
         String keyText = label + "(" + KeyEvent.getKeyText(nemonic) + ")";
@@ -273,20 +308,21 @@ public class ActionManager{
 
     /**
      * ツールボタンを生成する。
+     *
      * @param command アクションコマンド名
      * @param tooltip ツールチップ文字列
      * @param icon アイコン画像
      * @return ツールボタン
      */
     private JButton buildToolButton(String command,
-                                      String tooltip,
-                                      Icon icon){
+                                    String tooltip,
+                                    Icon icon){
         JButton result = new JButton();
 
-        result.setIcon(icon);
-        result.setToolTipText(tooltip);
-        result.setMargin(new Insets(1, 1, 1, 1));
         result.setActionCommand(command);
+        result.setToolTipText(tooltip);
+        result.setIcon(icon);
+        result.setMargin(new Insets(1, 1, 1, 1));
 
         this.actionItems.add(result);
         this.namedToolButtons.put(command, result);
@@ -295,10 +331,11 @@ public class ActionManager{
     }
 
     /**
-     * L&F 一覧メニューを作成する。
+     * L&amp;F 一覧メニューを作成する。
+     *
      * @param label メニューラベル
      * @param nemonic ニモニックキー
-     * @return L&F 一覧メニュー
+     * @return L&amp;F 一覧メニュー
      */
     private JMenu buildLookAndFeelMenu(String label, int nemonic){
         JMenu result = buildMenu(label, nemonic);
@@ -344,6 +381,7 @@ public class ActionManager{
 
     /**
      * アクションコマンド名からメニューアイテムを探す。
+     *
      * @param command アクションコマンド名
      * @return メニューアイテム
      */
@@ -354,6 +392,7 @@ public class ActionManager{
 
     /**
      * アクションコマンド名からツールボタンを探す。
+     *
      * @param command アクションコマンド名
      * @return ツールボタン
      */
@@ -363,7 +402,8 @@ public class ActionManager{
     }
 
     /**
-     * 現在メニューで選択中のL&amp;Fのクラス名を返す。
+     * 現在LookAndFeelメニューで選択中のL&amp;Fのクラス名を返す。
+     *
      * @return L&amp;F クラス名
      */
     public String getSelectedLookAndFeel(){
@@ -374,22 +414,24 @@ public class ActionManager{
     }
 
     /**
-     * 全てのボタンにアクションリスナーを登録する。
+     * 管理下の全てのボタンにアクションリスナーを登録する。
+     *
      * @param listener アクションリスナー
      */
     public void addActionListener(ActionListener listener){
-        for(AbstractButton button : this.actionItems){
+        this.actionItems.forEach(button -> {
             button.addActionListener(listener);
-        }
+        });
         return;
     }
 
     /**
      * メニューバーを生成する。
+     *
      * @return メニューバー
      */
     private JMenuBar buildMenuBar(){
-        this.menuFile.add(getMenuItem(CMD_ACCOUNT));
+        this.menuFile.add(getMenuItem(CMD_OPENXML));
         this.menuFile.addSeparator();
         this.menuFile.add(getMenuItem(CMD_EXIT));
 
@@ -416,7 +458,6 @@ public class ActionManager{
         this.menuPreference.add(this.menuLook);
 
         this.menuTool.add(getMenuItem(CMD_SHOWFILT));
-        this.menuTool.add(getMenuItem(CMD_SHOWEDIT));
         this.menuTool.add(getMenuItem(CMD_SHOWLOG));
 
         this.menuHelp.add(getMenuItem(CMD_HELPDOC));
@@ -439,6 +480,7 @@ public class ActionManager{
 
     /**
      * メニューバーを取得する。
+     *
      * @return メニューバー
      */
     public JMenuBar getMenuBar(){
@@ -447,6 +489,7 @@ public class ActionManager{
 
     /**
      * ブラウザ用ツールバーの生成を行う。
+     *
      * @return ツールバー
      */
     private JToolBar buildBrowseToolBar(){
@@ -459,13 +502,13 @@ public class ActionManager{
         toolBar.add(getToolButton(CMD_SEARCHPREV));
         toolBar.addSeparator();
         toolBar.add(getToolButton(CMD_SHOWFILT));
-        toolBar.add(getToolButton(CMD_SHOWEDIT));
 
         return toolBar;
     }
 
     /**
      * ブラウザ用ツールバーを取得する。
+     *
      * @return ツールバー
      */
     public JToolBar getBrowseToolBar(){
@@ -473,12 +516,11 @@ public class ActionManager{
     }
 
     /**
-     * Periodが表示されているか通知を受ける。
-     * @param appear 表示されているときはtrue
+     * Periodの選択表示状況に応じてUIをマスクする。
+     *
+     * @param appear Periodタブが選択されているときはtrue
      */
-    private void appearPeriodImpl(boolean appear){
-        if(appear) appearVillageImpl(appear);
-
+    private void exposePeriodImpl(boolean appear){
         this.menuEdit.setEnabled(appear);
         this.menuDay .setEnabled(appear);
 
@@ -491,32 +533,68 @@ public class ActionManager{
     }
 
     /**
-     * Periodが表示されているか通知を受ける。
-     * @param appear 表示されているときはtrue
+     * Periodの選択表示状況に応じてUIをマスクする。
+     *
+     * @param appear Periodタブが選択されているときはtrue
      */
-    public void appearPeriod(boolean appear){
-        appearPeriodImpl(appear);
+    public void exposePeriod(boolean appear){
+        exposePeriodImpl(appear);
         return;
     }
 
     /**
-     * 村が表示されているか通知を受ける。
-     * @param appear 表示されているときはtrue
+     * 村ツリーの選択表示状況に応じてUIをマスクする。
+     *
+     * @param appear 村ノードが選択されているときはtrue
      */
-    private void appearVillageImpl(boolean appear){
-        if( ! appear) appearPeriodImpl(appear);
-
+    private void exposeVillageImpl(boolean appear){
         this.menuVillage.setEnabled(appear);
 
+        getMenuItem(CMD_RELOAD)    .setEnabled(appear);
+        getMenuItem(CMD_ALLPERIOD) .setEnabled(appear);
+
+        getToolButton(CMD_RELOAD)  .setEnabled(appear);
+
         return;
     }
 
     /**
-     * 村が表示されているか通知を受ける。
-     * @param appear 表示されているときはtrue
+     * 村ツリーの選択表示状況に応じてUIをマスクする。
+     *
+     * @param appear 村ノードが選択されているときはtrue
      */
-    public void appearVillage(boolean appear){
-        appearVillageImpl(appear);
+    public void exposeVillage(boolean appear){
+        exposeVillageImpl(appear);
+        return;
+    }
+
+    /**
+     * ローカルXML村の表示状況に応じてUIをマスクする。
+     *
+     * <p>単一および全日程Periodの強制読み込みが抑止される。
+     *
+     * @param appear ローカルXMLが表示されているときはtrue
+     */
+    private void exposeVillageLocalImpl(boolean appear){
+        this.menuVillage.setEnabled(appear);
+
+        getMenuItem(CMD_RELOAD)    .setEnabled( ! appear);
+        getMenuItem(CMD_ALLPERIOD) .setEnabled( ! appear);
+
+        getToolButton(CMD_RELOAD)  .setEnabled( ! appear);
+
+        return;
+    }
+
+    /**
+     * ローカルXML村の表示状況に応じてUIをマスクする。
+     *
+     * <p>単一および全日程Periodの強制読み込みが抑止される。
+     *
+     * @param appear ローカルXMLが表示されているときはtrue
+     */
+    public void exposeVillageLocal(boolean appear){
+        exposeVillageLocalImpl(appear);
         return;
     }
 

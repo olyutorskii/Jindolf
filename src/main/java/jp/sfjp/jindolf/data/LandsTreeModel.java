@@ -7,32 +7,25 @@
 
 package jp.sfjp.jindolf.data;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import jp.sfjp.jindolf.dxchg.XmlUtils;
 import jp.sourceforge.jindolf.corelib.LandDef;
-import org.xml.sax.SAXException;
 
 /**
  * 国の集合。あらゆるデータモデルの大元。
  * 国一覧と村一覧を管理。
  * JTreeのモデルも兼用。
  */
-public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
+public class LandsTreeModel implements TreeModel{ // ComboBoxModelも付けるか？
 
     private static final String ROOT = "ROOT";
     private static final int SECTION_INTERVAL = 100;
@@ -55,7 +48,7 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
      * コンストラクタ。
      * この時点ではまだ国一覧が読み込まれない。
      */
-    public LandsModel(){
+    public LandsTreeModel(){
         super();
         return;
     }
@@ -95,23 +88,12 @@ public class LandsModel implements TreeModel{ // ComboBoxModelも付けるか？
 
         this.landList.clear();
 
-        List<LandDef> landDefList;
-        try{
-            DocumentBuilder builder = XmlUtils.createDocumentBuilder();
-            landDefList = LandDef.buildLandDefList(builder);
-        }catch(   IOException
-                | SAXException
-                | URISyntaxException
-                | ParserConfigurationException
-                e){
-            LOGGER.log(Level.SEVERE, "failed to load land list", e);
-            return;
-        }
-
-        for(LandDef landDef : landDefList){
-            Land land = new Land(landDef);
+        List<LandDef> landDefList = CoreData.getLandDefList();
+        landDefList.stream().map((landDef) ->
+            new Land(landDef)
+        ).forEachOrdered((land) -> {
             this.landList.add(land);
-        }
+        });
 
         this.isLandListLoaded = true;
 

@@ -29,11 +29,21 @@ import javax.swing.border.CompoundBorder;
 import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.data.Land;
 import jp.sfjp.jindolf.data.Village;
-import jp.sfjp.jindolf.util.GUIUtils;
 
 /**
  * 最上位ビュー。
- * メインアプリウィンドウのコンポーネントの親コンテナ。
+ *
+ * <p>メインアプリウィンドウの各種コンポーネントの祖先コンテナ。
+ *
+ * <p>{@link JSplitPane}の左に国村選択リスト、
+ * 右にカードコンテナがレイアウトされる。
+ *
+ * <p>カードコンテナ上に
+ * 初期画面、国情報パネル{@link LandsTree}とタブブラウザ{@link TabBrowser}
+ * の3コンポーネントが重ねてレイアウトされ、必要に応じて切り替わる。
+ *
+ * <p>ヘビーなタスク実行をアピールするために、
+ * プログレスバーとフッタメッセージの管理を行う。
  */
 @SuppressWarnings("serial")
 public class TopView extends JPanel{
@@ -59,10 +69,12 @@ public class TopView extends JPanel{
 
     private final TabBrowser tabBrowser = new TabBrowser();
 
-    private JComponent browsePanel;
+    // to place toolbar
+    private final JComponent browsePanel = createBrowsePanel();
+
 
     /**
-     * トップビューを生成する。
+     * コンストラクタ。
      */
     public TopView(){
         super();
@@ -81,40 +93,45 @@ public class TopView extends JPanel{
 
     /**
      * カードパネルを生成する。
+     *
      * @return カードパネル
      */
     private JComponent createCards(){
-        this.browsePanel = createBrowsePanel();
+        JComponent initCard = createInitCard();
+        JComponent landInfoCard = createLandInfoCard();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(this.cardLayout);
-        panel.add(INITCARD, createInitCard());
-        panel.add(LANDCARD, createLandInfoCard());
-        panel.add(BROWSECARD, this.browsePanel);
+        JPanel cardContainer = new JPanel();
+        cardContainer.setLayout(this.cardLayout);
 
-        return panel;
+        cardContainer.add(INITCARD, initCard);
+        cardContainer.add(LANDCARD, landInfoCard);
+        cardContainer.add(BROWSECARD, this.browsePanel);
+
+        return cardContainer;
     }
 
     /**
      * 初期パネルを生成。
+     *
      * @return 初期パネル
      */
     private JComponent createInitCard(){
-        JLabel initMessage = new JLabel("← 村を選択してください");
-
-        StringBuilder acct = new StringBuilder();
-        acct.append("※ 参加中の村がある人は<br></br>");
-        acct.append("メニューの「アカウント管理」から<br></br>");
-        acct.append("ログインしてください");
-        acct.insert(0, "<center>").append("</center>");
-        acct.insert(0, "<body>")  .append("</body>");
-        acct.insert(0, "<html>")  .append("</html>");
-        JLabel acctMessage = new JLabel(acct.toString());
+        StringBuilder init = new StringBuilder();
+        init.append("←    人狼BBSサーバから村を選択してください");
+        init.append("<br/><br/>または「ファイル」メニューから");
+        init.append("<br/>JinArchive形式でダウンロードした");
+        init.append("<br/>アーカイブXMLファイルを開いてください");
+        init.insert(0, "<font 'size=+1'>").append("</font>");
+        init.insert(0, "<center>").append("</center>");
+        init.insert(0, "<body>").append("</body>");
+        init.insert(0, "<html>").append("</html>");
+        JLabel initMessage = new JLabel(init.toString());
 
         StringBuilder warn = new StringBuilder();
         warn.append("※ たまにはWebブラウザでアクセスして、");
         warn.append("<br></br>");
         warn.append("運営の動向を確かめようね！");
+        warn.insert(0, "<font 'size=+1'>").append("</font>");
         warn.insert(0, "<center>").append("</center>");
         warn.insert(0, "<body>")  .append("</body>");
         warn.insert(0, "<html>")  .append("</html>");
@@ -130,7 +147,6 @@ public class TopView extends JPanel{
         constraints.anchor = GridBagConstraints.CENTER;
         constraints.gridx = GridBagConstraints.REMAINDER;
         panel.add(initMessage, constraints);
-        panel.add(acctMessage, constraints);
         panel.add(warnMessage, constraints);
 
         JScrollPane scrollPane = new JScrollPane(panel);
@@ -140,17 +156,20 @@ public class TopView extends JPanel{
 
     /**
      * 国別情報を生成。
+     *
      * @return 国別情報
      */
     private JComponent createLandInfoCard(){
-        this.landInfo.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        Border border = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+        this.landInfo.setBorder(border);
         JScrollPane scrollPane = new JScrollPane(this.landInfo);
         return scrollPane;
     }
 
     /**
-     * 内部ブラウザを生成。
-     * @return 内部ブラウザ
+     * タブブラウザにツールバーを併設するためのコンテナを生成。
+     *
+     * @return コンテナ
      */
     private JComponent createBrowsePanel(){
         JPanel panel = new JPanel();
@@ -164,6 +183,7 @@ public class TopView extends JPanel{
 
     /**
      * ブラウザ用ツールバーをセットする。
+     *
      * @param toolbar ツールバー
      */
     public void setBrowseToolBar(JToolBar toolbar){
@@ -173,6 +193,7 @@ public class TopView extends JPanel{
 
     /**
      * SplitPaneを生成。
+     *
      * @param left 左コンポーネント
      * @param right 右コンポーネント
      * @return SplitPane
@@ -185,17 +206,18 @@ public class TopView extends JPanel{
         split.setContinuousLayout(false);
         split.setOneTouchExpandable(true);
         split.setDividerLocation(200);
-
         return split;
     }
 
     /**
      * ステータスバーを生成する。
+     *
      * @return ステータスバー
      */
     private JComponent createStatusBar(){
         this.sysMessage.setText(MSG_THANKS);
         this.sysMessage.setEditable(false);
+
         Border inside  = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
         Border outside = BorderFactory.createEmptyBorder(2, 5, 2, 2);
         Border border = new CompoundBorder(inside, outside);
@@ -226,6 +248,7 @@ public class TopView extends JPanel{
 
     /**
      * 国村選択ツリービューを返す。
+     *
      * @return 国村選択ツリービュー
      */
     public JTree getTreeView(){
@@ -234,6 +257,7 @@ public class TopView extends JPanel{
 
     /**
      * タブビューを返す。
+     *
      * @return タブビュー
      */
     public TabBrowser getTabBrowser(){
@@ -242,6 +266,7 @@ public class TopView extends JPanel{
 
     /**
      * 村一覧ビューを返す。
+     *
      * @return 村一番ビュー
      */
     public LandsTree getLandsTree(){
@@ -249,9 +274,10 @@ public class TopView extends JPanel{
     }
 
     /**
-     * プログレスバーとカーソルの設定を行う。
-     * @param busy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     *              falseなら停止&amp;通常カーソル。
+     * プログレスバーの設定を行う。
+     *
+     * @param busy trueならプログレスバーのアニメ開始。
+     *     falseなら停止。
      */
     public void setBusy(boolean busy){
         this.progressBar.setIndeterminate(busy);
@@ -260,18 +286,19 @@ public class TopView extends JPanel{
 
     /**
      * ステータスバーの更新。
+     *
      * @param message 更新文字列
      */
     public void updateSysMessage(String message){
         String text = message;
         if(message == null) text = "";
         this.sysMessage.setText(text);   // Thread safe
-        GUIUtils.dispatchEmptyAWTEvent();
         return;
     }
 
     /**
      * ステータスバー文字列を返す。
+     *
      * @return ステータスバー文字列
      */
     public String getSysMessage(){
@@ -290,19 +317,18 @@ public class TopView extends JPanel{
 
     /**
      * 村情報を表示する。
+     *
      * @param village 村
      */
     public void showVillageInfo(Village village){
         this.tabBrowser.setVillage(village);
         this.cardLayout.show(this.cards, BROWSECARD);
-        this.tabBrowser.repaint();
-        this.tabBrowser.revalidate();
-
         return;
     }
 
     /**
      * 国情報を表示する。
+     *
      * @param land 国
      */
     public void showLandInfo(Land land){
@@ -311,5 +337,4 @@ public class TopView extends JPanel{
         return;
     }
 
-    // TODO setEnabled()を全子フレームにも波及させるべきか
 }

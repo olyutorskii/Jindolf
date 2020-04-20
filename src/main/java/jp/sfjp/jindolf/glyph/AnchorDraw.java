@@ -21,6 +21,7 @@ import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
+import jp.sfjp.jindolf.view.AvatarPics;
 
 /**
  * アンカー描画。
@@ -90,13 +91,14 @@ public class AnchorDraw extends AbstractTextRow{
     private BufferedImage getFaceImage(){
         Period period = this.talk.getPeriod();
         Village village = period.getVillage();
+        AvatarPics avatarPics = village.getAvatarPics();
 
         BufferedImage image;
         if(this.talk.isGrave()){
-            image = village.getGraveImage();
+            image = avatarPics.getGraveImage();
         }else{
             Avatar avatar = this.talk.getAvatar();
-            image = village.getAvatarFaceImage(avatar);
+            image = avatarPics.getAvatarFaceImage(avatar);
         }
 
         return image;

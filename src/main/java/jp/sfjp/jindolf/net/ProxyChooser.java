@@ -35,6 +35,7 @@ import jp.sfjp.jindolf.util.Monodizer;
 
 /**
  * プロクシサーバ選択画面。
+ *
  * @see <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
  * @see <a href="http://www.ietf.org/rfc/rfc1928.txt">RFC1928</a>
  */
@@ -64,6 +65,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * コンストラクタ。
+     *
      * @param proxyInfo プロクシ設定
      */
     public ProxyChooser(ProxyInfo proxyInfo){
@@ -100,6 +102,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * ポート番号選択肢を生成する。
+     *
      * @return ポート番号選択肢
      */
     private static ComboBoxModel<Integer> buildPortRecommender(){
@@ -115,6 +118,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * レイアウトを行う。
+     *
      * @param content コンテナ
      */
     private void design(Container content){
@@ -143,6 +147,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * サーバ情報パネルを生成する。
+     *
      * @return サーバ情報パネル
      */
     private JComponent buildServerPanel(){
@@ -177,13 +182,6 @@ public class ProxyChooser extends JPanel implements ItemListener{
         constraints.anchor = GridBagConstraints.NORTHWEST;
         panel.add(this.port, constraints);
 
-        String warn =
-                "<html>※ このプロクシサーバは本当に信頼できますか？<br>"
-                + "あなたが人狼BBSにログインしている間、<br>"
-                + "あなたのパスワードは平文状態のまま<br>"
-                + "このプロクシサーバ上を何度も通過します。</html>";
-        panel.add(new JLabel(warn), constraints);
-
         Border border = BorderFactory.createTitledBorder("プロクシサーバ情報");
         panel.setBorder(border);
 
@@ -192,6 +190,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * プロクシの種別を返す。
+     *
      * @return プロクシ種別
      */
     protected Proxy.Type getType(){
@@ -204,7 +203,9 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * サーバ名を返す。
-     * プロクシのホスト名として妥当なものか否かは検証されない。
+     *
+     * <p>プロクシのホスト名として妥当なものか否かは検証されない。
+     *
      * @return サーバ名
      */
     protected String getHostName(){
@@ -215,7 +216,9 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * ポート番号を返す。
-     * 番号の体をなしていなければゼロを返す。
+     *
+     * <p>番号の体をなしていなければゼロを返す。
+     *
      * @return ポート番号
      */
     protected int getPort(){
@@ -238,6 +241,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * サーバへのソケットアドレスを生成する。
+     *
      * @return ソケットアドレス
      */
     protected InetSocketAddress getInetSocketAddress(){
@@ -246,6 +250,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * プロクシ設定を返す。
+     *
      * @return プロクシ設定
      */
     public ProxyInfo getProxyInfo(){
@@ -255,7 +260,9 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * プロクシ設定を設定する。
-     * UIに反映される。
+     *
+     * <p>UIに反映される。
+     *
      * @param proxyInfo プロクシ設定。nullなら直接接続と解釈される。
      */
     public final void setProxyInfo(ProxyInfo proxyInfo){
@@ -287,6 +294,7 @@ public class ProxyChooser extends JPanel implements ItemListener{
 
     /**
      * プロクシ種別ボタン操作の受信。
+     *
      * @param event ボタン操作イベント
      */
     @Override

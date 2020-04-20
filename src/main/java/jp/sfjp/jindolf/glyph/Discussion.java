@@ -23,7 +23,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.io.IOException;
-import java.util.EventListener;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -39,7 +40,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.MouseInputListener;
 import javax.swing.text.DefaultEditorKit;
 import jp.sfjp.jindolf.data.Anchor;
@@ -56,14 +56,22 @@ import jp.sfjp.jindolf.view.ActionManager;
 import jp.sfjp.jindolf.view.TopicFilter;
 
 /**
- * 発言表示画面。
+ * 会話表示画面。
  *
- * <p>表示に影響する要因は、Periodの中身、LayoutManagerによるサイズ変更、
- * フォント属性の指定、フィルタリング操作、ドラッギングによる文字列選択操作、
- * 文字列検索および検索ナビゲーション。
+ * <p>担当責務は
+ * <ul>
+ * <li>会話表示</li>
+ * <li>フィルタによる表示絞り込み</li>
+ * <li>検索結果ハイライト</li>
+ * <li>テキストのドラッグ選択</li>
+ * <li>アンカー選択処理</li>
+ * <li>テキストのCopyAndPaste</li>
+ * <li>ポップアップメニュー</li>
+ * </ul>
+ * など
  */
 @SuppressWarnings("serial")
-public class Discussion extends JComponent
+public final class Discussion extends JComponent
         implements Scrollable, MouseInputListener, ComponentListener{
 
     private static final Color COLOR_NORMALBG = Color.BLACK;
@@ -71,6 +79,7 @@ public class Discussion extends JComponent
 
     private static final int MARGINTOP    =  50;
     private static final int MARGINBOTTOM = 100;
+
 
     private Period period;
     private final List<TextRow> rowList       = new LinkedList<>();
@@ -91,15 +100,14 @@ public class Discussion extends JComponent
     private int lastWidth = -1;
 
     private final DiscussionPopup popup = new DiscussionPopup();
+    private Talk activeTalk;
+    private Anchor activeAnchor;
 
-    private final EventListenerList thisListenerList =
-            new EventListenerList();
-
-    private final Action copySelectedAction =
-            new ProxyAction(ActionManager.CMD_COPY);
 
     /**
-     * 発言表示画面を作成する。
+     * コンストラクタ。
+     *
+     * <p>会話表示画面を作成する。
      */
     @SuppressWarnings("LeakingThisInConstructor")
     public Discussion(){
@@ -122,9 +130,8 @@ public class Discussion extends JComponent
 
         setComponentPopupMenu(this.popup);
 
-        updateInputMap();
-        ActionMap actionMap = getActionMap();
-        actionMap.put(DefaultEditorKit.copyAction, this.copySelectedAction);
+        modifyInputMap();
+        modifyActionMap();
 
         setColorDesign();
 
@@ -133,7 +140,8 @@ public class Discussion extends JComponent
 
     /**
      * 描画設定の更新。
-     * FontRenderContextが更新された後は必ず呼び出す必要がある。
+     *
+     * <p>FontRenderContextが更新された後は必ず呼び出す必要がある。
      */
     private void updateRenderingHints(){
         Object textAliaseValue;
@@ -177,6 +185,7 @@ public class Discussion extends JComponent
 
     /**
      * フォント描画設定を変更する。
+     *
      * @param newFontInfo フォント設定
      */
     public void setFontInfo(FontInfo newFontInfo){
@@ -198,8 +207,9 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 発言表示設定を変更する。
-     * @param newPref 発言表示設定
+     * 会話表示設定を変更する。
+     *
+     * @param newPref 会話表示設定
      */
     public void setDialogPref(DialogPref newPref){
         this.dialogPref = newPref;
@@ -225,6 +235,7 @@ public class Discussion extends JComponent
 
     /**
      * 現在のPeriodを返す。
+     *
      * @return 現在のPeriod
      */
     public Period getPeriod(){
@@ -233,7 +244,9 @@ public class Discussion extends JComponent
 
     /**
      * Periodを更新する。
-     * 新しいPeriodの表示内容はまだ反映されない。
+     *
+     * <p>新しいPeriodの表示内容はまだ反映されない。
+     *
      * @param period 新しいPeriod
      */
     public final void setPeriod(Period period){
@@ -287,8 +300,9 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 発言フィルタを設定する。
-     * @param filter 発言フィルタ
+     * 会話フィルタを設定する。
+     *
+     * @param filter 会話フィルタ
      */
     public void setTopicFilter(TopicFilter filter){
         this.topicFilter = filter;
@@ -297,7 +311,7 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 発言フィルタを適用する。
+     * 会話フィルタを適用する。
      */
     public void filtering(){
         if(    this.topicFilter != null
@@ -321,6 +335,7 @@ public class Discussion extends JComponent
 
     /**
      * 検索パターンを取得する。
+     *
      * @return 検索パターン
      */
     public RegexPattern getRegexPattern(){
@@ -329,6 +344,7 @@ public class Discussion extends JComponent
 
     /**
      * 与えられた正規表現にマッチする文字列をハイライト描画する。
+     *
      * @param newPattern 検索パターン
      * @return ヒット件数
      */
@@ -486,6 +502,7 @@ public class Discussion extends JComponent
     /**
      * 指定した領域に若干の上下マージンを付けて
      * スクロールウィンドウに表示させる。
+     *
      * @param rectangle 指定領域
      */
     private void scrollRectWithMargin(Rectangle rectangle){
@@ -510,6 +527,7 @@ public class Discussion extends JComponent
 
     /**
      * 指定した矩形がフィルタリング対象か判定する。
+     *
      * @param row 矩形
      * @return フィルタリング対象ならtrue
      */
@@ -541,7 +559,9 @@ public class Discussion extends JComponent
 
     /**
      * 幅を設定する。
-     * 全子TextRowがリサイズされる。
+     *
+     * <p>全子TextRowがリサイズされる。
+     *
      * @param width コンポーネント幅
      */
     private void setWidth(int width){
@@ -559,8 +579,10 @@ public class Discussion extends JComponent
 
     /**
      * 子TextRowの縦位置レイアウトを行う。
-     * フィルタリングが反映される。
-     * TextRowは必要に応じて移動させられるがリサイズされることはない。
+     *
+     * <p>フィルタリングが反映される。
+     *
+     * <p>TextRowは必要に応じて移動させられるがリサイズされることはない。
      */
     private void layoutVertical(){
         Rectangle unionRect = null;
@@ -613,6 +635,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
+     * <p>描画処理
+     *
      * @param g {@inheritDoc}
      */
     @Override
@@ -637,6 +662,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -646,6 +672,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -655,6 +682,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -664,6 +692,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param visibleRect {@inheritDoc}
      * @param orientation {@inheritDoc}
      * @param direction {@inheritDoc}
@@ -681,6 +710,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param visibleRect {@inheritDoc}
      * @param orientation {@inheritDoc}
      * @param direction {@inheritDoc}
@@ -694,9 +724,11 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 任意の発言の表示が占める画面領域を返す。
-     * 発言がフィルタリング対象の時はnullを返す。
-     * @param talk 発言
+     * 任意の会話の表示が占める画面領域を返す。
+     *
+     * <p>会話がフィルタリング対象の時はnullを返す。
+     *
+     * @param talk 会話
      * @return 領域
      */
     public Rectangle getTalkBounds(Talk talk){
@@ -715,6 +747,7 @@ public class Discussion extends JComponent
 
     /**
      * ドラッグ処理を行う。
+     *
      * @param from ドラッグ開始位置
      * @param to 現在のドラッグ位置
      */
@@ -743,9 +776,10 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 与えられた点座標を包含する発言を返す。
+     * 与えられた点座標を包含する会話を返す。
+     *
      * @param pt 点座標（JComponent基準）
-     * @return 点座標を含む発言。含む発言がなければnullを返す。
+     * @return 点座標を含む会話。含む会話がなければnullを返す。
      */
     // TODO 二分探索とかしたい。
     private TalkDraw getHittedTalkDraw(Point pt){
@@ -759,6 +793,7 @@ public class Discussion extends JComponent
 
     /**
      * アンカークリック動作の処理。
+     *
      * @param pt クリックポイント
      */
     private void hitAnchor(Point pt){
@@ -779,6 +814,7 @@ public class Discussion extends JComponent
 
     /**
      * 検索マッチ文字列クリック動作の処理。
+     *
      * @param pt クリックポイント
      */
     private void hitRegex(Point pt){
@@ -796,8 +832,11 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * アンカーヒット処理を行う。
-     * MouseInputListenerを参照せよ。
+     *
+     * <p>アンカーヒット処理を行う。
+     *
+     * <p>MouseInputListenerを参照せよ。
+     *
      * @param event {@inheritDoc}
      */
     // TODO 距離判定がシビアすぎ
@@ -814,6 +853,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -824,6 +864,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -833,7 +874,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * ドラッグ開始処理を行う。
+     *
+     * <p>ドラッグ開始処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -850,7 +893,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * ドラッグ終了処理を行う。
+     *
+     * <p>ドラッグ終了処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -863,7 +908,9 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
-     * ドラッグ処理を行う。
+     *
+     * <p>ドラッグ処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     // TODO ドラッグ範囲がビューポートを超えたら自動的にスクロールしてほしい。
@@ -877,6 +924,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -886,6 +934,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -895,6 +944,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -904,6 +954,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -913,6 +964,7 @@ public class Discussion extends JComponent
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -931,6 +983,7 @@ public class Discussion extends JComponent
 
     /**
      * 選択文字列を返す。
+     *
      * @return 選択文字列
      */
     public CharSequence getSelected(){
@@ -953,7 +1006,8 @@ public class Discussion extends JComponent
 
     /**
      * 選択文字列をクリップボードにコピーする。
-     * @return 選択文字列
+     *
+     * @return 選択文字列。なければnull
      */
     public CharSequence copySelected(){
         CharSequence selected = getSelected();
@@ -963,13 +1017,13 @@ public class Discussion extends JComponent
     }
 
     /**
-     * 矩形の示す一発言をクリップボードにコピーする。
+     * 一会話全体の文字列内容をクリップボードにコピーする。
+     *
      * @return コピーした文字列
      */
     public CharSequence copyTalk(){
-        TalkDraw talkDraw = this.popup.lastPopupedTalkDraw;
-        if(talkDraw == null) return null;
-        Talk talk = talkDraw.getTalk();
+        Talk talk = getActiveTalk();
+        if(talk == null) return null;
 
         StringBuilder selected = new StringBuilder();
 
@@ -994,189 +1048,224 @@ public class Discussion extends JComponent
     }
 
     /**
-     * ポップアップメニュートリガ座標に発言があればそれを返す。
-     * @return 発言
+     * ポップアップメニュートリガなどの要因による
+     * 特定の会話への指示があればそれを返す。
+     *
+     * @return 会話
      */
-    public Talk getPopupedTalk(){
-        TalkDraw talkDraw = this.popup.lastPopupedTalkDraw;
-        if(talkDraw == null) return null;
-        Talk talk = talkDraw.getTalk();
-        return talk;
+    public Talk getActiveTalk(){
+        return this.activeTalk;
     }
 
     /**
-     * ポップアップメニュートリガ座標にアンカーがあればそれを返す。
+     * ポップアップメニュートリガなどの要因による
+     * 特定の会話への指示があればそれを設定する。
+     *
+     * @param talk 会話
+     */
+    public void setActiveTalk(Talk talk){
+        this.activeTalk = talk;
+        return;
+    }
+
+    /**
+     * ポップアップメニュートリガなどの要因による
+     * 特定のアンカーへの指示があればそれを返す。
+     *
      * @return アンカー
      */
-    public Anchor getPopupedAnchor(){
-        return this.popup.lastPopupedAnchor;
+    public Anchor getActiveAnchor(){
+        return this.activeAnchor;
+    }
+
+    /**
+     * ポップアップメニュートリガなどの要因による
+     * 特定のアンカーへの指示があればそれを設定する。
+     *
+     * @param anchor アンカー
+     */
+    public void setActiveAnchor(Anchor anchor){
+        this.activeAnchor = anchor;
+        return;
     }
 
     /**
      * {@inheritDoc}
+     *
+     * <p>キーバインディング設定が変わる可能性あり。
      */
     @Override
     public void updateUI(){
         super.updateUI();
-        this.popup.updateUI();
-
-        updateInputMap();
-
+        modifyInputMap();
         return;
     }
 
     /**
      * COPY処理を行うキーの設定をJTextFieldから流用する。
-     * おそらくはCtrl-C。MacならCommand-Cかも。
+     *
+     * <p>おそらくはCtrl-C。MacならCommand-Cかも。
+     *
+     * <p>キー設定はLookAndFeelにより異なる可能性がある。
      */
-    private void updateInputMap(){
+    private void modifyInputMap(){
         InputMap thisInputMap = getInputMap();
 
+        JComponent sampleComp = new JTextField();
         InputMap sampleInputMap;
-        sampleInputMap = new JTextField().getInputMap();
-        KeyStroke[] strokes = sampleInputMap.allKeys();
-        for(KeyStroke stroke : strokes){
-            Object bind = sampleInputMap.get(stroke);
-            if(bind.equals(DefaultEditorKit.copyAction)){
-                thisInputMap.put(stroke, DefaultEditorKit.copyAction);
-            }
-        }
+        sampleInputMap = sampleComp.getInputMap();
 
+        KeyStroke[] strokes = sampleInputMap.allKeys();
+        Arrays.stream(strokes).filter((stroke) -> {
+            Object binding = sampleInputMap.get(stroke);
+            return DefaultEditorKit.copyAction.equals(binding);
+        }).forEach((stroke) ->
+            thisInputMap.put(stroke, DefaultEditorKit.copyAction)
+        );
+
+        return;
+    }
+
+    /**
+     * COPY処理を行うActionを割り当てる。
+     */
+    private void modifyActionMap(){
+        ActionMap actionMap = getActionMap();
+        Action copyAction = new CopySelAction();
+        actionMap.put(DefaultEditorKit.copyAction, copyAction);
         return;
     }
 
     /**
      * ActionListenerを追加する。
+     *
+     * <p>通知対象となるActionは、
+     * COPYキー操作によって選択文字列からクリップボードへの
+     * コピーが指示される場合とポップアップメニューの押下。
+     *
      * @param listener リスナー
      */
     public void addActionListener(ActionListener listener){
-        this.thisListenerList.add(ActionListener.class, listener);
-
-        this.popup.menuCopy       .addActionListener(listener);
-        this.popup.menuSelTalk    .addActionListener(listener);
-        this.popup.menuJumpAnchor .addActionListener(listener);
-        this.popup.menuWebTalk    .addActionListener(listener);
-        this.popup.menuSummary    .addActionListener(listener);
-
+        this.listenerList.add(ActionListener.class, listener);
+        this.popup.addActionListener(listener);
         return;
     }
 
     /**
      * ActionListenerを削除する。
+     *
      * @param listener リスナー
      */
     public void removeActionListener(ActionListener listener){
-        this.thisListenerList.remove(ActionListener.class, listener);
-
-        this.popup.menuCopy       .removeActionListener(listener);
-        this.popup.menuSelTalk    .removeActionListener(listener);
-        this.popup.menuJumpAnchor .removeActionListener(listener);
-        this.popup.menuWebTalk    .removeActionListener(listener);
-        this.popup.menuSummary    .removeActionListener(listener);
-
+        this.listenerList.remove(ActionListener.class, listener);
+        this.popup.removeActionListener(listener);
         return;
     }
 
     /**
      * ActionListenerを列挙する。
+     *
      * @return すべてのActionListener
      */
     public ActionListener[] getActionListeners(){
-        return this.thisListenerList.getListeners(ActionListener.class);
+        return this.listenerList.getListeners(ActionListener.class);
+    }
+
+    /**
+     * 登録済みリスナに対しActionEventを発火する。
+     *
+     * <p>対象となるActionは、
+     * COPYキー操作によって選択文字列からクリップボードへの
+     * コピーが指示される場合のみ。
+     *
+     * @param event イベント
+     */
+    protected void fireActionPerformed(ActionEvent event) {
+        Object source  = event.getSource();
+        int id         = event.getID();
+        String actcmd  = event.getActionCommand();
+        long when      = event.getWhen();
+        int modifiers  = event.getModifiers();
+
+        ActionEvent newEvent =
+                new ActionEvent(source, id, actcmd, when, modifiers);
+
+        for(ActionListener listener : getActionListeners()){
+            listener.actionPerformed(newEvent);
+        }
+
+        return;
     }
 
     /**
      * AnchorHitListenerを追加する。
+     *
      * @param listener リスナー
      */
     public void addAnchorHitListener(AnchorHitListener listener){
-        this.thisListenerList.add(AnchorHitListener.class, listener);
+        this.listenerList.add(AnchorHitListener.class, listener);
         return;
     }
 
     /**
      * AnchorHitListenerを削除する。
+     *
      * @param listener リスナー
      */
     public void removeAnchorHitListener(AnchorHitListener listener){
-        this.thisListenerList.remove(AnchorHitListener.class, listener);
+        this.listenerList.remove(AnchorHitListener.class, listener);
         return;
     }
 
     /**
      * AnchorHitListenerを列挙する。
+     *
      * @return すべてのAnchorHitListener
      */
     public AnchorHitListener[] getAnchorHitListeners(){
-        return this.thisListenerList.getListeners(AnchorHitListener.class);
+        return this.listenerList.getListeners(AnchorHitListener.class);
     }
 
-    /**
-     * {@inheritDoc}
-     * @param <T> {@inheritDoc}
-     * @param listenerType {@inheritDoc}
-     * @return {@inheritDoc}
-     */
-    @Override
-    public <T extends EventListener> T[] getListeners(Class<T> listenerType){
-        T[] result;
-        result = this.thisListenerList.getListeners(listenerType);
-
-        if(result.length <= 0){
-            result = super.getListeners(listenerType);
-        }
-
-        return result;
-    }
 
     /**
-     * キーボード入力用ダミーAction。
+     * COPYキーボード操作受信用ダミーAction。
+     *
+     * <p>COPYキー押下イベントはCOPYコマンド実行イベントに変換され、
+     * {@link Discussion}のリスナへ通知される。
      */
-    private class ProxyAction extends AbstractAction{
-
-        private final String command;
+    private class CopySelAction extends AbstractAction{
 
         /**
          * コンストラクタ。
-         * @param command コマンド
-         * @throws NullPointerException 引数がnull
          */
-        public ProxyAction(String command) throws NullPointerException{
+        CopySelAction() throws NullPointerException{
             super();
-            if(command == null) throw new NullPointerException();
-            this.command = command;
             return;
         }
 
         /**
          * {@inheritDoc}
-         * @param event {@inheritDoc}
+         *
+         * @param event COPYキーボード押下イベント
          */
         @Override
         public void actionPerformed(ActionEvent event){
-            Object source  = event.getSource();
-            int id         = event.getID();
-            String actcmd  = this.command;
-            long when      = event.getWhen();
-            int modifiers  = event.getModifiers();
-
-            for(ActionListener listener : getActionListeners()){
-                ActionEvent newEvent = new ActionEvent(source,
-                                                       id,
-                                                       actcmd,
-                                                       when,
-                                                       modifiers );
-                listener.actionPerformed(newEvent);
-            }
-
+            ActionEvent newEvent =
+                    new ActionEvent(
+                            this,
+                            ActionEvent.ACTION_PERFORMED,
+                            ActionManager.CMD_COPY
+                    );
+            fireActionPerformed(newEvent);
             return;
         }
+
     }
 
     /**
      * ポップアップメニュー。
      */
-    private class DiscussionPopup extends JPopupMenu{
+    private static final class DiscussionPopup extends JPopupMenu{
 
         private final JMenuItem menuCopy =
                 new JMenuItem("選択範囲をコピー");
@@ -1189,15 +1278,26 @@ public class Discussion extends JComponent
         private final JMenuItem menuSummary =
                 new JMenuItem("発言を集計...");
 
-        private TalkDraw lastPopupedTalkDraw;
-        private Anchor lastPopupedAnchor;
 
         /**
          * コンストラクタ。
          */
-        public DiscussionPopup(){
+        DiscussionPopup(){
             super();
 
+            design();
+            setCommand();
+
+            Icon icon = GUIUtils.getWWWIcon();
+            this.menuWebTalk.setIcon(icon);
+
+            return;
+        }
+
+        /**
+         * メニューのデザイン。
+         */
+        private void design(){
             add(this.menuCopy);
             add(this.menuSelTalk);
             addSeparator();
@@ -1205,67 +1305,119 @@ public class Discussion extends JComponent
             add(this.menuWebTalk);
             addSeparator();
             add(this.menuSummary);
+            return;
+        }
 
+        /**
+         * アクションコマンドの設定。
+         */
+        private void setCommand(){
             this.menuCopy
-                .setActionCommand(ActionManager.CMD_COPY);
+                    .setActionCommand(ActionManager.CMD_COPY);
             this.menuSelTalk
-                .setActionCommand(ActionManager.CMD_COPYTALK);
+                    .setActionCommand(ActionManager.CMD_COPYTALK);
             this.menuJumpAnchor
-                .setActionCommand(ActionManager.CMD_JUMPANCHOR);
+                    .setActionCommand(ActionManager.CMD_JUMPANCHOR);
             this.menuWebTalk
-                .setActionCommand(ActionManager.CMD_WEBTALK);
+                    .setActionCommand(ActionManager.CMD_WEBTALK);
             this.menuSummary
-                .setActionCommand(ActionManager.CMD_DAYSUMMARY);
-
-            this.menuWebTalk.setIcon(GUIUtils.getWWWIcon());
-
+                    .setActionCommand(ActionManager.CMD_DAYSUMMARY);
             return;
         }
 
         /**
          * {@inheritDoc}
-         * @param comp {@inheritDoc}
+         *
+         * <p>状況に応じてボタン群をマスクする。
+         *
+         * <p>ポップアップクリックの対象となった会話やアンカーを記録する。
+         *
+         * @param invoker {@inheritDoc}
          * @param x {@inheritDoc}
          * @param y {@inheritDoc}
          */
         @Override
-        public void show(Component comp, int x, int y){
+        public void show(Component invoker, int x, int y){
+            if( ! (invoker instanceof Discussion) ){
+                super.show(invoker, x, y);
+                return;
+            }
+            Discussion dis = (Discussion) invoker;
+
             Point point = new Point(x, y);
 
-            this.lastPopupedTalkDraw = getHittedTalkDraw(point);
-            if(this.lastPopupedTalkDraw != null){
-                this.menuSelTalk.setEnabled(true);
-                this.menuWebTalk.setEnabled(true);
-            }else{
-                this.menuSelTalk.setEnabled(false);
-                this.menuWebTalk.setEnabled(false);
+            boolean talkPointed = false;
+            Talk activeTalk = null;
+            Anchor activeAnchor = null;
+
+            TalkDraw popupTalkDraw = dis.getHittedTalkDraw(point);
+            if(popupTalkDraw != null){
+                talkPointed = true;
+                activeTalk   = popupTalkDraw.getTalk();
+                activeAnchor = popupTalkDraw.getAnchor(point);
             }
 
-            if(this.lastPopupedTalkDraw != null){
-                this.lastPopupedAnchor =
-                        this.lastPopupedTalkDraw.getAnchor(point);
-            }else{
-                this.lastPopupedAnchor = null;
-            }
+            dis.setActiveTalk(activeTalk);
+            dis.setActiveAnchor(activeAnchor);
 
-            if(this.lastPopupedAnchor != null){
-                this.menuJumpAnchor.setEnabled(true);
-            }else{
-                this.menuJumpAnchor.setEnabled(false);
-            }
+            boolean anchorPointed = activeAnchor != null;
+            boolean hasSelectedText = dis.getSelected() != null;
 
-            if(getSelected() != null){
-                this.menuCopy.setEnabled(true);
-            }else{
-                this.menuCopy.setEnabled(false);
-            }
+            this.menuSelTalk    .setEnabled(talkPointed);
+            this.menuWebTalk    .setEnabled(talkPointed);
+            this.menuJumpAnchor .setEnabled(anchorPointed);
+            this.menuCopy       .setEnabled(hasSelectedText);
 
-            super.show(comp, x, y);
+            super.show(invoker, x, y);
 
             return;
         }
+
+        /**
+         * ActionListenerを追加する。
+         *
+         * <p>受信対象はポップアップメニュー押下。
+         *
+         * @param listener リスナー
+         */
+        public void addActionListener(ActionListener listener){
+            this.listenerList.add(ActionListener.class, listener);
+
+            this.menuCopy       .addActionListener(listener);
+            this.menuSelTalk    .addActionListener(listener);
+            this.menuJumpAnchor .addActionListener(listener);
+            this.menuWebTalk    .addActionListener(listener);
+            this.menuSummary    .addActionListener(listener);
+
+            return;
+        }
+
+        /**
+         * ActionListenerを削除する。
+         *
+         * @param listener リスナー
+         */
+        public void removeActionListener(ActionListener listener){
+            this.listenerList.remove(ActionListener.class, listener);
+
+            this.menuCopy       .removeActionListener(listener);
+            this.menuSelTalk    .removeActionListener(listener);
+            this.menuJumpAnchor .removeActionListener(listener);
+            this.menuWebTalk    .removeActionListener(listener);
+            this.menuSummary    .removeActionListener(listener);
+
+            return;
+        }
+
+        /**
+         * ActionListenerを列挙する。
+         *
+         * @return すべてのActionListener
+         */
+        public ActionListener[] getActionListeners(){
+            return this.listenerList.getListeners(ActionListener.class);
+        }
+
     }
 
-    // TODO シンプルモードの追加
-    // Period変更を追跡するリスナ化
 }

@@ -1,0 +1,51 @@
+{
+
+  "avatarFace" : {
+    "gerd"      : "face01.jpg" ,
+    "walter"    : "face02.jpg" ,
+    "moritz"    : "face03.jpg" ,
+    "simson"    : "face04.jpg" ,
+    "thomas"    : "face05.jpg" ,
+    "nicolas"   : "face06.jpg" ,
+    "dieter"    : "face07.jpg" ,
+    "peter"     : "face08.jpg" ,
+    "liesa"     : "face09.jpg" ,
+    "albin"     : "face10.jpg" ,
+    "katharina" : "face11.jpg" ,
+    "otto"      : "face12.jpg" ,
+    "joachim"   : "face13.jpg" ,
+    "pamela"    : "face14.jpg" ,
+    "jacob"     : "face15.jpg" ,
+    "regina"    : "face16.jpg" ,
+    "fridel"    : "face17.jpg" ,
+    "erna"      : "face18.jpg" ,
+    "clara"     : "face19.jpg" ,
+    "simon"     : "face20.jpg" ,
+    "tomb"      : "face99.jpg"
+  } ,
+
+  "avatarBody" : {
+    "gerd"      : "body01.jpg" ,
+    "walter"    : "body02.jpg" ,
+    "moritz"    : "body03.jpg" ,
+    "simson"    : "body04.jpg" ,
+    "thomas"    : "body05.jpg" ,
+    "nicolas"   : "body06.jpg" ,
+    "dieter"    : "body07.jpg" ,
+    "peter"     : "body08.jpg" ,
+    "liesa"     : "body09.jpg" ,
+    "albin"     : "body10.jpg" ,
+    "katharina" : "body11.jpg" ,
+    "otto"      : "body12.jpg" ,
+    "joachim"   : "body13.jpg" ,
+    "pamela"    : "body14.jpg" ,
+    "jacob"     : "body15.jpg" ,
+    "regina"    : "body16.jpg" ,
+    "fridel"    : "body17.jpg" ,
+    "erna"      : "body18.jpg" ,
+    "clara"     : "body19.jpg" ,
+    "simon"     : "body20.jpg" ,
+    "tomb"      : "body99.jpg"
+  }
+
+}

@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jp.sfjp.jindolf.util.StringUtils;
 
 /**
  * 発言アンカー。
@@ -186,7 +185,7 @@ public final class Anchor{
 
         /* G国アンカー */
         if(matcher.start(14) < matcher.end(14)){
-            int talkNo = StringUtils.parseInt(source, matcher, 14);
+            int talkNo = parseInt(source, matcher, 14);
             Anchor anchor = new Anchor(source, startPos, endPos, talkNo);
             return anchor;
         }
@@ -198,7 +197,7 @@ public final class Anchor{
             }else if(matcher.start(3) < matcher.end(3)){ // epilogue
                 day = EPILOGUEDAY;
             }else if(matcher.start(4) < matcher.end(4)){  // etc) "6d"
-                day = StringUtils.parseInt(source, matcher, 4);
+                day = parseInt(source, matcher, 4);
             }else{
                 assert false;
                 return null;
@@ -229,8 +228,8 @@ public final class Anchor{
             assert false;
             return null;
         }
-        int hour   = StringUtils.parseInt(source, matcher, hourGroup);
-        int minute = StringUtils.parseInt(source, matcher, minuteGroup);
+        int hour   = parseInt(source, matcher, hourGroup);
+        int minute = parseInt(source, matcher, minuteGroup);
 
         if(isPM && hour < 12) hour += 12;
         hour %= 24;
@@ -244,6 +243,49 @@ public final class Anchor{
 
         return anchor;
     }
+
+    /**
+     * 正規表現にマッチした領域を数値化する。
+     *
+     * @param seq 文字列
+     * @param matcher Matcher
+     * @param groupIndex 前方指定グループ番号
+     * @return 数値
+     * @throws IndexOutOfBoundsException 不正なグループ番号
+     */
+    static int parseInt(CharSequence seq,
+                        Matcher matcher,
+                        int groupIndex )
+            throws IndexOutOfBoundsException {
+        int startPos = matcher.start(groupIndex);
+        int endPos   = matcher.end(groupIndex);
+        return parseInt(seq, startPos, endPos);
+    }
+
+    /**
+     * 部分文字列を数値化する。
+     *
+     * @param seq 文字列
+     * @param startPos 範囲開始位置
+     * @param endPos 範囲終了位置
+     * @return パースした数値
+     * @throws IndexOutOfBoundsException 不正な位置指定
+     */
+    static int parseInt(CharSequence seq, int startPos, int endPos)
+            throws IndexOutOfBoundsException{
+        int result = 0;
+
+        for(int pos = startPos; pos < endPos; pos++){
+            char ch = seq.charAt(pos);
+            int digit = Character.digit(ch, 10);
+            if(digit < 0) break;
+            result *= 10;
+            result += digit;
+        }
+
+        return result;
+    }
+
 
     /**
      * アンカーの含まれる文字列を返す。
