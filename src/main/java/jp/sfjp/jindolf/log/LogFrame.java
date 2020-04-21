@@ -18,8 +18,10 @@ import java.awt.Insets;
 import java.util.logging.Handler;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 
 /**
  * ログ表示ウィンドウ。
@@ -35,6 +37,7 @@ public final class LogFrame extends JDialog {
     private final LogPanel logPanel;
     private final JButton clearButton;
     private final JButton closeButton;
+    private final JCheckBox trackButton;
 
 
     /**
@@ -50,6 +53,7 @@ public final class LogFrame extends JDialog {
         this.logPanel = new LogPanel(this.facade);
         this.clearButton = new JButton();
         this.closeButton = new JButton();
+        this.trackButton = new JCheckBox();
 
         design();
 
@@ -65,6 +69,11 @@ public final class LogFrame extends JDialog {
             }
         });
         this.closeButton.setText("閉じる");
+
+        JToggleButton.ToggleButtonModel toggleModel;
+        toggleModel = this.facade.getTrackSwitchButtonModel();
+        this.trackButton.setModel(toggleModel);
+        this.trackButton.setText("末尾に追従");
 
         MaxTracker tracker = this.facade.getMaxTracker();
         tracker.setTrackingMode(true);
@@ -102,12 +111,14 @@ public final class LogFrame extends JDialog {
 
         content.add(new JSeparator(), constraints);
 
+        constraints.weightx = 0.0;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridwidth = 1;
         content.add(this.clearButton, constraints);
+        content.add(this.trackButton, constraints);
 
-        constraints.weightx = 0.0;
+        constraints.weightx = 1.0;
         constraints.anchor = GridBagConstraints.EAST;
         content.add(this.closeButton, constraints);
 
