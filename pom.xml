@@ -131,7 +131,14 @@
             <version>1.101.104</version>
             <scope>compile</scope>
         </dependency>
-
+        
+        <dependency>
+            <groupId>io.github.olyutorskii</groupId>
+            <artifactId>quetexj</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        
     </dependencies>
 
     <repositories/>

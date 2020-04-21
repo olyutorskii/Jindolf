@@ -7,14 +7,15 @@
 
 package jp.sfjp.jindolf.log;
 
+import io.github.olyutorskii.quetexj.MaxTracker;
+import io.github.olyutorskii.quetexj.MvcFacade;
 import java.awt.Container;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.logging.Handler;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JSeparator;
@@ -23,32 +24,49 @@ import javax.swing.JSeparator;
  * ログ表示ウィンドウ。
  */
 @SuppressWarnings("serial")
-public class LogFrame extends JDialog {
+public final class LogFrame extends JDialog {
 
     private static final String CMD_CLOSELOG = "CMD_CLOSE_LOG";
-    private static final String CMD_CLEARLOG = "CMD_CLEAR_LOG";
 
 
-    private final LogPanel logPanel = new LogPanel();
-    private final JButton clearButton = new JButton("クリア");
-    private final JButton closeButton = new JButton("閉じる");
+    private final MvcFacade facade;
+
+    private final LogPanel logPanel;
+    private final JButton clearButton;
+    private final JButton closeButton;
 
 
     /**
      * コンストラクタ。
+     *
      * @param owner フレームオーナー
      */
     public LogFrame(Frame owner){
         super(owner);
 
+        this.facade = new MvcFacade();
+
+        this.logPanel = new LogPanel(this.facade);
+        this.clearButton = new JButton();
+        this.closeButton = new JButton();
+
         design();
 
-        this.clearButton.setActionCommand(CMD_CLEARLOG);
-        this.closeButton.setActionCommand(CMD_CLOSELOG);
+        Action clearAction = this.facade.getClearAction();
+        this.clearButton.setAction(clearAction);
+        this.clearButton.setText("クリア");
 
-        ActionListener actionListener = new ActionWatcher();
-        this.clearButton.addActionListener(actionListener);
-        this.closeButton.addActionListener(actionListener);
+        this.closeButton.setActionCommand(CMD_CLOSELOG);
+        this.closeButton.addActionListener(event -> {
+            String cmd = event.getActionCommand();
+            if(CMD_CLOSELOG.equals(cmd)){
+                setVisible(false);
+            }
+        });
+        this.closeButton.setText("閉じる");
+
+        MaxTracker tracker = this.facade.getMaxTracker();
+        tracker.setTrackingMode(true);
 
         setResizable(true);
         setLocationByPlatform(true);
@@ -98,45 +116,6 @@ public class LogFrame extends JDialog {
      */
     public Handler getHandler(){
         return this.logPanel.getHandler();
-    }
-
-    /**
-     * ログ内容をクリアする。
-     */
-    public void clearLog(){
-        this.logPanel.clearLog();
-        return;
-    }
-
-
-    /**
-     * ボタン操作を監視する。
-     */
-    private final class ActionWatcher implements ActionListener{
-
-        /**
-         * コンストラクタ。
-         */
-        ActionWatcher(){
-            super();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * ボタン押下イベント処理。
-         * @param event {@inheritDoc}
-         */
-        @Override
-        public void actionPerformed(ActionEvent event){
-            String cmd = event.getActionCommand();
-
-            if     (CMD_CLEARLOG.equals(cmd)) clearLog();
-            else if(CMD_CLOSELOG.equals(cmd)) setVisible(false);
-
-            return;
-        }
-
     }
 
 }
