@@ -188,7 +188,9 @@ public class Controller
         filterPanel.addChangeListener(this.filterWatcher);
 
         Handler newHandler = logFrame.getHandler();
-        LogUtils.switchHandler(newHandler);
+        EventQueue.invokeLater(() -> {
+            LogUtils.switchHandler(newHandler);
+        });
 
         ConfigStore config = this.appSetting.getConfigStore();
 
