@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.log;
 
+import io.github.olyutorskii.quetexj.HeightKeeper;
 import io.github.olyutorskii.quetexj.MaxTracker;
 import io.github.olyutorskii.quetexj.MvcFacade;
 import java.awt.Container;
@@ -67,6 +68,9 @@ public final class LogFrame extends JDialog {
 
         MaxTracker tracker = this.facade.getMaxTracker();
         tracker.setTrackingMode(true);
+
+        HeightKeeper keeper = this.facade.getHeightKeeper();
+        keeper.setConditions(5000, 4000);
 
         setResizable(true);
         setLocationByPlatform(true);

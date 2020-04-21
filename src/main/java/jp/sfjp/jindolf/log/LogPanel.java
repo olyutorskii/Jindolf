@@ -17,10 +17,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.text.Document;
-import javax.swing.text.PlainDocument;
 import jp.sfjp.jindolf.dxchg.TextPopup;
 import jp.sfjp.jindolf.util.Monodizer;
 
@@ -31,9 +28,6 @@ import jp.sfjp.jindolf.util.Monodizer;
  */
 @SuppressWarnings("serial")
 public final class LogPanel extends JScrollPane {
-
-    private static final Document DOC_EMPTY = new PlainDocument();
-
 
     private final JTextArea textarea;
     private final Document document;
@@ -57,7 +51,6 @@ public final class LogPanel extends JScrollPane {
             this.handler = null;
         }
 
-        this.textarea.setDocument(DOC_EMPTY);
         this.textarea.setEditable(false);
         this.textarea.setLineWrap(true);
         Monodizer.monodize(this.textarea);
@@ -74,9 +67,6 @@ public final class LogPanel extends JScrollPane {
         BoundedRangeModel rangeModel = facade.getVerticalBoundedRangeModel();
         vbar.setModel(rangeModel);
 
-        AncestorListener ancestorListener = new AncestorWatcher();
-        addAncestorListener(ancestorListener);
-
         return;
     }
 
@@ -86,70 +76,6 @@ public final class LogPanel extends JScrollPane {
      */
     public Handler getHandler(){
         return this.handler;
-    }
-
-    /**
-     * モデルとビューを連携させる。
-     */
-    private void attachModel(){
-        if(this.textarea.getDocument() != this.document){
-            this.textarea.setDocument(this.document);
-        }
-        return;
-    }
-
-    /**
-     * モデルとビューを切り離す。
-     */
-    private void detachModel(){
-        if(this.textarea.getDocument() == DOC_EMPTY) return;
-        this.textarea.setDocument(DOC_EMPTY);
-        return;
-    }
-
-
-    /**
-     * 画面更新が必要な状態か監視し、必要に応じてモデルとビューを切り離す。
-     */
-    private final class AncestorWatcher implements AncestorListener{
-
-        /**
-         * コンストラクタ。
-         */
-        AncestorWatcher(){
-            super();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param event {@inheritDoc}
-         */
-        @Override
-        public void ancestorAdded(AncestorEvent event){
-            attachModel();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param event {@inheritDoc}
-         */
-        @Override
-        public void ancestorRemoved(AncestorEvent event){
-            detachModel();
-            return;
-        }
-
-        /**
-         * {@inheritDoc}
-         * @param event {@inheritDoc}
-         */
-        @Override
-        public void ancestorMoved(AncestorEvent event){
-            return;
-        }
-
     }
 
 }
