@@ -13,20 +13,18 @@ import io.github.olyutorskii.quetexj.MvcFacade;
 import io.github.olyutorskii.quetexj.SwingLogHandler;
 import java.awt.Container;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.logging.Handler;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoundedRangeModel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.border.Border;
@@ -173,40 +171,28 @@ public final class LogFrame extends JDialog {
      * レイアウトデザインを行う。
      */
     private void design(){
-        Container content = getContentPane();
+        Box buttonPanel = Box.createHorizontalBox();
 
-        GridBagLayout layout = new GridBagLayout();
-        GridBagConstraints constraints = new GridBagConstraints();
-        content.setLayout(layout);
+        buttonPanel.add(this.clearButton);
+        buttonPanel.add(Box.createHorizontalStrut(AROUND_BUTTON));
+        buttonPanel.add(this.trackButton);
+        buttonPanel.add(Box.createHorizontalGlue());
+        buttonPanel.add(this.closeButton);
 
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridwidth = GridBagConstraints.REMAINDER;
-
-        content.add(this.scrollPane, constraints);
-
-        constraints.weighty = 0.0;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(
+        Border border = BorderFactory.createEmptyBorder(
                 AROUND_BUTTON,
                 AROUND_BUTTON,
                 AROUND_BUTTON,
                 AROUND_BUTTON
         );
+        buttonPanel.setBorder(border);
 
-        content.add(new JSeparator(), constraints);
+        Container content = getContentPane();
+        BoxLayout layout = new BoxLayout(content, BoxLayout.Y_AXIS);
+        content.setLayout(layout);
 
-        constraints.weightx = 0.0;
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridwidth = 1;
-        content.add(this.clearButton, constraints);
-        content.add(this.trackButton, constraints);
-
-        constraints.weightx = 1.0;
-        constraints.anchor = GridBagConstraints.EAST;
-        content.add(this.closeButton, constraints);
+        content.add(this.scrollPane);
+        content.add(buttonPanel);
 
         return;
     }
