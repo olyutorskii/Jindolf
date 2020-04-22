@@ -30,8 +30,6 @@ public class LandsTreeModel implements TreeModel{ // ComboBoxModelも付ける�
     private static final String ROOT = "ROOT";
     private static final int SECTION_INTERVAL = 100;
 
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
-
 
     private final List<Land> landList = new LinkedList<>();
     private final List<Land> unmodList =
