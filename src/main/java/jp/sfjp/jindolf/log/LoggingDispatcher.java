@@ -18,10 +18,10 @@ import java.util.logging.Logger;
  */
 public class LoggingDispatcher extends EventQueue{
 
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
+
     private static final String FATALMSG =
             "イベントディスパッチ中に異常が起きました。";
-
-    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
 
     /**
@@ -47,17 +47,20 @@ public class LoggingDispatcher extends EventQueue{
 
     /**
      * 異常系を匿名ロガーに出力する。
-     * @param e 例外
+     *
+     * @param throwable 例外
      */
-    private static void logThrowable(Throwable e){
-        LOGGER.log(Level.SEVERE, FATALMSG, e);
+    private static void logThrowable(Throwable throwable){
+        LOGGER.log(Level.SEVERE, FATALMSG, throwable);
         return;
     }
 
 
     /**
      * {@inheritDoc}
-     * イベントディスパッチにより発生した例外を匿名ログ出力する。
+     *
+     * <p>イベントディスパッチにより発生した例外を匿名ログ出力する。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -70,11 +73,11 @@ public class LoggingDispatcher extends EventQueue{
         }catch(Exception e){
             logThrowable(e);
         }
-        // TODO Toolkit#beep()もするべきか
-        // TODO モーダルダイアログを出すべきか
-        // TODO 標準エラー出力抑止オプションを用意すべきか
-        // TODO セキュリティバイパス
         return;
     }
+
+    // TODO モーダルダイアログを出すべきか
+    // TODO 標準エラー出力抑止オプションを用意すべきか
+    // TODO セキュリティバイパス
 
 }

@@ -40,6 +40,13 @@ import jp.sfjp.jindolf.util.Monodizer;
 @SuppressWarnings("serial")
 public final class LogFrame extends JDialog {
 
+    private static final int HEIGHT_LIMIT = 5000;
+    private static final int HEIGHT_NEW   = 4000;
+
+    private static final int AROUND_TEXT   = 3;
+    private static final int AROUND_BUTTON = 5;
+
+
     private final MvcFacade facade;
 
     private final JScrollPane scrollPane;
@@ -72,7 +79,7 @@ public final class LogFrame extends JDialog {
         HeightKeeper keeper = this.facade.getHeightKeeper();
 
         tracker.setTrackingMode(true);
-        keeper.setConditions(5000, 4000);
+        keeper.setConditions(HEIGHT_LIMIT, HEIGHT_NEW);
 
         Handler logHandler = null;
         if(LogUtils.hasLoggingPermission()){
@@ -101,7 +108,8 @@ public final class LogFrame extends JDialog {
         JScrollPane scrollPane = new JScrollPane();
 
         JScrollBar vbar = scrollPane.getVerticalScrollBar();
-        BoundedRangeModel rangeModel = facadeArg.getVerticalBoundedRangeModel();
+        BoundedRangeModel rangeModel =
+                facadeArg.getVerticalBoundedRangeModel();
         vbar.setModel(rangeModel);
 
         JTextArea textArea = buildTextArea(facadeArg);
@@ -123,7 +131,12 @@ public final class LogFrame extends JDialog {
         textArea.setLineWrap(true);
         Monodizer.monodize(textArea);
 
-        Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+        Border border = BorderFactory.createEmptyBorder(
+                AROUND_TEXT,
+                AROUND_TEXT,
+                AROUND_TEXT,
+                AROUND_TEXT
+        );
         textArea.setBorder(border);
 
         JPopupMenu popup = new TextPopup();
@@ -175,7 +188,12 @@ public final class LogFrame extends JDialog {
 
         constraints.weighty = 0.0;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
+        constraints.insets = new Insets(
+                AROUND_BUTTON,
+                AROUND_BUTTON,
+                AROUND_BUTTON,
+                AROUND_BUTTON
+        );
 
         content.add(new JSeparator(), constraints);
 
