@@ -8,7 +8,6 @@
 package jp.sfjp.jindolf.view;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -186,6 +185,7 @@ public class LandsTree extends JPanel{
 
     /**
      * 管理下のLandsTreeModelを返す。
+     *
      * @return LandsTreeModel
      */
     private LandsTreeModel getLandsModel(){
@@ -198,36 +198,39 @@ public class LandsTree extends JPanel{
 
     /**
      * Tree表示順を反転させる。
+     *
+     * <p>昇順/降順ボタンも切り替わる。
+     *
+     * <p>選択中のツリー要素があれば選択は保持される。
+     *
      * @return 反転後が昇順ならtrue
      */
     private boolean toggleTreeOrder(){
         this.ascending = ! this.ascending;
 
+        String newTip;
+        Icon newIcon;
         if(this.ascending){
-            this.orderButton.setToolTipText(TIP_ASCEND);
-            this.orderButton.setIcon(ICON_ASCEND);
+            newTip = TIP_ASCEND;
+            newIcon = ICON_ASCEND;
         }else{
-            this.orderButton.setToolTipText(TIP_DESCEND);
-            this.orderButton.setIcon(ICON_DESCEND);
+            newTip = TIP_DESCEND;
+            newIcon = ICON_DESCEND;
         }
+        this.orderButton.setToolTipText(newTip);
+        this.orderButton.setIcon(newIcon);
 
-        final TreePath lastPath = this.treeView.getSelectionPath();
+        TreePath lastPath = this.treeView.getSelectionPath();
 
         LandsTreeModel model = getLandsModel();
         if(model != null){
             model.setAscending(this.ascending);
         }
 
-        EventQueue.invokeLater(new Runnable(){
-            @Override
-            public void run(){
-                if(lastPath != null){
-                    LandsTree.this.treeView.setSelectionPath(lastPath);
-                    LandsTree.this.treeView.scrollPathToVisible(lastPath);
-                }
-                return;
-            }
-        });
+        if(lastPath != null){
+            this.treeView.setSelectionPath(lastPath);
+            this.treeView.scrollPathToVisible(lastPath);
+        }
 
         return this.ascending;
     }
