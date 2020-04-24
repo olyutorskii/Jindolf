@@ -315,8 +315,6 @@ public final class JindolfMain {
         WindowManager windowManager = new WindowManager();
         ActionManager actionManager = new ActionManager();
 
-        model.loadLandList();
-
         Controller controller = new Controller(model,
                                                windowManager,
                                                actionManager,

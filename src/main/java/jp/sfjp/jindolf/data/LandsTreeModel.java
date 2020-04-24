@@ -10,9 +10,9 @@ package jp.sfjp.jindolf.data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -21,37 +21,35 @@ import javax.swing.tree.TreePath;
 import jp.sourceforge.jindolf.corelib.LandDef;
 
 /**
- * 国の集合。プレイ対象のあらゆるデータモデルの大元。
+ * {@link javax.swing.JTree}のモデルとして国一覧と村一覧を管理。
  *
- * <p>国一覧と村一覧を管理。
- *
- * <p>JTreeのモデルも兼用。
- * ツリー階層は ROOT - 国 - 範囲セクション - 村 の4階層。
+ * <p>ツリー階層は ROOT - 国 - 範囲セクション - 村 の4階層。
  */
 public class LandsTreeModel implements TreeModel{
 
-    private static final Object ROOT = "ROOT";
+    private static final Object ROOT = new Object();
     private static final int SECTION_INTERVAL = 100;
 
 
-    private final List<Land> landList = new LinkedList<>();
-    private final List<Land> unmodList =
-            Collections.unmodifiableList(this.landList);
-    private final Map<Land, List<VillageSection>> sectionMap =
-            new HashMap<>();
-    private boolean isLandListLoaded = false;
+    private final EventListenerList listeners;
 
-    private final EventListenerList listeners = new EventListenerList();
+    private final List<Land> landList;
+    private final Map<Land, List<VillageSection> > sectionMap;
 
     private boolean ascending = false;
 
 
     /**
      * コンストラクタ。
-     * この時点ではまだ国一覧が読み込まれない。
      */
     public LandsTreeModel(){
         super();
+
+        this.listeners = new EventListenerList();
+
+        this.landList = buildLandList();
+        this.sectionMap = new HashMap<>();
+
         return;
     }
 
@@ -63,17 +61,37 @@ public class LandsTreeModel implements TreeModel{
      * @return ルートならtrue
      */
     private static boolean isRoot(Object obj){
-        boolean result = obj == ROOT;
+        boolean result = Objects.equals(ROOT, obj);
         return result;
     }
 
     /**
+     * 国一覧を読み込む。
+     *
+     * <p>村一覧はまだ読み込まれない。
+     *
+     * @return 国リスト
+     */
+    private static List<Land> buildLandList(){
+        List<LandDef> landDefList = CoreData.getLandDefList();
+        List<Land> newList = new ArrayList<>(landDefList.size());
+
+        landDefList.stream().map(landDef ->
+            new Land(landDef)
+        ).forEachOrdered(land -> {
+            newList.add(land);
+        });
+
+        return Collections.unmodifiableList(newList);
+    }
+
+    /**
      * 与えられた国の全ての村を指定されたinterval間隔で格納するために、
-     * セクションのリストを生成する。
+     * 範囲セクションのリストを生成する。
      *
      * @param land 国
-     * @param interval セクション間の村ID間隔
-     * @return セクションのリスト
+     * @param interval 範囲セクション間の村ID間隔
+     * @return 範囲セクションのリスト
      * @throws java.lang.IllegalArgumentException intervalが正でない
      */
     private static List<VillageSection> getSectionList(Land land,
@@ -88,25 +106,27 @@ public class LandsTreeModel implements TreeModel{
 
         List<VillageSection> result = new ArrayList<>(2500 / interval);
 
-        int rangeStart = 0;
-        int rangeEnd = 0;
+        boolean loop1st = true;
+        int rangeStart = -1;
+        int rangeEnd = -1;
 
         for(Village village : land.getVillageList()){
             int vid = village.getVillageIDNum();
 
-            if(rangeStart == rangeEnd){
+            if(loop1st){
                 rangeStart = vid / interval * interval;
                 rangeEnd = rangeStart + interval - 1;
+                loop1st = false;
             }
 
             if(rangeEnd < vid){
                 VillageSection section = new VillageSection(
                         pfx, rangeStart, rangeEnd, span);
-                result.add(section);
                 span.clear();
+                result.add(section);
 
                 rangeStart = vid / interval * interval;
-                rangeEnd   = rangeStart + interval - 1;
+                rangeEnd = rangeStart + interval - 1;
             }
 
             span.add(village);
@@ -115,10 +135,11 @@ public class LandsTreeModel implements TreeModel{
         if( ! span.isEmpty()){
             VillageSection section = new VillageSection(
                     pfx, rangeStart, rangeEnd, span);
+            span.clear();
             result.add(section);
         }
 
-        return Collections.unmodifiableList(result);
+        return result;
     }
 
 
@@ -128,38 +149,14 @@ public class LandsTreeModel implements TreeModel{
      * @return 国のリスト
      */
     public List<Land> getLandList(){
-        return this.unmodList;
-    }
-
-    /**
-     * 国一覧を更新し、ツリー変更イベントをリスナに投げる。
-     *
-     * <p>村一覧はまだ読み込まれない。
-     *
-     * <p>実際の読み込み処理は一度のみ。
-     */
-    public void loadLandList(){
-        if(this.isLandListLoaded) return;
-
-        this.landList.clear();
-
-        List<LandDef> landDefList = CoreData.getLandDefList();
-        landDefList.stream().map(landDef ->
-            new Land(landDef)
-        ).forEachOrdered(land -> {
-            this.landList.add(land);
-        });
-
-        this.isLandListLoaded = true;
-
-        fireLandListChanged();
-
-        return;
+        return this.landList;
     }
 
     /**
      * 指定した国の村一覧でツリーリストを更新し、
      * 更新イベントをリスナに投げる。
+     *
+     * <p>2020-04現在、もはや村一覧が増減することはない。
      *
      * @param land 国
      */
@@ -249,14 +246,14 @@ public class LandsTreeModel implements TreeModel{
      * ツリー内容の国一覧が更新された事をリスナーに通知する。
      */
     private void fireLandListChanged(){
-        int size = this.landList.size();
+        int size = getLandList().size();
         int[] childIndices = new int[size];
         for(int ct = 0; ct < size; ct++){
             int index = ct;
             childIndices[ct] = index;
         }
 
-        Object[] children = this.landList.toArray();
+        Object[] children = getLandList().toArray();
 
         TreePath treePath = new TreePath(ROOT);
         TreeModelEvent event = new TreeModelEvent(this,
@@ -280,34 +277,32 @@ public class LandsTreeModel implements TreeModel{
         if(index < 0)                      return null;
         if(index >= getChildCount(parent)) return null;
 
+        Object result = null;
+
         if(isRoot(parent)){
             List<Land> list = getLandList();
             int landIndex = index;
             if( ! this.ascending) landIndex = list.size() - index - 1;
             Land land = list.get(landIndex);
-            return land;
-        }
-
-        if(parent instanceof Land){
+            result = land;
+        }else if(parent instanceof Land){
             Land land = (Land) parent;
             List<VillageSection> sectionList = this.sectionMap.get(land);
             int sectIndex = index;
             if( ! this.ascending) sectIndex = sectionList.size() - index - 1;
             VillageSection section = sectionList.get(sectIndex);
-            return section;
-        }
-
-        if(parent instanceof VillageSection){
+            result = section;
+        }else if(parent instanceof VillageSection){
             VillageSection section = (VillageSection) parent;
             int vilIndex = index;
             if( ! this.ascending){
                 vilIndex = section.getVillageCount() - index - 1;
             }
             Village village = section.getVillage(vilIndex);
-            return village;
+            result = village;
         }
 
-        return null;
+        return result;
     }
 
     /**
@@ -318,23 +313,22 @@ public class LandsTreeModel implements TreeModel{
      */
     @Override
     public int getChildCount(Object parent){
-        if(isRoot(parent)){
-            return getLandList().size();
-        }
+        int result = 0;
 
-        if(parent instanceof Land){
+        if(isRoot(parent)){
+            result = getLandList().size();
+        }else if(parent instanceof Land){
             Land land = (Land) parent;
             List<VillageSection> sectionList = this.sectionMap.get(land);
-            if(sectionList == null) return 0;
-            return sectionList.size();
-        }
-
-        if(parent instanceof VillageSection){
+            if(sectionList != null){
+                result = sectionList.size();
+            }
+        }else if(parent instanceof VillageSection){
             VillageSection section = (VillageSection) parent;
-            return section.getVillageCount();
+            result = section.getVillageCount();
         }
 
-        return 0;
+        return result;
     }
 
     /**
@@ -348,31 +342,29 @@ public class LandsTreeModel implements TreeModel{
     public int getIndexOfChild(Object parent, Object child){
         if(child == null) return -1;
 
+        int result = -1;
+
         if(isRoot(parent)){
             List<Land> list = getLandList();
             int index = list.indexOf(child);
             if( ! this.ascending) index = list.size() - index - 1;
-            return index;
-        }
-
-        if(parent instanceof Land){
+            result = index;
+        }else if(parent instanceof Land){
             Land land = (Land) parent;
             List<VillageSection> sectionList = this.sectionMap.get(land);
             int index = sectionList.indexOf(child);
             if( ! this.ascending) index = sectionList.size() - index - 1;
-            return index;
-        }
-
-        if(parent instanceof VillageSection){
+            result = index;
+        }else if(parent instanceof VillageSection){
             VillageSection section = (VillageSection) parent;
             int index = section.getIndexOfVillage(child);
             if( ! this.ascending){
                 index = section.getVillageCount() - index - 1;
             }
-            return index;
+            result = index;
         }
 
-        return -1;
+        return result;
     }
 
     /**
@@ -393,10 +385,10 @@ public class LandsTreeModel implements TreeModel{
      */
     @Override
     public boolean isLeaf(Object node){
-        if(isRoot(node))                   return false;
-        if(node instanceof Land)           return false;
-        if(node instanceof VillageSection) return false;
         if(node instanceof Village)        return true;
+        if(node instanceof VillageSection) return false;
+        if(node instanceof Land)           return false;
+        if(isRoot(node))                   return false;
         return true;
     }
 
