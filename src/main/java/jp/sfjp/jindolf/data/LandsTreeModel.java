@@ -7,6 +7,7 @@
 
 package jp.sfjp.jindolf.data;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +25,8 @@ import jp.sourceforge.jindolf.corelib.LandDef;
  * {@link javax.swing.JTree}のモデルとして国一覧と村一覧を管理。
  *
  * <p>ツリー階層は ROOT - 国 - 範囲セクション - 村 の4階層。
+ *
+ * <p>昇順/降順の切り替えをサポート。
  */
 public class LandsTreeModel implements TreeModel{
 
@@ -413,9 +416,16 @@ public class LandsTreeModel implements TreeModel{
      */
     private static final class VillageSection{
 
-        private final String prefix;
+        private static final String FORM_NODE =
+                "{0}{1,number,#} ～ {0}{2,number,#}";
+        private static final String FORM_NODE_G =
+                "{0}{1,number,#000} ～ {0}{2,number,#000}";
+
+
         private final int startId;
         private final int endId;
+
+        private final String text;
 
         private final List<Village> villageList;
 
@@ -423,14 +433,14 @@ public class LandsTreeModel implements TreeModel{
         /**
          * セクション集合を生成する。
          *
-         * @param pfx 国名プレフィクス
+         * @param prefix 国名プレフィクス
          * @param startId 区間開始村ID
          * @param endId 区間終了村ID
          * @param spanList 村の区間リスト
          * @throws java.lang.IndexOutOfBoundsException IDの範囲指定が変
          */
         VillageSection(
-                String pfx, int startId, int endId, List<Village> spanList)
+                String prefix, int startId, int endId, List<Village> spanList)
                 throws IndexOutOfBoundsException{
             super();
 
@@ -438,9 +448,14 @@ public class LandsTreeModel implements TreeModel{
                 throw new IndexOutOfBoundsException();
             }
 
-            this.prefix = pfx;
             this.startId = startId;
             this.endId = endId;
+
+            String format;
+            if("G".equals(prefix)) format = FORM_NODE_G;
+            else                   format = FORM_NODE;
+            this.text = MessageFormat.format(
+                    format, prefix, this.startId, this.endId);
 
             List<Village> newList = new ArrayList<>(spanList);
             this.villageList = Collections.unmodifiableList(newList);
@@ -493,11 +508,7 @@ public class LandsTreeModel implements TreeModel{
          */
         @Override
         public String toString(){
-            StringBuilder result = new StringBuilder();
-            result.append(this.prefix).append(this.startId);
-            result.append(" ～ ");
-            result.append(this.prefix).append(this.endId);
-            return result.toString();
+            return this.text;
         }
 
     }
