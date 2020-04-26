@@ -127,6 +127,7 @@ public class LandsTree extends JPanel{
         setLayout(layout);
 
         JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
         toolBar.add(this.orderButton);
         toolBar.add(this.reloadButton);
 
@@ -140,6 +141,7 @@ public class LandsTree extends JPanel{
 
     /**
      * 国村選択ツリーコンポーネントを生成する。
+     *
      * @return 国村選択ツリーコンポーネント
      */
     private JComponent createLandSelector(){
@@ -156,6 +158,7 @@ public class LandsTree extends JPanel{
 
     /**
      * リロードボタンを返す。
+     *
      * @return リロードボタン
      */
     public JButton getReloadVillageListButton(){
@@ -164,6 +167,7 @@ public class LandsTree extends JPanel{
 
     /**
      * 国村選択ツリービューを返す。
+     *
      * @return 国村選択ツリービュー
      */
     public JTree getTreeView(){
@@ -171,7 +175,10 @@ public class LandsTree extends JPanel{
     }
 
     /**
-     * 指定した国を展開する。
+     * 指定した国をツリー展開する。
+     *
+     * <p>セクション一覧が国の下にツリー展開される。
+     *
      * @param land 国
      */
     public void expandLand(Land land){
@@ -199,7 +206,7 @@ public class LandsTree extends JPanel{
     /**
      * Tree表示順を反転させる。
      *
-     * <p>昇順/降順ボタンも切り替わる。
+     * <p>昇順/降順ボタンも表示が切り替わる。
      *
      * <p>選択中のツリー要素があれば選択は保持される。
      *
