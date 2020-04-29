@@ -511,22 +511,22 @@ public final class ConfigFile{
      * @param lock エラーを起こしたロック
      */
     public static void confirmLockError(InterVMLock lock){
-        LockErrorPane pane = new LockErrorPane(lock);
-        JDialog dialog = pane.createDialog(TITLE_BUILDCONF);
-        dialog.setResizable(true);
-        dialog.pack();
+        File lockFile = lock.getLockFile();
+        LockErrorPane lockPane = new LockErrorPane(lockFile);
+        JDialog lockDialog = lockPane.createDialog(TITLE_BUILDCONF);
+        lockDialog.setResizable(true);
+        lockDialog.pack();
 
         for(;;){
-            dialog.setVisible(true);
-            dialog.dispose();
+            lockDialog.setVisible(true);
 
-            if(pane.isAborted() || pane.getValue() == null){
+            if(lockPane.isAborted() || lockPane.getValue() == null){
                 abort();
                 break;
-            }else if(pane.isRadioRetry()){
+            }else if(lockPane.isRadioRetry()){
                 lock.tryLock();
                 if(lock.isFileOwner()) break;
-            }else if(pane.isRadioContinue()){
+            }else if(lockPane.isRadioContinue()){
                 showInfoMessage(
                         "<html>"
                         + "設定ディレクトリを使わずに起動を続行します。<br>"
@@ -537,7 +537,7 @@ public final class ConfigFile{
                         + "を使うとこの警告は出なくなります。"
                         + "</html>");
                 break;
-            }else if(pane.isRadioForce()){
+            }else if(lockPane.isRadioForce()){
                 lock.forceRemove();
                 if(lock.isExistsFile()){
                     showErrorMessage(
@@ -566,6 +566,8 @@ public final class ConfigFile{
                 break;
             }
         }
+
+        lockDialog.dispose();
 
         return;
     }

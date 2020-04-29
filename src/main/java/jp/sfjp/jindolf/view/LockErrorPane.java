@@ -9,21 +9,23 @@ package jp.sfjp.jindolf.view;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.text.MessageFormat;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import jp.sfjp.jindolf.config.FileUtils;
-import jp.sfjp.jindolf.config.InterVMLock;
 
 /**
  * ロックエラー用ダイアログ。
  *
  * <ul>
- * <li>強制解除
+ * <li>ロックの強制解除を試行
  * <li>リトライ
- * <li>設定ディレクトリを無視
+ * <li>設定ディレクトリを無視して続行
  * <li>起動中止
  * </ul>
  *
@@ -32,7 +34,21 @@ import jp.sfjp.jindolf.config.InterVMLock;
 @SuppressWarnings("serial")
 public final class LockErrorPane extends JOptionPane{
 
-    private final InterVMLock lock;
+    private static final String FORM_MAIN =
+            "<html>"
+            + "設定ディレクトリのロックファイル<br>"
+            + "<center>[&nbsp;{0}&nbsp;]</center>"
+            + "<br>"
+            + "のロックに失敗しました。<br>"
+            + "考えられる原因としては、<br>"
+            + "<ul>"
+            + "<li>前回起動したJindolfの終了が正しく行われなかった"
+            + "<li>今どこかで他のJindolfが動いている"
+            + "</ul>"
+            + "などが考えられます。<br>"
+            + "<hr>"
+            + "</html>";
+
 
     private final JRadioButton continueButton =
             new JRadioButton("設定ディレクトリを使わずに起動を続行");
@@ -50,33 +66,17 @@ public final class LockErrorPane extends JOptionPane{
 
     private boolean aborted = false;
 
+
     /**
      * コンストラクタ。
      *
-     * @param lock 失敗したロック
+     * @param lockFile ロックに失敗したファイル
      */
-    @SuppressWarnings("LeakingThisInConstructor")
-    public LockErrorPane(InterVMLock lock){
+    public LockErrorPane(File lockFile){
         super();
 
-        this.lock = lock;
-
-        String htmlMessage =
-                "<html>"
-                + "設定ディレクトリのロックファイル<br>"
-                + "<center>[&nbsp;"
-                + FileUtils.getHtmledFileName(this.lock.getLockFile())
-                + "&nbsp;]</center>"
-                + "<br>"
-                + "のロックに失敗しました。<br>"
-                + "考えられる原因としては、<br>"
-                + "<ul>"
-                + "<li>前回起動したJindolfの終了が正しく行われなかった"
-                + "<li>今どこかで他のJindolfが動いている"
-                + "</ul>"
-                + "などが考えられます。<br>"
-                + "<hr>"
-                + "</html>";
+        String lockName = FileUtils.getHtmledFileName(lockFile);
+        String htmlMessage = MessageFormat.format(FORM_MAIN, lockName);
 
         ButtonGroup bgrp = new ButtonGroup();
         bgrp.add(this.continueButton);
@@ -110,6 +110,7 @@ public final class LockErrorPane extends JOptionPane{
 
         return;
     }
+
 
     /**
      * 「設定ディレクトリを無視して続行」が選択されたか判定する。
@@ -185,13 +186,12 @@ public final class LockErrorPane extends JOptionPane{
      * @param dialog dialog
      */
     private void setHideListener(JDialog dialog){
-        this.okButton.addActionListener(ev -> {
+        ActionListener listener = ev -> {
             dialog.setVisible(false);
-        });
+        };
 
-        this.abortButton.addActionListener(ev -> {
-            dialog.setVisible(false);
-        });
+        this.okButton.addActionListener(listener);
+        this.abortButton.addActionListener(listener);
 
         return;
     }
