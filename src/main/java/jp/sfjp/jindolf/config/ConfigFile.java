@@ -254,7 +254,7 @@ public final class ConfigFile{
      * @param pane ダイアログの元となるペイン
      */
     private static void showDialog(JOptionPane pane){
-        JDialog dialog = pane.createDialog(null, TITLE_BUILDCONF);
+        JDialog dialog = pane.createDialog(TITLE_BUILDCONF);
         dialog.setResizable(true);
         dialog.pack();
 
@@ -512,7 +512,7 @@ public final class ConfigFile{
      */
     public static void confirmLockError(InterVMLock lock){
         LockErrorPane pane = new LockErrorPane(lock);
-        JDialog dialog = pane.createDialog(null, TITLE_BUILDCONF);
+        JDialog dialog = pane.createDialog(TITLE_BUILDCONF);
         dialog.setResizable(true);
         dialog.pack();
 

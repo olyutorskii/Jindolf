@@ -9,8 +9,6 @@ package jp.sfjp.jindolf.view;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,16 +19,18 @@ import jp.sfjp.jindolf.config.InterVMLock;
 
 /**
  * ロックエラー用ダイアログ。
+ *
  * <ul>
  * <li>強制解除
  * <li>リトライ
  * <li>設定ディレクトリを無視
  * <li>起動中止
  * </ul>
- * の選択を利用者に求める。
+ *
+ * <p>の選択を利用者に求める。
  */
 @SuppressWarnings("serial")
-public class LockErrorPane extends JOptionPane implements ActionListener{
+public final class LockErrorPane extends JOptionPane{
 
     private final InterVMLock lock;
 
@@ -52,6 +52,7 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
 
     /**
      * コンストラクタ。
+     *
      * @param lock 失敗したロック
      */
     @SuppressWarnings("LeakingThisInConstructor")
@@ -99,14 +100,20 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
 
         setMessageType(JOptionPane.ERROR_MESSAGE);
 
-        this.okButton   .addActionListener(this);
-        this.abortButton.addActionListener(this);
+        this.okButton.addActionListener(ev -> {
+            this.aborted = false;
+        });
+
+        this.abortButton.addActionListener(ev -> {
+            this.aborted = true;
+        });
 
         return;
     }
 
     /**
      * 「設定ディレクトリを無視して続行」が選択されたか判定する。
+     *
      * @return 「無視して続行」が選択されていればtrue
      */
     public boolean isRadioContinue(){
@@ -115,6 +122,7 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
 
     /**
      * 「リトライ」が選択されたか判定する。
+     *
      * @return 「リトライ」が選択されていればtrue
      */
     public boolean isRadioRetry(){
@@ -123,6 +131,7 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
 
     /**
      * 「強制解除」が選択されたか判定する。
+     *
      * @return 「強制解除」が選択されていればtrue
      */
     public boolean isRadioForce(){
@@ -131,6 +140,7 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
 
     /**
      * 「起動中止」が選択されたか判定する。
+     *
      * @return 「起動中止」が押されていたならtrue
      */
     public boolean isAborted(){
@@ -139,6 +149,22 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
 
     /**
      * {@inheritDoc}
+     *
+     * @param title {@inheritDoc}
+     * @return {@inheritDoc}
+     * @throws HeadlessException {@inheritDoc}
+     */
+    @Override
+    public JDialog createDialog(String title)
+            throws HeadlessException{
+        JDialog dialog = super.createDialog(title);
+        setHideListener(dialog);
+        return dialog;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @param parentComponent {@inheritDoc}
      * @param title {@inheritDoc}
      * @return {@inheritDoc}
@@ -146,34 +172,27 @@ public class LockErrorPane extends JOptionPane implements ActionListener{
      */
     @Override
     public JDialog createDialog(Component parentComponent,
-                                    String title)
+                                String title)
             throws HeadlessException{
-        final JDialog dialog =
-                super.createDialog(parentComponent, title);
-
-        ActionListener listener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent event){
-                dialog.setVisible(false);
-                return;
-            }
-        };
-
-        this.okButton   .addActionListener(listener);
-        this.abortButton.addActionListener(listener);
-
+        JDialog dialog = super.createDialog(parentComponent, title);
+        setHideListener(dialog);
         return dialog;
     }
 
     /**
-     * ボタン押下を受信する。
-     * @param event イベント
+     * set closing dialog action listener to buttons.
+     *
+     * @param dialog dialog
      */
-    @Override
-    public void actionPerformed(ActionEvent event){
-        Object source = event.getSource();
-        if(source == this.okButton) this.aborted = false;
-        else                        this.aborted = true;
+    private void setHideListener(JDialog dialog){
+        this.okButton.addActionListener(ev -> {
+            dialog.setVisible(false);
+        });
+
+        this.abortButton.addActionListener(ev -> {
+            dialog.setVisible(false);
+        });
+
         return;
     }
 
