@@ -12,7 +12,7 @@ import io.github.olyutorskii.quetexj.MaxTracker;
 import io.github.olyutorskii.quetexj.MvcFacade;
 import io.github.olyutorskii.quetexj.SwingLogHandler;
 import java.awt.Container;
-import java.awt.Frame;
+import java.awt.Dialog;
 import java.util.logging.Handler;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -57,11 +57,10 @@ public final class LogFrame extends JDialog {
 
     /**
      * コンストラクタ。
-     *
-     * @param owner フレームオーナー
      */
-    public LogFrame(Frame owner){
-        super(owner);
+    public LogFrame(){
+        super((Dialog)null);
+        // We need unowned dialog
 
         this.facade = new MvcFacade();
 

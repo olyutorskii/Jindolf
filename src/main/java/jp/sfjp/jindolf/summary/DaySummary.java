@@ -10,8 +10,8 @@ package jp.sfjp.jindolf.summary;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -57,7 +57,7 @@ import jp.sourceforge.jindolf.corelib.TalkType;
  * その日ごとの集計。
  */
 @SuppressWarnings("serial")
-public class DaySummary extends JDialog
+public final class DaySummary extends JDialog
         implements WindowListener, ActionListener, ItemListener{
 
     private static final NumberFormat AVERAGE_FORM;
@@ -92,11 +92,13 @@ public class DaySummary extends JDialog
 
     /**
      * コンストラクタ。
-     * 集計結果を表示するモーダルダイアログを生成する。
-     * @param owner オーナー
+     *
+     * <p>集計結果を表示するモーダルダイアログを生成する。
      */
-    public DaySummary(Frame owner){
-        super(owner);
+    public DaySummary(){
+        super((Dialog)null);
+        // We need unowned dialog
+
         setModal(true);
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
@@ -154,6 +156,7 @@ public class DaySummary extends JDialog
 
     /**
      * 初期のデータモデルを生成する。
+     *
      * @return データモデル
      */
     private static DefaultTableModel createInitModel(){
@@ -180,6 +183,7 @@ public class DaySummary extends JDialog
 
     /**
      * 行を追加する。
+     *
      * @param avatar アバター
      * @param talkCount 発言回数
      * @param totalChars 発言文字総数
@@ -256,6 +260,7 @@ public class DaySummary extends JDialog
 
     /**
      * 与えられたPeriodで集計を更新する。
+     *
      * @param newPeriod 日
      */
     public void summaryPeriod(Period newPeriod){
@@ -322,6 +327,7 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -331,6 +337,7 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -340,6 +347,7 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -349,6 +357,7 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -358,6 +367,7 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -367,7 +377,9 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
-     * ダイアログのクローズボタン押下処理を行う。
+     *
+     * <p>ダイアログのクローズボタン押下処理を行う。
+     *
      * @param event ウィンドウ変化イベント {@inheritDoc}
      */
     @Override
@@ -378,6 +390,7 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -387,7 +400,9 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
-     * クローズボタン押下処理。
+     *
+     * <p>クローズボタン押下処理。
+     *
      * @param event イベント {@inheritDoc}
      */
     @Override
@@ -399,7 +414,9 @@ public class DaySummary extends JDialog
 
     /**
      * {@inheritDoc}
-     * コンボボックス操作処理。
+     *
+     * <p>コンボボックス操作処理。
+     *
      * @param event イベント {@inheritDoc}
      */
     @Override
@@ -443,7 +460,9 @@ public class DaySummary extends JDialog
 
         /**
          * {@inheritDoc}
-         * セルに{@link Avatar}がきたら顔アイコンと名前を表示する。
+         *
+         * <p>セルに{@link Avatar}がきたら顔アイコンと名前を表示する。
+         *
          * @param value {@inheritDoc}
          */
         @Override
@@ -484,8 +503,10 @@ public class DaySummary extends JDialog
         }
 
         /**
-         *  {@inheritDoc}
-         * 統計種別によってセル色を変える。
+         * {@inheritDoc}
+         *
+         * <p>統計種別によってセル色を変える。
+         *
          * @param table {@inheritDoc}
          * @param value {@inheritDoc}
          * @param isSelected {@inheritDoc}
@@ -530,6 +551,7 @@ public class DaySummary extends JDialog
 
             return result;
         }
+
     }
 
 }

@@ -456,8 +456,7 @@ public class Controller
                                            JOptionPane.DEFAULT_OPTION,
                                            GUIUtils.getLogoIcon());
 
-        JDialog dialog = pane.createDialog(getTopFrame(),
-                                           VerInfo.TITLE + "について");
+        JDialog dialog = pane.createDialog(VerInfo.TITLE + "について");
 
         dialog.pack();
         dialog.setVisible(true);
@@ -760,7 +759,7 @@ public class Controller
             JOptionPane pane = new JOptionPane(message,
                                                JOptionPane.WARNING_MESSAGE,
                                                JOptionPane.DEFAULT_OPTION );
-            JDialog dialog = pane.createDialog(getTopFrame(), title);
+            JDialog dialog = pane.createDialog(title);
             dialog.pack();
             dialog.setVisible(true);
             dialog.dispose();
@@ -1364,7 +1363,7 @@ public class Controller
                                            JOptionPane.DEFAULT_OPTION );
 
         String title = VerInfo.getFrameTitle("通信異常発生");
-        JDialog dialog = pane.createDialog(getTopFrame(), title);
+        JDialog dialog = pane.createDialog(title);
 
         dialog.pack();
         dialog.setVisible(true);

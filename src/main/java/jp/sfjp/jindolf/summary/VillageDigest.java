@@ -8,9 +8,9 @@
 package jp.sfjp.jindolf.summary;
 
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -60,7 +60,7 @@ import jp.sourceforge.jindolf.corelib.Team;
  * 決着のついた村のダイジェストを表示する。
  */
 @SuppressWarnings("serial")
-public class VillageDigest
+public final class VillageDigest
         extends JDialog
         implements ActionListener,
                    ItemListener {
@@ -109,10 +109,12 @@ public class VillageDigest
 
     /**
      * コンストラクタ。
-     * @param owner 親フレーム
      */
-    public VillageDigest(Frame owner){
-        super(owner);
+    @SuppressWarnings("LeakingThisInConstructor")
+    public VillageDigest(){
+        super((Dialog)null);
+        // We need unowned dialog
+
         setModal(true);
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
@@ -177,6 +179,7 @@ public class VillageDigest
 
     /**
      * キャプション付き項目をコンテナに追加。
+     *
      * @param container コンテナ
      * @param caption 項目キャプション名
      * @param delimiter デリミタ文字
@@ -222,6 +225,7 @@ public class VillageDigest
 
     /**
      * キャプション付き項目をコンテナに追加。
+     *
      * @param container コンテナ
      * @param caption 項目キャプション名
      * @param item 項目アイテム
@@ -235,6 +239,7 @@ public class VillageDigest
 
     /**
      * レイアウトの最後に詰め物をする。
+     *
      * @param container コンテナ
      */
     private static void addFatPad(Container container){
@@ -257,6 +262,7 @@ public class VillageDigest
 
     /**
      * GridBagLayoutでレイアウトする空コンポーネントを生成する。
+     *
      * @return 空コンポーネント
      */
     private static JComponent createGridBagComponent(){
@@ -268,6 +274,7 @@ public class VillageDigest
 
     /**
      * 村サマリ画面の生成。
+     *
      * @return 村サマリ画面
      */
     private JComponent buildSummaryPanel(){
@@ -281,6 +288,7 @@ public class VillageDigest
 
     /**
      * プレイヤーサマリ画面の生成。
+     *
      * @return プレイヤーサマリ画面
      */
     private JComponent buildPlayerPanel(){
@@ -323,6 +331,7 @@ public class VillageDigest
 
     /**
      * キャスト表生成画面を生成する。
+     *
      * @return キャスト表生成画面
      */
     private JComponent buildCastPanel(){
@@ -354,6 +363,7 @@ public class VillageDigest
 
     /**
      * 投票Box生成画面を生成する。
+     *
      * @return 投票Box生成画面
      */
     private JComponent buildVotePanel(){
@@ -376,6 +386,7 @@ public class VillageDigest
 
     /**
      * 村詳細Wiki生成画面を生成する。
+     *
      * @return 村詳細Wiki生成画面
      */
     private JComponent buildVillageWikiPanel(){
@@ -398,6 +409,7 @@ public class VillageDigest
 
     /**
      * Wikiテキスト領域GUIの生成。
+     *
      * @return Wikiテキスト領域GUI
      */
     private JComponent buildClipText(){
@@ -439,6 +451,7 @@ public class VillageDigest
 
     /**
      * テンプレート生成画面を生成する。
+     *
      * @return テンプレート生成画面
      */
     private JComponent buildClipboardPanel(){
@@ -480,6 +493,7 @@ public class VillageDigest
 
     /**
      * 画面レイアウトを行う。
+     *
      * @param container コンテナ
      */
     private void design(Container container){
@@ -533,6 +547,7 @@ public class VillageDigest
 
     /**
      * 村を設定する。
+     *
      * @param village 村
      */
     public void setVillage(Village village){
@@ -646,6 +661,7 @@ public class VillageDigest
 
     /**
      * アクションイベントの振り分け。
+     *
      * @param event アクションイベント
      */
     @Override
@@ -713,7 +729,9 @@ public class VillageDigest
 
     /**
      * Wikiテキストをテキストボックスに出力する。
-     * スクロール位置は一番上に。
+     *
+     * <p>スクロール位置は一番上に。
+     *
      * @param wikiText Wikiテキスト
      */
     private void putWikiText(CharSequence wikiText){
@@ -741,6 +759,7 @@ public class VillageDigest
 
     /**
      * プレイヤーの選択操作。
+     *
      * @param avatar 選択されたAvatar
      */
     private void selectPlayer(Avatar avatar){
@@ -805,6 +824,7 @@ public class VillageDigest
 
     /**
      * 顔アイコンセットの選択操作。
+     *
      * @param iconSet 顔アイコンセット
      */
     private void selectIconSet(FaceIconSet iconSet){
@@ -817,6 +837,7 @@ public class VillageDigest
 
     /**
      * コンボボックス操作の受信。
+     *
      * @param event コンボボックス操作イベント
      */
     @Override
