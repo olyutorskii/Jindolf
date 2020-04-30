@@ -42,11 +42,11 @@ public final class ConfigFile{
     private static final String MSG_POST =
             "<ul>"
             + "<li><code>" + CmdOption.OPT_CONFDIR + "</code>"
-            + "&nbsp;オプション指定により、<br>"
-            + "任意の設定格納ディレクトリを指定することができます。<br>"
+            + "&nbsp;オプション指定により、<br/>"
+            + "任意の設定格納ディレクトリを指定することができます。<br/>"
             + "<li><code>" + CmdOption.OPT_NOCONF + "</code>"
-            + "&nbsp;オプション指定により、<br>"
-            + "設定格納ディレクトリを使わずに起動することができます。<br>"
+            + "&nbsp;オプション指定により、<br/>"
+            + "設定格納ディレクトリを使わずに起動することができます。<br/>"
             + "</ul>";
 
 
@@ -122,7 +122,7 @@ public final class ConfigFile{
         File absPath = FileUtils.supplyFullPath(confPath);
 
         String preErrMessage =
-                "設定格納ディレクトリ<br>"
+                "設定格納ディレクトリ<br/>"
                 + getCenteredFileName(absPath)
                 + "の作成に失敗しました。";
         if( ! isImplicitPath ){
@@ -130,7 +130,7 @@ public final class ConfigFile{
                     "<code>"
                     + CmdOption.OPT_CONFDIR
                     + "</code>&nbsp;オプション"
-                    + "で指定された、<br>"
+                    + "で指定された、<br/>"
                     + preErrMessage;
         }
 
@@ -142,7 +142,7 @@ public final class ConfigFile{
         }
 
         String prompt =
-                "設定ファイル格納ディレクトリ<br>"
+                "設定ファイル格納ディレクトリ<br/>"
                 + getCenteredFileName(absPath)
                 + "を作成します。";
         boolean confirmed = confirmBuildConfigDir(existsAncestor, prompt);
@@ -284,10 +284,10 @@ public final class ConfigFile{
         File root = FileUtils.findRootFile(path);
         showErrorMessage(
                 "<html>"
-                + preMessage + "<br>"
+                + preMessage + "<br/>"
                 + getCenteredFileName(root)
-                + "を用意する方法が不明です。<br>"
-                + "起動を中止します。<br>"
+                + "を用意する方法が不明です。<br/>"
+                + "起動を中止します。<br/>"
                 + MSG_POST
                 + "</html>" );
         abort();
@@ -305,11 +305,11 @@ public final class ConfigFile{
                                                   String preMessage ){
         showErrorMessage(
                 "<html>"
-                + preMessage + "<br>"
+                + preMessage + "<br/>"
                 + getCenteredFileName(existsAncestor)
                 + "への書き込みができないため、"
-                + "処理の続行は不可能です。<br>"
-                + "起動を中止します。<br>"
+                + "処理の続行は不可能です。<br/>"
+                + "起動を中止します。<br/>"
                 + MSG_POST
                 + "</html>" );
         abort();
@@ -327,11 +327,11 @@ public final class ConfigFile{
                                                     String preMessage){
         String message =
                 "<html>"
-                + preMessage + "<br>"
-                + "このディレクトリを今から<br>"
+                + preMessage + "<br/>"
+                + "このディレクトリを今から<br/>"
                 + getCenteredFileName(existsAncestor)
-                + "に作成して構いませんか？<br>"
-                + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br>"
+                + "に作成して構いませんか？<br/>"
+                + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br/>"
                 + "確認することができます。"
                 + "</html>";
 
@@ -359,7 +359,7 @@ public final class ConfigFile{
     private static void abortQuitBuildConfigDir(){
         showWarnMessage(
                 "<html>"
-                + "設定ディレクトリの作成をせずに起動を中止します。<br>"
+                + "設定ディレクトリの作成をせずに起動を中止します。<br/>"
                 + MSG_POST
                 + "</html>" );
         abort();
@@ -375,10 +375,10 @@ public final class ConfigFile{
     private static void abortCantBuildConfigDir(File path){
         showErrorMessage(
                 "<html>"
-                + "設定ディレクトリ<br>"
+                + "設定ディレクトリ<br/>"
                 + getCenteredFileName(path)
                 + "の作成に失敗しました。"
-                + "起動を中止します。<br>"
+                + "起動を中止します。<br/>"
                 + MSG_POST
                 + "</html>" );
         abort();
@@ -394,12 +394,12 @@ public final class ConfigFile{
     private static void abortCantAccessConfigDir(File path){
         showErrorMessage(
                 "<html>"
-                + "設定ディレクトリ<br>"
+                + "設定ディレクトリ<br/>"
                 + getCenteredFileName(path)
                 + "へのアクセスができません。"
-                + "起動を中止します。<br>"
+                + "起動を中止します。<br/>"
                 + "このディレクトリへのアクセス権を調整し"
-                + "読み書きできるようにしてください。<br>"
+                + "読み書きできるようにしてください。<br/>"
                 + MSG_POST
                 + "</html>" );
         abort();
@@ -414,10 +414,10 @@ public final class ConfigFile{
     private static void abortCantWrite(File file){
         showErrorMessage(
                 "<html>"
-                + "ファイル<br>"
+                + "ファイル<br/>"
                 + getCenteredFileName(file)
                 + "への書き込みができません。"
-                + "起動を中止します。<br>"
+                + "起動を中止します。<br/>"
                 + "</html>" );
         abort();
         return;
@@ -496,7 +496,7 @@ public final class ConfigFile{
         return "<center>[&nbsp;"
                 + FileUtils.getHtmledFileName(path)
                 + "&nbsp;]</center>"
-                + "<br>";
+                + "<br/>";
     }
 
     /**
@@ -533,8 +533,8 @@ public final class ConfigFile{
             }else if(lockPane.isRadioContinue()){
                 showInfoMessage(
                         "<html>"
-                        + "設定ディレクトリを使わずに起動を続行します。<br>"
-                        + "今回、各種設定の読み込み・保存はできません。<br>"
+                        + "設定ディレクトリを使わずに起動を続行します。<br/>"
+                        + "今回、各種設定の読み込み・保存はできません。<br/>"
                         + "<code>"
                         + CmdOption.OPT_NOCONF
                         + "</code> オプション"
@@ -546,12 +546,12 @@ public final class ConfigFile{
                 if(lock.isExistsFile()){
                     showErrorMessage(
                             "<html>"
-                            + "ロックファイルの強制解除に失敗しました。<br>"
+                            + "ロックファイルの強制解除に失敗しました。<br/>"
                             + "他に動いているJindolf"
-                            + "が見つからないのであれば、<br>"
-                            + "なんとかしてロックファイル<br>"
+                            + "が見つからないのであれば、<br/>"
+                            + "なんとかしてロックファイル<br/>"
                             + getCenteredFileName(lock.getLockFile())
-                            + "を削除してください。<br>"
+                            + "を削除してください。<br/>"
                             + "起動を中止します。"
                             + "</html>");
                     abort();
@@ -561,9 +561,9 @@ public final class ConfigFile{
                 if(lock.isFileOwner()) break;
                 showErrorMessage(
                         "<html>"
-                        + "ロックファイル<br>"
+                        + "ロックファイル<br/>"
                         + getCenteredFileName(lock.getLockFile())
-                        + "を確保することができません。<br>"
+                        + "を確保することができません。<br/>"
                         + "起動を中止します。"
                         + "</html>");
                 abort();

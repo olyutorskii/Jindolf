@@ -137,7 +137,7 @@ public final class TopView extends JPanel{
 
         StringBuilder warn = new StringBuilder();
         warn.append("※ たまにはWebブラウザでアクセスして、");
-        warn.append("<br></br>");
+        warn.append("<br/>");
         warn.append("運営の動向を確かめようね！");
         warn.insert(0, "<font 'size=+1'>").append("</font>");
         warn.insert(0, "<center>").append("</center>");
