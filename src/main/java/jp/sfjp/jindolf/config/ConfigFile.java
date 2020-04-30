@@ -520,7 +520,11 @@ public final class ConfigFile{
         for(;;){
             lockDialog.setVisible(true);
 
-            if(lockPane.isAborted() || lockPane.getValue() == null){
+            Object result = lockPane.getValue();
+            boolean aborted = LockErrorPane.isAborted(result);
+            boolean windowClosed = result == null;
+
+            if(aborted || windowClosed){
                 abort();
                 break;
             }else if(lockPane.isRadioRetry()){
