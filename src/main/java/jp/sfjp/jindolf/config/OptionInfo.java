@@ -24,6 +24,10 @@ import java.util.regex.Pattern;
  */
 public class OptionInfo{
 
+    /*
+        ex) 1000x800
+        ex) 1290x1024-256+128
+    */
     private static final String REGEX_DIMNO =
             "([1-9][0-9]{0,5})";
     private static final String REGEX_SIGN =
@@ -96,9 +100,9 @@ public class OptionInfo{
      * @throws IllegalArgumentException 引数の構文エラー
      */
     private static void parseBooleanSwitch(OptionInfo info,
-                                              CmdOption option,
-                                              String optTxt,
-                                              String onoff )
+                                           CmdOption option,
+                                           String optTxt,
+                                           String onoff )
             throws IllegalArgumentException{
         Boolean flag;
 
@@ -128,8 +132,8 @@ public class OptionInfo{
      * @throws IllegalArgumentException 引数の構文エラー
      */
     private static void parseGeometry(OptionInfo info,
-                                        String optTxt,
-                                        String geometry )
+                                      String optTxt,
+                                      String geometry )
             throws IllegalArgumentException{
         Matcher matcher = PATTERN_GEOMETRY.matcher(geometry);
         if( ! matcher.matches() ){
@@ -176,17 +180,16 @@ public class OptionInfo{
      * @throws IllegalArgumentException オプションの引数がない
      */
     private static void parseOptionArg(OptionInfo info,
-                                         String optTxt,
-                                         CmdOption option,
-                                         Iterator<String> iterator )
+                                       String optTxt,
+                                       CmdOption option,
+                                       Iterator<String> iterator )
             throws IllegalArgumentException {
-        String nextArg;
-        if(iterator.hasNext()){
-            nextArg = iterator.next();
-        }else{
+        if( ! iterator.hasNext()){
             String errMsg = MessageFormat.format(ERRFORM_NOARG, optTxt);
             throw new IllegalArgumentException(errMsg);
         }
+
+        String nextArg = iterator.next();
 
         if(option == CmdOption.OPT_GEOMETRY){
             parseGeometry(info, optTxt, nextArg);
@@ -254,8 +257,8 @@ public class OptionInfo{
      * @return 指定されていたらtrue
      */
     public boolean hasOption(CmdOption option){
-        if(this.optionList.contains(option)) return true;
-        return false;
+        boolean result = this.optionList.contains(option);
+        return result;
     }
 
     /**

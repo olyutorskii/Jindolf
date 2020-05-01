@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 /**
  * ローカルなアーカイブXMlファイルの読み込みを指示するためのGUI。
  */
+@SuppressWarnings("serial")
 final class LocalOpener extends JPanel{
 
     private JButton openXml = new JButton("アーカイブXMLを開く...");
