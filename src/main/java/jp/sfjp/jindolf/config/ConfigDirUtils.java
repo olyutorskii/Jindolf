@@ -10,10 +10,6 @@ package jp.sfjp.jindolf.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,6 +33,10 @@ public final class ConfigDirUtils{
     private static final String JINCONF     = "Jindolf";
     private static final String JINCONF_DOT = ".jindolf";
     private static final String FILE_README = "README.txt";
+
+    private static final String RES_DIR = "resources";
+    private static final String RES_README = RES_DIR + "/README.txt";
+
     private static final Charset CHARSET_README = StandardCharsets.UTF_8;
 
     private static final String MSG_POST =
@@ -587,40 +587,13 @@ public final class ConfigDirUtils{
     private static void touchReadme(Path path){
         Path readme = path.resolve(FILE_README);
 
-        try{
-            Files.createFile(readme);
-        }catch(IOException e){
-            abortCantAccessConfigDir(readme);
-        }
+        InputStream resReadme;
+        resReadme = ResourceManager.getResourceAsStream(RES_README);
 
-        PrintWriter writer = null;
         try{
-            OutputStream ostream = Files.newOutputStream(readme);
-            Writer owriter = new OutputStreamWriter(ostream, CHARSET_README);
-            writer = new PrintWriter(owriter);
-            writer.println(CHARSET_README.name() + " Japanese");
-            writer.println(
-                    "このディレクトリは、"
-                    + "Jindolfの各種設定が格納されるディレクトリです。");
-            writer.println(
-                    "Jindolfの詳細は "
-                    + "http://jindolf.osdn.jp/"
-                    + " を参照してください。");
-            writer.println(
-                    "このディレクトリを"
-                    + "「" + JINCONF + "」"
-                    + "の名前で起動元JARファイルと"
-                    + "同じ位置に");
-            writer.println(
-                    "コピーすれば、そちらの設定が優先して使われます。");
-            writer.println(
-                    "「lock」の名前を持つファイルはロックファイルです。");
-        }catch(IOException | SecurityException e){
+            Files.copy(resReadme, readme);
+        }catch(IOException e){
             abortCantWrite(readme);
-        }finally{
-            if(writer != null){
-                writer.close();
-            }
         }
 
         return;
