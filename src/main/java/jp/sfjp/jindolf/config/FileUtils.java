@@ -11,6 +11,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Locale;
@@ -44,56 +47,19 @@ public final class FileUtils{
 
 
     /**
-     * なるべく自分にだけ読み書き許可を与え
-     * 自分以外には読み書き許可を与えないように
-     * ファイル属性を操作する。
-     *
-     * @param file 操作対象ファイル
-     * @return 成功すればtrue
-     * @throws SecurityException セキュリティ上の許可が無い場合
-     */
-    public static boolean setOwnerOnlyAccess(File file)
-            throws SecurityException{
-        boolean result = true;
-
-        result &= file.setReadable(false, false);
-        result &= file.setReadable(true,  true);
-
-        result &= file.setWritable(false, false);
-        result &= file.setWritable(true, true);
-
-        return result;
-    }
-
-    /**
      * 任意の絶対パスの祖先の内、存在するもっとも近い祖先を返す。
      *
      * @param file 任意の絶対パス
      * @return 存在するもっとも近い祖先。一つも存在しなければnull。
      * @throws IllegalArgumentException 引数が絶対パスでない
      */
-    public static File findExistsAncestor(File file)
+    public static Path findExistsAncestor(Path file)
             throws IllegalArgumentException{
         if(file == null) return null;
         if( ! file.isAbsolute() ) throw new IllegalArgumentException();
-        if(file.exists()) return file;
-        File parent = file.getParentFile();
+        if(Files.exists(file)) return file;
+        Path parent = file.getParent();
         return findExistsAncestor(parent);
-    }
-
-    /**
-     * 任意の絶対パスのルートファイルシステムもしくはドライブレターを返す。
-     *
-     * @param file 任意の絶対パス
-     * @return ルートファイルシステムもしくはドライブレター
-     * @throws IllegalArgumentException 引数が絶対パスでない
-     */
-    public static File findRootFile(File file)
-            throws IllegalArgumentException{
-        if( ! file.isAbsolute() ) throw new IllegalArgumentException();
-        File parent = file.getParentFile();
-        if(parent == null) return file;
-        return findRootFile(parent);
     }
 
     /**
@@ -102,13 +68,11 @@ public final class FileUtils{
      * @param file 対象パス
      * @return 絶対パス。絶対化に失敗した場合は元の引数。
      */
-    public static File supplyFullPath(File file){
-        if(file.isAbsolute()) return file;
-
-        File absFile;
+    public static Path supplyFullPath(Path file){
+        Path absFile;
 
         try{
-            absFile = file.getAbsoluteFile();
+            absFile = file.toAbsolutePath();
         }catch(SecurityException e){
             return file;
         }
@@ -131,15 +95,14 @@ public final class FileUtils{
      * @param path 任意のディレクトリ
      * @return アクセス可能ならtrue
      */
-    public static boolean isAccessibleDirectory(File path){
+    public static boolean isAccessibleDirectory(Path path){
         if(path == null) return false;
 
-        boolean result = true;
-
-        if     ( ! path.exists() )      result = false;
-        else if( ! path.isDirectory() ) result = false;
-        else if( ! path.canRead() )     result = false;
-        else if( ! path.canWrite() )    result = false;
+        boolean result =
+                   Files.exists(path)
+                && Files.isDirectory(path)
+                && Files.isReadable(path)
+                && Files.isWritable(path);
 
         return result;
     }
@@ -151,7 +114,7 @@ public final class FileUtils{
      * @param klass 任意のクラス
      * @return ロード元ファイル。見つからなければnull。
      */
-    public static File getClassSourceFile(Class<?> klass){
+    public static Path getClassSourceFile(Class<?> klass){
         ProtectionDomain domain;
         try{
             domain = klass.getProtectionDomain();
@@ -160,10 +123,13 @@ public final class FileUtils{
         }
 
         CodeSource src = domain.getCodeSource();
+        if(src == null) return null;
 
         URL location = src.getLocation();
+        if(location == null) return null;
+
         String scheme = location.getProtocol();
-        if( ! scheme.equals(SCHEME_FILE) ) return null;
+        if( ! SCHEME_FILE.equals(scheme) ) return null;
 
         URI uri;
         try{
@@ -173,28 +139,26 @@ public final class FileUtils{
             return null;
         }
 
-        File file = new File(uri);
+        Path result = Paths.get(uri);
 
-        return file;
+        return result;
     }
 
     /**
      * すでに存在するJARファイルか判定する。
      *
-     * @param file 任意のファイル
+     * @param path 任意のファイル
      * @return すでに存在するJARファイルであればtrue
      */
-    public static boolean isExistsJarFile(File file){
-        if(file == null) return false;
-        if( ! file.exists() ) return false;
-        if( ! file.isFile() ) return false;
+    public static boolean isExistsJarFile(Path path){
+        if(path == null) return false;
+        if( ! Files.exists(path) ) return false;
+        if( ! Files.isRegularFile(path) ) return false;
 
-        String name = file.getName();
-        if( ! name.matches("^.+\\.[jJ][aA][rR]$") ) return false;
+        String name = path.getFileName().toString();
+        boolean result = name.matches("^.+\\.[jJ][aA][rR]$");
 
-        // TODO ファイル先頭マジックナンバーのテストも必要？
-
-        return true;
+        return result;
     }
 
     /**
@@ -205,15 +169,15 @@ public final class FileUtils{
      * @return ロード元JARファイルの格納ディレクトリ。
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
-    public static File getJarDirectory(Class<?> klass){
-        File jarFile = getClassSourceFile(klass);
+    public static Path getJarDirectory(Class<?> klass){
+        Path jarFile = getClassSourceFile(klass);
         if(jarFile == null) return null;
 
         if( ! isExistsJarFile(jarFile) ){
             return null;
         }
 
-        return jarFile.getParentFile();
+        return jarFile.getParent();
     }
 
     /**
@@ -223,7 +187,7 @@ public final class FileUtils{
      * @return ロード元JARファイルの格納ディレクトリ。
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
-    public static File getJarDirectory(){
+    public static Path getJarDirectory(){
         return getJarDirectory(THISKLASS);
     }
 
@@ -234,7 +198,7 @@ public final class FileUtils{
      *
      * @return ホームディレクトリ。何らかの事情でnullを返す場合もあり。
      */
-    public static File getHomeDirectory(){
+    public static Path getHomeDirectory(){
         String homeProp;
         try{
             homeProp = System.getProperty("user.home");
@@ -243,8 +207,9 @@ public final class FileUtils{
         }
 
         File homeFile = new File(homeProp);
+        Path result = homeFile.toPath();
 
-        return homeFile;
+        return result;
     }
 
     /**
@@ -310,18 +275,16 @@ public final class FileUtils{
      *
      * @return アプリケーション設定ディレクトリ
      */
-    public static File getAppSetDir(){
-        File home = getHomeDirectory();
+    public static Path getAppSetDir(){
+        Path home = getHomeDirectory();
         if(home == null) return null;
 
-        File result = home;
+        Path result = home;
 
         if(isMacOSXFs()){
-            result = new File(result, "Library");
-            result = new File(result, "Application Support");
+            result = result.resolve("Library");
+            result = result.resolve("Application Support");
         }
-
-        // TODO Win環境での%APPDATA%サポート
 
         return result;
     }
@@ -331,11 +294,11 @@ public final class FileUtils{
      *
      * <p>Windows日本語環境では、バックスラッシュ記号が円通貨記号に置換される。
      *
-     * @param file 対象ファイル
+     * @param path 対象ファイル
      * @return HTML文字列断片
      */
-    public static String getHtmledFileName(File file){
-        String pathName = file.getPath();
+    public static String getHtmledFileName(Path path){
+        String pathName = path.toString();
 
         Locale locale = Locale.getDefault();
         String lang = locale.getLanguage();

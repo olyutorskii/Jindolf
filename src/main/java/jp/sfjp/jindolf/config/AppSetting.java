@@ -110,11 +110,11 @@ public class AppSetting{
             useConfig = true;
             isImplicitPath = false;
             String optPath = option.getStringArg(opt);
-            configPath = FileUtils.supplyFullPath(new File(optPath));
+            configPath = FileUtils.supplyFullPath(new File(optPath).toPath()).toFile();
         }else{
             useConfig = true;
             isImplicitPath = true;
-            configPath = ConfigDirUtils.getImplicitConfigDirectory();
+            configPath = ConfigDirUtils.getImplicitConfigDirectory().toFile();
         }
 
         ConfigStore result =

@@ -7,7 +7,7 @@
 
 package jp.sfjp.jindolf.view;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
@@ -69,7 +69,7 @@ public final class LockErrorPane extends JOptionPane{
      *
      * @param lockFile ロックに失敗したファイル
      */
-    public LockErrorPane(File lockFile){
+    public LockErrorPane(Path lockFile){
         super();
 
         this.continueButton = new JRadioButton(LABEL_CONTINUE);

@@ -8,7 +8,6 @@
 package jp.sfjp.jindolf.config;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,13 +48,14 @@ public final class ConfigDirUtils{
             + "設定格納ディレクトリを使わずに起動することができます。<br/>"
             + "</ul>";
 
+    private static final int ERR_ABORT = 1;
+
 
     /**
      * 隠れコンストラクタ。
      */
     private ConfigDirUtils(){
         assert false;
-        return;
     }
 
 
@@ -81,24 +81,24 @@ public final class ConfigDirUtils{
      *
      * @return 設定格納ディレクトリ
      */
-    public static File getImplicitConfigDirectory(){
-        File result;
+    public static Path getImplicitConfigDirectory(){
+        Path result;
 
-        File jarParent = FileUtils.getJarDirectory();
+        Path jarParent = FileUtils.getJarDirectory();
         if(jarParent != null && FileUtils.isAccessibleDirectory(jarParent)){
-            result = new File(jarParent, JINCONF);
-            if(FileUtils.isAccessibleDirectory(result)){
-                return result;
+            Path confPath = jarParent.resolve(JINCONF);
+            if(FileUtils.isAccessibleDirectory(confPath)){
+                return confPath;
             }
         }
 
-        File appset = FileUtils.getAppSetDir();
+        Path appset = FileUtils.getAppSetDir();
         if(appset == null) return null;
 
         if(FileUtils.isMacOSXFs() || FileUtils.isWindowsOSFs()){
-            result = new File(appset, JINCONF);
+            result = appset.resolve(JINCONF);
         }else{
-            result = new File(appset, JINCONF_DOT);
+            result = appset.resolve(JINCONF_DOT);
         }
 
         return result;
@@ -114,12 +114,12 @@ public final class ConfigDirUtils{
      * @return 新規に作成した設定格納ディレクトリ
      * @throws IllegalArgumentException すでにそのディレクトリは存在する。
      */
-    public static File buildConfigDirectory(File confPath,
+    public static Path buildConfigDirectory(Path confPath,
                                             boolean isImplicitPath )
             throws IllegalArgumentException{
-        if(confPath.exists()) throw new IllegalArgumentException();
+        if(Files.exists(confPath)) throw new IllegalArgumentException();
 
-        File absPath = FileUtils.supplyFullPath(confPath);
+        Path absPath = FileUtils.supplyFullPath(confPath);
 
         String preErrMessage =
                 "設定格納ディレクトリ<br/>"
@@ -134,10 +134,10 @@ public final class ConfigDirUtils{
                     + preErrMessage;
         }
 
-        File existsAncestor = FileUtils.findExistsAncestor(absPath);
+        Path existsAncestor = FileUtils.findExistsAncestor(absPath);
         if(existsAncestor == null){
             abortNoRoot(absPath, preErrMessage);
-        }else if( ! existsAncestor.canWrite() ){
+        }else if( ! Files.isWritable(existsAncestor) ){
             abortCantWriteAncestor(existsAncestor, preErrMessage);
         }
 
@@ -152,16 +152,17 @@ public final class ConfigDirUtils{
 
         boolean success;
         try{
-            success = absPath.mkdirs();
-        }catch(SecurityException e){
+            Files.createDirectories(absPath);
+            success = true;
+        }catch(IOException | SecurityException e){
             success = false;
         }
 
-        if( ! success || ! absPath.exists() ){
+        if( ! success || ! Files.exists(absPath) ){
             abortCantBuildConfigDir(absPath);
         }
 
-        FileUtils.setOwnerOnlyAccess(absPath);
+        // FileUtils.setOwnerOnlyAccess(absPath);
 
         checkAccessibility(absPath);
 
@@ -178,23 +179,27 @@ public final class ConfigDirUtils{
      *
      * @param imgCacheDir ローカル画像キャッシュディレクトリ
      */
-    public static void buildImageCacheDir(File imgCacheDir){
-        if(imgCacheDir.exists()) return;
+    public static void buildImageCacheDir(Path imgCacheDir){
+        if(Files.exists(imgCacheDir)) return;
 
         String jsonRes = "resources/image/avatarCache.json";
         InputStream is = ResourceManager.getResourceAsStream(jsonRes);
         if(is == null) return;
 
-        imgCacheDir.mkdirs();
+        try{
+            Files.createDirectories(imgCacheDir);
+        }catch(IOException e){
+            // NOTHING
+        }
         ConfigDirUtils.checkAccessibility(imgCacheDir);
 
-        Path cachePath = imgCacheDir.toPath();
+        Path cachePath = imgCacheDir;
         Path jsonLeaf = Paths.get("avatarCache.json");
         Path path = cachePath.resolve(jsonLeaf);
         try{
             Files.copy(is, path);
         }catch(IOException e){
-            abortCantAccessConfigDir(path.toFile());
+            abortCantAccessConfigDir(path);
         }
 
         return;
@@ -265,10 +270,12 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * VMを異常終了させる。
+     * VMごとアプリを異常終了させる。
+     *
+     * <p>終了コードは1。
      */
     private static void abort(){
-        System.exit(1);
+        System.exit(ERR_ABORT);
         assert false;
         return;
     }
@@ -280,8 +287,8 @@ public final class ConfigDirUtils{
      * @param path 設定ディレクトリ
      * @param preMessage メッセージ前半
      */
-    private static void abortNoRoot(File path, String preMessage){
-        File root = FileUtils.findRootFile(path);
+    private static void abortNoRoot(Path path, String preMessage){
+        Path root = path.getRoot();
         showErrorMessage(
                 "<html>"
                 + preMessage + "<br/>"
@@ -301,8 +308,8 @@ public final class ConfigDirUtils{
      * @param existsAncestor 存在するもっとも近い祖先
      * @param preMessage メッセージ前半
      */
-    private static void abortCantWriteAncestor(File existsAncestor,
-                                                  String preMessage ){
+    private static void abortCantWriteAncestor(Path existsAncestor,
+                                               String preMessage ){
         showErrorMessage(
                 "<html>"
                 + preMessage + "<br/>"
@@ -323,8 +330,8 @@ public final class ConfigDirUtils{
      * @param preMessage メッセージ前半
      * @return 生成してよいと指示があればtrue
      */
-    private static boolean confirmBuildConfigDir(File existsAncestor,
-                                                    String preMessage){
+    private static boolean confirmBuildConfigDir(Path existsAncestor,
+                                                 String preMessage){
         String message =
                 "<html>"
                 + preMessage + "<br/>"
@@ -372,7 +379,7 @@ public final class ConfigDirUtils{
      *
      * @param path 生成できなかったディレクトリ
      */
-    private static void abortCantBuildConfigDir(File path){
+    private static void abortCantBuildConfigDir(Path path){
         showErrorMessage(
                 "<html>"
                 + "設定ディレクトリ<br/>"
@@ -391,7 +398,7 @@ public final class ConfigDirUtils{
      *
      * @param path アクセスできないディレクトリ
      */
-    private static void abortCantAccessConfigDir(File path){
+    private static void abortCantAccessConfigDir(Path path){
         showErrorMessage(
                 "<html>"
                 + "設定ディレクトリ<br/>"
@@ -411,7 +418,7 @@ public final class ConfigDirUtils{
      *
      * @param file 書き込めなかったファイル
      */
-    private static void abortCantWrite(File file){
+    private static void abortCantWrite(Path file){
         showErrorMessage(
                 "<html>"
                 + "ファイル<br/>"
@@ -430,18 +437,18 @@ public final class ConfigDirUtils{
      *
      * @param path READMEの格納ディレクトリ
      */
-    private static void touchReadme(File path){
-        File file = new File(path, FILE_README);
+    private static void touchReadme(Path path){
+        Path readme = path.resolve(FILE_README);
 
         try{
-            file.createNewFile();
+            Files.createFile(readme);
         }catch(IOException e){
-            abortCantAccessConfigDir(path);
+            abortCantAccessConfigDir(readme);
         }
 
         PrintWriter writer = null;
         try{
-            OutputStream ostream = new FileOutputStream(file);
+            OutputStream ostream = Files.newOutputStream(readme);
             Writer owriter = new OutputStreamWriter(ostream, CHARSET_README);
             writer = new PrintWriter(owriter);
             writer.println(CHARSET_README.name() + " Japanese");
@@ -462,7 +469,7 @@ public final class ConfigDirUtils{
             writer.println(
                     "「lock」の名前を持つファイルはロックファイルです。");
         }catch(IOException | SecurityException e){
-            abortCantWrite(file);
+            abortCantWrite(readme);
         }finally{
             if(writer != null){
                 writer.close();
@@ -478,7 +485,7 @@ public final class ConfigDirUtils{
      *
      * @param confDir 設定ディレクトリ
      */
-    public static void checkAccessibility(File confDir){
+    public static void checkAccessibility(Path confDir){
         if( ! FileUtils.isAccessibleDirectory(confDir) ){
             abortCantAccessConfigDir(confDir);
         }
@@ -492,7 +499,7 @@ public final class ConfigDirUtils{
      * @param path ファイル
      * @return HTML表記
      */
-    public static String getCenteredFileName(File path){
+    public static String getCenteredFileName(Path path){
         return "<center>[&nbsp;"
                 + FileUtils.getHtmledFileName(path)
                 + "&nbsp;]</center>"
@@ -512,7 +519,7 @@ public final class ConfigDirUtils{
      */
     public static void confirmLockError(InterVMLock lock){
         File lockFile = lock.getLockFile();
-        LockErrorPane lockPane = new LockErrorPane(lockFile);
+        LockErrorPane lockPane = new LockErrorPane(lockFile.toPath());
         JDialog lockDialog = lockPane.createDialog(TITLE_BUILDCONF);
         lockDialog.setResizable(true);
         lockDialog.pack();
@@ -550,7 +557,7 @@ public final class ConfigDirUtils{
                             + "他に動いているJindolf"
                             + "が見つからないのであれば、<br/>"
                             + "なんとかしてロックファイル<br/>"
-                            + getCenteredFileName(lock.getLockFile())
+                            + getCenteredFileName(lockFile.toPath())
                             + "を削除してください。<br/>"
                             + "起動を中止します。"
                             + "</html>");
@@ -562,7 +569,7 @@ public final class ConfigDirUtils{
                 showErrorMessage(
                         "<html>"
                         + "ロックファイル<br/>"
-                        + getCenteredFileName(lock.getLockFile())
+                        + getCenteredFileName(lockFile.toPath())
                         + "を確保することができません。<br/>"
                         + "起動を中止します。"
                         + "</html>");
