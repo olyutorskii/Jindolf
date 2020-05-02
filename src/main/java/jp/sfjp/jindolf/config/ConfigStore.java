@@ -12,9 +12,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +21,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
@@ -41,11 +39,11 @@ import jp.sourceforge.jovsonz.Json;
 public class ConfigStore {
 
     /** 検索履歴ファイル。 */
-    public static final File HIST_FILE = new File("searchHistory.json");
+    public static final Path HIST_FILE = Paths.get("searchHistory.json");
     /** ネットワーク設定ファイル。 */
-    public static final File NETCONFIG_FILE = new File("netconfig.json");
+    public static final Path NETCONFIG_FILE = Paths.get("netconfig.json");
     /** 台詞表示設定ファイル。 */
-    public static final File TALKCONFIG_FILE = new File("talkconfig.json");
+    public static final Path TALKCONFIG_FILE = Paths.get("talkconfig.json");
     /** ローカル画像格納ディレクトリ。 */
     public static final Path LOCALIMG_DIR = Paths.get("img");
     /** ローカル画像設定ファイル。 */
@@ -61,7 +59,7 @@ public class ConfigStore {
 
     private boolean useStoreFile;
     private boolean isImplicitPath;
-    private File configDir;
+    private Path configDir;
 
 
     /**
@@ -76,7 +74,7 @@ public class ConfigStore {
      */
     public ConfigStore(boolean useStoreFile,
                        boolean isImplicitPath,
-                       File configDirPath ){
+                       Path configDirPath ){
         super();
 
         this.useStoreFile = useStoreFile;
@@ -107,7 +105,7 @@ public class ConfigStore {
      *
      * @return 設定ディレクトリ。設定ディレクトリを使わない場合はnull
      */
-    public File getConfigDir(){
+    public Path getConfigDir(){
         return this.configDir;
     }
 
@@ -119,8 +117,7 @@ public class ConfigStore {
     public Path getLocalImgDir(){
         if(this.configDir == null) return null;
 
-        Path configPath = this.configDir.toPath();
-        Path result = configPath.resolve(LOCALIMG_DIR);
+        Path result = this.configDir.resolve(LOCALIMG_DIR);
 
         return result;
     }
@@ -133,18 +130,18 @@ public class ConfigStore {
     public void prepareConfigDir(){
         if( ! this.useStoreFile ) return;
 
-        if( ! this.configDir.exists() ){
+        if( ! Files.exists(this.configDir) ){
             Path created =
-                ConfigDirUtils.buildConfigDirectory(this.configDir.toPath(),
+                ConfigDirUtils.buildConfigDirectory(this.configDir,
                                                     this.isImplicitPath );
             ConfigDirUtils.checkAccessibility(created);
         }else{
-            ConfigDirUtils.checkAccessibility(this.configDir.toPath());
+            ConfigDirUtils.checkAccessibility(this.configDir);
         }
 
-        File imgDir = new File(this.configDir, "img");
-        if( ! imgDir.exists()){
-            ConfigDirUtils.buildImageCacheDir(imgDir.toPath());
+        Path imgDir = this.configDir.resolve("img");
+        if( ! Files.exists(imgDir) ){
+            ConfigDirUtils.buildImageCacheDir(imgDir);
         }
 
         return;
@@ -159,7 +156,7 @@ public class ConfigStore {
     public void tryLock(){
         if( ! this.useStoreFile ) return;
 
-        File lockFile = new File(this.configDir, LOCKFILE);
+        File lockFile = new File(this.configDir.toFile(), LOCKFILE);
         InterVMLock lock = new InterVMLock(lockFile);
 
         lock.tryLock();
@@ -186,7 +183,7 @@ public class ConfigStore {
      *     もしくはOBJECT型でなかった、
      *     もしくは入力エラーがあればnull
      */
-    public JsObject loadJsObject(File file){
+    public JsObject loadJsObject(Path file){
         JsComposition<?> root = loadJson(file);
         if(root == null || root.getJsTypes() != JsTypes.OBJECT) return null;
         JsObject result = (JsObject) root;
@@ -202,24 +199,24 @@ public class ConfigStore {
      *     もしくはJSONファイルが存在しない、
      *     もしくは入力エラーがあればnull
      */
-    public JsComposition<?> loadJson(File file){
+    public JsComposition<?> loadJson(Path file){
         if( ! this.useStoreFile ) return null;
 
-        File absFile;
+        Path absFile;
         if(file.isAbsolute()){
             absFile = file;
         }else{
             if(this.configDir == null) return null;
-            absFile = new File(this.configDir, file.getPath());
-            if( ! absFile.exists() ) return null;
+            absFile = this.configDir.resolve(file);
+            if( ! Files.exists(absFile) ) return null;
             if( ! absFile.isAbsolute() ) return null;
         }
-        String absPath = absFile.getPath();
+        String absPath = absFile.toString();
 
         InputStream istream;
         try{
-            istream = new FileInputStream(absFile);
-        }catch(FileNotFoundException e){
+            istream = Files.newInputStream(absFile);
+        }catch(IOException e){
             assert false;
             return null;
         }
@@ -295,16 +292,16 @@ public class ConfigStore {
      * @return 正しくセーブが行われればtrue。
      *     何らかの理由でセーブが完了できなければfalse
      */
-    public boolean saveJson(File file, JsComposition<?> root){
+    public boolean saveJson(Path file, JsComposition<?> root){
         if( ! this.useStoreFile ) return false;
 
         // TODO テンポラリファイルを用いたより安全なファイル更新
-        File absFile = new File(this.configDir, file.getPath());
-        String absPath = absFile.getPath();
+        Path absFile = this.configDir.resolve(file);
+        String absPath = absFile.toString();
 
-        absFile.delete();
         try{
-            if(absFile.createNewFile() != true) return false;
+            Files.delete(absFile);
+            Files.createFile(absFile);
         }catch(IOException e){
             LOGGER.log(Level.SEVERE,
                     "JSONファイル["
@@ -315,8 +312,8 @@ public class ConfigStore {
 
         OutputStream ostream;
         try{
-            ostream = new FileOutputStream(absFile);
-        }catch(FileNotFoundException e){
+            ostream = Files.newOutputStream(absFile);
+        }catch(IOException e){
             assert false;
             return false;
         }
@@ -423,7 +420,7 @@ public class ConfigStore {
      */
     public JsObject loadLocalImgConfig(){
         Path path = LOCALIMG_DIR.resolve(LOCALIMGCONFIG_PATH);
-        JsObject result = loadJsObject(path.toFile());
+        JsObject result = loadJsObject(path);
         return result;
     }
 

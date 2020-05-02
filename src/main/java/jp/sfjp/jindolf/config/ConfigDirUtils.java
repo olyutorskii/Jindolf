@@ -119,7 +119,7 @@ public final class ConfigDirUtils{
             throws IllegalArgumentException{
         if(Files.exists(confPath)) throw new IllegalArgumentException();
 
-        Path absPath = FileUtils.supplyFullPath(confPath);
+        Path absPath = confPath.toAbsolutePath();
 
         String preErrMessage =
                 "設定格納ディレクトリ<br/>"

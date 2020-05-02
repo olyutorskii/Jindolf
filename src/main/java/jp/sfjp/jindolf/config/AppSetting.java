@@ -100,7 +100,7 @@ public class AppSetting{
 
         boolean useConfig;
         boolean isImplicitPath;
-        File configPath;
+        Path configPath;
 
         if(opt == CmdOption.OPT_NOCONF){
             useConfig = false;
@@ -109,12 +109,13 @@ public class AppSetting{
         }else if(opt == CmdOption.OPT_CONFDIR){
             useConfig = true;
             isImplicitPath = false;
-            String optPath = option.getStringArg(opt);
-            configPath = FileUtils.supplyFullPath(new File(optPath).toPath()).toFile();
+            String optArg = option.getStringArg(opt);
+            configPath = Paths.get(optArg);
+            configPath = configPath.toAbsolutePath();
         }else{
             useConfig = true;
             isImplicitPath = true;
-            configPath = ConfigDirUtils.getImplicitConfigDirectory().toFile();
+            configPath = ConfigDirUtils.getImplicitConfigDirectory();
         }
 
         ConfigStore result =

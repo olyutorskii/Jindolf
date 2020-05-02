@@ -63,24 +63,6 @@ public final class FileUtils{
     }
 
     /**
-     * 相対パスの絶対パス化を試みる。
-     *
-     * @param file 対象パス
-     * @return 絶対パス。絶対化に失敗した場合は元の引数。
-     */
-    public static Path supplyFullPath(Path file){
-        Path absFile;
-
-        try{
-            absFile = file.toAbsolutePath();
-        }catch(SecurityException e){
-            return file;
-        }
-
-        return absFile;
-    }
-
-    /**
      * 任意のディレクトリがアクセス可能な状態にあるか判定する。
      *
      * <p>アクセス可能の条件を満たすためには、与えられたパスが
@@ -115,12 +97,8 @@ public final class FileUtils{
      * @return ロード元ファイル。見つからなければnull。
      */
     public static Path getClassSourceFile(Class<?> klass){
-        ProtectionDomain domain;
-        try{
-            domain = klass.getProtectionDomain();
-        }catch(SecurityException e){
-            return null;
-        }
+        ProtectionDomain domain = klass.getProtectionDomain();
+        if(domain == null) return null;
 
         CodeSource src = domain.getCodeSource();
         if(src == null) return null;
@@ -129,7 +107,7 @@ public final class FileUtils{
         if(location == null) return null;
 
         String scheme = location.getProtocol();
-        if( ! SCHEME_FILE.equals(scheme) ) return null;
+        if( ! SCHEME_FILE.equalsIgnoreCase(scheme) ) return null;
 
         URI uri;
         try{
@@ -155,8 +133,8 @@ public final class FileUtils{
         if( ! Files.exists(path) ) return false;
         if( ! Files.isRegularFile(path) ) return false;
 
-        String name = path.getFileName().toString();
-        boolean result = name.matches("^.+\\.[jJ][aA][rR]$");
+        String leafName = path.getFileName().toString();
+        boolean result = leafName.matches("^.+\\.[jJ][aA][rR]$");
 
         return result;
     }
@@ -196,19 +174,11 @@ public final class FileUtils{
      *
      * <p>システムプロパティuser.homeで示されたホームディレクトリを返す。
      *
-     * @return ホームディレクトリ。何らかの事情でnullを返す場合もあり。
+     * @return ホームディレクトリ。
      */
     public static Path getHomeDirectory(){
-        String homeProp;
-        try{
-            homeProp = System.getProperty("user.home");
-        }catch(SecurityException e){
-            return null;
-        }
-
-        File homeFile = new File(homeProp);
-        Path result = homeFile.toPath();
-
+        String homeProp = System.getProperty("user.home");
+        Path result = Paths.get(homeProp);
         return result;
     }
 
@@ -220,13 +190,7 @@ public final class FileUtils{
     public static boolean isMacOSXFs(){
         if(File.separatorChar != '/') return false;
 
-        String osName;
-        try{
-            osName = System.getProperty(SYSPROP_OSNAME);
-        }catch(SecurityException e){
-            return false;
-        }
-
+        String osName = System.getProperty(SYSPROP_OSNAME);
         if(osName == null) return false;
 
         osName = osName.toLowerCase(Locale.ROOT);
@@ -246,13 +210,7 @@ public final class FileUtils{
     public static boolean isWindowsOSFs(){
         if(File.separatorChar != '\\') return false;
 
-        String osName;
-        try{
-            osName = System.getProperty(SYSPROP_OSNAME);
-        }catch(SecurityException e){
-            return false;
-        }
-
+        String osName = System.getProperty(SYSPROP_OSNAME);
         if(osName == null) return false;
 
         osName = osName.toLowerCase(Locale.ROOT);

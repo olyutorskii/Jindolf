@@ -12,6 +12,7 @@ import java.awt.EventQueue;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -20,6 +21,7 @@ import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.CmdOption;
 import jp.sfjp.jindolf.config.ConfigStore;
 import jp.sfjp.jindolf.config.EnvInfo;
+import jp.sfjp.jindolf.config.FileUtils;
 import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.log.LogUtils;
@@ -141,6 +143,17 @@ public final class JindolfMain {
         }else{
             LOGGER.info(LOG_NOCONF);
         }
+
+        if(FileUtils.isWindowsOSFs()){
+            LOGGER.info("Windows環境と認識されました。");
+        }
+
+        if(FileUtils.isMacOSXFs()){
+            LOGGER.info("macOS環境と認識されました。");
+        }
+
+        Locale locale = Locale.getDefault();
+        LOGGER.log(Level.INFO, "ロケールに{0}が用いられます。", locale.toString());
 
         return;
     }
