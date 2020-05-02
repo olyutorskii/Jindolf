@@ -34,7 +34,18 @@ import jp.sourceforge.jovsonz.JsVisitException;
 import jp.sourceforge.jovsonz.Json;
 
 /**
- * 各種設定の永続化関連。
+ * Jindolf設定ディレクトリ以下に配置される各種ファイル資源の管理を行う。
+ *
+ * <p>管理対象は
+ *
+ * <ul>
+ * <li>JSON設定ファイル格納ディレクトリ
+ * <li>Avatar代替イメージ格納ディレクトリ
+ * <li>JSON入出力
+ * <li>ロックファイルの獲得/解放。
+ * </ul>
+ *
+ *
  */
 public class ConfigStore {
 
@@ -44,6 +55,7 @@ public class ConfigStore {
     public static final Path NETCONFIG_FILE = Paths.get("netconfig.json");
     /** 台詞表示設定ファイル。 */
     public static final Path TALKCONFIG_FILE = Paths.get("talkconfig.json");
+
     /** ローカル画像格納ディレクトリ。 */
     public static final Path LOCALIMG_DIR = Paths.get("img");
     /** ローカル画像設定ファイル。 */
@@ -66,11 +78,12 @@ public class ConfigStore {
      * コンストラクタ。
      *
      * @param useStoreFile 設定ディレクトリ内への
-     *     セーブデータ機能を使うならtrue
+     * データセーブ機能を使うならtrue
      * @param isImplicitPath 起動コマンドラインから指定された
-     *     設定ディレクトリの場合false
-     * @param configDirPath 設定ディレクトリ。
-     *     設定ディレクトリを使わない場合は無視される。
+     * 設定ディレクトリを用いる場合false。
+     * trueならデフォルトの設定ディレクトリが用いられる。
+     * @param configDirPath 設定ディレクトリ名。
+     * 設定ディレクトリを使わない場合は無視される。
      */
     public ConfigStore(boolean useStoreFile,
                        boolean isImplicitPath,
@@ -115,6 +128,7 @@ public class ConfigStore {
      * @return 格納ディレクトリ。格納ディレクトリを使わない場合はnull
      */
     public Path getLocalImgDir(){
+        if( ! this.useStoreFile ) return null;
         if(this.configDir == null) return null;
 
         Path result = this.configDir.resolve(LOCALIMG_DIR);
@@ -134,9 +148,9 @@ public class ConfigStore {
             Path created =
                 ConfigDirUtils.buildConfigDirectory(this.configDir,
                                                     this.isImplicitPath );
-            ConfigDirUtils.checkAccessibility(created);
+            ConfigDirUtils.checkDirPerm(created);
         }else{
-            ConfigDirUtils.checkAccessibility(this.configDir);
+            ConfigDirUtils.checkDirPerm(this.configDir);
         }
 
         Path imgDir = this.configDir.resolve("img");

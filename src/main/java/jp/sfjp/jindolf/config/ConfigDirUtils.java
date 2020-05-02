@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import jp.sfjp.jindolf.ResourceManager;
@@ -58,6 +59,245 @@ public final class ConfigDirUtils{
         assert false;
     }
 
+
+    /**
+     * VMごとアプリを異常終了させる。
+     *
+     * <p>終了コードは1。
+     */
+    private static void abort(){
+        System.exit(ERR_ABORT);
+        assert false;
+        return;
+    }
+
+    /**
+     * ダイアログを表示し、閉じられるまで待つ。
+     *
+     * @param pane ダイアログの元となるペイン
+     */
+    private static void showDialog(JOptionPane pane){
+        JDialog dialog = pane.createDialog(TITLE_BUILDCONF);
+        dialog.setResizable(true);
+        dialog.pack();
+
+        dialog.setVisible(true);
+        dialog.dispose();
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリ操作の
+     * 共通エラーメッセージ確認ダイアログを表示する。
+     *
+     * <p>閉じるまで待つ。
+     *
+     * @param txt メッセージ
+     */
+    private static void showErrorMessage(String txt){
+        JOptionPane pane;
+        pane = new JOptionPane(txt, JOptionPane.ERROR_MESSAGE);
+        showDialog(pane);
+        return;
+    }
+
+    /**
+     * 設定ディレクトリ操作の
+     * 共通エラーメッセージ確認ダイアログを表示する。
+     *
+     * <p>閉じるまで待つ。
+     *
+     * @param seq メッセージtxt*/
+    private static void showWarnMessage(String txt){
+        JOptionPane pane;
+        pane = new JOptionPane(txt, JOptionPane.WARNING_MESSAGE);
+        showDialog(pane);
+        return;
+    }
+
+    /**
+     * 設定ディレクトリ操作の
+     * 情報提示メッセージ確認ダイアログを表示する。
+     *
+     * <p>閉じるまで待つ。
+     *
+     * @param seq メッセージtxt*/
+    private static void showInfoMessage(String txt){
+        JOptionPane pane;
+        pane = new JOptionPane(txt, JOptionPane.INFORMATION_MESSAGE);
+        showDialog(pane);
+        return;
+    }
+
+    /**
+     * センタリングされたファイル名表示のHTML表記を出力する。
+     *
+     * @param path ファイル
+     * @return HTML表記
+     */
+    public static String getCenteredFileName(Path path){
+        String form = "<center>[&nbsp;{0}&nbsp;]</center><br/>";
+        String fileName = FileUtils.getHtmledFileName(path);
+        String result = MessageFormat.format(form, fileName);
+        return result;
+    }
+
+    /**
+     * 設定ディレクトリ生成をやめた操作への警告をダイアログで提示し、
+     * VM終了する。
+     */
+    private static void abortQuitBuildConfigDir(){
+        String msg =
+                "<html>"
+                + "設定ディレクトリの作成をせずに起動を中止します。<br/>"
+                + MSG_POST
+                + "</html>";
+
+        showWarnMessage(msg);
+        abort();
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリが生成できないエラーをダイアログで提示し、
+     * VM終了する。
+     *
+     * @param path 生成できなかったディレクトリ
+     */
+    private static void abortCantBuildConfigDir(Path path){
+        String form =
+                "<html>"
+                + "設定ディレクトリ<br/>"
+                + "{0}"
+                + "の作成に失敗しました。"
+                + "起動を中止します。<br/>"
+                + MSG_POST
+                + "</html>";
+        String fileName = getCenteredFileName(path);
+        String msg = MessageFormat.format(form, fileName);
+
+        showErrorMessage(msg);
+        abort();
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリへアクセスできないエラーをダイアログで提示し、
+     * VM終了する。
+     *
+     * @param path アクセスできないディレクトリ
+     */
+    private static void abortCantAccessConfigDir(Path path){
+        String form =
+                "<html>"
+                + "設定ディレクトリ<br/>"
+                + "{0}"
+                + "へのアクセスができません。"
+                + "起動を中止します。<br/>"
+                + "このディレクトリへのアクセス権を調整し"
+                + "読み書きできるようにしてください。<br/>"
+                + MSG_POST
+                + "</html>";
+        String fileName = getCenteredFileName(path);
+        String msg = MessageFormat.format(form, fileName);
+
+        showErrorMessage(msg);
+        abort();
+
+        return;
+    }
+
+    /**
+     * ファイルに書き込めないエラーをダイアログで提示し、VM終了する。
+     *
+     * @param path 書き込めなかったファイル
+     */
+    private static void abortCantWrite(Path path){
+        String form =
+                "<html>"
+                + "ファイル<br/>"
+                + "{0}"
+                + "への書き込みができません。"
+                + "起動を中止します。<br/>"
+                + "</html>";
+        String fileName = getCenteredFileName(path);
+        String msg = MessageFormat.format(form, fileName);
+
+        showErrorMessage(msg);
+        abort();
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリのルートファイルシステムもしくはドライブレターに
+     * アクセスできないエラーをダイアログに提示し、VM終了する。
+     *
+     * @param path 設定ディレクトリ
+     * @param preMessage メッセージ前半
+     */
+    private static void abortNoRoot(Path path, String preMessage){
+        String form =
+                "<html>"
+                + "{0}<br/>"
+                + "{1}を用意する方法が不明です。<br/>"
+                + "起動を中止します。<br/>"
+                + MSG_POST
+                + "</html>";
+
+        Path root = path.getRoot();
+        String fileName = getCenteredFileName(root);
+        String msg = MessageFormat.format(form, preMessage, fileName);
+
+        showErrorMessage(msg);
+        abort();
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリの祖先に書き込めないエラーをダイアログで提示し、
+     * VM終了する。
+     *
+     * @param existsAncestor 存在するもっとも近い祖先
+     * @param preMessage メッセージ前半
+     */
+    private static void abortCantWriteAncestor(Path existsAncestor,
+                                               String preMessage ){
+        String form =
+                "<html>"
+                + "{0}<br/>"
+                + "{1}への書き込みができないため、"
+                + "処理の続行は不可能です。<br/>"
+                + "起動を中止します。<br/>"
+                + MSG_POST
+                + "</html>";
+
+        String fileName = getCenteredFileName(existsAncestor);
+        String msg = MessageFormat.format(form, preMessage, fileName);
+
+        showErrorMessage(msg);
+        abort();
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリがアクセス可能でなければ
+     * エラーダイアログを出してVM終了する。
+     *
+     * @param confDir 設定ディレクトリ
+     */
+    public static void checkDirPerm(Path confDir){
+        if( ! FileUtils.isAccessibleDirectory(confDir) ){
+            abortCantAccessConfigDir(confDir);
+        }
+
+        return;
+    }
 
     /**
      * 暗黙的な設定格納ディレクトリを返す。
@@ -121,18 +361,23 @@ public final class ConfigDirUtils{
 
         Path absPath = confPath.toAbsolutePath();
 
-        String preErrMessage =
-                "設定格納ディレクトリ<br/>"
-                + getCenteredFileName(absPath)
-                + "の作成に失敗しました。";
-        if( ! isImplicitPath ){
-            preErrMessage =
+        String optlead;
+        if(isImplicitPath){
+            optlead = "";
+        }else{
+            optlead =
                     "<code>"
                     + CmdOption.OPT_CONFDIR
                     + "</code>&nbsp;オプション"
-                    + "で指定された、<br/>"
-                    + preErrMessage;
+                    + "で指定された、<br/>";
         }
+
+        String fileName = getCenteredFileName(absPath);
+
+        String form =
+                "{0}設定格納ディレクトリ<br/>"
+                + "{1}の作成に失敗しました。";
+        String preErrMessage = MessageFormat.format(form, optlead, fileName);
 
         Path existsAncestor = FileUtils.findExistsAncestor(absPath);
         if(existsAncestor == null){
@@ -141,10 +386,11 @@ public final class ConfigDirUtils{
             abortCantWriteAncestor(existsAncestor, preErrMessage);
         }
 
-        String prompt =
+        String promptForm =
                 "設定ファイル格納ディレクトリ<br/>"
-                + getCenteredFileName(absPath)
-                + "を作成します。";
+                + "{0}を作成します。";
+        String dirName = getCenteredFileName(absPath);
+        String prompt = MessageFormat.format(promptForm, dirName);
         boolean confirmed = confirmBuildConfigDir(existsAncestor, prompt);
         if( ! confirmed ){
             abortQuitBuildConfigDir();
@@ -164,7 +410,7 @@ public final class ConfigDirUtils{
 
         // FileUtils.setOwnerOnlyAccess(absPath);
 
-        checkAccessibility(absPath);
+        checkDirPerm(absPath);
 
         touchReadme(absPath);
 
@@ -191,7 +437,7 @@ public final class ConfigDirUtils{
         }catch(IOException e){
             // NOTHING
         }
-        ConfigDirUtils.checkAccessibility(imgCacheDir);
+        ConfigDirUtils.checkDirPerm(imgCacheDir);
 
         Path cachePath = imgCacheDir;
         Path jsonLeaf = Paths.get("avatarCache.json");
@@ -206,124 +452,6 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * 設定ディレクトリ操作の
-     * 共通エラーメッセージ確認ダイアログを表示する。
-     *
-     * <p>閉じるまで待つ。
-     *
-     * @param seq メッセージ
-     */
-    private static void showErrorMessage(CharSequence seq){
-        JOptionPane pane =
-                new JOptionPane(seq.toString(),
-                                JOptionPane.ERROR_MESSAGE);
-        showDialog(pane);
-        return;
-    }
-
-    /**
-     * 設定ディレクトリ操作の
-     * 共通エラーメッセージ確認ダイアログを表示する。
-     *
-     * <p>閉じるまで待つ。
-     *
-     * @param seq メッセージ
-     */
-    private static void showWarnMessage(CharSequence seq){
-        JOptionPane pane =
-                new JOptionPane(seq.toString(),
-                                JOptionPane.WARNING_MESSAGE);
-        showDialog(pane);
-        return;
-    }
-
-    /**
-     * 設定ディレクトリ操作の
-     * 情報提示メッセージ確認ダイアログを表示する。
-     *
-     * <p>閉じるまで待つ。
-     *
-     * @param seq メッセージ
-     */
-    private static void showInfoMessage(CharSequence seq){
-        JOptionPane pane =
-                new JOptionPane(seq.toString(),
-                                JOptionPane.INFORMATION_MESSAGE);
-        showDialog(pane);
-        return;
-    }
-
-    /**
-     * ダイアログを表示し、閉じられるまで待つ。
-     *
-     * @param pane ダイアログの元となるペイン
-     */
-    private static void showDialog(JOptionPane pane){
-        JDialog dialog = pane.createDialog(TITLE_BUILDCONF);
-        dialog.setResizable(true);
-        dialog.pack();
-
-        dialog.setVisible(true);
-        dialog.dispose();
-
-        return;
-    }
-
-    /**
-     * VMごとアプリを異常終了させる。
-     *
-     * <p>終了コードは1。
-     */
-    private static void abort(){
-        System.exit(ERR_ABORT);
-        assert false;
-        return;
-    }
-
-    /**
-     * 設定ディレクトリのルートファイルシステムもしくはドライブレターに
-     * アクセスできないエラーをダイアログに提示し、VM終了する。
-     *
-     * @param path 設定ディレクトリ
-     * @param preMessage メッセージ前半
-     */
-    private static void abortNoRoot(Path path, String preMessage){
-        Path root = path.getRoot();
-        showErrorMessage(
-                "<html>"
-                + preMessage + "<br/>"
-                + getCenteredFileName(root)
-                + "を用意する方法が不明です。<br/>"
-                + "起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>" );
-        abort();
-        return;
-    }
-
-    /**
-     * 設定ディレクトリの祖先に書き込めないエラーをダイアログで提示し、
-     * VM終了する。
-     *
-     * @param existsAncestor 存在するもっとも近い祖先
-     * @param preMessage メッセージ前半
-     */
-    private static void abortCantWriteAncestor(Path existsAncestor,
-                                               String preMessage ){
-        showErrorMessage(
-                "<html>"
-                + preMessage + "<br/>"
-                + getCenteredFileName(existsAncestor)
-                + "への書き込みができないため、"
-                + "処理の続行は不可能です。<br/>"
-                + "起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>" );
-        abort();
-        return;
-    }
-
-    /**
      * 設定ディレクトリを新規に生成してよいかダイアログで問い合わせる。
      *
      * @param existsAncestor 存在するもっとも近い祖先
@@ -332,20 +460,21 @@ public final class ConfigDirUtils{
      */
     private static boolean confirmBuildConfigDir(Path existsAncestor,
                                                  String preMessage){
-        String message =
+        String form =
                 "<html>"
-                + preMessage + "<br/>"
+                + "{0}<br/>"
                 + "このディレクトリを今から<br/>"
-                + getCenteredFileName(existsAncestor)
-                + "に作成して構いませんか？<br/>"
+                + "{1}に作成して構いませんか？<br/>"
                 + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br/>"
                 + "確認することができます。"
                 + "</html>";
+        String fileName = getCenteredFileName(existsAncestor);
+        String msg = MessageFormat.format(form, preMessage, fileName);
 
-        JOptionPane pane =
-                new JOptionPane(message,
-                                JOptionPane.QUESTION_MESSAGE,
-                                JOptionPane.YES_NO_OPTION);
+        JOptionPane pane;
+        pane = new JOptionPane(msg,
+                               JOptionPane.QUESTION_MESSAGE,
+                               JOptionPane.YES_NO_OPTION);
 
         showDialog(pane);
 
@@ -360,73 +489,91 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * 設定ディレクトリ生成をやめた操作への警告をダイアログで提示し、
-     * VM終了する。
-     */
-    private static void abortQuitBuildConfigDir(){
-        showWarnMessage(
-                "<html>"
-                + "設定ディレクトリの作成をせずに起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>" );
-        abort();
-        return;
-    }
-
-    /**
-     * 設定ディレクトリが生成できないエラーをダイアログで提示し、
-     * VM終了する。
+     * ロックエラーダイアログの表示。
      *
-     * @param path 生成できなかったディレクトリ
-     */
-    private static void abortCantBuildConfigDir(Path path){
-        showErrorMessage(
-                "<html>"
-                + "設定ディレクトリ<br/>"
-                + getCenteredFileName(path)
-                + "の作成に失敗しました。"
-                + "起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>" );
-        abort();
-        return;
-    }
-
-    /**
-     * 設定ディレクトリへアクセスできないエラーをダイアログで提示し、
-     * VM終了する。
+     * <p>呼び出しから戻ってもまだロックオブジェクトが
+     * ロックファイルのオーナーでない場合、
+     * 今後設定ディレクトリは一切使わずに起動を続行するものとする。
      *
-     * @param path アクセスできないディレクトリ
-     */
-    private static void abortCantAccessConfigDir(Path path){
-        showErrorMessage(
-                "<html>"
-                + "設定ディレクトリ<br/>"
-                + getCenteredFileName(path)
-                + "へのアクセスができません。"
-                + "起動を中止します。<br/>"
-                + "このディレクトリへのアクセス権を調整し"
-                + "読み書きできるようにしてください。<br/>"
-                + MSG_POST
-                + "</html>" );
-        abort();
-        return;
-    }
-
-    /**
-     * ファイルに書き込めないエラーをダイアログで提示し、VM終了する。
+     * <p>ロックファイルの強制解除に失敗した場合はVM終了する。
      *
-     * @param file 書き込めなかったファイル
+     * @param lock エラーを起こしたロック
      */
-    private static void abortCantWrite(Path file){
-        showErrorMessage(
-                "<html>"
-                + "ファイル<br/>"
-                + getCenteredFileName(file)
-                + "への書き込みができません。"
-                + "起動を中止します。<br/>"
-                + "</html>" );
-        abort();
+    public static void confirmLockError(InterVMLock lock){
+        File lockFile = lock.getLockFile();
+        LockErrorPane lockPane = new LockErrorPane(lockFile.toPath());
+        JDialog lockDialog = lockPane.createDialog(TITLE_BUILDCONF);
+        lockDialog.setResizable(true);
+        lockDialog.pack();
+
+        for(;;){
+            lockDialog.setVisible(true);
+
+            Object result = lockPane.getValue();
+            boolean aborted = LockErrorPane.isAborted(result);
+            boolean windowClosed = result == null;
+
+            if(aborted || windowClosed){
+                abort();
+                break;
+            }else if(lockPane.isRadioRetry()){
+                lock.tryLock();
+                if(lock.isFileOwner()) break;
+            }else if(lockPane.isRadioContinue()){
+                String msg =
+                        "<html>"
+                        + "設定ディレクトリを使わずに起動を続行します。<br/>"
+                        + "今回、各種設定の読み込み・保存はできません。<br/>"
+                        + "<code>"
+                        + CmdOption.OPT_NOCONF
+                        + "</code> オプション"
+                        + "を使うとこの警告は出なくなります。"
+                        + "</html>";
+                showInfoMessage(msg);
+                break;
+            }else if(lockPane.isRadioForce()){
+                lock.forceRemove();
+                if(lock.isExistsFile()){
+                    String form =
+                            "<html>"
+                            + "ロックファイルの強制解除に失敗しました。<br/>"
+                            + "他に動いているJindolf"
+                            + "が見つからないのであれば、<br/>"
+                            + "なんとかしてロックファイル<br/>"
+                            + "{0}"
+                            + "を削除してください。<br/>"
+                            + "起動を中止します。"
+                            + "</html>";
+                    String fileName = getCenteredFileName(lockFile.toPath());
+                    String msg = MessageFormat.format(form, fileName);
+
+                    showErrorMessage(msg);
+                    abort();
+
+                    break;
+                }
+                lock.tryLock();
+                if(lock.isFileOwner()) break;
+
+                String form =
+                        "<html>"
+                        + "ロックファイル<br/>"
+                        + "{0}"
+                        + "を確保することができません。<br/>"
+                        + "起動を中止します。"
+                        + "</html>";
+                String fileName = getCenteredFileName(lockFile.toPath());
+                String msg = MessageFormat.format(form, fileName);
+
+                showErrorMessage(msg);
+                abort();
+
+                break;
+            }
+        }
+
+        lockDialog.dispose();
+
         return;
     }
 
@@ -475,110 +622,6 @@ public final class ConfigDirUtils{
                 writer.close();
             }
         }
-
-        return;
-    }
-
-    /**
-     * 設定ディレクトリがアクセス可能でなければ
-     * エラーダイアログを出してVM終了する。
-     *
-     * @param confDir 設定ディレクトリ
-     */
-    public static void checkAccessibility(Path confDir){
-        if( ! FileUtils.isAccessibleDirectory(confDir) ){
-            abortCantAccessConfigDir(confDir);
-        }
-
-        return;
-    }
-
-    /**
-     * センタリングされたファイル名表示のHTML表記を出力する。
-     *
-     * @param path ファイル
-     * @return HTML表記
-     */
-    public static String getCenteredFileName(Path path){
-        return "<center>[&nbsp;"
-                + FileUtils.getHtmledFileName(path)
-                + "&nbsp;]</center>"
-                + "<br/>";
-    }
-
-    /**
-     * ロックエラーダイアログの表示。
-     *
-     * <p>呼び出しから戻ってもまだロックオブジェクトが
-     * ロックファイルのオーナーでない場合、
-     * 今後設定ディレクトリは一切使わずに起動を続行するものとする。
-     *
-     * <p>ロックファイルの強制解除に失敗した場合はVM終了する。
-     *
-     * @param lock エラーを起こしたロック
-     */
-    public static void confirmLockError(InterVMLock lock){
-        File lockFile = lock.getLockFile();
-        LockErrorPane lockPane = new LockErrorPane(lockFile.toPath());
-        JDialog lockDialog = lockPane.createDialog(TITLE_BUILDCONF);
-        lockDialog.setResizable(true);
-        lockDialog.pack();
-
-        for(;;){
-            lockDialog.setVisible(true);
-
-            Object result = lockPane.getValue();
-            boolean aborted = LockErrorPane.isAborted(result);
-            boolean windowClosed = result == null;
-
-            if(aborted || windowClosed){
-                abort();
-                break;
-            }else if(lockPane.isRadioRetry()){
-                lock.tryLock();
-                if(lock.isFileOwner()) break;
-            }else if(lockPane.isRadioContinue()){
-                showInfoMessage(
-                        "<html>"
-                        + "設定ディレクトリを使わずに起動を続行します。<br/>"
-                        + "今回、各種設定の読み込み・保存はできません。<br/>"
-                        + "<code>"
-                        + CmdOption.OPT_NOCONF
-                        + "</code> オプション"
-                        + "を使うとこの警告は出なくなります。"
-                        + "</html>");
-                break;
-            }else if(lockPane.isRadioForce()){
-                lock.forceRemove();
-                if(lock.isExistsFile()){
-                    showErrorMessage(
-                            "<html>"
-                            + "ロックファイルの強制解除に失敗しました。<br/>"
-                            + "他に動いているJindolf"
-                            + "が見つからないのであれば、<br/>"
-                            + "なんとかしてロックファイル<br/>"
-                            + getCenteredFileName(lockFile.toPath())
-                            + "を削除してください。<br/>"
-                            + "起動を中止します。"
-                            + "</html>");
-                    abort();
-                    break;
-                }
-                lock.tryLock();
-                if(lock.isFileOwner()) break;
-                showErrorMessage(
-                        "<html>"
-                        + "ロックファイル<br/>"
-                        + getCenteredFileName(lockFile.toPath())
-                        + "を確保することができません。<br/>"
-                        + "起動を中止します。"
-                        + "</html>");
-                abort();
-                break;
-            }
-        }
-
-        lockDialog.dispose();
 
         return;
     }
