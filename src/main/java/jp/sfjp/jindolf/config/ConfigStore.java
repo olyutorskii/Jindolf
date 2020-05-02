@@ -314,7 +314,13 @@ public class ConfigStore {
         String absPath = absFile.toString();
 
         try{
-            Files.delete(absFile);
+            Files.deleteIfExists(absFile);
+        }catch(IOException e){
+            // NOTHING
+            assert true;
+        }
+
+        try{
             Files.createFile(absFile);
         }catch(IOException e){
             LOGGER.log(Level.SEVERE,
