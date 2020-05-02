@@ -135,16 +135,16 @@ public class ConfigStore {
 
         if( ! this.configDir.exists() ){
             File created =
-                ConfigFile.buildConfigDirectory(this.configDir,
-                                                this.isImplicitPath );
-            ConfigFile.checkAccessibility(created);
+                ConfigDirUtils.buildConfigDirectory(this.configDir,
+                                                    this.isImplicitPath );
+            ConfigDirUtils.checkAccessibility(created);
         }else{
-            ConfigFile.checkAccessibility(this.configDir);
+            ConfigDirUtils.checkAccessibility(this.configDir);
         }
 
         File imgDir = new File(this.configDir, "img");
         if( ! imgDir.exists()){
-            ConfigFile.buildImageCacheDir(imgDir);
+            ConfigDirUtils.buildImageCacheDir(imgDir);
         }
 
         return;
@@ -165,7 +165,7 @@ public class ConfigStore {
         lock.tryLock();
 
         if( ! lock.isFileOwner() ){
-            ConfigFile.confirmLockError(lock);
+            ConfigDirUtils.confirmLockError(lock);
             if( ! lock.isFileOwner() ){
                 this.useStoreFile = false;
                 this.isImplicitPath = true;

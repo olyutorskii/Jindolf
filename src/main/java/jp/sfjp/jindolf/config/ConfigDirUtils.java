@@ -29,7 +29,7 @@ import jp.sfjp.jindolf.view.LockErrorPane;
 /**
  * Jindolf設定格納ディレクトリに関するあれこれ。
  */
-public final class ConfigFile{
+public final class ConfigDirUtils{
 
     private static final String TITLE_BUILDCONF =
             VerInfo.TITLE + "設定格納ディレクトリの設定";
@@ -53,7 +53,7 @@ public final class ConfigFile{
     /**
      * 隠れコンストラクタ。
      */
-    private ConfigFile(){
+    private ConfigDirUtils(){
         assert false;
         return;
     }
@@ -186,7 +186,7 @@ public final class ConfigFile{
         if(is == null) return;
 
         imgCacheDir.mkdirs();
-        ConfigFile.checkAccessibility(imgCacheDir);
+        ConfigDirUtils.checkAccessibility(imgCacheDir);
 
         Path cachePath = imgCacheDir.toPath();
         Path jsonLeaf = Paths.get("avatarCache.json");
