@@ -78,12 +78,12 @@ public class ConfigStore {
      * コンストラクタ。
      *
      * @param useStoreFile 設定ディレクトリ内への
-     * データセーブ機能を使うならtrue
+     *     データセーブ機能を使うならtrue
      * @param isImplicitPath 起動コマンドラインから指定された
-     * 設定ディレクトリを用いる場合false。
-     * trueならデフォルトの設定ディレクトリが用いられる。
+     *     設定ディレクトリを用いる場合false。
+     *     trueならデフォルトの設定ディレクトリが用いられる。
      * @param configDirPath 設定ディレクトリ名。
-     * 設定ディレクトリを使わない場合は無視される。
+     *     設定ディレクトリを使わない場合は無視される。
      */
     public ConfigStore(boolean useStoreFile,
                        boolean isImplicitPath,

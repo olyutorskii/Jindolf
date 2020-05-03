@@ -7,11 +7,10 @@
 
 package jp.sfjp.jindolf.config;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,8 +35,6 @@ public final class ConfigDirUtils{
 
     private static final String RES_DIR = "resources";
     private static final String RES_README = RES_DIR + "/README.txt";
-
-    private static final Charset CHARSET_README = StandardCharsets.UTF_8;
 
     private static final String MSG_POST =
             "<ul>"
@@ -108,7 +105,8 @@ public final class ConfigDirUtils{
      *
      * <p>閉じるまで待つ。
      *
-     * @param seq メッセージtxt*/
+     * @param seq メッセージtxt
+     */
     private static void showWarnMessage(String txt){
         JOptionPane pane;
         pane = new JOptionPane(txt, JOptionPane.WARNING_MESSAGE);
@@ -122,7 +120,8 @@ public final class ConfigDirUtils{
      *
      * <p>閉じるまで待つ。
      *
-     * @param seq メッセージtxt*/
+     * @param seq メッセージtxt
+     */
     private static void showInfoMessage(String txt){
         JOptionPane pane;
         pane = new JOptionPane(txt, JOptionPane.INFORMATION_MESSAGE);
@@ -300,6 +299,31 @@ public final class ConfigDirUtils{
     }
 
     /**
+     * アプリケーション設定ディレクトリを返す。
+     *
+     * <p>存在の有無、アクセスの可否は関知しない。
+     *
+     * <p>WindowsやLinuxではホームディレクトリ。
+     * Mac OS X ではさらにホームディレクトリの下の
+     * "Library/Application Support/"
+     *
+     * @return アプリケーション設定ディレクトリ
+     */
+    public static Path getAppSetDir(){
+        Path home = FileUtils.getHomeDirectory();
+        if(home == null) return null;
+
+        Path result = home;
+
+        if(FileUtils.isMacOSXFs()){
+            result = result.resolve("Library");
+            result = result.resolve("Application Support");
+        }
+
+        return result;
+    }
+
+    /**
      * 暗黙的な設定格納ディレクトリを返す。
      *
      * <ul>
@@ -322,8 +346,6 @@ public final class ConfigDirUtils{
      * @return 設定格納ディレクトリ
      */
     public static Path getImplicitConfigDirectory(){
-        Path result;
-
         Path jarParent = FileUtils.getJarDirectory();
         if(jarParent != null && FileUtils.isAccessibleDirectory(jarParent)){
             Path confPath = jarParent.resolve(JINCONF);
@@ -332,9 +354,10 @@ public final class ConfigDirUtils{
             }
         }
 
-        Path appset = FileUtils.getAppSetDir();
+        Path appset = getAppSetDir();
         if(appset == null) return null;
 
+        Path result;
         if(FileUtils.isMacOSXFs() || FileUtils.isWindowsOSFs()){
             result = appset.resolve(JINCONF);
         }else{
@@ -428,10 +451,6 @@ public final class ConfigDirUtils{
     public static void buildImageCacheDir(Path imgCacheDir){
         if(Files.exists(imgCacheDir)) return;
 
-        String jsonRes = "resources/image/avatarCache.json";
-        InputStream is = ResourceManager.getResourceAsStream(jsonRes);
-        if(is == null) return;
-
         try{
             Files.createDirectories(imgCacheDir);
         }catch(IOException e){
@@ -439,11 +458,16 @@ public final class ConfigDirUtils{
         }
         ConfigDirUtils.checkDirPerm(imgCacheDir);
 
+        String jsonRes = "resources/image/avatarCache.json";
+        InputStream is = ResourceManager.getResourceAsStream(jsonRes);
+        if(is == null) return;
+
         Path cachePath = imgCacheDir;
         Path jsonLeaf = Paths.get("avatarCache.json");
         Path path = cachePath.resolve(jsonLeaf);
-        try{
-            Files.copy(is, path);
+
+        try(InputStream bis = new BufferedInputStream(is)){
+            Files.copy(bis, path);
         }catch(IOException e){
             abortCantAccessConfigDir(path);
         }
@@ -478,14 +502,12 @@ public final class ConfigDirUtils{
 
         showDialog(pane);
 
-        Object result = pane.getValue();
-        if(result == null) return false;
-        else if( ! (result instanceof Integer) ) return false;
+        Object val = pane.getValue();
+        if( ! (val instanceof Integer) ) return false;
+        int ival = (Integer) val;
+        boolean result = ival == JOptionPane.YES_OPTION;
 
-        int ival = (Integer) result;
-        if(ival == JOptionPane.YES_OPTION) return true;
-
-        return false;
+        return result;
     }
 
     /**
@@ -587,11 +609,11 @@ public final class ConfigDirUtils{
     private static void touchReadme(Path path){
         Path readme = path.resolve(FILE_README);
 
-        InputStream resReadme;
-        resReadme = ResourceManager.getResourceAsStream(RES_README);
+        InputStream resReadme =
+                ResourceManager.getResourceAsStream(RES_README);
 
-        try{
-            Files.copy(resReadme, readme);
+        try(InputStream bis = new BufferedInputStream(resReadme)){
+            Files.copy(bis, readme);
         }catch(IOException e){
             abortCantWrite(readme);
         }

@@ -90,13 +90,12 @@ public final class FileUtils{
     }
 
     /**
-     * クラスがローカルファイルからロードされたのであれば
-     * そのファイルを返す。
+     * クラスのロード元のURLを返す。
      *
-     * @param klass 任意のクラス
-     * @return ロード元ファイル。見つからなければnull。
+     * @param klass クラス
+     * @return ロード元URL。不明ならnull
      */
-    public static Path getClassSourceFile(Class<?> klass){
+    public static URL getClassSourceUrl(Class<?> klass){
         ProtectionDomain domain = klass.getProtectionDomain();
         if(domain == null) return null;
 
@@ -104,6 +103,19 @@ public final class FileUtils{
         if(src == null) return null;
 
         URL location = src.getLocation();
+
+        return location;
+    }
+
+    /**
+     * クラスがローカルファイルからロードされたのであれば
+     * そのファイルを返す。
+     *
+     * @param klass 任意のクラス
+     * @return ロード元ファイル。見つからなければnull。
+     */
+    public static Path getClassSourcePath(Class<?> klass){
+        URL location = getClassSourceUrl(klass);
         if(location == null) return null;
 
         String scheme = location.getProtocol();
@@ -125,6 +137,9 @@ public final class FileUtils{
     /**
      * すでに存在するJARファイルか判定する。
      *
+     * <p>ファイルがすでに通常ファイルとしてローカルに存在し、
+     * ファイル名の拡張子が「.jar」であれば真と判定される。
+     *
      * @param path 任意のファイル
      * @return すでに存在するJARファイルであればtrue
      */
@@ -133,7 +148,9 @@ public final class FileUtils{
         if( ! Files.exists(path) ) return false;
         if( ! Files.isRegularFile(path) ) return false;
 
-        String leafName = path.getFileName().toString();
+        Path leaf = path.getFileName();
+        assert leaf != null;
+        String leafName = leaf.toString();
         boolean result = leafName.matches("^.+\\.[jJ][aA][rR]$");
 
         return result;
@@ -148,7 +165,7 @@ public final class FileUtils{
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
     public static Path getJarDirectory(Class<?> klass){
-        Path jarFile = getClassSourceFile(klass);
+        Path jarFile = getClassSourcePath(klass);
         if(jarFile == null) return null;
 
         if( ! isExistsJarFile(jarFile) ){
@@ -195,11 +212,8 @@ public final class FileUtils{
 
         osName = osName.toLowerCase(Locale.ROOT);
 
-        if(osName.startsWith("mac os x")){
-            return true;
-        }
-
-        return false;
+        boolean result = osName.startsWith("mac os x");
+        return result;
     }
 
     /**
@@ -215,35 +229,7 @@ public final class FileUtils{
 
         osName = osName.toLowerCase(Locale.ROOT);
 
-        if(osName.startsWith("windows")){
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * アプリケーション設定ディレクトリを返す。
-     *
-     * <p>存在の有無、アクセスの可否は関知しない。
-     *
-     * <p>WindowsやLinuxではホームディレクトリ。
-     * Mac OS X ではさらにホームディレクトリの下の
-     * "Library/Application Support/"
-     *
-     * @return アプリケーション設定ディレクトリ
-     */
-    public static Path getAppSetDir(){
-        Path home = getHomeDirectory();
-        if(home == null) return null;
-
-        Path result = home;
-
-        if(isMacOSXFs()){
-            result = result.resolve("Library");
-            result = result.resolve("Application Support");
-        }
-
+        boolean result = osName.startsWith("windows");
         return result;
     }
 
