@@ -47,22 +47,6 @@ public final class FileUtils{
 
 
     /**
-     * 任意の絶対パスの祖先の内、存在するもっとも近い祖先を返す。
-     *
-     * @param file 任意の絶対パス
-     * @return 存在するもっとも近い祖先。一つも存在しなければnull。
-     * @throws IllegalArgumentException 引数が絶対パスでない
-     */
-    public static Path findExistsAncestor(Path file)
-            throws IllegalArgumentException{
-        if(file == null) return null;
-        if( ! file.isAbsolute() ) throw new IllegalArgumentException();
-        if(Files.exists(file)) return file;
-        Path parent = file.getParent();
-        return findExistsAncestor(parent);
-    }
-
-    /**
      * 任意のディレクトリがアクセス可能な状態にあるか判定する。
      *
      * <p>アクセス可能の条件を満たすためには、与えられたパスが

@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import jp.sfjp.jindolf.ResourceManager;
@@ -26,12 +28,14 @@ import jp.sfjp.jindolf.view.LockErrorPane;
  */
 public final class ConfigDirUtils{
 
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
+
     private static final String TITLE_BUILDCONF =
             VerInfo.TITLE + "設定格納ディレクトリの設定";
 
-    private static final String JINCONF     = "Jindolf";
-    private static final String JINCONF_DOT = ".jindolf";
-    private static final String FILE_README = "README.txt";
+    private static final Path JINCONF     = Paths.get("Jindolf");
+    private static final Path JINCONF_DOT = Paths.get(".jindolf");
+    private static final Path FILE_README = Paths.get("README.txt");
 
     private static final String RES_DIR = "resources";
     private static final String RES_README = RES_DIR + "/README.txt";
@@ -155,6 +159,7 @@ public final class ConfigDirUtils{
 
         showWarnMessage(msg);
         abort();
+        assert false;
 
         return;
     }
@@ -179,6 +184,7 @@ public final class ConfigDirUtils{
 
         showErrorMessage(msg);
         abort();
+        assert false;
 
         return;
     }
@@ -205,6 +211,7 @@ public final class ConfigDirUtils{
 
         showErrorMessage(msg);
         abort();
+        assert false;
 
         return;
     }
@@ -227,59 +234,7 @@ public final class ConfigDirUtils{
 
         showErrorMessage(msg);
         abort();
-
-        return;
-    }
-
-    /**
-     * 設定ディレクトリのルートファイルシステムもしくはドライブレターに
-     * アクセスできないエラーをダイアログに提示し、VM終了する。
-     *
-     * @param path 設定ディレクトリ
-     * @param preMessage メッセージ前半
-     */
-    private static void abortNoRoot(Path path, String preMessage){
-        String form =
-                "<html>"
-                + "{0}<br/>"
-                + "{1}を用意する方法が不明です。<br/>"
-                + "起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>";
-
-        Path root = path.getRoot();
-        String fileName = getCenteredFileName(root);
-        String msg = MessageFormat.format(form, preMessage, fileName);
-
-        showErrorMessage(msg);
-        abort();
-
-        return;
-    }
-
-    /**
-     * 設定ディレクトリの祖先に書き込めないエラーをダイアログで提示し、
-     * VM終了する。
-     *
-     * @param existsAncestor 存在するもっとも近い祖先
-     * @param preMessage メッセージ前半
-     */
-    private static void abortCantWriteAncestor(Path existsAncestor,
-                                               String preMessage ){
-        String form =
-                "<html>"
-                + "{0}<br/>"
-                + "{1}への書き込みができないため、"
-                + "処理の続行は不可能です。<br/>"
-                + "起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>";
-
-        String fileName = getCenteredFileName(existsAncestor);
-        String msg = MessageFormat.format(form, preMessage, fileName);
-
-        showErrorMessage(msg);
-        abort();
+        assert false;
 
         return;
     }
@@ -311,7 +266,6 @@ public final class ConfigDirUtils{
      */
     public static Path getAppSetDir(){
         Path home = FileUtils.getHomeDirectory();
-        if(home == null) return null;
 
         Path result = home;
 
@@ -345,9 +299,9 @@ public final class ConfigDirUtils{
      *
      * @return 設定格納ディレクトリ
      */
-    public static Path getImplicitConfigDirectory(){
+    public static Path getDefaultConfDirPath(){
         Path jarParent = FileUtils.getJarDirectory();
-        if(jarParent != null && FileUtils.isAccessibleDirectory(jarParent)){
+        if(FileUtils.isAccessibleDirectory(jarParent)){
             Path confPath = jarParent.resolve(JINCONF);
             if(FileUtils.isAccessibleDirectory(confPath)){
                 return confPath;
@@ -355,7 +309,6 @@ public final class ConfigDirUtils{
         }
 
         Path appset = getAppSetDir();
-        if(appset == null) return null;
 
         Path result;
         if(FileUtils.isMacOSXFs() || FileUtils.isWindowsOSFs()){
@@ -372,51 +325,20 @@ public final class ConfigDirUtils{
      *
      * <p>エラーがあればダイアログ提示とともにVM終了する。
      *
+     * <p>既に存在すればなにもしない。
+     *
      * @param confPath 設定格納ディレクトリ
-     * @param isImplicitPath ディレクトリが暗黙的に指定されたものならtrue。
-     * @return 新規に作成した設定格納ディレクトリ
-     * @throws IllegalArgumentException すでにそのディレクトリは存在する。
+     * @return 新規に作成した設定格納ディレクトリの絶対パス
      */
-    public static Path buildConfigDirectory(Path confPath,
-                                            boolean isImplicitPath )
+    public static Path buildConfDirPath(Path confPath)
             throws IllegalArgumentException{
-        if(Files.exists(confPath)) throw new IllegalArgumentException();
-
         Path absPath = confPath.toAbsolutePath();
+        if(Files.exists(absPath)) return absPath;
 
-        String optlead;
-        if(isImplicitPath){
-            optlead = "";
-        }else{
-            optlead =
-                    "<code>"
-                    + CmdOption.OPT_CONFDIR
-                    + "</code>&nbsp;オプション"
-                    + "で指定された、<br/>";
-        }
-
-        String fileName = getCenteredFileName(absPath);
-
-        String form =
-                "{0}設定格納ディレクトリ<br/>"
-                + "{1}の作成に失敗しました。";
-        String preErrMessage = MessageFormat.format(form, optlead, fileName);
-
-        Path existsAncestor = FileUtils.findExistsAncestor(absPath);
-        if(existsAncestor == null){
-            abortNoRoot(absPath, preErrMessage);
-        }else if( ! Files.isWritable(existsAncestor) ){
-            abortCantWriteAncestor(existsAncestor, preErrMessage);
-        }
-
-        String promptForm =
-                "設定ファイル格納ディレクトリ<br/>"
-                + "{0}を作成します。";
-        String dirName = getCenteredFileName(absPath);
-        String prompt = MessageFormat.format(promptForm, dirName);
-        boolean confirmed = confirmBuildConfigDir(existsAncestor, prompt);
+        boolean confirmed = confirmBuildConfigDir(absPath);
         if( ! confirmed ){
             abortQuitBuildConfigDir();
+            assert false;
         }
 
         boolean success;
@@ -424,11 +346,15 @@ public final class ConfigDirUtils{
             Files.createDirectories(absPath);
             success = true;
         }catch(IOException | SecurityException e){
+            String msg = MessageFormat.format(
+                    "{0}を生成できません", absPath.toString());
+            LOGGER.log(Level.SEVERE, msg, e);
             success = false;
         }
 
-        if( ! success || ! Files.exists(absPath) ){
+        if( ! success ){
             abortCantBuildConfigDir(absPath);
+            assert false;
         }
 
         // FileUtils.setOwnerOnlyAccess(absPath);
@@ -438,6 +364,38 @@ public final class ConfigDirUtils{
         touchReadme(absPath);
 
         return absPath;
+    }
+
+    /**
+     * 設定ディレクトリを新規に生成してよいかダイアログで問い合わせる。
+     *
+     * @param confDir 設定ディレクトリ
+     * @return 生成してよいと指示があればtrue
+     */
+    private static boolean confirmBuildConfigDir(Path confDir){
+        String form =
+                "<html>"
+                + "設定ファイル格納ディレクトリ<br/>"
+                + "{0}を作成します。<br/>"
+                + "このディレクトリを今から作成して構いませんか？<br/>"
+                + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br/>"
+                + "確認することができます。"
+                + "</html>";
+        String confName = getCenteredFileName(confDir);
+        String msg = MessageFormat.format(form, confName);
+
+        JOptionPane pane;
+        pane = new JOptionPane(msg,
+                               JOptionPane.QUESTION_MESSAGE,
+                               JOptionPane.YES_NO_OPTION);
+        showDialog(pane);
+
+        Object val = pane.getValue();
+        if( ! (val instanceof Integer) ) return false;
+        int ival = (int) val;
+        boolean result = ival == JOptionPane.YES_OPTION;
+
+        return result;
     }
 
     /**
@@ -454,7 +412,9 @@ public final class ConfigDirUtils{
         try{
             Files.createDirectories(imgCacheDir);
         }catch(IOException e){
-            // NOTHING
+            String msg = MessageFormat.format(
+                    "{0}を生成できません", imgCacheDir.toString());
+            LOGGER.log(Level.SEVERE, msg, e);
         }
         ConfigDirUtils.checkDirPerm(imgCacheDir);
 
@@ -470,44 +430,10 @@ public final class ConfigDirUtils{
             Files.copy(bis, path);
         }catch(IOException e){
             abortCantAccessConfigDir(path);
+            assert false;
         }
 
         return;
-    }
-
-    /**
-     * 設定ディレクトリを新規に生成してよいかダイアログで問い合わせる。
-     *
-     * @param existsAncestor 存在するもっとも近い祖先
-     * @param preMessage メッセージ前半
-     * @return 生成してよいと指示があればtrue
-     */
-    private static boolean confirmBuildConfigDir(Path existsAncestor,
-                                                 String preMessage){
-        String form =
-                "<html>"
-                + "{0}<br/>"
-                + "このディレクトリを今から<br/>"
-                + "{1}に作成して構いませんか？<br/>"
-                + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br/>"
-                + "確認することができます。"
-                + "</html>";
-        String fileName = getCenteredFileName(existsAncestor);
-        String msg = MessageFormat.format(form, preMessage, fileName);
-
-        JOptionPane pane;
-        pane = new JOptionPane(msg,
-                               JOptionPane.QUESTION_MESSAGE,
-                               JOptionPane.YES_NO_OPTION);
-
-        showDialog(pane);
-
-        Object val = pane.getValue();
-        if( ! (val instanceof Integer) ) return false;
-        int ival = (Integer) val;
-        boolean result = ival == JOptionPane.YES_OPTION;
-
-        return result;
     }
 
     /**
@@ -537,6 +463,7 @@ public final class ConfigDirUtils{
 
             if(aborted || windowClosed){
                 abort();
+                assert false;
                 break;
             }else if(lockPane.isRadioRetry()){
                 lock.tryLock();
@@ -571,6 +498,7 @@ public final class ConfigDirUtils{
 
                     showErrorMessage(msg);
                     abort();
+                    assert false;
 
                     break;
                 }
@@ -589,6 +517,7 @@ public final class ConfigDirUtils{
 
                 showErrorMessage(msg);
                 abort();
+                assert false;
 
                 break;
             }
@@ -609,13 +538,17 @@ public final class ConfigDirUtils{
     private static void touchReadme(Path path){
         Path readme = path.resolve(FILE_README);
 
-        InputStream resReadme =
-                ResourceManager.getResourceAsStream(RES_README);
-
-        try(InputStream bis = new BufferedInputStream(resReadme)){
-            Files.copy(bis, readme);
+        try(InputStream ris =
+                ResourceManager.getResourceAsStream(RES_README)){
+            InputStream is = new BufferedInputStream(ris);
+            Files.copy(is, readme);
         }catch(IOException e){
+            String msg = MessageFormat.format(
+                    "{0}が生成できませんでした", readme.toString()
+            );
+            LOGGER.log(Level.SEVERE, msg, e);
             abortCantWrite(readme);
+            assert false;
         }
 
         return;

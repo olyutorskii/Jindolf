@@ -146,8 +146,7 @@ public class ConfigStore {
 
         if( ! Files.exists(this.configDir) ){
             Path created =
-                ConfigDirUtils.buildConfigDirectory(this.configDir,
-                                                    this.isImplicitPath );
+                ConfigDirUtils.buildConfDirPath(this.configDir);
             ConfigDirUtils.checkDirPerm(created);
         }else{
             ConfigDirUtils.checkDirPerm(this.configDir);

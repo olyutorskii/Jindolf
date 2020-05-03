@@ -115,7 +115,7 @@ public class AppSetting{
         }else{
             useConfig = true;
             isImplicitPath = true;
-            configPath = ConfigDirUtils.getImplicitConfigDirectory();
+            configPath = ConfigDirUtils.getDefaultConfDirPath();
         }
 
         ConfigStore result =
