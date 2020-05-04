@@ -36,9 +36,12 @@ public final class ConfigDirUtils{
     private static final Path JINCONF     = Paths.get("Jindolf");
     private static final Path JINCONF_DOT = Paths.get(".jindolf");
     private static final Path FILE_README = Paths.get("README.txt");
+    private static final Path FILE_AVATARJSON = Paths.get("avatarCache.json");
 
     private static final String RES_DIR = "resources";
     private static final String RES_README = RES_DIR + "/README.txt";
+    private static final String RES_IMGDIR = RES_DIR + "/image";
+    private static final String RES_AVATARJSON = RES_IMGDIR + "/avatarCache.json";
 
     private static final String MSG_POST =
             "<ul>"
@@ -165,15 +168,15 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * 設定ディレクトリが生成できないエラーをダイアログで提示し、
+     * ディレクトリが生成できないエラーをダイアログで提示し、
      * VM終了する。
      *
      * @param path 生成できなかったディレクトリ
      */
-    private static void abortCantBuildConfigDir(Path path){
+    private static void abortCantBuildDir(Path path){
         String form =
                 "<html>"
-                + "設定ディレクトリ<br/>"
+                + "ディレクトリ<br/>"
                 + "{0}"
                 + "の作成に失敗しました。"
                 + "起動を中止します。<br/>"
@@ -190,15 +193,15 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * 設定ディレクトリへアクセスできないエラーをダイアログで提示し、
+     * ディレクトリへアクセスできないエラーをダイアログで提示し、
      * VM終了する。
      *
      * @param path アクセスできないディレクトリ
      */
-    private static void abortCantAccessConfigDir(Path path){
+    private static void abortCantAccessDir(Path path){
         String form =
                 "<html>"
-                + "設定ディレクトリ<br/>"
+                + "ディレクトリ<br/>"
                 + "{0}"
                 + "へのアクセスができません。"
                 + "起動を中止します。<br/>"
@@ -247,7 +250,7 @@ public final class ConfigDirUtils{
      */
     public static void checkDirPerm(Path confDir){
         if( ! FileUtils.isAccessibleDirectory(confDir) ){
-            abortCantAccessConfigDir(confDir);
+            abortCantAccessDir(confDir);
         }
 
         return;
@@ -330,8 +333,7 @@ public final class ConfigDirUtils{
      * @param confPath 設定格納ディレクトリ
      * @return 新規に作成した設定格納ディレクトリの絶対パス
      */
-    public static Path buildConfDirPath(Path confPath)
-            throws IllegalArgumentException{
+    public static Path buildConfDirPath(Path confPath){
         Path absPath = confPath.toAbsolutePath();
         if(Files.exists(absPath)) return absPath;
 
@@ -341,19 +343,13 @@ public final class ConfigDirUtils{
             assert false;
         }
 
-        boolean success;
         try{
             Files.createDirectories(absPath);
-            success = true;
         }catch(IOException | SecurityException e){
             String msg = MessageFormat.format(
                     "{0}を生成できません", absPath.toString());
             LOGGER.log(Level.SEVERE, msg, e);
-            success = false;
-        }
-
-        if( ! success ){
-            abortCantBuildConfigDir(absPath);
+            abortCantBuildDir(absPath);
             assert false;
         }
 
@@ -407,29 +403,33 @@ public final class ConfigDirUtils{
      * @param imgCacheDir ローカル画像キャッシュディレクトリ
      */
     public static void buildImageCacheDir(Path imgCacheDir){
-        if(Files.exists(imgCacheDir)) return;
+        Path absPath = imgCacheDir.toAbsolutePath();
+        if(Files.exists(absPath)) return;
 
         try{
-            Files.createDirectories(imgCacheDir);
+            Files.createDirectories(absPath);
         }catch(IOException e){
             String msg = MessageFormat.format(
-                    "{0}を生成できません", imgCacheDir.toString());
+                    "ディレクトリ{0}を生成できません", absPath.toString());
             LOGGER.log(Level.SEVERE, msg, e);
+            abortCantBuildDir(absPath);
+            assert false;
         }
-        ConfigDirUtils.checkDirPerm(imgCacheDir);
 
-        String jsonRes = "resources/image/avatarCache.json";
-        InputStream is = ResourceManager.getResourceAsStream(jsonRes);
-        if(is == null) return;
+        checkDirPerm(absPath);
 
-        Path cachePath = imgCacheDir;
-        Path jsonLeaf = Paths.get("avatarCache.json");
-        Path path = cachePath.resolve(jsonLeaf);
+        Path jsonPath = imgCacheDir.resolve(FILE_AVATARJSON);
 
-        try(InputStream bis = new BufferedInputStream(is)){
-            Files.copy(bis, path);
+        try(InputStream ris =
+                ResourceManager.getResourceAsStream(RES_AVATARJSON)){
+            InputStream is = new BufferedInputStream(ris);
+            Files.copy(is, jsonPath);
         }catch(IOException e){
-            abortCantAccessConfigDir(path);
+            String msg = MessageFormat.format(
+                    "ファイル{0}を生成できませんでした", jsonPath.toString()
+            );
+            LOGGER.log(Level.SEVERE, msg, e);
+            abortCantWrite(jsonPath);
             assert false;
         }
 
