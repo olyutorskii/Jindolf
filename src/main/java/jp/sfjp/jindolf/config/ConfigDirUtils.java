@@ -41,7 +41,8 @@ public final class ConfigDirUtils{
     private static final String RES_DIR = "resources";
     private static final String RES_README = RES_DIR + "/README.txt";
     private static final String RES_IMGDIR = RES_DIR + "/image";
-    private static final String RES_AVATARJSON = RES_IMGDIR + "/avatarCache.json";
+    private static final String RES_AVATARJSON =
+            RES_IMGDIR + "/avatarCache.json";
 
     private static final String MSG_POST =
             "<ul>"
@@ -52,6 +53,29 @@ public final class ConfigDirUtils{
             + "&nbsp;オプション指定により、<br/>"
             + "設定格納ディレクトリを使わずに起動することができます。<br/>"
             + "</ul>";
+    private static final String MSG_NOCONF = "<html>"
+            + "設定ディレクトリを使わずに起動を続行します。<br/>"
+            + "今回、各種設定の読み込み・保存はできません。<br/>"
+            + "<code>"
+            + CmdOption.OPT_NOCONF
+            + "</code> オプション"
+            + "を使うとこの警告は出なくなります。"
+            + "</html>";
+    private static final String FORM_FAILRM = "<html>"
+            + "ロックファイルの強制解除に失敗しました。<br/>"
+            + "他に動いているJindolf"
+            + "が見つからないのであれば、<br/>"
+            + "なんとかしてロックファイル<br/>"
+            + "{0}"
+            + "を削除してください。<br/>"
+            + "起動を中止します。"
+            + "</html>";
+    private static final String FORM_ILLLOCK = "<html>"
+            + "ロックファイル<br/>"
+            + "{0}"
+            + "を確保することができません。<br/>"
+            + "起動を中止します。"
+            + "</html>";
 
     private static final int ERR_ABORT = 1;
 
@@ -112,7 +136,7 @@ public final class ConfigDirUtils{
      *
      * <p>閉じるまで待つ。
      *
-     * @param seq メッセージtxt
+     * @param txt メッセージtxt
      */
     private static void showWarnMessage(String txt){
         JOptionPane pane;
@@ -127,7 +151,7 @@ public final class ConfigDirUtils{
      *
      * <p>閉じるまで待つ。
      *
-     * @param seq メッセージtxt
+     * @param txt メッセージtxt
      */
     private static void showInfoMessage(String txt){
         JOptionPane pane;
@@ -449,12 +473,14 @@ public final class ConfigDirUtils{
      */
     public static void confirmLockError(InterVMLock lock){
         File lockFile = lock.getLockFile();
+
         LockErrorPane lockPane = new LockErrorPane(lockFile.toPath());
         JDialog lockDialog = lockPane.createDialog(TITLE_BUILDCONF);
+
         lockDialog.setResizable(true);
         lockDialog.pack();
 
-        for(;;){
+        do{
             lockDialog.setVisible(true);
 
             Object result = lockPane.getValue();
@@ -465,65 +491,55 @@ public final class ConfigDirUtils{
                 abort();
                 assert false;
                 break;
-            }else if(lockPane.isRadioRetry()){
+            }
+
+            if(lockPane.isRadioRetry()){
                 lock.tryLock();
-                if(lock.isFileOwner()) break;
             }else if(lockPane.isRadioContinue()){
-                String msg =
-                        "<html>"
-                        + "設定ディレクトリを使わずに起動を続行します。<br/>"
-                        + "今回、各種設定の読み込み・保存はできません。<br/>"
-                        + "<code>"
-                        + CmdOption.OPT_NOCONF
-                        + "</code> オプション"
-                        + "を使うとこの警告は出なくなります。"
-                        + "</html>";
-                showInfoMessage(msg);
+                showInfoMessage(MSG_NOCONF);
                 break;
             }else if(lockPane.isRadioForce()){
-                lock.forceRemove();
-                if(lock.isExistsFile()){
-                    String form =
-                            "<html>"
-                            + "ロックファイルの強制解除に失敗しました。<br/>"
-                            + "他に動いているJindolf"
-                            + "が見つからないのであれば、<br/>"
-                            + "なんとかしてロックファイル<br/>"
-                            + "{0}"
-                            + "を削除してください。<br/>"
-                            + "起動を中止します。"
-                            + "</html>";
-                    String fileName = getCenteredFileName(lockFile.toPath());
-                    String msg = MessageFormat.format(form, fileName);
-
-                    showErrorMessage(msg);
-                    abort();
-                    assert false;
-
-                    break;
-                }
-                lock.tryLock();
-                if(lock.isFileOwner()) break;
-
-                String form =
-                        "<html>"
-                        + "ロックファイル<br/>"
-                        + "{0}"
-                        + "を確保することができません。<br/>"
-                        + "起動を中止します。"
-                        + "</html>";
-                String fileName = getCenteredFileName(lockFile.toPath());
-                String msg = MessageFormat.format(form, fileName);
-
-                showErrorMessage(msg);
-                abort();
-                assert false;
-
+                forceRemove(lock);
                 break;
             }
-        }
+        }while( ! lock.isFileOwner());
 
         lockDialog.dispose();
+
+        return;
+    }
+
+    /**
+     * ロックファイルの強制削除を試みる。
+     *
+     * <p>削除とそれに後続する再ロック取得に成功したときだけ制御を戻す。
+     *
+     * <p>削除できないまたは再ロックできない場合は、
+     * 制御を戻さずVMごとアプリを終了する。
+     *
+     * @param lock ロック
+     */
+    private static void forceRemove(InterVMLock lock){
+        File lockFile = lock.getLockFile();
+
+        lock.forceRemove();
+        if(lock.isExistsFile()){
+            String fileName = getCenteredFileName(lockFile.toPath());
+            String msg = MessageFormat.format(FORM_FAILRM, fileName);
+            showErrorMessage(msg);
+            abort();
+            assert false;
+            return;
+        }
+
+        lock.tryLock();
+        if(lock.isFileOwner()) return;
+
+        String fileName = getCenteredFileName(lockFile.toPath());
+        String msg = MessageFormat.format(FORM_ILLLOCK, fileName);
+        showErrorMessage(msg);
+        abort();
+        assert false;
 
         return;
     }
