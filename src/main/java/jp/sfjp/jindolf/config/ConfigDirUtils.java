@@ -25,6 +25,9 @@ import jp.sfjp.jindolf.view.LockErrorPane;
 
 /**
  * Jindolf設定格納ディレクトリに関するあれこれ。
+ *
+ * <p>ファイル操作の異常系に関する、
+ * ユーザとのインタラクション動作など。
  */
 public final class ConfigDirUtils{
 
@@ -53,7 +56,8 @@ public final class ConfigDirUtils{
             + "&nbsp;オプション指定により、<br/>"
             + "設定格納ディレクトリを使わずに起動することができます。<br/>"
             + "</ul>";
-    private static final String MSG_NOCONF = "<html>"
+    private static final String MSG_NOCONF =
+            "<html>"
             + "設定ディレクトリを使わずに起動を続行します。<br/>"
             + "今回、各種設定の読み込み・保存はできません。<br/>"
             + "<code>"
@@ -61,7 +65,13 @@ public final class ConfigDirUtils{
             + "</code> オプション"
             + "を使うとこの警告は出なくなります。"
             + "</html>";
-    private static final String FORM_FAILRM = "<html>"
+    private static final String MSG_ABORT =
+            "<html>"
+            + "設定ディレクトリの作成をせずに起動を中止します。<br/>"
+            + MSG_POST
+            + "</html>";
+    private static final String FORM_FAILRM =
+            "<html>"
             + "ロックファイルの強制解除に失敗しました。<br/>"
             + "他に動いているJindolf"
             + "が見つからないのであれば、<br/>"
@@ -70,12 +80,51 @@ public final class ConfigDirUtils{
             + "を削除してください。<br/>"
             + "起動を中止します。"
             + "</html>";
-    private static final String FORM_ILLLOCK = "<html>"
+    private static final String FORM_ILLLOCK =
+            "<html>"
             + "ロックファイル<br/>"
             + "{0}"
             + "を確保することができません。<br/>"
             + "起動を中止します。"
             + "</html>";
+    private static final String FORM_MKDIRFAIL =
+            "<html>"
+            + "ディレクトリ<br/>"
+            + "{0}"
+            + "の作成に失敗しました。"
+            + "起動を中止します。<br/>"
+            + MSG_POST
+            + "</html>";
+    private static final String FORM_ACCERR =
+            "<html>"
+            + "ディレクトリ<br/>"
+            + "{0}"
+            + "へのアクセスができません。"
+            + "起動を中止します。<br/>"
+            + "このディレクトリへのアクセス権を調整し"
+            + "読み書きできるようにしてください。<br/>"
+            + MSG_POST
+            + "</html>";
+    private static final String FORM_WRITEERR =
+            "<html>"
+            + "ファイル<br/>"
+            + "{0}"
+            + "への書き込みができません。"
+            + "起動を中止します。<br/>"
+            + "</html>";
+    private static final String FORM_MKCONF =
+            "<html>"
+            + "設定ファイル格納ディレクトリ<br/>"
+            + "{0}を作成します。<br/>"
+            + "このディレクトリを今から作成して構いませんか？<br/>"
+            + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br/>"
+            + "確認することができます。"
+            + "</html>";
+
+    private static final String LOG_MKDIRERR =
+            "ディレクトリ{0}を生成できません";
+    private static final String LOG_CREATEERR =
+            "ファイル{0}を生成できません";
 
     private static final int ERR_ABORT = 1;
 
@@ -178,13 +227,7 @@ public final class ConfigDirUtils{
      * VM終了する。
      */
     private static void abortQuitBuildConfigDir(){
-        String msg =
-                "<html>"
-                + "設定ディレクトリの作成をせずに起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>";
-
-        showWarnMessage(msg);
+        showWarnMessage(MSG_ABORT);
         abort();
         assert false;
 
@@ -198,16 +241,8 @@ public final class ConfigDirUtils{
      * @param path 生成できなかったディレクトリ
      */
     private static void abortCantBuildDir(Path path){
-        String form =
-                "<html>"
-                + "ディレクトリ<br/>"
-                + "{0}"
-                + "の作成に失敗しました。"
-                + "起動を中止します。<br/>"
-                + MSG_POST
-                + "</html>";
         String fileName = getCenteredFileName(path);
-        String msg = MessageFormat.format(form, fileName);
+        String msg = MessageFormat.format(FORM_MKDIRFAIL, fileName);
 
         showErrorMessage(msg);
         abort();
@@ -223,18 +258,8 @@ public final class ConfigDirUtils{
      * @param path アクセスできないディレクトリ
      */
     private static void abortCantAccessDir(Path path){
-        String form =
-                "<html>"
-                + "ディレクトリ<br/>"
-                + "{0}"
-                + "へのアクセスができません。"
-                + "起動を中止します。<br/>"
-                + "このディレクトリへのアクセス権を調整し"
-                + "読み書きできるようにしてください。<br/>"
-                + MSG_POST
-                + "</html>";
         String fileName = getCenteredFileName(path);
-        String msg = MessageFormat.format(form, fileName);
+        String msg = MessageFormat.format(FORM_ACCERR, fileName);
 
         showErrorMessage(msg);
         abort();
@@ -249,20 +274,39 @@ public final class ConfigDirUtils{
      * @param path 書き込めなかったファイル
      */
     private static void abortCantWrite(Path path){
-        String form =
-                "<html>"
-                + "ファイル<br/>"
-                + "{0}"
-                + "への書き込みができません。"
-                + "起動を中止します。<br/>"
-                + "</html>";
         String fileName = getCenteredFileName(path);
-        String msg = MessageFormat.format(form, fileName);
+        String msg = MessageFormat.format(FORM_WRITEERR, fileName);
 
         showErrorMessage(msg);
         abort();
         assert false;
 
+        return;
+    }
+
+    /**
+     * ディレクトリが生成できない異常系をログ出力する。
+     *
+     * @param dirPath 生成できなかったディレクトリ
+     * @param cause 異常系原因
+     */
+    private static void logMkdirErr(Path dirPath, Throwable cause){
+        String pathTxt = dirPath.toString();
+        String msg = MessageFormat.format(LOG_MKDIRERR, pathTxt);
+        LOGGER.log(Level.SEVERE, msg, cause);
+        return;
+    }
+
+    /**
+     * ファイルが生成できない異常系をログ出力する。
+     *
+     * @param filePath 生成できなかったファイル
+     * @param cause 異常系原因
+     */
+    private static void logCreateErr(Path filePath, Throwable cause){
+        String pathTxt = filePath.toString();
+        String msg = MessageFormat.format(LOG_CREATEERR, pathTxt);
+        LOGGER.log(Level.SEVERE, msg, cause);
         return;
     }
 
@@ -370,9 +414,7 @@ public final class ConfigDirUtils{
         try{
             Files.createDirectories(absPath);
         }catch(IOException | SecurityException e){
-            String msg = MessageFormat.format(
-                    "{0}を生成できません", absPath.toString());
-            LOGGER.log(Level.SEVERE, msg, e);
+            logMkdirErr(absPath, e);
             abortCantBuildDir(absPath);
             assert false;
         }
@@ -393,16 +435,8 @@ public final class ConfigDirUtils{
      * @return 生成してよいと指示があればtrue
      */
     private static boolean confirmBuildConfigDir(Path confDir){
-        String form =
-                "<html>"
-                + "設定ファイル格納ディレクトリ<br/>"
-                + "{0}を作成します。<br/>"
-                + "このディレクトリを今から作成して構いませんか？<br/>"
-                + "このディレクトリ名は、後からいつでもヘルプウィンドウで<br/>"
-                + "確認することができます。"
-                + "</html>";
         String confName = getCenteredFileName(confDir);
-        String msg = MessageFormat.format(form, confName);
+        String msg = MessageFormat.format(FORM_MKCONF, confName);
 
         JOptionPane pane;
         pane = new JOptionPane(msg,
@@ -432,10 +466,8 @@ public final class ConfigDirUtils{
 
         try{
             Files.createDirectories(absPath);
-        }catch(IOException e){
-            String msg = MessageFormat.format(
-                    "ディレクトリ{0}を生成できません", absPath.toString());
-            LOGGER.log(Level.SEVERE, msg, e);
+        }catch(IOException | SecurityException e){
+            logMkdirErr(absPath, e);
             abortCantBuildDir(absPath);
             assert false;
         }
@@ -448,11 +480,8 @@ public final class ConfigDirUtils{
                 ResourceManager.getResourceAsStream(RES_AVATARJSON)){
             InputStream is = new BufferedInputStream(ris);
             Files.copy(is, jsonPath);
-        }catch(IOException e){
-            String msg = MessageFormat.format(
-                    "ファイル{0}を生成できませんでした", jsonPath.toString()
-            );
-            LOGGER.log(Level.SEVERE, msg, e);
+        }catch(IOException | SecurityException e){
+            logCreateErr(jsonPath, e);
             abortCantWrite(jsonPath);
             assert false;
         }
@@ -558,11 +587,8 @@ public final class ConfigDirUtils{
                 ResourceManager.getResourceAsStream(RES_README)){
             InputStream is = new BufferedInputStream(ris);
             Files.copy(is, readme);
-        }catch(IOException e){
-            String msg = MessageFormat.format(
-                    "{0}が生成できませんでした", readme.toString()
-            );
-            LOGGER.log(Level.SEVERE, msg, e);
+        }catch(IOException | SecurityException e){
+            logCreateErr(readme, e);
             abortCantWrite(readme);
             assert false;
         }
