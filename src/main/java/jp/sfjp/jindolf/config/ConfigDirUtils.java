@@ -125,6 +125,8 @@ public final class ConfigDirUtils{
             "ディレクトリ{0}を生成できません";
     private static final String LOG_CREATEERR =
             "ファイル{0}を生成できません";
+    private static final String LOG_RESCPY =
+            "内部リソースから{0}へコピーが行われました。";
 
     private static final int ERR_ABORT = 1;
 
@@ -173,38 +175,8 @@ public final class ConfigDirUtils{
      * @param txt メッセージ
      */
     private static void showErrorMessage(String txt){
-        JOptionPane pane;
-        pane = new JOptionPane(txt, JOptionPane.ERROR_MESSAGE);
-        showDialog(pane);
-        return;
-    }
-
-    /**
-     * 設定ディレクトリ操作の
-     * 共通エラーメッセージ確認ダイアログを表示する。
-     *
-     * <p>閉じるまで待つ。
-     *
-     * @param txt メッセージtxt
-     */
-    private static void showWarnMessage(String txt){
-        JOptionPane pane;
-        pane = new JOptionPane(txt, JOptionPane.WARNING_MESSAGE);
-        showDialog(pane);
-        return;
-    }
-
-    /**
-     * 設定ディレクトリ操作の
-     * 情報提示メッセージ確認ダイアログを表示する。
-     *
-     * <p>閉じるまで待つ。
-     *
-     * @param txt メッセージtxt
-     */
-    private static void showInfoMessage(String txt){
-        JOptionPane pane;
-        pane = new JOptionPane(txt, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane pane = new JOptionPane(
+                txt, JOptionPane.ERROR_MESSAGE);
         showDialog(pane);
         return;
     }
@@ -220,18 +192,6 @@ public final class ConfigDirUtils{
         String fileName = FileUtils.getHtmledFileName(path);
         String result = MessageFormat.format(form, fileName);
         return result;
-    }
-
-    /**
-     * 設定ディレクトリ生成をやめた操作への警告をダイアログで提示し、
-     * VM終了する。
-     */
-    private static void abortQuitBuildConfigDir(){
-        showWarnMessage(MSG_ABORT);
-        abort();
-        assert false;
-
-        return;
     }
 
     /**
@@ -269,22 +229,6 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * ファイルに書き込めないエラーをダイアログで提示し、VM終了する。
-     *
-     * @param path 書き込めなかったファイル
-     */
-    private static void abortCantWrite(Path path){
-        String fileName = getCenteredFileName(path);
-        String msg = MessageFormat.format(FORM_WRITEERR, fileName);
-
-        showErrorMessage(msg);
-        abort();
-        assert false;
-
-        return;
-    }
-
-    /**
      * ディレクトリが生成できない異常系をログ出力する。
      *
      * @param dirPath 生成できなかったディレクトリ
@@ -298,15 +242,33 @@ public final class ConfigDirUtils{
     }
 
     /**
-     * ファイルが生成できない異常系をログ出力する。
+     * リソースからローカルファイルへコピーする。
      *
-     * @param filePath 生成できなかったファイル
-     * @param cause 異常系原因
+     * @param resource リソース名
+     * @param dest ローカルファイル
      */
-    private static void logCreateErr(Path filePath, Throwable cause){
-        String pathTxt = filePath.toString();
-        String msg = MessageFormat.format(LOG_CREATEERR, pathTxt);
-        LOGGER.log(Level.SEVERE, msg, cause);
+    private static void copyResource(String resource, Path dest){
+        try(InputStream ris =
+                ResourceManager.getResourceAsStream(resource)){
+            InputStream is = new BufferedInputStream(ris);
+            Files.copy(is, dest);
+        }catch(IOException | SecurityException e){
+            String destName = dest.toString();
+            String logMsg = MessageFormat.format(LOG_CREATEERR, destName);
+            LOGGER.log(Level.SEVERE, logMsg, e);
+
+            String destHtml = getCenteredFileName(dest);
+            String diagMsg = MessageFormat.format(FORM_WRITEERR, destHtml);
+            showErrorMessage(diagMsg);
+            abort();
+
+            assert false;
+        }
+
+        String destName = dest.toString();
+        String msg = MessageFormat.format(LOG_RESCPY, destName);
+        LOGGER.info(msg);
+
         return;
     }
 
@@ -407,7 +369,10 @@ public final class ConfigDirUtils{
 
         boolean confirmed = confirmBuildConfigDir(absPath);
         if( ! confirmed ){
-            abortQuitBuildConfigDir();
+            JOptionPane pane = new JOptionPane(
+                    MSG_ABORT, JOptionPane.WARNING_MESSAGE);
+            showDialog(pane);
+            abort();
             assert false;
         }
 
@@ -423,7 +388,8 @@ public final class ConfigDirUtils{
 
         checkDirPerm(absPath);
 
-        touchReadme(absPath);
+        Path readme = absPath.resolve(FILE_README);
+        copyResource(RES_README, readme);
 
         return absPath;
     }
@@ -475,16 +441,7 @@ public final class ConfigDirUtils{
         checkDirPerm(absPath);
 
         Path jsonPath = imgCacheDir.resolve(FILE_AVATARJSON);
-
-        try(InputStream ris =
-                ResourceManager.getResourceAsStream(RES_AVATARJSON)){
-            InputStream is = new BufferedInputStream(ris);
-            Files.copy(is, jsonPath);
-        }catch(IOException | SecurityException e){
-            logCreateErr(jsonPath, e);
-            abortCantWrite(jsonPath);
-            assert false;
-        }
+        copyResource(RES_AVATARJSON, jsonPath);
 
         return;
     }
@@ -525,7 +482,9 @@ public final class ConfigDirUtils{
             if(lockPane.isRadioRetry()){
                 lock.tryLock();
             }else if(lockPane.isRadioContinue()){
-                showInfoMessage(MSG_NOCONF);
+                JOptionPane pane = new JOptionPane(
+                        MSG_NOCONF, JOptionPane.INFORMATION_MESSAGE);
+                showDialog(pane);
                 break;
             }else if(lockPane.isRadioForce()){
                 forceRemove(lock);
@@ -569,29 +528,6 @@ public final class ConfigDirUtils{
         showErrorMessage(msg);
         abort();
         assert false;
-
-        return;
-    }
-
-    /**
-     * 指定されたディレクトリにREADMEファイルを生成する。
-     *
-     * <p>生成できなければダイアログ表示とともにVM終了する。
-     *
-     * @param path READMEの格納ディレクトリ
-     */
-    private static void touchReadme(Path path){
-        Path readme = path.resolve(FILE_README);
-
-        try(InputStream ris =
-                ResourceManager.getResourceAsStream(RES_README)){
-            InputStream is = new BufferedInputStream(ris);
-            Files.copy(is, readme);
-        }catch(IOException | SecurityException e){
-            logCreateErr(readme, e);
-            abortCantWrite(readme);
-            assert false;
-        }
 
         return;
     }
