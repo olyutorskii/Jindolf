@@ -70,7 +70,6 @@ public class ConfigStore {
 
 
     private boolean useStoreFile;
-    private boolean isImplicitPath;
     private Path configDir;
 
 
@@ -79,24 +78,18 @@ public class ConfigStore {
      *
      * @param useStoreFile 設定ディレクトリ内への
      *     データセーブ機能を使うならtrue
-     * @param isImplicitPath 起動コマンドラインから指定された
-     *     設定ディレクトリを用いる場合false。
-     *     trueならデフォルトの設定ディレクトリが用いられる。
      * @param configDirPath 設定ディレクトリ名。
      *     設定ディレクトリを使わない場合は無視される。
      */
     public ConfigStore(boolean useStoreFile,
-                       boolean isImplicitPath,
                        Path configDirPath ){
         super();
 
         this.useStoreFile = useStoreFile;
 
         if(this.useStoreFile){
-            this.isImplicitPath = isImplicitPath;
             this.configDir = configDirPath;
         }else{
-            this.isImplicitPath = true;
             this.configDir = null;
         }
 
@@ -178,7 +171,6 @@ public class ConfigStore {
             ConfigDirUtils.confirmLockError(lock);
             if( ! lock.isFileOwner() ){
                 this.useStoreFile = false;
-                this.isImplicitPath = true;
                 this.configDir = null;
             }
         }
@@ -226,18 +218,10 @@ public class ConfigStore {
         }
         String absPath = absFile.toString();
 
-        InputStream istream;
-        try{
-            istream = Files.newInputStream(absFile);
-        }catch(IOException e){
-            assert false;
-            return null;
-        }
-        istream = new BufferedInputStream(istream);
-
         JsComposition<?> root;
-        try{
-            root = loadJson(istream);
+        try(InputStream is = Files.newInputStream(absFile)){
+            InputStream bis = new BufferedInputStream(is);
+            root = loadJson(bis);
         }catch(IOException e){
             LOGGER.log(Level.SEVERE,
                     "JSONファイル["
@@ -250,16 +234,6 @@ public class ConfigStore {
                     + absPath
                     + "]の内容に不備があります。", e);
             return null;
-        }finally{
-            try{
-                istream.close();
-            }catch(IOException e){
-                LOGGER.log(Level.SEVERE,
-                        "JSONファイル["
-                        + absPath
-                        + "]を閉じることができません。", e);
-                return null;
-            }
         }
 
         return root;
@@ -329,39 +303,21 @@ public class ConfigStore {
             return false;
         }
 
-        OutputStream ostream;
-        try{
-            ostream = Files.newOutputStream(absFile);
-        }catch(IOException e){
-            assert false;
-            return false;
-        }
-        ostream = new BufferedOutputStream(ostream);
-
-        try{
-            saveJson(ostream, root);
-        }catch(JsVisitException e){
-            LOGGER.log(Level.SEVERE,
-                    "JSONファイル["
-                    + absPath
-                    + "]の出力処理で支障がありました。", e);
-            return false;
+        try(OutputStream os = Files.newOutputStream(absFile)){
+            OutputStream bos = new BufferedOutputStream(os);
+            saveJson(bos, root);
         }catch(IOException e){
             LOGGER.log(Level.SEVERE,
                     "JSONファイル["
                     + absPath
                     + "]の書き込み時に支障がありました。", e);
             return false;
-        }finally{
-            try{
-                ostream.close();
-            }catch(IOException e){
-                LOGGER.log(Level.SEVERE,
-                        "JSONファイル["
-                        + absPath
-                        + "]を閉じることができません。", e);
-                return false;
-            }
+        }catch(JsVisitException e){
+            LOGGER.log(Level.SEVERE,
+                    "JSONファイル["
+                    + absPath
+                    + "]の出力処理で支障がありました。", e);
+            return false;
         }
 
         return true;

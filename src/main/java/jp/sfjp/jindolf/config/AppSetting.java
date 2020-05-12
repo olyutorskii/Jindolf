@@ -99,27 +99,22 @@ public class AppSetting{
                                                   CmdOption.OPT_NOCONF );
 
         boolean useConfig;
-        boolean isImplicitPath;
         Path configPath;
 
         if(opt == CmdOption.OPT_NOCONF){
             useConfig = false;
-            isImplicitPath = true;
             configPath = null;
         }else if(opt == CmdOption.OPT_CONFDIR){
             useConfig = true;
-            isImplicitPath = false;
             String optArg = option.getStringArg(opt);
             configPath = Paths.get(optArg);
             configPath = configPath.toAbsolutePath();
         }else{
             useConfig = true;
-            isImplicitPath = true;
             configPath = ConfigDirUtils.getDefaultConfDirPath();
         }
 
-        ConfigStore result =
-                new ConfigStore(useConfig, isImplicitPath, configPath);
+        ConfigStore result = new ConfigStore(useConfig, configPath);
 
         return result;
     }
