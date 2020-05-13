@@ -81,6 +81,10 @@ public class JsonIo {
      *     もしくは入力エラーがあればnull
      */
     public JsObject loadJsObject(Path file){
+        if( ! this.configStore.useStoreFile()){
+            return null;
+        }
+
         JsComposition<?> root = loadJson(file);
         if(root == null || root.getJsTypes() != JsTypes.OBJECT) return null;
         JsObject result = (JsObject) root;
@@ -96,7 +100,7 @@ public class JsonIo {
      *     もしくはJSONファイルが存在しない、
      *     もしくは入力エラーがあればnull
      */
-    public JsComposition<?> loadJson(Path file){
+    protected JsComposition<?> loadJson(Path file){
         Path absFile;
         if(file.isAbsolute()){
             absFile = file;
@@ -171,6 +175,10 @@ public class JsonIo {
      *     何らかの理由でセーブが完了できなければfalse
      */
     public boolean saveJson(Path file, JsComposition<?> root){
+        if( ! this.configStore.useStoreFile()){
+            return false;
+        }
+
         // TODO テンポラリファイルを用いたより安全なファイル更新
         Path configDir = this.configStore.getConfigDir();
         Path absFile = configDir.resolve(file);
