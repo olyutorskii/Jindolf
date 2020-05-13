@@ -42,6 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.ConfigStore;
+import jp.sfjp.jindolf.config.JsonIo;
 import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.Anchor;
 import jp.sfjp.jindolf.data.DialogPref;
@@ -189,9 +190,9 @@ public class Controller
             LogUtils.switchHandler(newHandler);
         });
 
-        ConfigStore config = this.appSetting.getConfigStore();
+        JsonIo jsonIo = this.appSetting.getJsonIo();
 
-        JsObject history = config.loadHistoryConfig();
+        JsObject history = jsonIo.loadHistoryConfig();
         findPanel.putJson(history);
 
         FontInfo fontInfo = this.appSetting.getFontInfo();
@@ -1469,12 +1470,12 @@ public class Controller
      * アプリ正常終了処理。
      */
     private void shutdown(){
-        ConfigStore configStore = this.appSetting.getConfigStore();
+        JsonIo jsonIo = this.appSetting.getJsonIo();
 
         FindPanel findPanel = this.windowManager.getFindPanel();
         JsObject findConf = findPanel.getJson();
         if( ! findPanel.hasConfChanged(findConf) ){
-            configStore.saveHistoryConfig(findConf);
+            jsonIo.saveHistoryConfig(findConf);
         }
 
         this.appSetting.saveConfig();
