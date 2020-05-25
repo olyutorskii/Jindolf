@@ -292,7 +292,8 @@ public class JsonIo {
      *     設定を読まないもしくは読めない場合はnull
      */
     public JsObject loadLocalImgConfig(){
-        Path path = ConfigStore.LOCALIMG_DIR.resolve(LOCALIMGCONFIG_PATH);
+        Path imgDir = this.configStore.getLocalImgDir();
+        Path path = imgDir.resolve(LOCALIMGCONFIG_PATH);
         JsObject result = loadJsObject(path);
         return result;
     }

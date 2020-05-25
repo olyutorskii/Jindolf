@@ -20,7 +20,6 @@ import java.nio.file.Paths;
  * <ul>
  * <li>JSON設定ファイル格納ディレクトリ
  * <li>Avatar代替イメージ格納ディレクトリ
- * <li>JSON入出力
  * <li>ロックファイルの獲得/解放。
  * </ul>
  */
