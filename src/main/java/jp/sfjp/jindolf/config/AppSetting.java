@@ -101,7 +101,7 @@ public class AppSetting{
                                                   CmdOption.OPT_NOCONF );
         ConfigStore result;
         if(opt == null){
-            result = new ConfigStore(true, null);
+            result = new ConfigStore(null);
         }else{
             switch(opt){
             case OPT_NOCONF:
@@ -111,7 +111,7 @@ public class AppSetting{
                 String optArg = option.getStringArg(opt);
                 Path configPath = Paths.get(optArg);
                 configPath = configPath.toAbsolutePath();
-                result = new ConfigStore(true, configPath);
+                result = new ConfigStore(configPath);
                 break;
             default:
                 result = null;

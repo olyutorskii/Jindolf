@@ -93,10 +93,10 @@ public final class FileUtils{
 
     /**
      * クラスがローカルファイルからロードされたのであれば
-     * そのファイルを返す。
+     * その絶対パスを返す。
      *
      * @param klass 任意のクラス
-     * @return ロード元ファイル。見つからなければnull。
+     * @return ロード元ファイルの絶対パス。見つからなければnull。
      */
     public static Path getClassSourcePath(Class<?> klass){
         URL location = getClassSourceUrl(klass);
@@ -114,6 +114,7 @@ public final class FileUtils{
         }
 
         Path result = Paths.get(uri);
+        result = result.toAbsolutePath();
 
         return result;
     }
@@ -142,10 +143,10 @@ public final class FileUtils{
 
     /**
      * クラスがローカルJARファイルからロードされたのであれば
-     * その格納ディレクトリを返す。
+     * その格納ディレクトリの絶対パスを返す。
      *
      * @param klass 任意のクラス
-     * @return ロード元JARファイルの格納ディレクトリ。
+     * @return ロード元JARファイルの格納ディレクトリの絶対パス。
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
     public static Path getJarDirectory(Class<?> klass){
@@ -156,31 +157,21 @@ public final class FileUtils{
             return null;
         }
 
-        return jarFile.getParent();
+        Path result = jarFile.getParent();
+        assert result.isAbsolute();
+
+        return result;
     }
 
     /**
      * このクラスがローカルJARファイルからロードされたのであれば
-     * その格納ディレクトリを返す。
+     * その格納ディレクトリの絶対パスを返す。
      *
-     * @return ロード元JARファイルの格納ディレクトリ。
+     * @return ロード元JARファイルの格納ディレクトリの絶対パス。
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
     public static Path getJarDirectory(){
         return getJarDirectory(THISKLASS);
-    }
-
-    /**
-     * ホームディレクトリを得る。
-     *
-     * <p>システムプロパティuser.homeで示されたホームディレクトリを返す。
-     *
-     * @return ホームディレクトリ。
-     */
-    public static Path getHomeDirectory(){
-        String homeProp = System.getProperty("user.home");
-        Path result = Paths.get(homeProp);
-        return result;
     }
 
     /**

@@ -36,8 +36,6 @@ public final class ConfigDirUtils{
     private static final String TITLE_BUILDCONF =
             VerInfo.TITLE + "設定格納ディレクトリの設定";
 
-    private static final Path JINCONF     = Paths.get("Jindolf");
-    private static final Path JINCONF_DOT = Paths.get(".jindolf");
     private static final Path FILE_README = Paths.get("README.txt");
     private static final Path FILE_AVATARJSON = Paths.get("avatarCache.json");
 
@@ -284,73 +282,6 @@ public final class ConfigDirUtils{
         }
 
         return;
-    }
-
-    /**
-     * アプリケーション設定ディレクトリを返す。
-     *
-     * <p>存在の有無、アクセスの可否は関知しない。
-     *
-     * <p>WindowsやLinuxではホームディレクトリ。
-     * Mac OS X ではさらにホームディレクトリの下の
-     * "Library/Application Support/"
-     *
-     * @return アプリケーション設定ディレクトリ
-     */
-    public static Path getAppSetDir(){
-        Path home = FileUtils.getHomeDirectory();
-
-        Path result = home;
-
-        if(FileUtils.isMacOSXFs()){
-            result = result.resolve("Library");
-            result = result.resolve("Application Support");
-        }
-
-        return result;
-    }
-
-    /**
-     * 暗黙的な設定格納ディレクトリを返す。
-     *
-     * <ul>
-     *
-     * <li>起動元JARファイルと同じディレクトリに、
-     * アクセス可能なディレクトリ"Jindolf"が
-     * すでに存在していればそれを返す。
-     *
-     * <li>起動元JARファイルおよび"Jindolf"が発見できなければ、
-     * MacOSX環境の場合"~/Library/Application Support/Jindolf/"を返す。
-     * Windows環境の場合"%USERPROFILE%\Jindolf\"を返す。
-     *
-     * <li>それ以外の環境(Linux,etc?)の場合"~/.jindolf/"を返す。
-     *
-     * </ul>
-     *
-     * <p>返すディレクトリが存在しているか否か、
-     * アクセス可能か否かは呼び出し元で判断せよ。
-     *
-     * @return 設定格納ディレクトリ
-     */
-    public static Path getDefaultConfDirPath(){
-        Path jarParent = FileUtils.getJarDirectory();
-        if(FileUtils.isAccessibleDirectory(jarParent)){
-            Path confPath = jarParent.resolve(JINCONF);
-            if(FileUtils.isAccessibleDirectory(confPath)){
-                return confPath;
-            }
-        }
-
-        Path appset = getAppSetDir();
-
-        Path result;
-        if(FileUtils.isMacOSXFs() || FileUtils.isWindowsOSFs()){
-            result = appset.resolve(JINCONF);
-        }else{
-            result = appset.resolve(JINCONF_DOT);
-        }
-
-        return result;
     }
 
     /**
