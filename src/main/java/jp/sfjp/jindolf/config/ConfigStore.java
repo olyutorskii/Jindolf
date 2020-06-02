@@ -7,7 +7,6 @@
 
 package jp.sfjp.jindolf.config;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -249,6 +248,7 @@ public class ConfigStore {
         if(this.configDir == null) return null;
 
         Path result = this.configDir.resolve(LOCALIMG_DIR);
+        assert result.isAbsolute();
 
         return result;
     }
@@ -266,30 +266,6 @@ public class ConfigStore {
         Path lockFile = this.configDir.resolve(LOCKFILE);
 
         return lockFile;
-    }
-
-    /**
-     * 設定ディレクトリの存在を確認し、なければ作る。
-     *
-     * <p>設定ディレクトリを使わない場合は何もしない。
-     */
-    public void prepareConfigDir(){
-        if( ! this.useStoreFile ) return;
-
-        if( ! Files.exists(this.configDir) ){
-            Path created =
-                ConfigDirUtils.buildConfDirPath(this.configDir);
-            ConfigDirUtils.checkDirPerm(created);
-        }else{
-            ConfigDirUtils.checkDirPerm(this.configDir);
-        }
-
-        Path imgDir = this.configDir.resolve("img");
-        if( ! Files.exists(imgDir) ){
-            ConfigDirUtils.buildImageCacheDir(imgDir);
-        }
-
-        return;
     }
 
 }

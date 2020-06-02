@@ -247,7 +247,7 @@ public final class JindolfMain {
         dumpBootInfo(appSetting);
 
         ConfigStore configStore = appSetting.getConfigStore();
-        configStore.prepareConfigDir();
+        ConfigDirUtils.prepareConfigDir(configStore);
         ConfigDirUtils.tryLock(configStore);
         // ここから設定格納ディレクトリ解禁
 

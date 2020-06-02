@@ -185,7 +185,7 @@ public final class ConfigDirUtils{
      * @param path ファイル
      * @return HTML表記
      */
-    public static String getCenteredFileName(Path path){
+    private static String getCenteredFileName(Path path){
         String form = "<center>[&nbsp;{0}&nbsp;]</center><br/>";
         String fileName = FileUtils.getHtmledFileName(path);
         String result = MessageFormat.format(form, fileName);
@@ -276,9 +276,36 @@ public final class ConfigDirUtils{
      *
      * @param confDir 設定ディレクトリ
      */
-    public static void checkDirPerm(Path confDir){
+    private static void checkDirPerm(Path confDir){
         if( ! FileUtils.isAccessibleDirectory(confDir) ){
             abortCantAccessDir(confDir);
+        }
+
+        return;
+    }
+
+    /**
+     * 設定ディレクトリの存在を確認し、なければ作る。
+     *
+     * <p>設定ディレクトリを使わない場合は何もしない。
+     *
+     * @param configStore 設定ディレクトリ情報
+     */
+    public static void prepareConfigDir(ConfigStore configStore){
+        if( ! configStore.useStoreFile() ) return;
+
+        Path conf = configStore.getConfigDir();
+        if(Files.exists(conf)){
+            checkDirPerm(conf);
+        }else{
+            buildConfDirPath(conf);
+        }
+
+        Path imgDir = configStore.getLocalImgDir();
+        if(Files.exists(imgDir)){
+            checkDirPerm(imgDir);
+        }else{
+            buildImageCacheDir(imgDir);
         }
 
         return;
@@ -294,11 +321,11 @@ public final class ConfigDirUtils{
      * @param confPath 設定格納ディレクトリ
      * @return 新規に作成した設定格納ディレクトリの絶対パス
      */
-    public static Path buildConfDirPath(Path confPath){
-        Path absPath = confPath.toAbsolutePath();
-        if(Files.exists(absPath)) return absPath;
+    private static Path buildConfDirPath(Path confPath){
+        assert confPath.isAbsolute();
+        if(Files.exists(confPath)) return confPath;
 
-        boolean confirmed = confirmBuildConfigDir(absPath);
+        boolean confirmed = confirmBuildConfigDir(confPath);
         if( ! confirmed ){
             JOptionPane pane = new JOptionPane(
                     MSG_ABORT, JOptionPane.WARNING_MESSAGE);
@@ -308,21 +335,21 @@ public final class ConfigDirUtils{
         }
 
         try{
-            Files.createDirectories(absPath);
+            Files.createDirectories(confPath);
         }catch(IOException | SecurityException e){
-            logMkdirErr(absPath, e);
-            abortCantBuildDir(absPath);
+            logMkdirErr(confPath, e);
+            abortCantBuildDir(confPath);
             assert false;
         }
 
         // FileUtils.setOwnerOnlyAccess(absPath);
 
-        checkDirPerm(absPath);
+        checkDirPerm(confPath);
 
-        Path readme = absPath.resolve(FILE_README);
+        Path readme = confPath.resolve(FILE_README);
         copyResource(RES_README, readme);
 
-        return absPath;
+        return confPath;
     }
 
     /**
@@ -357,19 +384,19 @@ public final class ConfigDirUtils{
      *
      * @param imgCacheDir ローカル画像キャッシュディレクトリ
      */
-    public static void buildImageCacheDir(Path imgCacheDir){
-        Path absPath = imgCacheDir.toAbsolutePath();
-        if(Files.exists(absPath)) return;
+    private static void buildImageCacheDir(Path imgCacheDir){
+        assert imgCacheDir.isAbsolute();
+        if(Files.exists(imgCacheDir)) return;
 
         try{
-            Files.createDirectories(absPath);
+            Files.createDirectories(imgCacheDir);
         }catch(IOException | SecurityException e){
-            logMkdirErr(absPath, e);
-            abortCantBuildDir(absPath);
+            logMkdirErr(imgCacheDir, e);
+            abortCantBuildDir(imgCacheDir);
             assert false;
         }
 
-        checkDirPerm(absPath);
+        checkDirPerm(imgCacheDir);
 
         Path jsonPath = imgCacheDir.resolve(FILE_AVATARJSON);
         copyResource(RES_AVATARJSON, jsonPath);
@@ -395,7 +422,7 @@ public final class ConfigDirUtils{
         lock.tryLock();
 
         if( ! lock.isFileOwner() ){
-            ConfigDirUtils.confirmLockError(lock);
+            confirmLockError(lock);
             if( ! lock.isFileOwner() ){
                 configStore.setNoConf();
             }
@@ -415,7 +442,7 @@ public final class ConfigDirUtils{
      *
      * @param lock エラーを起こしたロック
      */
-    public static void confirmLockError(InterVMLock lock){
+    private static void confirmLockError(InterVMLock lock){
         File lockFile = lock.getLockFile();
 
         LockErrorPane lockPane = new LockErrorPane(lockFile.toPath());
