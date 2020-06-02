@@ -7,7 +7,6 @@
 
 package jp.sfjp.jindolf.config;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,8 +14,15 @@ import java.nio.file.Paths;
 /**
  * Jindolf設定ディレクトリの管理を行う。
  *
- * <p>デフォルトの設定ディレクトリやコマンドライン引数から構成された、
+ * <p>デフォルトの設定ディレクトリや
+ * アプリのコマンドライン引数から構成された、
  * 設定ディレクトリに関する情報が保持管理される。
+ *
+ * <p>基本的に1アプリのみが設定ディレクトリへの入出力を許される。
+ *
+ * <p>インスタンス生成後に
+ * 設定ディレクトリを使わない設定に変更することが可能。
+ * (※ロック確保失敗後の続行等を想定)
  *
  * <p>設定ディレクトリには
  *
@@ -42,6 +48,9 @@ public class ConfigStore {
     private static final Path JINCONF_DOT  = Paths.get(".jindolf");
     private static final Path LOCKFILE     = Paths.get("lock");
     private static final Path LOCALIMG_DIR = Paths.get("img");
+
+    private static final Path MAC_LIB     = Paths.get("Library");
+    private static final Path MAC_APPSUPP = Paths.get("Application Support");
 
 
     private boolean useStoreFile;
@@ -178,8 +187,8 @@ public class ConfigStore {
         Path result = home;
 
         if(FileUtils.isMacOSXFs()){
-            result = result.resolve("Library");
-            result = result.resolve("Application Support");
+            result = result.resolve(MAC_LIB);
+            result = result.resolve(MAC_APPSUPP);
         }
 
         return result;
@@ -218,6 +227,15 @@ public class ConfigStore {
      */
     public Path getConfigDir(){
         return this.configDir;
+    }
+
+    /**
+     * 設定ディレクトリを使わない設定に変更する。
+     */
+    public void setNoConf(){
+        this.useStoreFile = false;
+        this.configDir = null;
+        return;
     }
 
     /**
@@ -269,31 +287,6 @@ public class ConfigStore {
         Path imgDir = this.configDir.resolve("img");
         if( ! Files.exists(imgDir) ){
             ConfigDirUtils.buildImageCacheDir(imgDir);
-        }
-
-        return;
-    }
-
-    /**
-     * ロックファイルの取得を試みる。
-     *
-     * <p>ロックに失敗したが処理を続行する場合、
-     * 設定ディレクトリは使わないものとして続行する。
-     */
-    public void tryLock(){
-        if( ! this.useStoreFile ) return;
-
-        File lockFile = getLockFile().toFile();
-        InterVMLock lock = new InterVMLock(lockFile);
-
-        lock.tryLock();
-
-        if( ! lock.isFileOwner() ){
-            ConfigDirUtils.confirmLockError(lock);
-            if( ! lock.isFileOwner() ){
-                this.useStoreFile = false;
-                this.configDir = null;
-            }
         }
 
         return;

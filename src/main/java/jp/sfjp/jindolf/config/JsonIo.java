@@ -292,9 +292,14 @@ public class JsonIo {
      *     設定を読まないもしくは読めない場合はnull
      */
     public JsObject loadLocalImgConfig(){
+        if( ! this.configStore.useStoreFile()){
+            return null;
+        }
+
         Path imgDir = this.configStore.getLocalImgDir();
         Path path = imgDir.resolve(LOCALIMGCONFIG_PATH);
         JsObject result = loadJsObject(path);
+
         return result;
     }
 

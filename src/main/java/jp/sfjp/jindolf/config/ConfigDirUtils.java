@@ -378,6 +378,33 @@ public final class ConfigDirUtils{
     }
 
     /**
+     * ロックファイルの取得を試みる。
+     *
+     * <p>ロックに失敗したが処理を続行する場合、
+     * 設定ディレクトリは使わないものとして続行する。
+     *
+     * @param configStore 設定ディレクトリ情報
+     */
+    public static void tryLock(ConfigStore configStore){
+        if( ! configStore.useStoreFile() ) return;
+
+        Path lockPath = configStore.getLockFile();
+        File lockFile = lockPath.toFile();
+        InterVMLock lock = new InterVMLock(lockFile);
+
+        lock.tryLock();
+
+        if( ! lock.isFileOwner() ){
+            ConfigDirUtils.confirmLockError(lock);
+            if( ! lock.isFileOwner() ){
+                configStore.setNoConf();
+            }
+        }
+
+        return;
+    }
+
+    /**
      * ロックエラーダイアログの表示。
      *
      * <p>呼び出しから戻ってもまだロックオブジェクトが
