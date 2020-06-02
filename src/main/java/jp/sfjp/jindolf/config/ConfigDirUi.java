@@ -1,5 +1,5 @@
 /*
- * configuration file & directory
+ * configuration file & directory UI
  *
  * License : The MIT License
  * Copyright(c) 2009 olyutorskii
@@ -24,12 +24,18 @@ import jp.sfjp.jindolf.VerInfo;
 import jp.sfjp.jindolf.view.LockErrorPane;
 
 /**
- * Jindolf設定格納ディレクトリに関するあれこれ。
+ * ユーザとのインタラクションを伴う、
+ * 設定格納ディレクトリに関する各種操作。
  *
- * <p>ファイル操作の異常系に関する、
- * ユーザとのインタラクション動作など。
+ * <p>ディレクトリ作成やロック確保に伴う、
+ * 各種異常系に対する判断をユーザーに求める。
+ *
+ * <p>場合によってはそのままVMごと終了し、呼び出し元に制御を返さない。
+ *
+ * <p>ユーザとの各種インタラクションは、
+ * アプリのメインウィンドウが表示される前に行われる。
  */
-public final class ConfigDirUtils{
+public final class ConfigDirUi{
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
@@ -132,7 +138,7 @@ public final class ConfigDirUtils{
     /**
      * 隠れコンストラクタ。
      */
-    private ConfigDirUtils(){
+    private ConfigDirUi(){
         assert false;
     }
 

@@ -19,7 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.CmdOption;
-import jp.sfjp.jindolf.config.ConfigDirUtils;
+import jp.sfjp.jindolf.config.ConfigDirUi;
 import jp.sfjp.jindolf.config.ConfigStore;
 import jp.sfjp.jindolf.config.EnvInfo;
 import jp.sfjp.jindolf.config.FileUtils;
@@ -247,8 +247,8 @@ public final class JindolfMain {
         dumpBootInfo(appSetting);
 
         ConfigStore configStore = appSetting.getConfigStore();
-        ConfigDirUtils.prepareConfigDir(configStore);
-        ConfigDirUtils.tryLock(configStore);
+        ConfigDirUi.prepareConfigDir(configStore);
+        ConfigDirUi.tryLock(configStore);
         // ここから設定格納ディレクトリ解禁
 
         appSetting.loadConfig();
