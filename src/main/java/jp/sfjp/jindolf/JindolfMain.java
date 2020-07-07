@@ -106,9 +106,8 @@ public final class JindolfMain {
 
     /**
      * 起動時の諸々の情報をログ出力する。
-     * @param appSetting  アプリ設定
      */
-    private static void dumpBootInfo(AppSetting appSetting){
+    private static void logBootInfo(){
         Object[] logArgs;
 
         logArgs = new Object[]{
@@ -128,23 +127,6 @@ public final class JindolfMain {
         };
         LOGGER.log(Level.INFO, LOG_HEAP, logArgs);
 
-        OptionInfo optinfo = appSetting.getOptionInfo();
-        StringBuilder bootArgs = new StringBuilder();
-        bootArgs.append("\n\n").append("起動時引数:\n");
-        for(String arg : optinfo.getInvokeArgList()){
-            bootArgs.append("\u0020\u0020").append(arg).append('\n');
-        }
-        bootArgs.append('\n');
-        bootArgs.append(EnvInfo.getVMInfo());
-        LOGGER.info(bootArgs.toString());
-
-        ConfigStore configStore = appSetting.getConfigStore();
-        if(configStore.useStoreFile()){
-            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigDir());
-        }else{
-            LOGGER.info(LOG_NOCONF);
-        }
-
         if(FileUtils.isWindowsOSFs()){
             LOGGER.info("Windows環境と認識されました。");
         }
@@ -154,11 +136,47 @@ public final class JindolfMain {
         }
 
         Locale locale = Locale.getDefault();
-        LOGGER.log(Level.INFO, "ロケールに{0}が用いられます。", locale.toString());
+        String localeTxt = locale.toString();
+        LOGGER.log(Level.INFO, "ロケールに{0}が用いられます。", localeTxt);
 
         return;
     }
+    
+    /**
+     * 起動時の諸々の情報をログ出力する。
+     * 
+     * @param optinfo コマンドラインオプション
+     */
+    private static void logBootInfo(OptionInfo optinfo){
+        StringBuilder bootArgs = new StringBuilder();
+        
+        bootArgs.append("\n\n").append("起動時引数:\n");
+        optinfo.getInvokeArgList().forEach(arg -> 
+            bootArgs.append("\u0020\u0020").append(arg).append('\n')
+        );
+        bootArgs.append('\n');
+        
+        bootArgs.append(EnvInfo.getVMInfo());
+        
+        LOGGER.info(bootArgs.toString());
 
+        return;
+    }
+    
+    /**
+     * 起動時の諸々の情報をログ出力する。
+     * 
+     * @param configStore  設定ディレクトリ情報
+     */
+    private static void logBootInfo(ConfigStore configStore){
+        if(configStore.useStoreFile()){
+            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigDir());
+        }else{
+            LOGGER.info(LOG_NOCONF);
+        }
+        return;
+    }
+    
     /**
      * JindolfMain のスタートアップエントリ。
      * @param args コマンドライン引数
@@ -243,10 +261,13 @@ public final class JindolfMain {
         LogUtils.initRootLogger(optinfo.hasOption(CmdOption.OPT_CONSOLELOG));
         // ここからロギング解禁
 
+        logBootInfo();
+        logBootInfo(optinfo);
+        
         final AppSetting appSetting = new AppSetting(optinfo);
-        dumpBootInfo(appSetting);
-
         ConfigStore configStore = appSetting.getConfigStore();
+        logBootInfo(configStore);
+        
         ConfigDirUi.prepareConfigDir(configStore);
         ConfigDirUi.tryLock(configStore);
         // ここから設定格納ディレクトリ解禁
@@ -273,14 +294,9 @@ public final class JindolfMain {
 
         int exitCode = 0;
         try{
-            EventQueue.invokeAndWait(new Runnable(){
-                /** {@inheritDoc} */
-                @Override
-                public void run(){
-                    startGUI(appSetting);
-                    return;
-                }
-            });
+            EventQueue.invokeAndWait(() -> 
+                startGUI(appSetting)
+            );
         }catch(InvocationTargetException | InterruptedException e){
             LOGGER.log(Level.SEVERE, FATALMSG_INITFAIL, e);
             e.printStackTrace(STDERR);
