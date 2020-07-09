@@ -140,7 +140,7 @@ public final class EnvInfo{
     /**
      * クラスパスリストを作成する。
      *
-     * @param 連結クラスパス値
+     * @param classpath 連結クラスパス値
      * @return クラスパスリスト
      */
     private static List<String> buildClassPathList(String classpath){
@@ -151,7 +151,7 @@ public final class EnvInfo{
             pathArray = new String[0];
         }
 
-        List result;
+        List<String> result;
         result = Arrays.asList(pathArray);
         result = Collections.unmodifiableList(result);
 
