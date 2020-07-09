@@ -141,31 +141,31 @@ public final class JindolfMain {
 
         return;
     }
-    
+
     /**
      * 起動時の諸々の情報をログ出力する。
-     * 
+     *
      * @param optinfo コマンドラインオプション
      */
     private static void logBootInfo(OptionInfo optinfo){
         StringBuilder bootArgs = new StringBuilder();
-        
+
         bootArgs.append("\n\n").append("起動時引数:\n");
-        optinfo.getInvokeArgList().forEach(arg -> 
+        optinfo.getInvokeArgList().forEach(arg ->
             bootArgs.append("\u0020\u0020").append(arg).append('\n')
         );
         bootArgs.append('\n');
-        
+
         bootArgs.append(EnvInfo.getVMInfo());
-        
+
         LOGGER.info(bootArgs.toString());
 
         return;
     }
-    
+
     /**
      * 起動時の諸々の情報をログ出力する。
-     * 
+     *
      * @param configStore  設定ディレクトリ情報
      */
     private static void logBootInfo(ConfigStore configStore){
@@ -176,7 +176,7 @@ public final class JindolfMain {
         }
         return;
     }
-    
+
     /**
      * JindolfMain のスタートアップエントリ。
      * @param args コマンドライン引数
@@ -263,11 +263,11 @@ public final class JindolfMain {
 
         logBootInfo();
         logBootInfo(optinfo);
-        
+
         final AppSetting appSetting = new AppSetting(optinfo);
         ConfigStore configStore = appSetting.getConfigStore();
         logBootInfo(configStore);
-        
+
         ConfigDirUi.prepareConfigDir(configStore);
         ConfigDirUi.tryLock(configStore);
         // ここから設定格納ディレクトリ解禁
@@ -294,7 +294,7 @@ public final class JindolfMain {
 
         int exitCode = 0;
         try{
-            EventQueue.invokeAndWait(() -> 
+            EventQueue.invokeAndWait(() ->
                 startGUI(appSetting)
             );
         }catch(InvocationTargetException | InterruptedException e){
