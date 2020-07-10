@@ -191,7 +191,7 @@ public final class EnvInfo{
                 .forEachOrdered(entry -> {
                     result.append(INDENT);
                     result.append(entry.getKey());
-                    result.append("=");
+                    result.append('=');
                     result.append(entry.getValue());
                     result.append(NL);
                 });
