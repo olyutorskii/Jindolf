@@ -179,6 +179,7 @@ public final class JindolfMain {
 
     /**
      * JindolfMain のスタートアップエントリ。
+     *
      * @param args コマンドライン引数
      * @return 起動に成功すれば0。失敗したら0以外。
      */
@@ -207,6 +208,7 @@ public final class JindolfMain {
 
     /**
      * JindolfMain のスタートアップエントリ。
+     *
      * @param optinfo コマンドライン引数情報
      * @return 起動に成功すれば0。失敗したら0以外。
      */
@@ -274,22 +276,6 @@ public final class JindolfMain {
 
         appSetting.loadConfig();
 
-        final Runtime runtime = Runtime.getRuntime();
-        runtime.addShutdownHook(new Thread(){
-            /** {@inheritDoc} */
-            @Override
-            @SuppressWarnings("CallToThreadYield")
-            public void run(){
-                LOGGER.info("シャットダウン処理に入ります…");
-                flush();
-                runtime.gc();
-                Thread.yield();
-                runtime.runFinalization(); // 危険？
-                Thread.yield();
-                return;
-            }
-        });
-
         LoggingDispatcher.replaceEventQueue();
 
         int exitCode = 0;
@@ -308,35 +294,38 @@ public final class JindolfMain {
 
     /**
      * AWTイベントディスパッチスレッド版スタートアップエントリ。
+     *
      * @param appSetting アプリ設定
      */
     private static void startGUI(AppSetting appSetting){
         JFrame topFrame = buildMVC(appSetting);
-
         GUIUtils.modifyWindowAttributes(topFrame, true, false, true);
-
         topFrame.pack();
 
-        Dimension initGeometry =
-                new Dimension(appSetting.initialFrameWidth(),
-                              appSetting.initialFrameHeight());
+        int frameWidth  = appSetting.initialFrameWidth();
+        int frameHeight = appSetting.initialFrameHeight();
+        Dimension initGeometry = new Dimension(frameWidth, frameHeight);
         topFrame.setSize(initGeometry);
 
-        if(    appSetting.initialFrameXpos() <= Integer.MIN_VALUE
-            || appSetting.initialFrameYpos() <= Integer.MIN_VALUE ){
+        int frameXpos = appSetting.initialFrameXpos();
+        int frameYpos = appSetting.initialFrameYpos();
+
+        if(    frameXpos <= Integer.MIN_VALUE
+            || frameYpos <= Integer.MIN_VALUE ){
             topFrame.setLocationByPlatform(true);
         }else{
-            topFrame.setLocation(appSetting.initialFrameXpos(),
-                                 appSetting.initialFrameYpos() );
+            topFrame.setLocation(frameXpos, frameYpos);
         }
 
         topFrame.setVisible(true);
 
+        // GOOD BYE BUT EVENT-LOOP WILL CONTINUE
         return;
     }
 
     /**
      * モデル・ビュー・コントローラの結合。
+     *
      * @param appSetting アプリ設定
      * @return アプリケーションのトップフレーム
      */
