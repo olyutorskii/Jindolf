@@ -46,7 +46,7 @@ import jp.sfjp.jindolf.data.Village;
  * プログレスバーとフッタメッセージの管理を行う。
  */
 @SuppressWarnings("serial")
-public class TopView extends JPanel{
+public final class TopView extends JPanel{
 
     private static final String INITCARD = "INITCARD";
     private static final String LANDCARD = "LANDINFO";
@@ -80,6 +80,7 @@ public class TopView extends JPanel{
         super();
 
         this.cards = createCards();
+
         JComponent split = createSplitPane(this.landsTreeView, this.cards);
         JComponent statusBar = createStatusBar();
 
@@ -129,7 +130,7 @@ public class TopView extends JPanel{
 
         StringBuilder warn = new StringBuilder();
         warn.append("※ たまにはWebブラウザでアクセスして、");
-        warn.append("<br></br>");
+        warn.append("<br/>");
         warn.append("運営の動向を確かめようね！");
         warn.insert(0, "<font 'size=+1'>").append("</font>");
         warn.insert(0, "<center>").append("</center>");

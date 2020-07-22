@@ -12,14 +12,17 @@ import java.awt.EventQueue;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.CmdOption;
+import jp.sfjp.jindolf.config.ConfigDirUi;
 import jp.sfjp.jindolf.config.ConfigStore;
 import jp.sfjp.jindolf.config.EnvInfo;
+import jp.sfjp.jindolf.config.FileUtils;
 import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.log.LogUtils;
@@ -103,9 +106,8 @@ public final class JindolfMain {
 
     /**
      * 起動時の諸々の情報をログ出力する。
-     * @param appSetting  アプリ設定
      */
-    private static void dumpBootInfo(AppSetting appSetting){
+    private static void logBootInfo(){
         Object[] logArgs;
 
         logArgs = new Object[]{
@@ -125,28 +127,59 @@ public final class JindolfMain {
         };
         LOGGER.log(Level.INFO, LOG_HEAP, logArgs);
 
-        OptionInfo optinfo = appSetting.getOptionInfo();
-        StringBuilder bootArgs = new StringBuilder();
-        bootArgs.append("\n\n").append("起動時引数:\n");
-        for(String arg : optinfo.getInvokeArgList()){
-            bootArgs.append("\u0020\u0020").append(arg).append('\n');
+        if(FileUtils.isWindowsOSFs()){
+            LOGGER.info("Windows環境と認識されました。");
         }
-        bootArgs.append('\n');
-        bootArgs.append(EnvInfo.getVMInfo());
-        LOGGER.info(bootArgs.toString());
 
-        ConfigStore configStore = appSetting.getConfigStore();
-        if(configStore.useStoreFile()){
-            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigDir());
-        }else{
-            LOGGER.info(LOG_NOCONF);
+        if(FileUtils.isMacOSXFs()){
+            LOGGER.info("macOS環境と認識されました。");
         }
+
+        Locale locale = Locale.getDefault();
+        String localeTxt = locale.toString();
+        LOGGER.log(Level.INFO, "ロケールに{0}が用いられます。", localeTxt);
 
         return;
     }
 
     /**
+     * 起動時の諸々の情報をログ出力する。
+     *
+     * @param optinfo コマンドラインオプション
+     */
+    private static void logBootInfo(OptionInfo optinfo){
+        StringBuilder bootArgs = new StringBuilder();
+
+        bootArgs.append("\n\n").append("起動時引数:\n");
+        optinfo.getInvokeArgList().forEach(arg ->
+            bootArgs.append("\u0020\u0020").append(arg).append('\n')
+        );
+        bootArgs.append('\n');
+
+        bootArgs.append(EnvInfo.getVMInfo());
+
+        LOGGER.info(bootArgs.toString());
+
+        return;
+    }
+
+    /**
+     * 起動時の諸々の情報をログ出力する。
+     *
+     * @param configStore  設定ディレクトリ情報
+     */
+    private static void logBootInfo(ConfigStore configStore){
+        if(configStore.useStoreFile()){
+            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigDir());
+        }else{
+            LOGGER.info(LOG_NOCONF);
+        }
+        return;
+    }
+
+    /**
      * JindolfMain のスタートアップエントリ。
+     *
      * @param args コマンドライン引数
      * @return 起動に成功すれば0。失敗したら0以外。
      */
@@ -175,6 +208,7 @@ public final class JindolfMain {
 
     /**
      * JindolfMain のスタートアップエントリ。
+     *
      * @param optinfo コマンドライン引数情報
      * @return 起動に成功すれば0。失敗したら0以外。
      */
@@ -229,44 +263,26 @@ public final class JindolfMain {
         LogUtils.initRootLogger(optinfo.hasOption(CmdOption.OPT_CONSOLELOG));
         // ここからロギング解禁
 
-        final AppSetting appSetting = new AppSetting(optinfo);
-        dumpBootInfo(appSetting);
+        logBootInfo();
+        logBootInfo(optinfo);
 
+        final AppSetting appSetting = new AppSetting(optinfo);
         ConfigStore configStore = appSetting.getConfigStore();
-        configStore.prepareConfigDir();
-        configStore.tryLock();
+        logBootInfo(configStore);
+
+        ConfigDirUi.prepareConfigDir(configStore);
+        ConfigDirUi.tryLock(configStore);
         // ここから設定格納ディレクトリ解禁
 
         appSetting.loadConfig();
-
-        final Runtime runtime = Runtime.getRuntime();
-        runtime.addShutdownHook(new Thread(){
-            /** {@inheritDoc} */
-            @Override
-            @SuppressWarnings("CallToThreadYield")
-            public void run(){
-                LOGGER.info("シャットダウン処理に入ります…");
-                flush();
-                runtime.gc();
-                Thread.yield();
-                runtime.runFinalization(); // 危険？
-                Thread.yield();
-                return;
-            }
-        });
 
         LoggingDispatcher.replaceEventQueue();
 
         int exitCode = 0;
         try{
-            EventQueue.invokeAndWait(new Runnable(){
-                /** {@inheritDoc} */
-                @Override
-                public void run(){
-                    startGUI(appSetting);
-                    return;
-                }
-            });
+            EventQueue.invokeAndWait(() ->
+                startGUI(appSetting)
+            );
         }catch(InvocationTargetException | InterruptedException e){
             LOGGER.log(Level.SEVERE, FATALMSG_INITFAIL, e);
             e.printStackTrace(STDERR);
@@ -278,35 +294,38 @@ public final class JindolfMain {
 
     /**
      * AWTイベントディスパッチスレッド版スタートアップエントリ。
+     *
      * @param appSetting アプリ設定
      */
     private static void startGUI(AppSetting appSetting){
         JFrame topFrame = buildMVC(appSetting);
-
         GUIUtils.modifyWindowAttributes(topFrame, true, false, true);
-
         topFrame.pack();
 
-        Dimension initGeometry =
-                new Dimension(appSetting.initialFrameWidth(),
-                              appSetting.initialFrameHeight());
+        int frameWidth  = appSetting.initialFrameWidth();
+        int frameHeight = appSetting.initialFrameHeight();
+        Dimension initGeometry = new Dimension(frameWidth, frameHeight);
         topFrame.setSize(initGeometry);
 
-        if(    appSetting.initialFrameXpos() <= Integer.MIN_VALUE
-            || appSetting.initialFrameYpos() <= Integer.MIN_VALUE ){
+        int frameXpos = appSetting.initialFrameXpos();
+        int frameYpos = appSetting.initialFrameYpos();
+
+        if(    frameXpos <= Integer.MIN_VALUE
+            || frameYpos <= Integer.MIN_VALUE ){
             topFrame.setLocationByPlatform(true);
         }else{
-            topFrame.setLocation(appSetting.initialFrameXpos(),
-                                 appSetting.initialFrameYpos() );
+            topFrame.setLocation(frameXpos, frameYpos);
         }
 
         topFrame.setVisible(true);
 
+        // GOOD BYE BUT EVENT-LOOP WILL CONTINUE
         return;
     }
 
     /**
      * モデル・ビュー・コントローラの結合。
+     *
      * @param appSetting アプリ設定
      * @return アプリケーションのトップフレーム
      */
@@ -314,8 +333,6 @@ public final class JindolfMain {
         LandsTreeModel model = new LandsTreeModel();
         WindowManager windowManager = new WindowManager();
         ActionManager actionManager = new ActionManager();
-
-        model.loadLandList();
 
         Controller controller = new Controller(model,
                                                windowManager,

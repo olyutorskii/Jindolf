@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +22,8 @@ import jp.sourceforge.jindolf.corelib.LandDef;
 
 /**
  * いわゆる「国」。
+ *
+ * 人狼BBSのサーバと1:1の概念。
  */
 public class Land {
 
@@ -31,11 +33,12 @@ public class Land {
     private final LandDef landDef;
     private final ServerAccess serverAccess;
 
-    private final List<Village> villageList = new LinkedList<>();
+    private final List<Village> villageList = new ArrayList<>(1000);
 
 
     /**
      * コンストラクタ。
+     *
      * @param landDef 国定義
      * @throws java.lang.IllegalArgumentException 不正な国定義
      */
@@ -58,6 +61,7 @@ public class Land {
 
     /**
      * 国定義を得る。
+     *
      * @return 国定義
      */
     public LandDef getLandDef(){
@@ -66,6 +70,7 @@ public class Land {
 
     /**
      * サーバ接続を返す。
+     *
      * @return ServerAccessインスタンス
      */
     public ServerAccess getServerAccess(){
@@ -74,6 +79,7 @@ public class Land {
 
     /**
      * 指定されたインデックス位置の村を返す。
+     *
      * @param index 0から始まるインデックス値
      * @return 村
      */
@@ -87,6 +93,7 @@ public class Land {
 
     /**
      * 村の総数を返す。
+     *
      * @return 村の総数
      */
     public int getVillageCount(){
@@ -96,6 +103,7 @@ public class Land {
 
     /**
      * 村のリストを返す。
+     *
      * @return 村のリスト
      */
     // TODO インスタンス変数でいいはず。
@@ -105,7 +113,9 @@ public class Land {
 
     /**
      * 絶対または相対URLの指すパーマネントなイメージ画像をダウンロードする。
-     * ※ A,B,D 国の顔アイコンは絶対パスらしい…。
+     *
+     * <p>※ A,B,D 国の顔アイコンは絶対パスらしい…。
+     *
      * @param imageURL 画像URL文字列
      * @return 画像イメージ
      */
@@ -126,6 +136,7 @@ public class Land {
 
     /**
      * 墓アイコンイメージを取得する。
+     *
      * @return 墓アイコンイメージ
      */
     public BufferedImage getGraveIconImage(){
@@ -136,6 +147,7 @@ public class Land {
 
     /**
      * 墓アイコンイメージ(大)を取得する。
+     *
      * @return 墓アイコンイメージ(大)
      */
     public BufferedImage getGraveBodyImage(){
@@ -146,6 +158,7 @@ public class Land {
 
     /**
      * 村リストを更新する。
+     *
      * @param vset ソート済みの村一覧
      */
     public void updateVillageList(List<Village> vset){
@@ -157,6 +170,7 @@ public class Land {
 
     /**
      * 国の文字列表現を返す。
+     *
      * @return 文字列表現
      */
     @Override

@@ -16,12 +16,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.ConfigStore;
+import jp.sfjp.jindolf.config.JsonIo;
 import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.Anchor;
 import jp.sfjp.jindolf.data.DialogPref;
@@ -120,8 +118,7 @@ public class Controller
     private final ChangeListener filterWatcher =
             new FilterWatcher();
 
-    private final Executor executor = Executors.newCachedThreadPool();
-    private volatile boolean isBusyNow;
+    private final BusyStatus busyStatus;
 
 
     /**
@@ -184,15 +181,18 @@ public class Controller
                 shutdown();
             }
         });
+        this.busyStatus = new BusyStatus(topFrame);
 
         filterPanel.addChangeListener(this.filterWatcher);
 
         Handler newHandler = logFrame.getHandler();
-        LogUtils.switchHandler(newHandler);
+        EventQueue.invokeLater(() -> {
+            LogUtils.switchHandler(newHandler);
+        });
 
-        ConfigStore config = this.appSetting.getConfigStore();
+        JsonIo jsonIo = this.appSetting.getJsonIo();
 
-        JsObject history = config.loadHistoryConfig();
+        JsObject history = jsonIo.loadHistoryConfig();
         findPanel.putJson(history);
 
         FontInfo fontInfo = this.appSetting.getFontInfo();
@@ -323,124 +323,11 @@ public class Controller
     }
 
     /**
-     * ビジー状態の設定を行う。
-     *
-     * <p>ヘビーなタスク実行をアピールするために、
-     * プログレスバーとカーソルの設定を行う。
-     *
-     * <p>ビジー中のActionコマンド受信は無視される。
-     *
-     * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
-     * 全てグラブされるため無視される。
-     *
-     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     * falseなら停止&amp;通常カーソル。
-     * @param msg フッタメッセージ。nullなら変更なし。
-     */
-    private void setBusy(boolean isBusy, String msg){
-        this.isBusyNow = isBusy;
-
-        TopFrame topFrame = getTopFrame();
-
-        topFrame.setBusy(isBusy);
-        if(msg != null){
-            this.topView.updateSysMessage(msg);
-        }
-
-        return;
-    }
-
-    /**
      * ステータスバーを更新する。
      * @param message メッセージ
      */
     private void updateStatusBar(String message){
         this.topView.updateSysMessage(message);
-        return;
-    }
-
-    /**
-     * ビジー状態を設定する。
-     *
-     * <p>EDT以外から呼ばれると実際の処理が次回のEDT移行に遅延される。
-     *
-     * @param isBusy ビジーならtrue
-     * @param message ステータスバー表示。nullなら変更なし
-     */
-    public void submitBusyStatus(boolean isBusy, String message){
-        Runnable task = () -> {
-            setBusy(isBusy, message);
-        };
-
-        if(EventQueue.isDispatchThread()){
-            task.run();
-        }else{
-            try{
-                EventQueue.invokeAndWait(task);
-            }catch(InvocationTargetException | InterruptedException e){
-                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
-            }
-        }
-
-        return;
-    }
-
-    /**
-     * 軽量タスクをEDTで実行する。
-     *
-     * <p>タスク実行中はビジー状態となる。
-     *
-     * <p>軽量タスク実行中はイベントループが停止するので、
-     * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
-     *
-     * @param task 軽量タスク
-     * @param beforeMsg ビジー中ステータス文字列
-     * @param afterMsg ビジー復帰時のステータス文字列
-     */
-    public void submitLightBusyTask(Runnable task,
-                                    String beforeMsg,
-                                    String afterMsg ){
-        submitBusyStatus(true, beforeMsg);
-        EventQueue.invokeLater(task);
-        submitBusyStatus(false, afterMsg);
-
-        return;
-    }
-
-    /**
-     * 重量級タスクをEDTとは別のスレッドで実行する。
-     *
-     * <p>タスク実行中はビジー状態となる。
-     *
-     * @param heavyTask 重量級タスク
-     * @param beforeMsg ビジー中ステータス文字列
-     * @param afterMsg ビジー復帰時のステータス文字列
-     */
-    public void submitHeavyBusyTask(final Runnable heavyTask,
-                                    final String beforeMsg,
-                                    final String afterMsg ){
-        submitBusyStatus(true, beforeMsg);
-
-        EventQueue.invokeLater(() -> {
-            fork(() -> {
-                try{
-                    heavyTask.run();
-                }finally{
-                    submitBusyStatus(false, afterMsg);
-                }
-            });
-        });
-
-        return;
-    }
-
-    /**
-     * スレッドプールを用いて非EDTなタスクを投入する。
-     *
-     * @param task タスク
-     */
-    private void fork(Runnable task){
-        this.executor.execute(task);
         return;
     }
 
@@ -454,8 +341,7 @@ public class Controller
                                            JOptionPane.DEFAULT_OPTION,
                                            GUIUtils.getLogoIcon());
 
-        JDialog dialog = pane.createDialog(getTopFrame(),
-                                           VerInfo.TITLE + "について");
+        JDialog dialog = pane.createDialog(VerInfo.TITLE + "について");
 
         dialog.pack();
         dialog.setVisible(true);
@@ -601,7 +487,7 @@ public class Controller
         String className = this.actionManager.getSelectedLookAndFeel();
         if(className == null) return;
 
-        submitLightBusyTask(
+        this.busyStatus.submitLightBusyTask(
             () -> {taskChangeLaF(className);},
             "Look&Feelを更新中…",
             "Look&Feelが更新されました"
@@ -758,7 +644,7 @@ public class Controller
             JOptionPane pane = new JOptionPane(message,
                                                JOptionPane.WARNING_MESSAGE,
                                                JOptionPane.DEFAULT_OPTION );
-            JDialog dialog = pane.createDialog(getTopFrame(), title);
+            JDialog dialog = pane.createDialog(title);
             dialog.pack();
             dialog.setVisible(true);
             dialog.dispose();
@@ -776,7 +662,7 @@ public class Controller
             });
         };
 
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 task,
                 "一括読み込み開始",
                 "一括読み込み完了"
@@ -862,7 +748,7 @@ public class Controller
      * 一括検索処理。
      */
     private void bulkSearch(){
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 () -> {taskBulkSearch();},
                 null, null
         );
@@ -1016,7 +902,7 @@ public class Controller
      * 全日程の一括ロード。
      */
     private void actionLoadAllPeriod(){
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 () -> {taskLoadAllPeriod();},
                 "一括読み込み開始",
                 "一括読み込み完了"
@@ -1182,7 +1068,7 @@ public class Controller
 
         };
 
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 task,
                 "ジャンプ先の読み込み中…",
                 null
@@ -1199,7 +1085,7 @@ public class Controller
         if(result != JFileChooser.APPROVE_OPTION) return;
         File selected = this.xmlFileChooser.getSelectedFile();
 
-        submitHeavyBusyTask(() -> {
+        this.busyStatus.submitHeavyBusyTask(() -> {
             Village village;
 
             try{
@@ -1237,7 +1123,7 @@ public class Controller
      * @param land 国
      */
     private void submitReloadVillageList(final Land land){
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
             () -> {taskReloadVillageList(land);},
             "村一覧を読み込み中…",
             "村一覧の読み込み完了"
@@ -1303,7 +1189,7 @@ public class Controller
             });
         };
 
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 task,
                 "会話の読み込み中",
                 "会話の表示が完了"
@@ -1362,7 +1248,7 @@ public class Controller
                                            JOptionPane.DEFAULT_OPTION );
 
         String title = VerInfo.getFrameTitle("通信異常発生");
-        JDialog dialog = pane.createDialog(getTopFrame(), title);
+        JDialog dialog = pane.createDialog(title);
 
         dialog.pack();
         dialog.setVisible(true);
@@ -1416,7 +1302,7 @@ public class Controller
             });
         };
 
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 task,
                 "村情報を読み込み中…",
                 "村情報の読み込み完了"
@@ -1436,7 +1322,7 @@ public class Controller
      */
     @Override
     public void actionPerformed(ActionEvent ev){
-        if(this.isBusyNow) return;
+        if(this.busyStatus.isBusy()) return;
 
         String cmd = ev.getActionCommand();
         if(cmd == null) return;
@@ -1571,7 +1457,7 @@ public class Controller
             }
         };
 
-        submitHeavyBusyTask(
+        this.busyStatus.submitHeavyBusyTask(
                 task,
                 "アンカーの展開中…",
                 null
@@ -1584,12 +1470,12 @@ public class Controller
      * アプリ正常終了処理。
      */
     private void shutdown(){
-        ConfigStore configStore = this.appSetting.getConfigStore();
+        JsonIo jsonIo = this.appSetting.getJsonIo();
 
         FindPanel findPanel = this.windowManager.getFindPanel();
         JsObject findConf = findPanel.getJson();
         if( ! findPanel.hasConfChanged(findConf) ){
-            configStore.saveHistoryConfig(findConf);
+            jsonIo.saveHistoryConfig(findConf);
         }
 
         this.appSetting.saveConfig();

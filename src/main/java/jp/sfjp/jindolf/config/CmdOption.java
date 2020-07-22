@@ -15,6 +15,10 @@ import jp.sfjp.jindolf.ResourceManager;
 
 /**
  * コマンドラインオプションの列挙。
+ *
+ * <p>1オプションは複数の別名を持ちうる。
+ *
+ * <p>1引数を持つオプションと持たないオプションは区別される。
  */
 public enum CmdOption {
 
@@ -58,7 +62,8 @@ public enum CmdOption {
             OPT_FRACTIONAL
             );
 
-    private static final String RES_HELPTEXT = "resources/help.txt";
+    private static final String RES_DIR = "resources";
+    private static final String RES_HELPTEXT = RES_DIR + "/help.txt";
 
 
     private final List<String> nameList;
@@ -66,6 +71,7 @@ public enum CmdOption {
 
     /**
      * コンストラクタ。
+     *
      * @param names オプション名の一覧
      */
     private CmdOption(String ... names){
@@ -77,6 +83,7 @@ public enum CmdOption {
 
     /**
      * ヘルプメッセージ（オプションの説明）を返す。
+     *
      * @return ヘルプメッセージ
      */
     public static String getHelpText(){
@@ -86,6 +93,7 @@ public enum CmdOption {
 
     /**
      * オプション名に合致するEnumを返す。
+     *
      * @param arg 個別のコマンドライン引数
      * @return 合致したEnum。どれとも合致しなければnull
      */
@@ -96,40 +104,43 @@ public enum CmdOption {
         return null;
     }
 
+
     /**
      * 任意のオプション文字列がこのオプションに合致するか判定する。
+     *
      * @param option ハイフンの付いたオプション文字列
      * @return 合致すればtrue
      */
     public boolean matches(String option){
-        for(String name : this.nameList){
-            if(option.equals(name)) return true;
-        }
-
-        return false;
+        boolean result = this.nameList.contains(option);
+        return result;
     }
 
     /**
      * 単体で意味をなすオプションか判定する。
+     *
      * @return 単体で意味をなすならtrue
      */
     public boolean isIndepOption(){
-        if(OPTS_INDEPENDENT.contains(this)) return true;
-        return false;
+        boolean result = OPTS_INDEPENDENT.contains(this);
+        return result;
     }
 
     /**
      * 真偽指定を一つ必要とするオプションか判定する。
+     *
      * @return 真偽指定を一つ必要とするオプションならtrue
      */
     public boolean isBooleanOption(){
-        if(OPTS_BOOLEAN.contains(this)) return true;
-        return false;
+        boolean result = OPTS_BOOLEAN.contains(this);
+        return result;
     }
 
     /**
      * オプション名を返す。
-     * オプション別名が複数指定されている場合は最初のオプション名
+     *
+     * <p>オプション別名が複数指定されている場合は最初のオプション名
+     *
      * @return オプション名
      */
     @Override

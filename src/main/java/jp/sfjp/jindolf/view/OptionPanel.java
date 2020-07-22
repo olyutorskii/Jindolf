@@ -8,7 +8,7 @@
 package jp.sfjp.jindolf.view;
 
 import java.awt.Container;
-import java.awt.Frame;
+import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -29,7 +29,7 @@ import jp.sfjp.jindolf.util.GUIUtils;
  * オプション設定パネル。
  */
 @SuppressWarnings("serial")
-public class OptionPanel
+public final class OptionPanel
         extends JDialog
         implements ActionListener, WindowListener{
 
@@ -46,11 +46,12 @@ public class OptionPanel
 
     /**
      * コンストラクタ。
-     * @param owner フレームオーナ
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public OptionPanel(Frame owner){
-        super(owner);
+    public OptionPanel(){
+        super((Dialog)null);
+        // We need unowned dialog
+
         setModal(true);
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
@@ -76,6 +77,7 @@ public class OptionPanel
 
     /**
      * レイアウトを行う。
+     *
      * @param content コンテナ
      */
     private void design(Container content){
@@ -109,6 +111,7 @@ public class OptionPanel
 
     /**
      * FontChooserを返す。
+     *
      * @return FontChooser
      */
     public FontChooser getFontChooser(){
@@ -117,6 +120,7 @@ public class OptionPanel
 
     /**
      * ProxyChooserを返す。
+     *
      * @return ProxyChooser
      */
     public ProxyChooser getProxyChooser(){
@@ -125,6 +129,7 @@ public class OptionPanel
 
     /**
      * DialogPrefPanelを返す。
+     *
      * @return DialogPrefPanel
      */
     public DialogPrefPanel getDialogPrefPanel(){
@@ -133,7 +138,9 @@ public class OptionPanel
 
     /**
      * ダイアログが閉じられた原因が「キャンセル」か否か判定する。
-     * ウィンドウクローズ操作は「キャンセル」扱い。
+     *
+     * <p>ウィンドウクローズ操作は「キャンセル」扱い。
+     *
      * @return 「キャンセル」ならtrue
      */
     public boolean isCanceled(){
@@ -142,7 +149,8 @@ public class OptionPanel
 
     /**
      * OKボタン押下処理。
-     * ダイアログを閉じる。
+     *
+     * <p>ダイアログを閉じる。
      */
     private void actionOk(){
         this.isCanceled = false;
@@ -153,7 +161,8 @@ public class OptionPanel
 
     /**
      * キャンセルボタン押下処理。
-     * ダイアログを閉じる。
+     *
+     * <p>ダイアログを閉じる。
      */
     private void actionCancel(){
         this.isCanceled = true;
@@ -164,6 +173,7 @@ public class OptionPanel
 
     /**
      * ボタン押下イベント受信。
+     *
      * @param event イベント
      */
     @Override
@@ -176,6 +186,7 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -185,8 +196,11 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
-     * ダイアログを閉じる。
-     * キャンセルボタン押下時と同じ。
+     *
+     * <p>ダイアログを閉じる。
+     *
+     * <p>キャンセルボタン押下時と同じ。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -197,6 +211,7 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -206,6 +221,7 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -215,6 +231,7 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -224,6 +241,7 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -233,6 +251,7 @@ public class OptionPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override

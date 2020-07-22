@@ -8,7 +8,7 @@
 package jp.sfjp.jindolf.view;
 
 import java.awt.Container;
-import java.awt.Frame;
+import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -43,7 +43,7 @@ import jp.sourceforge.jindolf.corelib.TalkType;
  * 発言フィルタ GUI。
  */
 @SuppressWarnings("serial")
-public class FilterPanel extends JDialog
+public final class FilterPanel extends JDialog
         implements ActionListener, TopicFilter{
 
     private static final int COLS = 4;
@@ -71,11 +71,12 @@ public class FilterPanel extends JDialog
 
     /**
      * 発言フィルタを生成する。
-     * @param owner フレームオーナー
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public FilterPanel(Frame owner){
-        super(owner);
+    public FilterPanel(){
+        super((Dialog)null);
+        // We need unowned dialog
+
         setModal(false);
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
@@ -109,6 +110,7 @@ public class FilterPanel extends JDialog
 
     /**
      * レイアウトデザインを行う。
+     *
      * @param topicPanel システムイベント選択
      * @param avatarPanel キャラ一覧
      * @param buttonPanel ボタン群
@@ -167,6 +169,7 @@ public class FilterPanel extends JDialog
 
     /**
      * システムイベントチェックボックス群パネルを作成。
+     *
      * @return システムイベントチェックボックス群パネル
      */
     private JComponent createTopicPanel(){
@@ -210,6 +213,7 @@ public class FilterPanel extends JDialog
 
     /**
      * キャラ一覧チェックボックス群パネルを作成。
+     *
      * @return キャラ一覧チェックボックス群パネル
      */
     private JComponent createAvatarPanel(){
@@ -248,6 +252,7 @@ public class FilterPanel extends JDialog
 
     /**
      * ボタン群パネルを生成。
+     *
      * @return ボタン群パネル
      */
     private JComponent createButtonPanel(){
@@ -276,6 +281,7 @@ public class FilterPanel extends JDialog
 
     /**
      * 下段パネルを生成する。
+     *
      * @return 下段パネル
      */
     private JComponent createBottomPanel(){
@@ -296,6 +302,7 @@ public class FilterPanel extends JDialog
 
     /**
      * リスナを登録する。
+     *
      * @param listener リスナ
      */
     public void addChangeListener(ChangeListener listener){
@@ -304,6 +311,7 @@ public class FilterPanel extends JDialog
 
     /**
      * リスナを削除する。
+     *
      * @param listener リスナ
      */
     public void removeChangeListener(ChangeListener listener){
@@ -312,6 +320,7 @@ public class FilterPanel extends JDialog
 
     /**
      * 全リスナを取得する。
+     *
      * @return リスナの配列
      */
     public ChangeListener[] getChangeListeners(){
@@ -344,8 +353,10 @@ public class FilterPanel extends JDialog
     }
 
     /**
-     * チェックボックスまたはボタン操作時にリスナとして呼ばれる。
      * {@inheritDoc}
+     *
+     * <p>チェックボックスまたはボタン操作時にリスナとして呼ばれる。
+     *
      * @param event イベント
      */
     @Override
@@ -407,6 +418,7 @@ public class FilterPanel extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param topic {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -462,6 +474,7 @@ public class FilterPanel extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -471,6 +484,7 @@ public class FilterPanel extends JDialog
 
     /**
      * {@inheritDoc}
+     *
      * @param context {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -520,6 +534,7 @@ public class FilterPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override

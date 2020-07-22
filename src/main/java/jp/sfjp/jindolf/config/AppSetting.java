@@ -59,6 +59,7 @@ public class AppSetting{
 
     private final OptionInfo optInfo;
     private final ConfigStore configStore;
+    private final JsonIo jsonIo;
     private final Rectangle frameRect;
 
     private FontInfo fontInfo;
@@ -83,6 +84,7 @@ public class AppSetting{
 
         this.optInfo = info;
         this.configStore = parseConfigStore(this.optInfo);
+        this.jsonIo = new JsonIo(this.configStore);
         this.frameRect = parseGeometrySetting(this.optInfo);
 
         return;
@@ -97,28 +99,26 @@ public class AppSetting{
     private static ConfigStore parseConfigStore(OptionInfo option){
         CmdOption opt = option.getExclusiveOption(CmdOption.OPT_CONFDIR,
                                                   CmdOption.OPT_NOCONF );
-
-        boolean useConfig;
-        boolean isImplicitPath;
-        File configPath;
-
-        if(opt == CmdOption.OPT_NOCONF){
-            useConfig = false;
-            isImplicitPath = true;
-            configPath = null;
-        }else if(opt == CmdOption.OPT_CONFDIR){
-            useConfig = true;
-            isImplicitPath = false;
-            String optPath = option.getStringArg(opt);
-            configPath = FileUtils.supplyFullPath(new File(optPath));
+        ConfigStore result;
+        if(opt == null){
+            result = new ConfigStore(null);
         }else{
-            useConfig = true;
-            isImplicitPath = true;
-            configPath = ConfigFile.getImplicitConfigDirectory();
+            switch(opt){
+            case OPT_NOCONF:
+                result = new ConfigStore();
+                break;
+            case OPT_CONFDIR:
+                String optArg = option.getStringArg(opt);
+                Path configPath = Paths.get(optArg);
+                configPath = configPath.toAbsolutePath();
+                result = new ConfigStore(configPath);
+                break;
+            default:
+                result = null;
+                assert false;
+                break;
+            }
         }
-
-        ConfigStore result =
-                new ConfigStore(useConfig, isImplicitPath, configPath);
 
         return result;
     }
@@ -200,6 +200,15 @@ public class AppSetting{
      */
     public ConfigStore getConfigStore(){
         return this.configStore;
+    }
+
+    /**
+     * JSON入出力設定を返す。
+     *
+     * @return 入出力設定
+     */
+    public JsonIo getJsonIo(){
+        return this.jsonIo;
     }
 
     /**
@@ -300,7 +309,7 @@ public class AppSetting{
      * ネットワーク設定をロードする。
      */
     private void loadNetConfig(){
-        JsObject root = this.configStore.loadNetConfig();
+        JsObject root = this.jsonIo.loadNetConfig();
         if(root == null) return;
         this.loadedNetConfig = root;
 
@@ -319,7 +328,7 @@ public class AppSetting{
      * 会話表示設定をロードする。
      */
     private void loadTalkConfig(){
-        JsObject root = this.configStore.loadTalkConfig();
+        JsObject root = this.jsonIo.loadTalkConfig();
         if(root == null) return;
         this.loadedTalkConfig = root;
 
@@ -411,7 +420,7 @@ public class AppSetting{
      * ローカル画像設定をロードする。
      */
     private void loadLocalImageConfig(){
-        JsObject root = this.configStore.loadLocalImgConfig();
+        JsObject root = this.jsonIo.loadLocalImgConfig();
         if(root == null) return;
 
         JsValue faceConfig = root.getValue("avatarFace");
@@ -482,7 +491,7 @@ public class AppSetting{
             if(this.loadedNetConfig.equals(root)) return;
         }
 
-        this.configStore.saveNetConfig(root);
+        this.jsonIo.saveNetConfig(root);
 
         return;
     }
@@ -516,7 +525,7 @@ public class AppSetting{
             if(this.loadedTalkConfig.equals(root)) return;
         }
 
-        this.configStore.saveTalkConfig(root);
+        this.jsonIo.saveTalkConfig(root);
 
         return;
     }
