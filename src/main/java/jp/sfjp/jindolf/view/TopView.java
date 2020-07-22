@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -61,10 +60,7 @@ public final class TopView extends JPanel{
     private final JComponent cards;
     private final CardLayout cardLayout = new CardLayout();
 
-    private final JTabbedPane villageSelector =
-            new JTabbedPane(JTabbedPane.BOTTOM);
     private final LandsTree landsTreeView = new LandsTree();
-    private final LocalOpener localOpener = new LocalOpener();
 
     private final LandInfoPanel landInfo = new LandInfoPanel();
 
@@ -85,10 +81,7 @@ public final class TopView extends JPanel{
 
         this.cards = createCards();
 
-        this.villageSelector.addTab("サーバ", this.landsTreeView);
-        this.villageSelector.addTab("ローカル", this.localOpener);
-
-        JComponent split = createSplitPane(this.villageSelector, this.cards);
+        JComponent split = createSplitPane(this.landsTreeView, this.cards);
         JComponent statusBar = createStatusBar();
 
         BorderLayout layout = new BorderLayout();
