@@ -11,6 +11,9 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Locale;
@@ -44,79 +47,6 @@ public final class FileUtils{
 
 
     /**
-     * なるべく自分にだけ読み書き許可を与え
-     * 自分以外には読み書き許可を与えないように
-     * ファイル属性を操作する。
-     *
-     * @param file 操作対象ファイル
-     * @return 成功すればtrue
-     * @throws SecurityException セキュリティ上の許可が無い場合
-     */
-    public static boolean setOwnerOnlyAccess(File file)
-            throws SecurityException{
-        boolean result = true;
-
-        result &= file.setReadable(false, false);
-        result &= file.setReadable(true,  true);
-
-        result &= file.setWritable(false, false);
-        result &= file.setWritable(true, true);
-
-        return result;
-    }
-
-    /**
-     * 任意の絶対パスの祖先の内、存在するもっとも近い祖先を返す。
-     *
-     * @param file 任意の絶対パス
-     * @return 存在するもっとも近い祖先。一つも存在しなければnull。
-     * @throws IllegalArgumentException 引数が絶対パスでない
-     */
-    public static File findExistsAncestor(File file)
-            throws IllegalArgumentException{
-        if(file == null) return null;
-        if( ! file.isAbsolute() ) throw new IllegalArgumentException();
-        if(file.exists()) return file;
-        File parent = file.getParentFile();
-        return findExistsAncestor(parent);
-    }
-
-    /**
-     * 任意の絶対パスのルートファイルシステムもしくはドライブレターを返す。
-     *
-     * @param file 任意の絶対パス
-     * @return ルートファイルシステムもしくはドライブレター
-     * @throws IllegalArgumentException 引数が絶対パスでない
-     */
-    public static File findRootFile(File file)
-            throws IllegalArgumentException{
-        if( ! file.isAbsolute() ) throw new IllegalArgumentException();
-        File parent = file.getParentFile();
-        if(parent == null) return file;
-        return findRootFile(parent);
-    }
-
-    /**
-     * 相対パスの絶対パス化を試みる。
-     *
-     * @param file 対象パス
-     * @return 絶対パス。絶対化に失敗した場合は元の引数。
-     */
-    public static File supplyFullPath(File file){
-        if(file.isAbsolute()) return file;
-
-        File absFile;
-
-        try{
-            absFile = file.getAbsoluteFile();
-        }catch(SecurityException e){
-            return file;
-        }
-
-        return absFile;
-    }
-
-    /**
      * 任意のディレクトリがアクセス可能な状態にあるか判定する。
      *
      * <p>アクセス可能の条件を満たすためには、与えられたパスが
@@ -131,39 +61,49 @@ public final class FileUtils{
      * @param path 任意のディレクトリ
      * @return アクセス可能ならtrue
      */
-    public static boolean isAccessibleDirectory(File path){
+    public static boolean isAccessibleDirectory(Path path){
         if(path == null) return false;
 
-        boolean result = true;
-
-        if     ( ! path.exists() )      result = false;
-        else if( ! path.isDirectory() ) result = false;
-        else if( ! path.canRead() )     result = false;
-        else if( ! path.canWrite() )    result = false;
+        boolean result =
+                   Files.exists(path)
+                && Files.isDirectory(path)
+                && Files.isReadable(path)
+                && Files.isWritable(path);
 
         return result;
     }
 
     /**
-     * クラスがローカルファイルからロードされたのであれば
-     * そのファイルを返す。
+     * クラスのロード元のURLを返す。
      *
-     * @param klass 任意のクラス
-     * @return ロード元ファイル。見つからなければnull。
+     * @param klass クラス
+     * @return ロード元URL。不明ならnull
      */
-    public static File getClassSourceFile(Class<?> klass){
-        ProtectionDomain domain;
-        try{
-            domain = klass.getProtectionDomain();
-        }catch(SecurityException e){
-            return null;
-        }
+    public static URL getClassSourceUrl(Class<?> klass){
+        ProtectionDomain domain = klass.getProtectionDomain();
+        if(domain == null) return null;
 
         CodeSource src = domain.getCodeSource();
+        if(src == null) return null;
 
         URL location = src.getLocation();
+
+        return location;
+    }
+
+    /**
+     * クラスがローカルファイルからロードされたのであれば
+     * その絶対パスを返す。
+     *
+     * @param klass 任意のクラス
+     * @return ロード元ファイルの絶対パス。見つからなければnull。
+     */
+    public static Path getClassSourcePath(Class<?> klass){
+        URL location = getClassSourceUrl(klass);
+        if(location == null) return null;
+
         String scheme = location.getProtocol();
-        if( ! scheme.equals(SCHEME_FILE) ) return null;
+        if( ! SCHEME_FILE.equalsIgnoreCase(scheme) ) return null;
 
         URI uri;
         try{
@@ -173,78 +113,65 @@ public final class FileUtils{
             return null;
         }
 
-        File file = new File(uri);
+        Path result = Paths.get(uri);
+        result = result.toAbsolutePath();
 
-        return file;
+        return result;
     }
 
     /**
      * すでに存在するJARファイルか判定する。
      *
-     * @param file 任意のファイル
+     * <p>ファイルがすでに通常ファイルとしてローカルに存在し、
+     * ファイル名の拡張子が「.jar」であれば真と判定される。
+     *
+     * @param path 任意のファイル
      * @return すでに存在するJARファイルであればtrue
      */
-    public static boolean isExistsJarFile(File file){
-        if(file == null) return false;
-        if( ! file.exists() ) return false;
-        if( ! file.isFile() ) return false;
+    public static boolean isExistsJarFile(Path path){
+        if(path == null) return false;
+        if( ! Files.exists(path) ) return false;
+        if( ! Files.isRegularFile(path) ) return false;
 
-        String name = file.getName();
-        if( ! name.matches("^.+\\.[jJ][aA][rR]$") ) return false;
+        Path leaf = path.getFileName();
+        assert leaf != null;
+        String leafName = leaf.toString();
+        boolean result = leafName.matches("^.+\\.[jJ][aA][rR]$");
 
-        // TODO ファイル先頭マジックナンバーのテストも必要？
-
-        return true;
+        return result;
     }
 
     /**
      * クラスがローカルJARファイルからロードされたのであれば
-     * その格納ディレクトリを返す。
+     * その格納ディレクトリの絶対パスを返す。
      *
      * @param klass 任意のクラス
-     * @return ロード元JARファイルの格納ディレクトリ。
+     * @return ロード元JARファイルの格納ディレクトリの絶対パス。
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
-    public static File getJarDirectory(Class<?> klass){
-        File jarFile = getClassSourceFile(klass);
+    public static Path getJarDirectory(Class<?> klass){
+        Path jarFile = getClassSourcePath(klass);
         if(jarFile == null) return null;
 
         if( ! isExistsJarFile(jarFile) ){
             return null;
         }
 
-        return jarFile.getParentFile();
+        Path result = jarFile.getParent();
+        assert result.isAbsolute();
+
+        return result;
     }
 
     /**
      * このクラスがローカルJARファイルからロードされたのであれば
-     * その格納ディレクトリを返す。
+     * その格納ディレクトリの絶対パスを返す。
      *
-     * @return ロード元JARファイルの格納ディレクトリ。
+     * @return ロード元JARファイルの格納ディレクトリの絶対パス。
      *     JARが見つからない、もしくはロード元がJARファイルでなければnull。
      */
-    public static File getJarDirectory(){
+    public static Path getJarDirectory(){
         return getJarDirectory(THISKLASS);
-    }
-
-    /**
-     * ホームディレクトリを得る。
-     *
-     * <p>システムプロパティuser.homeで示されたホームディレクトリを返す。
-     *
-     * @return ホームディレクトリ。何らかの事情でnullを返す場合もあり。
-     */
-    public static File getHomeDirectory(){
-        String homeProp;
-        try{
-            homeProp = System.getProperty("user.home");
-        }catch(SecurityException e){
-            return null;
-        }
-
-        File homeFile = new File(homeProp);
-
-        return homeFile;
     }
 
     /**
@@ -255,22 +182,13 @@ public final class FileUtils{
     public static boolean isMacOSXFs(){
         if(File.separatorChar != '/') return false;
 
-        String osName;
-        try{
-            osName = System.getProperty(SYSPROP_OSNAME);
-        }catch(SecurityException e){
-            return false;
-        }
-
+        String osName = System.getProperty(SYSPROP_OSNAME);
         if(osName == null) return false;
 
         osName = osName.toLowerCase(Locale.ROOT);
 
-        if(osName.startsWith("mac os x")){
-            return true;
-        }
-
-        return false;
+        boolean result = osName.startsWith("mac os x");
+        return result;
     }
 
     /**
@@ -281,48 +199,12 @@ public final class FileUtils{
     public static boolean isWindowsOSFs(){
         if(File.separatorChar != '\\') return false;
 
-        String osName;
-        try{
-            osName = System.getProperty(SYSPROP_OSNAME);
-        }catch(SecurityException e){
-            return false;
-        }
-
+        String osName = System.getProperty(SYSPROP_OSNAME);
         if(osName == null) return false;
 
         osName = osName.toLowerCase(Locale.ROOT);
 
-        if(osName.startsWith("windows")){
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * アプリケーション設定ディレクトリを返す。
-     *
-     * <p>存在の有無、アクセスの可否は関知しない。
-     *
-     * <p>WindowsやLinuxではホームディレクトリ。
-     * Mac OS X ではさらにホームディレクトリの下の
-     * "Library/Application Support/"
-     *
-     * @return アプリケーション設定ディレクトリ
-     */
-    public static File getAppSetDir(){
-        File home = getHomeDirectory();
-        if(home == null) return null;
-
-        File result = home;
-
-        if(isMacOSXFs()){
-            result = new File(result, "Library");
-            result = new File(result, "Application Support");
-        }
-
-        // TODO Win環境での%APPDATA%サポート
-
+        boolean result = osName.startsWith("windows");
         return result;
     }
 
@@ -331,11 +213,11 @@ public final class FileUtils{
      *
      * <p>Windows日本語環境では、バックスラッシュ記号が円通貨記号に置換される。
      *
-     * @param file 対象ファイル
+     * @param path 対象ファイル
      * @return HTML文字列断片
      */
-    public static String getHtmledFileName(File file){
-        String pathName = file.getPath();
+    public static String getHtmledFileName(Path path){
+        String pathName = path.toString();
 
         Locale locale = Locale.getDefault();
         String lang = locale.getLanguage();

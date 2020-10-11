@@ -10,7 +10,7 @@ package jp.sfjp.jindolf.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Frame;
+import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -64,7 +64,7 @@ import jp.sourceforge.jovsonz.JsValue;
  * 検索パネルGUI。
  */
 @SuppressWarnings("serial")
-public class FindPanel extends JDialog
+public final class FindPanel extends JDialog
         implements ActionListener,
                    ItemListener,
                    ChangeListener,
@@ -75,6 +75,7 @@ public class FindPanel extends JDialog
 
     private static final String LABEL_REENTER = "再入力";
     private static final String LABEL_IGNORE = "無視して検索をキャンセル";
+
 
     private final JComboBox<Object> findBox = new JComboBox<>();
     private final JButton searchButton = new JButton("検索");
@@ -99,13 +100,15 @@ public class FindPanel extends JDialog
     private boolean canceled = false;
     private RegexPattern regexPattern = null;
 
+
     /**
      * 検索パネルを生成する。
-     * @param owner 親フレーム。
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public FindPanel(Frame owner){
-        super(owner);
+    public FindPanel(){
+        super((Dialog)null);
+        // We need unowned dialog
+
         setModal(true);
 
         GUIUtils.modifyWindowAttributes(this, true, false, true);
@@ -144,6 +147,7 @@ public class FindPanel extends JDialog
 
         return;
     }
+
 
     /**
      * デザイン・レイアウトを行う。
@@ -225,7 +229,9 @@ public class FindPanel extends JDialog
 
     /**
      * {@inheritDoc}
-     * 検索ダイアログを表示・非表示する。
+     *
+     * <p>検索ダイアログを表示・非表示する。
+     *
      * @param show 表示フラグ。真なら表示。{@inheritDoc}
      */
     @Override
@@ -238,6 +244,7 @@ public class FindPanel extends JDialog
 
     /**
      * ダイアログが閉じられた原因を判定する。
+     *
      * @return キャンセルもしくはクローズボタンでダイアログが閉じられたらtrue
      */
     public boolean isCanceled(){
@@ -246,6 +253,7 @@ public class FindPanel extends JDialog
 
     /**
      * 一括検索が指定されたか否か返す。
+     *
      * @return 一括検索が指定されたらtrue
      */
     public boolean isBulkSearch(){
@@ -254,7 +262,8 @@ public class FindPanel extends JDialog
 
     /**
      * キャンセルボタン押下処理。
-     * このモーダルダイアログを閉じる。
+     *
+     * <p>このモーダルダイアログを閉じる。
      */
     private void actionCancel(){
         this.canceled = true;
@@ -265,7 +274,8 @@ public class FindPanel extends JDialog
 
     /**
      * 検索ボタン押下処理。
-     * このモーダルダイアログを閉じる。
+     *
+     * <p>このモーダルダイアログを閉じる。
      */
     private void actionSubmit(){
         Object selected = this.findBox.getSelectedItem();
@@ -306,6 +316,7 @@ public class FindPanel extends JDialog
 
     /**
      * 正規表現パターン異常系のダイアログ表示。
+     *
      * @param e 正規表現構文エラー
      * @return 再入力が押されたらtrue。それ以外はfalse。
      */
@@ -356,6 +367,7 @@ public class FindPanel extends JDialog
 
     /**
      * 現時点での検索パターンを得る。
+     *
      * @return 検索パターン
      */
     public RegexPattern getRegexPattern(){
@@ -364,6 +376,7 @@ public class FindPanel extends JDialog
 
     /**
      * 検索パターンを設定する。
+     *
      * @param pattern 検索パターン
      */
     public final void setRegexPattern(RegexPattern pattern){
@@ -388,7 +401,9 @@ public class FindPanel extends JDialog
 
     /**
      * {@inheritDoc}
-     * ボタン操作時にリスナとして呼ばれる。
+     *
+     * <p>ボタン操作時にリスナとして呼ばれる。
+     *
      * @param event イベント {@inheritDoc}
      */
     @Override
@@ -407,7 +422,9 @@ public class FindPanel extends JDialog
 
     /**
      * {@inheritDoc}
-     * コンボボックスのアイテム選択リスナ。
+     *
+     * <p>コンボボックスのアイテム選択リスナ。
+     *
      * @param event アイテム選択イベント {@inheritDoc}
      */
     @Override
@@ -426,7 +443,9 @@ public class FindPanel extends JDialog
 
     /**
      * {@inheritDoc}
-     * チェックボックス操作のリスナ。
+     *
+     * <p>チェックボックス操作のリスナ。
+     *
      * @param event チェックボックス操作イベント {@inheritDoc}
      */
     @Override
@@ -448,7 +467,9 @@ public class FindPanel extends JDialog
 
     /**
      * {@inheritDoc}
-     * コンボボックスのUI変更通知を受け取るリスナ。
+     *
+     * <p>コンボボックスのUI変更通知を受け取るリスナ。
+     *
      * @param event UI差し替えイベント {@inheritDoc}
      */
     @Override
@@ -464,7 +485,9 @@ public class FindPanel extends JDialog
 
     /**
      * コンボボックスエディタを修飾する。
-     * マージン修飾と等幅フォントをいじる。
+     *
+     * <p>マージン修飾と等幅フォントをいじる。
+     *
      * @param editor エディタ
      */
     private void modifyComboBoxEditor(ComboBoxEditor editor){
@@ -485,6 +508,7 @@ public class FindPanel extends JDialog
 
     /**
      * JSON形式の検索履歴情報を返す。
+     *
      * @return JSON形式の検索履歴情報
      */
     public JsObject getJson(){
@@ -506,6 +530,7 @@ public class FindPanel extends JDialog
 
     /**
      * JSON形式の検索履歴を反映させる。
+     *
      * @param root JSON形式の検索履歴。nullが来たら何もしない
      */
     public void putJson(JsObject root){
@@ -530,6 +555,7 @@ public class FindPanel extends JDialog
 
     /**
      * 起動時の履歴設定と等価か判定する。
+     *
      * @param conf 比較対象
      * @return 等価ならtrue
      */
@@ -555,6 +581,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @param list {@inheritDoc}
          * @param value {@inheritDoc}
          * @param index {@inheritDoc}
@@ -647,6 +674,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -656,6 +684,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @param item {@inheritDoc}
          */
         @Override
@@ -667,6 +696,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @param index {@inheritDoc}
          * @return {@inheritDoc}
          */
@@ -698,6 +728,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -712,6 +743,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @param listener {@inheritDoc}
          */
         @Override
@@ -722,6 +754,7 @@ public class FindPanel extends JDialog
 
         /**
          * {@inheritDoc}
+         *
          * @param listener {@inheritDoc}
          */
         @Override
@@ -732,6 +765,7 @@ public class FindPanel extends JDialog
 
         /**
          * 検索履歴ヒストリ追加。
+         *
          * @param regexPattern 検索履歴
          */
         public void addHistory(RegexPattern regexPattern){
@@ -755,6 +789,7 @@ public class FindPanel extends JDialog
 
         /**
          * プリセットでない検索ヒストリリストを返す。
+         *
          * @return 検索ヒストリリスト
          */
         public List<RegexPattern> getOriginalHistoryList(){

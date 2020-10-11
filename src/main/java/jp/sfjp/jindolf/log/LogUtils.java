@@ -24,7 +24,7 @@ public final class LogUtils {
             new LoggingPermission("control", null);
 
     private static final PrintStream STDERR = System.err;
-    private static final String ERRMSG_LOGSECURITY =
+    private static final String ERRMSG_LOGPERM =
             "セキュリティ設定により、ログ設定を変更できませんでした";
 
 
@@ -38,6 +38,7 @@ public final class LogUtils {
 
     /**
      * ログ操作のアクセス権があるか否か判定する。
+     *
      * @return アクセス権があればtrue
      */
     public static boolean hasLoggingPermission(){
@@ -48,6 +49,7 @@ public final class LogUtils {
 
     /**
      * ログ操作のアクセス権があるか否か判定する。
+     *
      * @param manager セキュリティマネージャ
      * @return アクセス権があればtrue
      */
@@ -65,6 +67,7 @@ public final class LogUtils {
 
     /**
      * ルートロガーを返す。
+     *
      * @return ルートロガー
      */
     public static Logger getRootLogger(){
@@ -74,14 +77,16 @@ public final class LogUtils {
 
     /**
      * ルートロガーの初期化を行う。
-     * ルートロガーの既存ハンドラを全解除し、
+     *
+     * <p>ルートロガーの既存ハンドラを全解除し、
      * {@link MomentaryHandler}ハンドラを登録する。
+     *
      * @param useConsoleLog trueなら
      * {@link java.util.logging.ConsoleHandler}も追加する。
      */
     public static void initRootLogger(boolean useConsoleLog){
         if( ! hasLoggingPermission() ){
-            STDERR.println(ERRMSG_LOGSECURITY);
+            STDERR.println(ERRMSG_LOGPERM);
             return;
         }
 
@@ -105,10 +110,14 @@ public final class LogUtils {
 
     /**
      * ルートロガーに新ハンドラを追加する。
-     * ルートロガー中の全{@link MomentaryHandler}型ハンドラに
+     *
+     * <p>ルートロガー中の全{@link MomentaryHandler}型ハンドラに
      * 蓄積されていたログは、新ハンドラに一気に転送される。
-     * {@link MomentaryHandler}型ハンドラはルートロガーから削除される。
-     * ログ操作のパーミッションがない場合、何もしない。
+     *
+     * <p>{@link MomentaryHandler}型ハンドラはルートロガーから削除される。
+     *
+     * <p>ログ操作のパーミッションがない場合、何もしない。
+     *
      * @param newHandler 新ハンドラ
      */
     public static void switchHandler(Handler newHandler){
@@ -122,10 +131,10 @@ public final class LogUtils {
 
         logger.addHandler(newHandler);
 
-        for(MomentaryHandler momentaryHandler : momentaryHandlers){
+        momentaryHandlers.forEach(momentaryHandler -> {
             momentaryHandler.transfer(newHandler);
             momentaryHandler.close();
-        }
+        });
 
         return;
     }

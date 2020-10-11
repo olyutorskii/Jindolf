@@ -8,8 +8,10 @@
 package jp.sfjp.jindolf.config;
 
 import java.io.File;
-import java.text.NumberFormat;
-import java.util.Set;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -32,36 +34,48 @@ public final class EnvInfo{
     /** 最大ヒープメモリ。 */
     public static final long MAX_MEMORY;
 
-    private static final SortedMap<String, String> PROPERTY_MAP =
-            new TreeMap<>();
+    private static final SortedMap<String, String> PROPERTY_MAP;
+    private static final SortedMap<String, String> ENVIRONMENT_MAP;
 
-    private static final SortedMap<String, String> ENVIRONMENT_MAP =
-            new TreeMap<>();
+    private static final List<String> CLASSPATHS;
 
-    private static final String[] CLASSPATHS;
+    private static final String[] PROPNAMES = {
+        "os.name",
+        "os.version",
+        "os.arch",
+        "java.vendor",
+        "java.version",
+        "java.class.path",
+    };
+
+    private static final String[] ENVNAMES = {
+        "LANG",
+        "DISPLAY",
+        //"PATH",
+        //"TEMP",
+        //"USER",
+    };
+
+    private static final String FORM_MEM =
+            "最大ヒープメモリ量: {0,number} bytes\n";
+    private static final String INDENT = "\u0020\u0020";
+    private static final char NL = '\n';
 
     static{
-        OS_NAME      = getSecureProperty("os.name");
-        OS_VERSION   = getSecureProperty("os.version");
-        OS_ARCH      = getSecureProperty("os.arch");
-        JAVA_VENDOR  = getSecureProperty("java.vendor");
-        JAVA_VERSION = getSecureProperty("java.version");
-
-        getSecureEnvironment("LANG");
-        getSecureEnvironment("DISPLAY");
-
         Runtime runtime = Runtime.getRuntime();
         MAX_MEMORY = runtime.maxMemory();
 
-        String classpath   = getSecureProperty("java.class.path");
-        String[] pathVec;
-        if(classpath != null){
-            pathVec = classpath.split(File.pathSeparator);
-        }else{
-            pathVec = new String[0];
-        }
-        CLASSPATHS = pathVec;
+        ENVIRONMENT_MAP = buildEnvMap();
 
+        PROPERTY_MAP = buildPropMap();
+        OS_NAME      = PROPERTY_MAP.get("os.name");
+        OS_VERSION   = PROPERTY_MAP.get("os.version");
+        OS_ARCH      = PROPERTY_MAP.get("os.arch");
+        JAVA_VENDOR  = PROPERTY_MAP.get("java.vendor");
+        JAVA_VERSION = PROPERTY_MAP.get("java.version");
+
+        String classpath = PROPERTY_MAP.get("java.class.path");
+        CLASSPATHS = buildClassPathList(classpath);
     }
 
 
@@ -69,39 +83,78 @@ public final class EnvInfo{
      * 隠れコンストラクタ。
      */
     private EnvInfo(){
-        throw new AssertionError();
+        assert false;
     }
 
 
     /**
-     * 可能ならシステムプロパティを読み込む。
-     * @param key キー
-     * @return プロパティ値。セキュリティ上読み込み禁止の場合はnull。
+     * 主要環境変数マップを作成する。
+     *
+     * @return 主要環境変数マップ
      */
-    private static String getSecureProperty(String key){
-        String result;
-        try{
-            result = System.getProperty(key);
-            if(result != null) PROPERTY_MAP.put(key, result);
-        }catch(SecurityException e){
-            result = null;
+    private static SortedMap<String, String> buildEnvMap(){
+        SortedMap<String, String> envmap = new TreeMap<>();
+
+        for(String name : ENVNAMES){
+            String val;
+            try{
+                val = System.getenv(name);
+            }catch(SecurityException e){
+                continue;
+            }
+            if(val == null) continue;
+            envmap.put(name, val);
         }
+
+        SortedMap<String, String> result;
+        result = Collections.unmodifiableSortedMap(envmap);
+
         return result;
     }
 
     /**
-     * 可能なら環境変数を読み込む。
-     * @param name 環境変数名
-     * @return 環境変数値。セキュリティ上読み込み禁止の場合はnull。
+     * 主要システムプロパティ値マップを作成する。
+     *
+     * @return 主要システムプロパティ値マップ
      */
-    private static String getSecureEnvironment(String name){
-        String result;
-        try{
-            result = System.getenv(name);
-            if(result != null) ENVIRONMENT_MAP.put(name, result);
-        }catch(SecurityException e){
-            result = null;
+    private static SortedMap<String, String> buildPropMap(){
+        SortedMap<String, String> propmap = new TreeMap<>();
+
+        for(String name : PROPNAMES){
+            String val;
+            try{
+                val = System.getProperty(name);
+            }catch(SecurityException e){
+                continue;
+            }
+            if(val == null) continue;
+            propmap.put(name, val);
         }
+
+        SortedMap<String, String> result;
+        result = Collections.unmodifiableSortedMap(propmap);
+
+        return result;
+    }
+
+    /**
+     * クラスパスリストを作成する。
+     *
+     * @param classpath 連結クラスパス値
+     * @return クラスパスリスト
+     */
+    private static List<String> buildClassPathList(String classpath){
+        String[] pathArray;
+        if(classpath != null){
+            pathArray = classpath.split(File.pathSeparator);
+        }else{
+            pathArray = new String[0];
+        }
+
+        List<String> result;
+        result = Arrays.asList(pathArray);
+        result = Collections.unmodifiableList(result);
+
         return result;
     }
 
@@ -111,44 +164,74 @@ public final class EnvInfo{
      */
     public static String getVMInfo(){
         StringBuilder result = new StringBuilder();
-        NumberFormat nform = NumberFormat.getNumberInstance();
 
-        result.append("最大ヒープメモリ量: ")
-              .append(nform.format(MAX_MEMORY))
-              .append(" bytes\n");
+        String memform = MessageFormat.format(FORM_MEM, MAX_MEMORY);
+        result.append(memform).append(NL);
 
-        result.append("\n");
-
-        result.append("主要システムプロパティ:\n");
-        Set<String> propKeys = PROPERTY_MAP.keySet();
-        for(String propKey : propKeys){
-            if(propKey.equals("java.class.path")) continue;
-            String value = PROPERTY_MAP.get(propKey);
-            result.append("  ");
-            result.append(propKey).append("=").append(value).append("\n");
-        }
-
-        result.append("\n");
-
-        result.append("主要環境変数:\n");
-        Set<String> envKeys = ENVIRONMENT_MAP.keySet();
-        for(String envKey : envKeys){
-            String value = ENVIRONMENT_MAP.get(envKey);
-            result.append("  ");
-            result.append(envKey).append("=").append(value).append("\n");
-        }
-
-        result.append("\n");
-
-        result.append("クラスパス:\n");
-        for(String path : CLASSPATHS){
-            result.append("  ");
-            result.append(path).append("\n");
-        }
-
-        result.append("\n");
+        result.append(getSysPropInfo()).append(NL);
+        result.append(getEnvInfo()).append(NL);
+        result.append(getClassPathInfo()).append(NL);
 
         return result.toString();
+    }
+
+    /**
+     * システムプロパティ要覧を返す。
+     *
+     * <p>java.class.pathの値は除く。
+     *
+     * @return システムプロパティ要覧
+     */
+    private static CharSequence getSysPropInfo(){
+        StringBuilder result = new StringBuilder();
+        result.append("主要システムプロパティ:\n");
+
+        PROPERTY_MAP.entrySet().stream()
+                .filter(entry -> ! entry.getKey().equals("java.class.path"))
+                .forEachOrdered(entry -> {
+                    result.append(INDENT);
+                    result.append(entry.getKey());
+                    result.append('=');
+                    result.append(entry.getValue());
+                    result.append(NL);
+                });
+
+        return result;
+    }
+
+    /**
+     * 環境変数要覧を返す。
+     *
+     * @return 環境変数要覧
+     */
+    private static CharSequence getEnvInfo(){
+        StringBuilder result = new StringBuilder("主要環境変数:\n");
+
+        ENVIRONMENT_MAP.entrySet().stream()
+                .forEachOrdered(entry -> {
+                    result.append(INDENT);
+                    result.append(entry.getKey());
+                    result.append('=');
+                    result.append(entry.getValue());
+                    result.append(NL);
+                });
+
+        return result;
+    }
+
+    /**
+     * クラスパス情報要覧を返す。
+     *
+     * @return クラスパス情報要覧
+     */
+    private static CharSequence getClassPathInfo(){
+        StringBuilder result = new StringBuilder("クラスパス:\n");
+
+        CLASSPATHS.stream().forEachOrdered(path -> {
+            result.append(INDENT).append(path).append(NL);
+        });
+
+        return result;
     }
 
 }

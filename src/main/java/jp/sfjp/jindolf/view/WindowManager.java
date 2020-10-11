@@ -8,10 +8,10 @@
 package jp.sfjp.jindolf.view;
 
 import java.awt.EventQueue;
-import java.awt.Frame;
 import java.awt.Window;
 import java.util.LinkedList;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -22,6 +22,32 @@ import jp.sfjp.jindolf.summary.VillageDigest;
 
 /**
  * ウィンドウ群の管理を行う。
+ *
+ * <p>原則として閉じても再利用されるウィンドウを管理対象とする。
+ *
+ * <p>管理対象ウィンドウは
+ *
+ * <ul>
+ * <li>アプリのトップウィンドウ
+ * <li>検索ウィンドウ
+ * <li>フィルタウィンドウ
+ * <li>発言集計ウィンドウ
+ * <li>村プレイ記録のダイジェストウィンドウ
+ * <li>オプション設定ウィンドウ
+ * <li>ヘルプウィンドウ
+ * <li>ログウィンドウ
+ * </ul>
+ *
+ * <p>である。
+ *
+ * <p>トップウィンドウとヘルプウィンドウは{@link javax.swing.JFrame}、
+ * その他は{@link javax.swing.JDialog}である。
+ *
+ * <p>非モーダルダイアログは、他のウィンドウの下側にも回れるのが望ましい。
+ *
+ * <p>各ウィンドウは、他のウィンドウの下に完全に隠れても
+ * Windowsタスクバーなどを介して前面に引っ張り出す操作手段を
+ * 提供することが望ましい。
  */
 public class WindowManager {
 
@@ -40,8 +66,8 @@ public class WindowManager {
     private static final String TITLE_HELP =
             getFrameTitle("ヘルプ");
 
-    private static final Frame NULLPARENT = null;
 
+    private final TopFrame topFrame;
 
     private FilterPanel filterPanel;
     private LogFrame logFrame;
@@ -50,9 +76,8 @@ public class WindowManager {
     private VillageDigest villageDigest;
     private DaySummary daySummary;
     private HelpFrame helpFrame;
-    private TopFrame topFrame;
 
-    private final List<Window> windowSet = new LinkedList<>();
+    private final List<Window> windowSet;
 
 
     /**
@@ -60,6 +85,15 @@ public class WindowManager {
      */
     public WindowManager(){
         super();
+
+        this.topFrame = new TopFrame();
+        this.topFrame.setVisible(false);
+
+        JOptionPane.setRootFrame(this.topFrame);
+
+        this.windowSet = new LinkedList<>();
+        this.windowSet.add(this.topFrame);
+
         return;
     }
 
@@ -84,7 +118,7 @@ public class WindowManager {
     protected FilterPanel createFilterPanel(){
         FilterPanel result;
 
-        result = new FilterPanel(NULLPARENT);
+        result = new FilterPanel();
         result.setTitle(TITLE_FILTER);
         result.pack();
         result.setVisible(false);
@@ -114,7 +148,7 @@ public class WindowManager {
     protected LogFrame createLogFrame(){
         LogFrame result;
 
-        result = new LogFrame(NULLPARENT);
+        result = new LogFrame();
         result.setTitle(TITLE_LOGGER);
         result.pack();
         result.setSize(600, 500);
@@ -146,7 +180,7 @@ public class WindowManager {
     protected OptionPanel createOptionPanel(){
         OptionPanel result;
 
-        result = new OptionPanel(NULLPARENT);
+        result = new OptionPanel();
         result.setTitle(TITLE_OPTION);
         result.pack();
         result.setSize(450, 500);
@@ -177,7 +211,7 @@ public class WindowManager {
     protected FindPanel createFindPanel(){
         FindPanel result;
 
-        result = new FindPanel(NULLPARENT);
+        result = new FindPanel();
         result.setTitle(TITLE_FIND);
         result.pack();
         result.setVisible(false);
@@ -207,7 +241,7 @@ public class WindowManager {
     protected VillageDigest createVillageDigest(){
         VillageDigest result;
 
-        result = new VillageDigest(NULLPARENT);
+        result = new VillageDigest();
         result.setTitle(TITLE_DIGEST);
         result.pack();
         result.setSize(600, 550);
@@ -238,7 +272,7 @@ public class WindowManager {
     protected DaySummary createDaySummary(){
         DaySummary result;
 
-        result = new DaySummary(NULLPARENT);
+        result = new DaySummary();
         result.setTitle(TITLE_DAYSUMMARY);
         result.pack();
         result.setSize(400, 500);
@@ -293,26 +327,11 @@ public class WindowManager {
     }
 
     /**
-     * トップフレームを生成する。
-     *
-     * @return トップフレーム
-     */
-    protected TopFrame createTopFrame(){
-        TopFrame result = new TopFrame();
-        result.setVisible(false);
-        this.windowSet.add(result);
-        return result;
-    }
-
-    /**
      * トップフレームを返す。
      *
      * @return トップフレーム
      */
     public TopFrame getTopFrame(){
-        if(this.topFrame == null){
-            this.topFrame = createTopFrame();
-        }
         return this.topFrame;
     }
 
@@ -332,12 +351,12 @@ public class WindowManager {
 
         UIManager.setLookAndFeel(className);
 
-        this.windowSet.forEach((window) -> {
+        this.windowSet.forEach(window -> {
             SwingUtilities.updateComponentTreeUI(window);
         });
 
-        if(this.filterPanel  != null) this.filterPanel.pack();
-        if(this.findPanel    != null) this.findPanel.pack();
+        if(this.filterPanel != null) this.filterPanel.pack();
+        if(this.findPanel   != null) this.findPanel.pack();
 
         return;
     }

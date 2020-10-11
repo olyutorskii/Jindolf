@@ -41,7 +41,7 @@ import jp.sfjp.jindolf.util.GUIUtils;
  * ヘルプ画面。
  */
 @SuppressWarnings("serial")
-public class HelpFrame extends JFrame
+public final class HelpFrame extends JFrame
         implements ActionListener, HyperlinkListener{
 
     private static final String HELP_HTML = "resources/html/help.html";
@@ -172,7 +172,7 @@ public class HelpFrame extends JFrame
 
         if(configStore.useStoreFile()){
             info.append("設定格納ディレクトリ : ")
-                .append(configStore.getConfigDir().getPath());
+                .append(configStore.getConfigDir().toString());
         }else{
             info.append("※ 設定格納ディレクトリは使っていません。");
         }
