@@ -4,8 +4,8 @@
 Jindolf 変更履歴
 
 
-4.101.3-SNAPSHOT (20XX-XX-XX)
-    ・
+4.101.X (2020-10-XX)
+    ・G国URL変更に伴い JinParser 2.102.4 に対応。
 
 4.101.2 (2020-04-20)
     ・G国亡国に伴い JinParser 2.102.2 に対応。
