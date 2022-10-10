@@ -123,7 +123,7 @@ public class FontEnv {
      * 自発的なスケジューリングを促す。
      */
     @SuppressWarnings("CallToThreadYield")
-    protected static void yield(){
+    protected static void selfYield(){
         Thread.yield();
         return;
     }
@@ -141,12 +141,12 @@ public class FontEnv {
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
         Font[] allFonts = ge.getAllFonts();
 
-        yield();
+        selfYield();
 
         Collection<String> result = new HashSet<>();
         int ct = 0;
         for(Font font : allFonts){
-            if(++ct % STRIDE == 0) yield();
+            if(++ct % STRIDE == 0) selfYield();
 
             String familyName = font.getFamily();
             if(result.contains(familyName)) continue;
@@ -258,11 +258,11 @@ public class FontEnv {
         public List<String> call(){
             Collection<String> fontSet =
                     createFontSet(FontEnv.this.proveChars);
-            yield();
+            selfYield();
 
             List<String> result = new ArrayList<>(fontSet);
             Collections.sort(result);
-            yield();
+            selfYield();
 
             result = Collections.unmodifiableList(result);
 
