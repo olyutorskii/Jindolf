@@ -214,6 +214,7 @@
         <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
         <module name="UnnecessarySemicolonInEnumeration" />
         <module name="UnnecessarySemicolonInTryWithResources" />
+        <module name="UnusedLocalVariable" />
         <module name="VariableDeclarationUsageDistance" />
 
 
@@ -396,7 +397,7 @@
         <module name="SingleSpaceSeparator" />
         <module name="TypecastParenPad" />
         <module name="WhitespaceAfter" >
-            <property name="tokens" value="COMMA, SEMI," />
+            <property name="tokens" value="COMMA, SEMI" />
         </module>
         <module name="WhitespaceAround">
             <property
@@ -410,7 +411,7 @@
                        MINUS, STAR, DIV, MOD,
                        PLUS_ASSIGN, MINUS_ASSIGN,
                        STAR_ASSIGN, DIV_ASSIGN, MOD_ASSIGN,
-                       EQUAL, NOT_EQUAL, GT, GE, LT, LE,
+                       EQUAL, NOT_EQUAL, GT, GE, LT, LE
                        "
             />
         </module>
