@@ -121,21 +121,21 @@
         <dependency>
             <groupId>jp.osdn.jindolf</groupId>
             <artifactId>jinparser</artifactId>
-            <version>2.102.4</version>
+            <version>2.102.6</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>jp.sourceforge.jovsonz</groupId>
             <artifactId>jovsonz</artifactId>
-            <version>1.101.104</version>
+            <version>1.101.106</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>io.github.olyutorskii</groupId>
             <artifactId>quetexj</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.8</version>
             <scope>compile</scope>
         </dependency>
 
