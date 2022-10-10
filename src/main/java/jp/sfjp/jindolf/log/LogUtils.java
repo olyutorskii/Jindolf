@@ -42,17 +42,20 @@ public final class LogUtils {
      * @return アクセス権があればtrue
      */
     public static boolean hasLoggingPermission(){
+        /*    for JDK17 or later
         SecurityManager manager = System.getSecurityManager();
         boolean result = hasLoggingPermission(manager);
         return result;
+        */
+        return true;
     }
 
-    /**
+    /* *    for JDK17 or later
      * ログ操作のアクセス権があるか否か判定する。
      *
      * @param manager セキュリティマネージャ
      * @return アクセス権があればtrue
-     */
+     * /
     public static boolean hasLoggingPermission(SecurityManager manager){
         if(manager == null) return true;
 
@@ -64,6 +67,7 @@ public final class LogUtils {
 
         return true;
     }
+    */
 
     /**
      * ルートロガーを返す。

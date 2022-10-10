@@ -2,7 +2,7 @@
 
 <!--
     Custom rule set
-    for PMD [ https://pmd.github.io/ ] 6.21.0 or later
+    for PMD [ https://pmd.github.io/ ] 6.28.0 or later
 
     Copyright(c) 2019 olyutorskii
 -->
@@ -23,9 +23,6 @@
 
     <rule ref="category/java/codestyle.xml" >
         <exclude name="CommentDefaultAccessModifier" />
-        <exclude name="DefaultPackage" />
-        <exclude name="IfElseStmtsMustUseBraces" />
-        <exclude name="IfStmtsMustUseBraces" />
         <exclude name="LocalVariableCouldBeFinal" />
         <exclude name="MethodArgumentCouldBeFinal" />
         <exclude name="OnlyOneReturn" />
@@ -40,22 +37,11 @@
             <property name="checkSingleIfStmt" value="false"/>
         </properties>
     </rule>
-    <rule ref="category/java/codestyle.xml/ShortVariable" >
-        <properties>
-            <property name="minimum" value="2"/>
-        </properties>
-    </rule>
 
     <rule ref="category/java/design.xml" >
-        <exclude name="AvoidThrowingNullPointerException" />
         <exclude name="AvoidUncheckedExceptionsInSignatures" />
         <exclude name="LawOfDemeter" />
         <exclude name="LoosePackageCoupling" />
-    </rule>
-    <rule ref="category/java/design.xml/NcssCount" >
-        <properties>
-            <property name="methodReportLevel" value="50"/>
-        </properties>
     </rule>
 
     <rule ref="category/java/documentation.xml" />
@@ -67,13 +53,13 @@
     <rule ref="category/java/documentation.xml/CommentSize" >
         <properties>
             <property name="maxLines" value="25"/>
+            <property name="maxLineLength" value="100"/>
         </properties>
     </rule>
 
     <rule ref="category/java/errorprone.xml" >
         <exclude name="AvoidLiteralsInIfCondition" />
         <exclude name="BeanMembersShouldSerialize" />
-        <exclude name="DataflowAnomalyAnalysis" />
     </rule>
 
     <rule ref="category/java/multithreading.xml" />
