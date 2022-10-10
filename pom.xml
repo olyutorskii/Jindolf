@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Maven2 POM definition file
+-->
+
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  http://maven.apache.org/maven-v4_0_0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
+    <!--parent/-->
+
+    <groupId>jp.sourceforge.jindolf</groupId>
+    <artifactId>jindolf</artifactId>
+
+    <version>3.202.8</version>
+
+    <packaging>jar</packaging>
+    <name>Jindolf</name>
+
+    <description><!--
+-->Jindolfプロジェクトは、CGIゲーム「人狼BBS」を快適にプレイするための<!--
+-->専用クライアントを製作するために発足したオープンソースプロジェクトです。<!--
+ --></description>
+
+    <url>http://jindolf.sourceforge.jp/</url>
+    <inceptionYear>2008</inceptionYear>
+
+    <organization>
+        <name>Jindolf Partners</name>
+        <url>http://sourceforge.jp/projects/jindolf/devel/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>The MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>olyutorskii</id>
+            <url>http://sites.google.com/site/olyutorskiipit/</url>
+            <organization>Jindolf Partners</organization>
+            <organizationUrl>http://sourceforge.jp/projects/jindolf/devel/</organizationUrl>
+            <roles>
+                <role>Project Founder</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <contributors/>
+    <mailingLists/>
+
+    <prerequisites>
+        <maven>2.1</maven>
+    </prerequisites>
+
+    <modules/>
+
+    <scm>
+        <connection>scm:hg:http://hg.sourceforge.jp/view/jindolf/Jindolf</connection>
+        <developerConnection>scm:hg:ssh://hg.sourceforge.jp//hgroot/jindolf/Jindolf</developerConnection>
+        <url>http://hg.sourceforge.jp/view/jindolf/Jindolf/</url>
+    </scm>
+
+    <issueManagement>
+        <system>SourceForge.JP</system>
+        <url>http://sourceforge.jp/projects/jindolf/ticket/</url>
+    </issueManagement>
+
+    <ciManagement/>
+    <distributionManagement/>
+
+    <properties>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+
+        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.target>1.5</maven.compiler.target>
+
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <project.myrepoconf>${project.basedir}/src/main/config</project.myrepoconf>
+        <project.transformer>
+            org.apache.maven.plugins.shade.resource.ManifestResourceTransformer
+        </project.transformer>
+        <project.mainentry>jp.sourceforge.jindolf.Jindolf</project.mainentry>
+        <project.splash>jp/sourceforge/jindolf/resources/image/logo.png</project.splash>
+    </properties>
+
+    <dependencyManagement/>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>[4,)</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jp.sourceforge.jindolf</groupId>
+            <artifactId>jincore</artifactId>
+            <version>1.203.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jp.sourceforge.jindolf</groupId>
+            <artifactId>jinparser</artifactId>
+            <version>1.404.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+    <repositories/>
+    <pluginRepositories/>
+
+    <build>
+        <pluginManagement/>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>**/.DS_Store</include>
+                                <include>**/Thumbs.db</include>
+                                <include>**/core</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>  <!-- for NetBeans IDE -->
+                    <target>1.5</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <compilerArguments>
+                        <Xlint/>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Main-Class>${project.mainentry}</Main-Class>
+                            <SplashScreen-Image>${project.splash}</SplashScreen-Image>
+                            <Built-By>${project.organization.name}</Built-By>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/descriptor.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                          <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>jp.sourceforge.jindolf:jincore</include>
+                                    <include>jp.sourceforge.jindolf:jinparser</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>junit:junit</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>[2.1,3)</version>
+                        </requireMavenVersion>
+                        <requireJavaVersion>
+                            <version>[1.5,)</version>
+                        </requireJavaVersion>
+                    </rules>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <resources>
+
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/version.properties</include>
+                </includes>
+            </resource>
+
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.xsd</include>
+                    <include>**/*.txt</include>
+                    <include>**/*.html</include>
+                    <include>**/*.css</include>
+                    <include>**/*.png</include>
+                </includes>
+                <excludes>
+                    <exclude>**/version.properties</exclude>
+                </excludes>
+            </resource>
+
+        </resources>
+
+    </build>
+
+    <reporting>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <show>protected</show>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <locales>ja</locales>
+                    <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+                    <outputEncoding>${project.reporting.outputEncoding}</outputEncoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <configLocation>${project.myrepoconf}/checks.xml</configLocation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <targetJdk>${maven.compiler.target}</targetJdk>
+                    <rulesets>
+                        <ruleset>${project.myrepoconf}/pmdrules.xml</ruleset>
+                    </rulesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+                    <outputEncoding>${project.reporting.outputEncoding}</outputEncoding>
+                    <!--excludeFilterFile/-->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>javancss-maven-plugin</artifactId>
+                <version>2.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.2</version>
+            </plugin>
+
+        </plugins>
+    </reporting>
+
+    <profiles/>
+
+</project>
+
+<!-- EOF -->
