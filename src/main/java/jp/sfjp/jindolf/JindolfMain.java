@@ -21,7 +21,7 @@ import jp.sfjp.jindolf.config.CmdOption;
 import jp.sfjp.jindolf.config.ConfigStore;
 import jp.sfjp.jindolf.config.EnvInfo;
 import jp.sfjp.jindolf.config.OptionInfo;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.log.LogUtils;
 import jp.sfjp.jindolf.log.LoggingDispatcher;
 import jp.sfjp.jindolf.util.GUIUtils;
@@ -31,7 +31,7 @@ import jp.sfjp.jindolf.view.WindowManager;
 /**
  * Jindolf スタートアップクラス。
  *
- * <p>{@link JindolfJre17}の下請けとして本格的なJindolf起動処理に入る。
+ * <p>{@link JindolfJre18}の下請けとして本格的なJindolf起動処理に入る。
  */
 public final class JindolfMain {
 
@@ -137,7 +137,7 @@ public final class JindolfMain {
 
         ConfigStore configStore = appSetting.getConfigStore();
         if(configStore.useStoreFile()){
-            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigPath());
+            LOGGER.log(Level.INFO, LOG_CONF, configStore.getConfigDir());
         }else{
             LOGGER.info(LOG_NOCONF);
         }
@@ -311,7 +311,7 @@ public final class JindolfMain {
      * @return アプリケーションのトップフレーム
      */
     private static JFrame buildMVC(AppSetting appSetting){
-        LandsModel model = new LandsModel();
+        LandsTreeModel model = new LandsTreeModel();
         WindowManager windowManager = new WindowManager();
         ActionManager actionManager = new ActionManager();
 

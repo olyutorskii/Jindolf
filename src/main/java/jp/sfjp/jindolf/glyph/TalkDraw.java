@@ -27,6 +27,7 @@ import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
 import jp.sfjp.jindolf.util.GUIUtils;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sourceforge.jindolf.corelib.TalkType;
 
 /**
@@ -269,6 +270,7 @@ public class TalkDraw extends AbstractTextRow{
      */
     private BufferedImage getFaceImage(){
         Village village = this.talk.getPeriod().getVillage();
+        AvatarPics avatarPics = village.getAvatarPics();
         Avatar avatar = this.talk.getAvatar();
 
         boolean useBodyImage = this.dialogPref.useBodyImage();
@@ -278,22 +280,22 @@ public class TalkDraw extends AbstractTextRow{
         if(this.talk.isGrave()){
             if(useMonoImage){
                 if(useBodyImage){
-                    image = village.getAvatarBodyMonoImage(avatar);
+                    image = avatarPics.getAvatarBodyMonoImage(avatar);
                 }else{
-                    image = village.getAvatarFaceMonoImage(avatar);
+                    image = avatarPics.getAvatarFaceMonoImage(avatar);
                 }
             }else{
                 if(useBodyImage){
-                    image = village.getGraveBodyImage();
+                    image = avatarPics.getGraveBodyImage();
                 }else{
-                    image = village.getGraveImage();
+                    image = avatarPics.getGraveImage();
                 }
             }
         }else{
             if(useBodyImage){
-                image = village.getAvatarBodyImage(avatar);
+                image = avatarPics.getAvatarBodyImage(avatar);
             }else{
-                image = village.getAvatarFaceImage(avatar);
+                image = avatarPics.getAvatarFaceImage(avatar);
             }
         }
 
@@ -693,11 +695,12 @@ public class TalkDraw extends AbstractTextRow{
         int total = 0;
 
         total += this.dialog.setRegex(searchRegex);
-/*
+        /*
         for(AnchorDraw anchorDraw : this.anchorTalks){
             total += anchorDraw.setRegex(searchRegex);
         }
-*/ // TODO よくわからんので保留
+        */
+        // TODO よくわからんので保留
         return total;
     }
 

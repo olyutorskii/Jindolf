@@ -7,6 +7,9 @@
 
 package jp.sfjp.jindolf.data;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Objects;
 import jp.sourceforge.jindolf.corelib.TalkType;
 
 /**
@@ -14,20 +17,35 @@ import jp.sourceforge.jindolf.corelib.TalkType;
  */
 public class Talk implements Topic{
 
+    private static final String MEINICHI_LAST =
+            "！\u0020今日がお前の命日だ！";
+
+    private static final Map<TalkType, String> COLOR_MAP;
+
+    static{
+        COLOR_MAP = new EnumMap<>(TalkType.class);
+        COLOR_MAP.put(TalkType.PUBLIC,   "白");
+        COLOR_MAP.put(TalkType.PRIVATE,  "灰");
+        COLOR_MAP.put(TalkType.WOLFONLY, "赤");
+        COLOR_MAP.put(TalkType.GRAVE,    "青");
+    }
+
+
     private final Period homePeriod;
     private final TalkType talkType;
     private final Avatar avatar;
-    private final int talkNo;
     private final String messageID;
     private final int hour;
     private final int minute;
-    private final CharSequence dialog;
-    private final int charNum;
+    private int charNum;
+    private int talkNo;
+    private CharSequence dialog;
     private int count = -1;
 
 
     /**
      * Talkの生成。
+     *
      * @param homePeriod 発言元Period
      * @param talkType 発言種別
      * @param avatar Avatar
@@ -72,27 +90,49 @@ public class Talk implements Topic{
 
     /**
      * 会話種別から色名への変換を行う。
+     *
      * @param type 会話種別
      * @return 色名
      */
     public static String encodeColorName(TalkType type){
-        String result;
-
-        switch(type){
-        case PUBLIC:   result = "白"; break;
-        case PRIVATE:  result = "灰"; break;
-        case WOLFONLY: result = "赤"; break;
-        case GRAVE:    result = "青"; break;
-        default:
-            assert false;
-            return null;
-        }
-
+        Objects.requireNonNull(type);
+        String result = COLOR_MAP.get(type);
         return result;
     }
 
     /**
+     * ある文字列の末尾が別の文字列に一致するか判定する。
+     *
+     * @param target 判定対象
+     * @param term 末尾文字
+     * @return 一致すればtrue
+     * @throws java.lang.NullPointerException 引数がnull
+     * @see String#endsWith(String)
+     */
+    static boolean isTerminated(CharSequence target,
+                                CharSequence term)
+            throws NullPointerException{
+        Objects.requireNonNull(target);
+        Objects.requireNonNull(term);
+
+        int targetLength = target.length();
+        int termLength   = term  .length();
+
+        int offset = targetLength - termLength;
+        if(offset < 0) return false;
+
+        for(int pos = 0; pos < termLength; pos++){
+            char targetch = target.charAt(offset + pos);
+            char termch   = term  .charAt(0      + pos);
+            if(targetch != termch) return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 発言が交わされたPeriodを返す。
+     *
      * @return Period
      */
     public Period getPeriod(){
@@ -101,6 +141,7 @@ public class Talk implements Topic{
 
     /**
      * 発言種別を得る。
+     *
      * @return 種別
      */
     public TalkType getTalkType(){
@@ -109,6 +150,7 @@ public class Talk implements Topic{
 
     /**
      * 墓下発言か否か判定する。
+     *
      * @return 墓下発言ならtrue
      */
     public boolean isGrave(){
@@ -116,8 +158,10 @@ public class Talk implements Topic{
     }
 
     /**
-     * 発言種別ごとにその日(Period)の累積発言回数を返す。
-     * 1から始まる。
+     * 各Avatarの発言種別ごとにその日(Period)の累積発言回数を返す。
+     *
+     * <p>システム生成の襲撃予告の場合は負の値となる。
+     *
      * @return 累積発言回数。
      */
     public int getTalkCount(){
@@ -126,7 +170,9 @@ public class Talk implements Topic{
 
     /**
      * 発言文字数を返す。
-     * 改行(\n)は1文字。
+     *
+     * <p>改行(\n)は1文字。
+     *
      * @return 文字数
      */
     public int getTotalChars(){
@@ -135,6 +181,7 @@ public class Talk implements Topic{
 
     /**
      * 発言元Avatarを得る。
+     *
      * @return 発言元Avatar
      */
     public Avatar getAvatar(){
@@ -143,7 +190,9 @@ public class Talk implements Topic{
 
     /**
      * 公開発言番号を取得する。
-     * 公開発言番号が割り振られてなければ0以下の値を返す。
+     *
+     * <p>公開発言番号が割り振られてなければ0以下の値を返す。
+     *
      * @return 公開発言番号
      */
     public int getTalkNo(){
@@ -151,7 +200,20 @@ public class Talk implements Topic{
     }
 
     /**
+     * 公開発言番号を設定する。
+     *
+     * <p>0以下の値は公開発言番号を持たないと判断される。
+     *
+     * @param talkNo 公開発言番号
+     */
+    public void setTalkNo(int talkNo){
+        this.talkNo = talkNo;
+        return;
+    }
+
+    /**
      * 公開発言番号の有無を返す。
+     *
      * @return 公開発言番号が割り当てられているならtrueを返す。
      */
     public boolean hasTalkNo(){
@@ -161,6 +223,7 @@ public class Talk implements Topic{
 
     /**
      * メッセージIDを取得する。
+     *
      * @return メッセージID
      */
     public String getMessageID(){
@@ -169,6 +232,7 @@ public class Talk implements Topic{
 
     /**
      * メッセージIDからエポック秒(ms)に変換する。
+     *
      * @return GMT 1970-01-01 00:00:00 からのエポック秒(ms)
      */
     public long getTimeFromID(){
@@ -179,6 +243,7 @@ public class Talk implements Topic{
 
     /**
      * 発言時を取得する。
+     *
      * @return 発言時
      */
     public int getHour(){
@@ -187,6 +252,7 @@ public class Talk implements Topic{
 
     /**
      * 発言分を取得する。
+     *
      * @return 発言分
      */
     public int getMinute(){
@@ -195,6 +261,7 @@ public class Talk implements Topic{
 
     /**
      * 会話データを取得する。
+     *
      * @return 会話データ
      */
     public CharSequence getDialog(){
@@ -202,7 +269,21 @@ public class Talk implements Topic{
     }
 
     /**
+     * 会話データを設定する。
+     *
+     * @param seq 会話データ
+     */
+    public void setDialog(CharSequence seq){
+        this.dialog = seq;
+        this.charNum = this.dialog.length();
+        return;
+    }
+
+    /**
      * 発言種別ごとの発言回数を設定する。
+     *
+     * <p>システム生成の襲撃予告では負の値を入れれば良い。
+     *
      * @param count 発言回数
      */
     public void setCount(int count){
@@ -212,7 +293,9 @@ public class Talk implements Topic{
 
     /**
      * この会話を識別するためのアンカー文字列を生成する。
-     * 例えば「3d09:56」など。
+     *
+     * <p>例えば「3d09:56」など。
+     *
      * @return アンカー文字列
      */
     public String getAnchorNotation(){
@@ -228,7 +311,9 @@ public class Talk implements Topic{
 
     /**
      * この会話を識別するためのG国用アンカー文字列を発言番号から生成する。
-     * 例えば「{@literal >>172}」など。
+     *
+     * <p>例えば「{@literal >>172}」など。
+     *
      * @return アンカー文字列。発言番号がなければ空文字列。
      */
     public String getAnchorNotation_G(){
@@ -237,23 +322,67 @@ public class Talk implements Topic{
     }
 
     /**
+     * 会話テキスト本文が襲撃予告たりうるか判定する。
+     *
+     * <p>Period開始時の襲撃予告の文面はシステムが生成する文書であり、
+     * 狼プレイヤーの投稿に由来しない。
+     *
+     * <p>「！ 今日がお前の命日だ！」で終わる赤ログは
+     * 襲撃予告の可能性がある。
+     *
+     * <p>
+     * {@link jp.sourceforge.jindolf.corelib.SysEventType#MURDERED}
+     * もしくは
+     * {@link jp.sourceforge.jindolf.corelib.SysEventType#NOMURDER}
+     * の前に該当する赤ログが出現すれば、それは襲撃予告と断定して良い。
+     *
+     * @return 襲撃予告のテキストの可能性があるならtrue
+     */
+    public boolean isMurderNotice(){
+        boolean isWolf;
+        isWolf = this.talkType == TalkType.WOLFONLY;
+        if( ! isWolf) return false;
+
+        boolean meinichida;
+        meinichida = isTerminated(getDialog(), MEINICHI_LAST);
+        if( ! meinichida) return false;
+
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
-     * 会話のString表現を返す。
+     *
+     * <p>会話のString表現を返す。
      * 実体参照やHTMLタグも含まれる。
+     *
      * @return 会話のString表現
      */
     @Override
     public String toString(){
+        String fullName = this.avatar.getFullName();
+
+        String verb;
+        switch (this.talkType) {
+        case PUBLIC:
+            verb=" says ";
+            break;
+        case PRIVATE:
+            verb=" think ";
+            break;
+        case WOLFONLY:
+            verb=" howl ";
+            break;
+        case GRAVE:
+            verb=" groan ";
+            break;
+        default:
+            assert false;
+            return null;
+        }
+
         StringBuilder result = new StringBuilder();
-
-        result.append(this.avatar.getFullName());
-
-        if     (this.talkType == TalkType.PUBLIC)   result.append(" says ");
-        else if(this.talkType == TalkType.PRIVATE)  result.append(" think ");
-        else if(this.talkType == TalkType.WOLFONLY) result.append(" howl ");
-        else if(this.talkType == TalkType.GRAVE)    result.append(" groan ");
-
-        result.append(this.dialog);
+        result.append(fullName).append(verb).append(this.dialog);
 
         return result.toString();
     }

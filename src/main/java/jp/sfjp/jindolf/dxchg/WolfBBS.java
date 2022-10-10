@@ -35,7 +35,7 @@ import jp.sourceforge.jindolf.corelib.GameRole;
 /**
  * まちゅ氏運営のまとめサイト(wolfbbs)に関する諸々。
  *
- * PukiWikiベース。
+ * <p>PukiWikiベース。
  *
  * @see <a href="https://wolfbbs.jp/">まとめサイト</a>
  * @see <a href="https://pukiwiki.osdn.jp/">PukiWiki</a>
@@ -341,7 +341,7 @@ public final class WolfBBS{
     /**
      * 数値参照文字に変換された文字を追加する。
      *
-     * 例）{@literal 'D' => "&#x44;}"
+     * <p>例）{@literal 'D' => "&#x44;}"
      *
      * @param app 追加対象
      * @param ch 1文字
@@ -364,7 +364,7 @@ public final class WolfBBS{
     /**
      * 任意の文字を数値参照文字列に変換する。
      *
-     * 例）{@literal 'D' => "&#x44;"}
+     * <p>例）{@literal 'D' => "&#x44;"}
      *
      * @param ch 文字
      * @return 変換後の文字列
@@ -383,7 +383,7 @@ public final class WolfBBS{
     /**
      * ColorのRGB各成分をWikiカラー表記に変換する。
      *
-     * α成分は無視される。
+     * <p>α成分は無視される。
      *
      * @param color 色
      * @return Wikiカラー表記

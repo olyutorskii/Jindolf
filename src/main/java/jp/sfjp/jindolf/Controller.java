@@ -7,8 +7,6 @@
 
 package jp.sfjp.jindolf;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Window;
@@ -22,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
@@ -31,12 +28,10 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.LookAndFeel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -45,6 +40,8 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import jp.sfjp.jindolf.config.AppSetting;
 import jp.sfjp.jindolf.config.ConfigStore;
@@ -52,15 +49,18 @@ import jp.sfjp.jindolf.config.OptionInfo;
 import jp.sfjp.jindolf.data.Anchor;
 import jp.sfjp.jindolf.data.DialogPref;
 import jp.sfjp.jindolf.data.Land;
-import jp.sfjp.jindolf.data.LandsModel;
+import jp.sfjp.jindolf.data.LandsTreeModel;
 import jp.sfjp.jindolf.data.Period;
 import jp.sfjp.jindolf.data.RegexPattern;
 import jp.sfjp.jindolf.data.Talk;
 import jp.sfjp.jindolf.data.Village;
+import jp.sfjp.jindolf.data.html.PeriodLoader;
+import jp.sfjp.jindolf.data.html.VillageInfoLoader;
+import jp.sfjp.jindolf.data.html.VillageListLoader;
+import jp.sfjp.jindolf.data.xml.VillageLoader;
 import jp.sfjp.jindolf.dxchg.CsvExporter;
 import jp.sfjp.jindolf.dxchg.WebIPCDialog;
 import jp.sfjp.jindolf.dxchg.WolfBBS;
-import jp.sfjp.jindolf.editor.TalkPreview;
 import jp.sfjp.jindolf.glyph.AnchorHitEvent;
 import jp.sfjp.jindolf.glyph.AnchorHitListener;
 import jp.sfjp.jindolf.glyph.Discussion;
@@ -75,8 +75,8 @@ import jp.sfjp.jindolf.summary.DaySummary;
 import jp.sfjp.jindolf.summary.VillageDigest;
 import jp.sfjp.jindolf.util.GUIUtils;
 import jp.sfjp.jindolf.util.StringUtils;
-import jp.sfjp.jindolf.view.AccountPanel;
 import jp.sfjp.jindolf.view.ActionManager;
+import jp.sfjp.jindolf.view.AvatarPics;
 import jp.sfjp.jindolf.view.FilterPanel;
 import jp.sfjp.jindolf.view.FindPanel;
 import jp.sfjp.jindolf.view.HelpFrame;
@@ -89,30 +89,38 @@ import jp.sfjp.jindolf.view.TopView;
 import jp.sfjp.jindolf.view.WindowManager;
 import jp.sourceforge.jindolf.corelib.VillageState;
 import jp.sourceforge.jovsonz.JsObject;
+import org.xml.sax.SAXException;
 
 /**
  * いわゆるMVCでいうとこのコントローラ。
  */
 public class Controller
         implements ActionListener,
-                   TreeWillExpandListener,
-                   TreeSelectionListener,
-                   ChangeListener,
                    AnchorHitListener {
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private static final String ERRTITLE_LAF = "Look&Feel";
-    private static final String ERRFORM_LAF =
+    private static final String ERRFORM_LAFGEN =
             "このLook&Feel[{0}]を生成する事ができません。";
 
 
-    private final LandsModel model;
+    private final LandsTreeModel model;
     private final WindowManager windowManager;
     private final ActionManager actionManager;
     private final AppSetting appSetting;
 
     private final TopView topView;
 
+    private final JFileChooser xmlFileChooser = buildFileChooser();
+
+    private final VillageTreeWatcher treeVillageWatcher =
+            new VillageTreeWatcher();
+    private final ChangeListener tabPeriodWatcher =
+            new TabPeriodWatcher();
+    private final ChangeListener filterWatcher =
+            new FilterWatcher();
+
+    private final Executor executor = Executors.newCachedThreadPool();
     private volatile boolean isBusyNow;
 
 
@@ -124,7 +132,7 @@ public class Controller
      * @param setting アプリ設定
      */
     @SuppressWarnings("LeakingThisInConstructor")
-    public Controller(LandsModel model,
+    public Controller(LandsTreeModel model,
                       WindowManager windowManager,
                       ActionManager actionManager,
                       AppSetting setting){
@@ -144,12 +152,13 @@ public class Controller
 
         JTree treeView = this.topView.getTreeView();
         treeView.setModel(this.model);
-        treeView.addTreeWillExpandListener(this);
-        treeView.addTreeSelectionListener(this);
+        treeView.addTreeWillExpandListener(this.treeVillageWatcher);
+        treeView.addTreeSelectionListener(this.treeVillageWatcher);
 
-        this.topView.getTabBrowser().addChangeListener(this);
-        this.topView.getTabBrowser().addActionListener(this);
-        this.topView.getTabBrowser().addAnchorHitListener(this);
+        TabBrowser periodTab = this.topView.getTabBrowser();
+        periodTab.addChangeListener(this.tabPeriodWatcher);
+        periodTab.addActionListener(this);
+        periodTab.addAnchorHitListener(this);
 
         JButton reloadVillageListButton = this.topView
                                          .getLandsTree()
@@ -158,12 +167,10 @@ public class Controller
         reloadVillageListButton.setEnabled(false);
 
         TopFrame topFrame         = this.windowManager.getTopFrame();
-        TalkPreview talkPreview   = this.windowManager.getTalkPreview();
         OptionPanel optionPanel   = this.windowManager.getOptionPanel();
         FindPanel findPanel       = this.windowManager.getFindPanel();
         FilterPanel filterPanel   = this.windowManager.getFilterPanel();
         LogFrame logFrame         = this.windowManager.getLogFrame();
-        AccountPanel accountPanel = this.windowManager.getAccountPanel();
         HelpFrame helpFrame       = this.windowManager.getHelpFrame();
 
         topFrame.setJMenuBar(this.actionManager.getMenuBar());
@@ -178,32 +185,26 @@ public class Controller
             }
         });
 
-        filterPanel.addChangeListener(this);
+        filterPanel.addChangeListener(this.filterWatcher);
 
         Handler newHandler = logFrame.getHandler();
         LogUtils.switchHandler(newHandler);
 
         ConfigStore config = this.appSetting.getConfigStore();
 
-        JsObject draft = config.loadDraftConfig();
-        talkPreview.putJson(draft);
-
         JsObject history = config.loadHistoryConfig();
         findPanel.putJson(history);
 
         FontInfo fontInfo = this.appSetting.getFontInfo();
-        this.topView.getTabBrowser().setFontInfo(fontInfo);
-        talkPreview.setFontInfo(fontInfo);
+        periodTab.setFontInfo(fontInfo);
         optionPanel.getFontChooser().setFontInfo(fontInfo);
 
         ProxyInfo proxyInfo = this.appSetting.getProxyInfo();
         optionPanel.getProxyChooser().setProxyInfo(proxyInfo);
 
         DialogPref pref = this.appSetting.getDialogPref();
-        this.topView.getTabBrowser().setDialogPref(pref);
+        periodTab.setDialogPref(pref);
         optionPanel.getDialogPrefPanel().setDialogPref(pref);
-
-        accountPanel.setModel(this.model);
 
         OptionInfo optInfo = this.appSetting.getOptionInfo();
         ConfigStore configStore = this.appSetting.getConfigStore();
@@ -211,6 +212,54 @@ public class Controller
 
         return;
     }
+
+
+    /**
+     * フレーム表示のトグル処理。
+     * @param window フレーム
+     */
+    private static void toggleWindow(Window window){
+        if(window == null) return;
+
+        if(window instanceof Frame){
+            Frame frame = (Frame) window;
+            int winState = frame.getExtendedState();
+            boolean isIconified = (winState & Frame.ICONIFIED) != 0;
+            if(isIconified){
+                winState &= ~(Frame.ICONIFIED);
+                frame.setExtendedState(winState);
+                frame.setVisible(true);
+                return;
+            }
+        }
+
+        if(window.isVisible()){
+            window.setVisible(false);
+            window.dispose();
+        }else{
+            window.setVisible(true);
+        }
+        return;
+    }
+
+    /**
+     * XMLファイルを選択するためのChooserを生成する。
+     *
+     * @return Chooser
+     */
+    private static JFileChooser buildFileChooser(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        FileFilter filter;
+        filter = new FileNameExtensionFilter("XML files (*.xml)", "xml", "XML");
+        chooser.setFileFilter(filter);
+
+        chooser.setDialogTitle("アーカイブXMLファイルを開く");
+
+        return chooser;
+    }
+
 
     /**
      * ウィンドウマネジャを返す。
@@ -230,6 +279,87 @@ public class Controller
     }
 
     /**
+     * トップフレームのタイトルを設定する。
+     * タイトルは指定された国or村名 + " - Jindolf"
+     * @param name 国or村名
+     */
+    private void setFrameTitle(String name){
+        String title = VerInfo.getFrameTitle(name);
+        TopFrame topFrame = this.windowManager.getTopFrame();
+        topFrame.setTitle(title);
+        return;
+    }
+
+    /**
+     * 現在選択中のPeriodを内包するPeriodViewを返す。
+     * @return PeriodView
+     */
+    private PeriodView currentPeriodView(){
+        TabBrowser tb = this.topView.getTabBrowser();
+        PeriodView result = tb.currentPeriodView();
+        return result;
+    }
+
+    /**
+     * 現在選択中のPeriodを内包するDiscussionを返す。
+     * @return Discussion
+     */
+    private Discussion currentDiscussion(){
+        PeriodView periodView = currentPeriodView();
+        if(periodView == null) return null;
+        Discussion result = periodView.getDiscussion();
+        return result;
+    }
+
+    /**
+     * 現在選択中の村を返す。
+     *
+     * @return 選択中の村。なければnull。
+     */
+    private Village getVillage(){
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = browser.getVillage();
+        return village;
+    }
+
+    /**
+     * ビジー状態の設定を行う。
+     *
+     * <p>ヘビーなタスク実行をアピールするために、
+     * プログレスバーとカーソルの設定を行う。
+     *
+     * <p>ビジー中のActionコマンド受信は無視される。
+     *
+     * <p>ビジー中のトップフレームのマウス操作、キーボード入力は
+     * 全てグラブされるため無視される。
+     *
+     * @param isBusy trueならプログレスバーのアニメ開始&amp;WAITカーソル。
+     * falseなら停止&amp;通常カーソル。
+     * @param msg フッタメッセージ。nullなら変更なし。
+     */
+    private void setBusy(boolean isBusy, String msg){
+        this.isBusyNow = isBusy;
+
+        TopFrame topFrame = getTopFrame();
+
+        topFrame.setBusy(isBusy);
+        if(msg != null){
+            this.topView.updateSysMessage(msg);
+        }
+
+        return;
+    }
+
+    /**
+     * ステータスバーを更新する。
+     * @param message メッセージ
+     */
+    private void updateStatusBar(String message){
+        this.topView.updateSysMessage(message);
+        return;
+    }
+
+    /**
      * ビジー状態を設定する。
      *
      * <p>EDT以外から呼ばれると実際の処理が次回のEDT移行に遅延される。
@@ -237,19 +367,20 @@ public class Controller
      * @param isBusy ビジーならtrue
      * @param message ステータスバー表示。nullなら変更なし
      */
-    public void submitBusyStatus(final boolean isBusy, final String message){
-        Runnable task = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                if(isBusy) setBusy(true);
-                if(message != null) updateStatusBar(message);
-                if( ! isBusy ) setBusy(false);
-                return;
-            }
+    public void submitBusyStatus(boolean isBusy, String message){
+        Runnable task = () -> {
+            setBusy(isBusy, message);
         };
 
-        EventQueue.invokeLater(task);
+        if(EventQueue.isDispatchThread()){
+            task.run();
+        }else{
+            try{
+                EventQueue.invokeAndWait(task);
+            }catch(InvocationTargetException | InterruptedException e){
+                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
+            }
+        }
 
         return;
     }
@@ -277,26 +408,6 @@ public class Controller
     }
 
     /**
-     * 軽量タスクをEDTで実行する。
-     *
-     * <p>タスク実行中はビジー状態となる。
-     *
-     * <p>軽量タスク実行中はイベントループが停止するので、
-     * 入出力待ちを伴わなずに早急に終わるタスクでなければならない。
-     *
-     * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
-     *
-     * @param task 軽量タスク
-     * @param beforeMsg ビジー中ステータス文字列。
-     *     ビジー復帰時は元のステータス文字列に戻る。
-     */
-    public void submitLightBusyTask(Runnable task, String beforeMsg){
-        String afterMsg = this.topView.getSysMessage();
-        submitLightBusyTask(task, beforeMsg, afterMsg);
-        return;
-    }
-
-    /**
      * 重量級タスクをEDTとは別のスレッドで実行する。
      *
      * <p>タスク実行中はビジー状態となる。
@@ -310,50 +421,26 @@ public class Controller
                                     final String afterMsg ){
         submitBusyStatus(true, beforeMsg);
 
-        final Runnable busyManager = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            @SuppressWarnings("CallToThreadYield")
-            public void run(){
-                Thread.yield();
+        EventQueue.invokeLater(() -> {
+            fork(() -> {
                 try{
                     heavyTask.run();
                 }finally{
                     submitBusyStatus(false, afterMsg);
                 }
-                return;
-            }
-        };
-
-        Runnable forkLauncher = new Runnable(){
-            /** {@inheritDoc} */
-            @Override
-            public void run(){
-                Executor executor = Executors.newCachedThreadPool();
-                executor.execute(busyManager);
-                return;
-            }
-        };
-
-        EventQueue.invokeLater(forkLauncher);
+            });
+        });
 
         return;
     }
 
     /**
-     * 重量級タスクをEDTとは別のスレッドで実行する。
+     * スレッドプールを用いて非EDTなタスクを投入する。
      *
-     * <p>タスク実行中はビジー状態となる。
-     *
-     * <p>タスク終了時、ステータス文字列はタスク実行前の状態に戻る。
-     *
-     * @param task 重量級タスク
-     * @param beforeMsg ビジー中ステータス文字列。
-     *     ビジー復帰時は元のステータス文字列に戻る。
+     * @param task タスク
      */
-    public void submitHeavyBusyTask(Runnable task, String beforeMsg){
-        String afterMsg = this.topView.getSysMessage();
-        submitHeavyBusyTask(task, beforeMsg, afterMsg);
+    private void fork(Runnable task){
+        this.executor.execute(task);
         return;
     }
 
@@ -398,8 +485,7 @@ public class Controller
      * 村をWebブラウザで表示する。
      */
     private void actionShowWebVillage(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         Land land = village.getParentLand();
@@ -421,8 +507,7 @@ public class Controller
      * 村に対応するまとめサイトをWebブラウザで表示する。
      */
     private void actionShowWebWiki(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         String urlTxt = WolfBBS.getCastGeneratorUrl(village);
@@ -441,8 +526,7 @@ public class Controller
         Period period = periodView.getPeriod();
         if(period == null) return;
 
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         Land land = village.getParentLand();
@@ -451,7 +535,6 @@ public class Controller
         URL url = server.getPeriodURL(period);
 
         String urlText = url.toString();
-        if(period.isHot()) urlText += "#bottom";
 
         WebIPCDialog.showDialog(getTopFrame(), urlText);
 
@@ -462,15 +545,14 @@ public class Controller
      * 個別の発言をWebブラウザで表示する。
      */
     private void actionShowWebTalk(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         PeriodView periodView = currentPeriodView();
         if(periodView == null) return;
 
         Discussion discussion = periodView.getDiscussion();
-        Talk talk = discussion.getPopupedTalk();
+        Talk talk = discussion.getActiveTalk();
         if(talk == null) return;
 
         Period period = periodView.getPeriod();
@@ -513,70 +595,47 @@ public class Controller
     }
 
     /**
-     * L&Fの変更を行う。
+     * L&amp;Fの変更指示を受信する。
      */
     private void actionChangeLaF(){
         String className = this.actionManager.getSelectedLookAndFeel();
+        if(className == null) return;
 
-        Class<?> lnfClass;
-        try{
-            lnfClass = Class.forName(className);
-        }catch(ClassNotFoundException e){
-            String warnMsg = MessageFormat.format(
-                    "このLook&Feel[{0}]を読み込む事ができません。",
-                    className );
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }
-
-        final LookAndFeel lnf;
-        try{
-            lnf = (LookAndFeel) ( lnfClass.newInstance() );
-        }catch(   InstantiationException
-                | IllegalAccessException
-                | ClassCastException
-                e){
-            String warnMsg = MessageFormat.format(ERRFORM_LAF, className);
-            warnDialog(ERRTITLE_LAF, warnMsg, e);
-            return;
-        }
-
-        Runnable lafTask = new Runnable(){
-            @Override
-            public void run(){
-                changeLaF(lnf);
-                return;
-            }
-        };
-
-        submitLightBusyTask(lafTask,
-                            "Look&Feelを更新中…",
-                            "Look&Feelが更新されました" );
+        submitLightBusyTask(
+            () -> {taskChangeLaF(className);},
+            "Look&Feelを更新中…",
+            "Look&Feelが更新されました"
+        );
 
         return;
     }
 
     /**
-     * LookAndFeelの実際の更新を行う。
+     * LookAndFeelの実際の更新を行う軽量タスク。
+     *
      * @param lnf LookAndFeel
      */
-    private void changeLaF(LookAndFeel lnf){
+    private void taskChangeLaF(String className){
         assert EventQueue.isDispatchThread();
 
         try{
-            UIManager.setLookAndFeel(lnf);
+            this.windowManager.changeAllWindowUI(className);
         }catch(UnsupportedLookAndFeelException e){
             String warnMsg = MessageFormat.format(
                     "このLook&Feel[{0}]はサポートされていません。",
-                    lnf.getName() );
+                    className);
+            warnDialog(ERRTITLE_LAF, warnMsg, e);
+            return;
+        }catch(ReflectiveOperationException e){
+            String warnMsg = MessageFormat.format(ERRFORM_LAFGEN, className);
             warnDialog(ERRTITLE_LAF, warnMsg, e);
             return;
         }
 
-        this.windowManager.changeAllWindowUI();
+        this.xmlFileChooser.updateUI();
 
         LOGGER.log(Level.INFO,
-                   "Look&Feelが[{0}]に変更されました。", lnf.getName() );
+                   "Look&Feelが[{0}]に変更されました。", className );
 
         return;
     }
@@ -591,29 +650,11 @@ public class Controller
     }
 
     /**
-     * アカウント管理画面を表示する。
-     */
-    private void actionShowAccount(){
-        AccountPanel accountPanel = this.windowManager.getAccountPanel();
-        toggleWindow(accountPanel);
-        return;
-    }
-
-    /**
      * ログ表示画面を表示する。
      */
     private void actionShowLog(){
         LogFrame logFrame = this.windowManager.getLogFrame();
         toggleWindow(logFrame);
-        return;
-    }
-
-    /**
-     * 発言エディタを表示する。
-     */
-    private void actionTalkPreview(){
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
-        toggleWindow(talkPreview);
         return;
     }
 
@@ -659,11 +700,9 @@ public class Controller
 
         this.topView.getTabBrowser().setFontInfo(newFontInfo);
 
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
         OptionPanel optionPanel = this.windowManager.getOptionPanel();
         FontChooser fontChooser = optionPanel.getFontChooser();
 
-        talkPreview.setFontInfo(newFontInfo);
         fontChooser.setFontInfo(newFontInfo);
 
         return;
@@ -706,8 +745,7 @@ public class Controller
      * 村ダイジェスト画面を表示する。
      */
     private void actionShowDigest(){
-        TabBrowser browser = this.topView.getTabBrowser();
-        final Village village = browser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
 
         VillageState villageState = village.getState();
@@ -729,22 +767,20 @@ public class Controller
 
         VillageDigest villageDigest = this.windowManager.getVillageDigest();
         final VillageDigest digest = villageDigest;
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskFullOpenAllPeriod();
-                EventQueue.invokeLater(new Runnable(){
-                    @Override
-                    public void run(){
-                        digest.setVillage(village);
-                        digest.setVisible(true);
-                        return;
-                    }
-                });
-                return;
-            }
-        });
+
+        Runnable task = () -> {
+            taskFullOpenAllPeriod();
+            EventQueue.invokeLater(() -> {
+                digest.setVillage(village);
+                digest.setVisible(true);
+            });
+        };
+
+        submitHeavyBusyTask(
+                task,
+                "一括読み込み開始",
+                "一括読み込み完了"
+        );
 
         return;
     }
@@ -754,32 +790,25 @@ public class Controller
      */
     // TODO taskLoadAllPeriodtと一体化したい。
     private void taskFullOpenAllPeriod(){
-        setBusy(true);
-        updateStatusBar("一括読み込み開始");
-        try{
-            TabBrowser browser = this.topView.getTabBrowser();
-            Village village = browser.getVillage();
-            if(village == null) return;
-            for(PeriodView periodView : browser.getPeriodViewList()){
-                Period period = periodView.getPeriod();
-                if(period == null) continue;
-                if(period.isFullOpen()) continue;
-                String message =
-                        period.getDay()
-                        + "日目のデータを読み込んでいます";
-                updateStatusBar(message);
-                try{
-                    Period.parsePeriod(period, true);
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                periodView.showTopics();
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = getVillage();
+        if(village == null) return;
+        for(PeriodView periodView : browser.getPeriodViewList()){
+            Period period = periodView.getPeriod();
+            if(period == null) continue;
+            String message =
+                    period.getDay()
+                    + "日目のデータを読み込んでいます";
+            updateStatusBar(message);
+            try{
+                PeriodLoader.parsePeriod(period, false);
+            }catch(IOException e){
+                showNetworkError(village, e);
+                return;
             }
-        }finally{
-            updateStatusBar("一括読み込み完了");
-            setBusy(false);
+            periodView.showTopics();
         }
+
         return;
     }
 
@@ -833,14 +862,11 @@ public class Controller
      * 一括検索処理。
      */
     private void bulkSearch(){
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskBulkSearch();
-                return;
-            }
-        });
+        submitHeavyBusyTask(
+                () -> {taskBulkSearch();},
+                null, null
+        );
+        return;
     }
 
     /**
@@ -965,8 +991,7 @@ public class Controller
     private void actionReloadPeriod(){
         updatePeriod(true);
 
-        TabBrowser tabBrowser = this.topView.getTabBrowser();
-        Village village = tabBrowser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
         if(village.getState() != VillageState.EPILOGUE) return;
 
@@ -991,14 +1016,11 @@ public class Controller
      * 全日程の一括ロード。
      */
     private void actionLoadAllPeriod(){
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                taskLoadAllPeriod();
-                return;
-            }
-        });
+        submitHeavyBusyTask(
+                () -> {taskLoadAllPeriod();},
+                "一括読み込み開始",
+                "一括読み込み完了"
+        );
 
         return;
     }
@@ -1007,31 +1029,25 @@ public class Controller
      * 全日程の一括ロード。ヘビータスク版。
      */
     private void taskLoadAllPeriod(){
-        setBusy(true);
-        updateStatusBar("一括読み込み開始");
-        try{
-            TabBrowser browser = this.topView.getTabBrowser();
-            Village village = browser.getVillage();
-            if(village == null) return;
-            for(PeriodView periodView : browser.getPeriodViewList()){
-                Period period = periodView.getPeriod();
-                if(period == null) continue;
-                String message =
-                        period.getDay()
-                        + "日目のデータを読み込んでいます";
-                updateStatusBar(message);
-                try{
-                    Period.parsePeriod(period, false);
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return;
-                }
-                periodView.showTopics();
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = getVillage();
+        if(village == null) return;
+        for(PeriodView periodView : browser.getPeriodViewList()){
+            Period period = periodView.getPeriod();
+            if(period == null) continue;
+            String message =
+                    period.getDay()
+                    + "日目のデータを読み込んでいます";
+            updateStatusBar(message);
+            try{
+                PeriodLoader.parsePeriod(period, false);
+            }catch(IOException e){
+                showNetworkError(village, e);
+                return;
             }
-        }finally{
-            updateStatusBar("一括読み込み完了");
-            setBusy(false);
+            periodView.showTopics();
         }
+
         return;
     }
 
@@ -1093,6 +1109,28 @@ public class Controller
     }
 
     /**
+     * アンカー先を含むPeriodの全会話を事前にロードする。
+     *
+     * @param village 村
+     * @param anchor アンカー
+     * @return アンカー先を含むPeriod。
+     * アンカーがG国発言番号ならnull。
+     * Periodが見つからないならnull。
+     * @throws IOException 入力エラー
+     */
+    private Period loadAnchoredPeriod(Village village, Anchor anchor)
+            throws IOException{
+        if(anchor.hasTalkNo()) return null;
+
+        Period anchorPeriod = village.getPeriod(anchor);
+        if(anchorPeriod == null) return null;
+
+        PeriodLoader.parsePeriod(anchorPeriod, false);
+
+        return anchorPeriod;
+    }
+
+    /**
      * アンカーにジャンプする。
      */
     private void actionJumpAnchor(){
@@ -1100,62 +1138,96 @@ public class Controller
         if(periodView == null) return;
         Discussion discussion = periodView.getDiscussion();
 
-        final TabBrowser browser = this.topView.getTabBrowser();
-        final Village village = browser.getVillage();
-        final Anchor anchor = discussion.getPopupedAnchor();
+        TabBrowser browser = this.topView.getTabBrowser();
+        Village village = getVillage();
+        final Anchor anchor = discussion.getActiveAnchor();
         if(anchor == null) return;
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                updateStatusBar("ジャンプ先の読み込み中…");
+        Runnable task = () -> {
+            if(anchor.hasTalkNo()){
+                // TODO もう少し賢くならない？
+                taskLoadAllPeriod();
+            }
 
-                if(anchor.hasTalkNo()){
-                    // TODO もう少し賢くならない？
-                    taskLoadAllPeriod();
+            final List<Talk> talkList;
+            try{
+                loadAnchoredPeriod(village, anchor);
+                talkList = village.getTalkListFromAnchor(anchor);
+                if(talkList == null || talkList.size() <= 0){
+                    updateStatusBar(
+                            "アンカーのジャンプ先["
+                                    + anchor.toString()
+                                    + "]が見つかりません");
+                    return;
                 }
 
-                final List<Talk> talkList;
-                try{
-                    talkList = village.getTalkListFromAnchor(anchor);
-                    if(talkList == null || talkList.size() <= 0){
-                        updateStatusBar(
-                                  "アンカーのジャンプ先["
+                Talk targetTalk = talkList.get(0);
+                Period targetPeriod = targetTalk.getPeriod();
+                int periodIndex = targetPeriod.getDay();
+                PeriodView target = browser.getPeriodView(periodIndex);
+
+                EventQueue.invokeLater(() -> {
+                    browser.showPeriodTab(periodIndex);
+                    target.setPeriod(targetPeriod);
+                    target.scrollToTalk(targetTalk);
+                });
+                updateStatusBar(
+                        "アンカー["
                                 + anchor.toString()
-                                + "]が見つかりません");
-                        return;
-                    }
+                                + "]にジャンプしました");
+            }catch(IOException e){
+                updateStatusBar(
+                        "アンカーの展開中にエラーが起きました");
+            }
 
-                    final Talk targetTalk = talkList.get(0);
-                    final Period targetPeriod = targetTalk.getPeriod();
-                    final int tabIndex = targetPeriod.getDay() + 1;
-                    final PeriodView target = browser.getPeriodView(tabIndex);
+        };
 
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            browser.setSelectedIndex(tabIndex);
-                            target.setPeriod(targetPeriod);
-                            target.scrollToTalk(targetTalk);
-                            return;
-                        }
-                    });
-                    updateStatusBar(
-                              "アンカー["
-                            + anchor.toString()
-                            + "]にジャンプしました");
-                }catch(IOException e){
-                    updateStatusBar(
-                            "アンカーの展開中にエラーが起きました");
-                }finally{
-                    setBusy(false);
-                }
+        submitHeavyBusyTask(
+                task,
+                "ジャンプ先の読み込み中…",
+                null
+        );
 
+        return;
+    }
+
+    /**
+     * ローカルなXMLファイルを読み込む。
+     */
+    private void actionOpenXml(){
+        int result = this.xmlFileChooser.showOpenDialog(getTopFrame());
+        if(result != JFileChooser.APPROVE_OPTION) return;
+        File selected = this.xmlFileChooser.getSelectedFile();
+
+        submitHeavyBusyTask(() -> {
+            Village village;
+
+            try{
+                village = VillageLoader.parseVillage(selected);
+            }catch(IOException e){
+                String warnMsg = MessageFormat.format(
+                        "XMLファイル[ {0} ]を読み込むことができません",
+                        selected.getPath()
+                );
+                warnDialog("XML I/O error", warnMsg, e);
+                return;
+            }catch(SAXException e){
+                String warnMsg = MessageFormat.format(
+                        "XMLファイル[ {0} ]の形式が不正なため読み込むことができません",
+                        selected.getPath()
+                );
+                warnDialog("XML form error", warnMsg, e);
                 return;
             }
-        });
+
+            village.setLocalArchive(true);
+            AvatarPics avatarPics = village.getAvatarPics();
+            this.appSetting.applyLocalImage(avatarPics);
+            avatarPics.preload();
+            EventQueue.invokeLater(() -> {
+                selectedVillage(village);
+            });
+        }, "XML読み込み中", "XML読み込み完了");
 
         return;
     }
@@ -1165,18 +1237,11 @@ public class Controller
      * @param land 国
      */
     private void submitReloadVillageList(final Land land){
-        Runnable heavyTask = new Runnable(){
-            @Override
-            public void run(){
-                taskReloadVillageList(land);
-                return;
-            }
-        };
-
-        submitHeavyBusyTask(heavyTask,
-                            "村一覧を読み込み中…",
-                            "村一覧の読み込み完了" );
-
+        submitHeavyBusyTask(
+            () -> {taskReloadVillageList(land);},
+            "村一覧を読み込み中…",
+            "村一覧の読み込み完了"
+        );
         return;
     }
 
@@ -1185,9 +1250,9 @@ public class Controller
      * @param land 国
      */
     private void taskReloadVillageList(Land land){
-        SortedSet<Village> villageList;
+        List<Village> villageList;
         try{
-            villageList = land.downloadVillageList();
+            villageList = VillageListLoader.loadVillageList(land);
         }catch(IOException e){
             showNetworkError(land, e);
             return;
@@ -1207,109 +1272,42 @@ public class Controller
      * @param force trueならPeriodデータを強制再読み込み。
      */
     private void updatePeriod(final boolean force){
-        final TabBrowser tabBrowser = this.topView.getTabBrowser();
-        final Village village = tabBrowser.getVillage();
+        Village village = getVillage();
         if(village == null) return;
-        setFrameTitle(village.getVillageFullName());
 
-        final PeriodView periodView = currentPeriodView();
+        String fullName = village.getVillageFullName();
+        setFrameTitle(fullName);
+
+        PeriodView periodView = currentPeriodView();
         Discussion discussion = currentDiscussion();
         if(discussion == null) return;
+
         FilterPanel filterPanel = this.windowManager.getFilterPanel();
         discussion.setTopicFilter(filterPanel);
-        final Period period = discussion.getPeriod();
+
+        Period period = discussion.getPeriod();
         if(period == null) return;
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                try{
-                    boolean wasHot = loadPeriod();
-
-                    if(wasHot && ! period.isHot() ){
-                        if( ! updatePeriodList() ) return;
-                    }
-
-                    renderBrowser();
-                }finally{
-                    setBusy(false);
-                }
+        Runnable task = () -> {
+            try{
+                PeriodLoader.parsePeriod(period, force);
+            }catch(IOException e){
+                showNetworkError(village, e);
                 return;
             }
 
-            private boolean loadPeriod(){
-                updateStatusBar("1日分のデータを読み込んでいます…");
-                boolean wasHot;
-                try{
-                    wasHot = period.isHot();
-                    try{
-                        Period.parsePeriod(period, force);
-                    }catch(IOException e){
-                        showNetworkError(village, e);
-                    }
-                }finally{
-                    updateStatusBar("1日分のデータを読み終わりました");
-                }
-                return wasHot;
-            }
+            EventQueue.invokeLater(() -> {
+                int lastPos = periodView.getVerticalPosition();
+                periodView.showTopics();
+                periodView.setVerticalPosition(lastPos);
+            });
+        };
 
-            private boolean updatePeriodList(){
-                updateStatusBar("村情報を読み直しています…");
-                try{
-                    Village.updateVillage(village);
-                }catch(IOException e){
-                    showNetworkError(village, e);
-                    return false;
-                }
-                try{
-                    SwingUtilities.invokeAndWait(new Runnable(){
-                        @Override
-                        public void run(){
-                            tabBrowser.setVillage(village);
-                            return;
-                        }
-                    });
-                }catch(InvocationTargetException | InterruptedException e){
-                    LOGGER.log(Level.SEVERE,
-                            "タブ操作で致命的な障害が発生しました", e);
-                }
-                updateStatusBar("村情報を読み直しました…");
-                return true;
-            }
-
-            private void renderBrowser(){
-                updateStatusBar("レンダリング中…");
-                try{
-                    final int lastPos = periodView.getVerticalPosition();
-                    try{
-                        SwingUtilities.invokeAndWait(new Runnable(){
-                            @Override
-                            public void run(){
-                                periodView.showTopics();
-                                return;
-                            }
-                        });
-                    }catch(   InvocationTargetException
-                            | InterruptedException
-                            e){
-                        LOGGER.log(Level.SEVERE,
-                                "ブラウザ表示で致命的な障害が発生しました",
-                                e );
-                    }
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            periodView.setVerticalPosition(lastPos);
-                        }
-                    });
-                }finally{
-                    updateStatusBar("レンダリング完了");
-                }
-                return;
-            }
-        });
+        submitHeavyBusyTask(
+                task,
+                "会話の読み込み中",
+                "会話の表示が完了"
+        );
 
         return;
     }
@@ -1326,55 +1324,6 @@ public class Controller
         discussion.setTopicFilter(filterPanel);
         discussion.filtering();
 
-        return;
-    }
-
-    /**
-     * 現在選択中のPeriodを内包するPeriodViewを返す。
-     * @return PeriodView
-     */
-    private PeriodView currentPeriodView(){
-        TabBrowser tb = this.topView.getTabBrowser();
-        PeriodView result = tb.currentPeriodView();
-        return result;
-    }
-
-    /**
-     * 現在選択中のPeriodを内包するDiscussionを返す。
-     * @return Discussion
-     */
-    private Discussion currentDiscussion(){
-        PeriodView periodView = currentPeriodView();
-        if(periodView == null) return null;
-        Discussion result = periodView.getDiscussion();
-        return result;
-    }
-
-    /**
-     * フレーム表示のトグル処理。
-     * @param window フレーム
-     */
-    private void toggleWindow(Window window){
-        if(window == null) return;
-
-        if(window instanceof Frame){
-            Frame frame = (Frame) window;
-            int winState = frame.getExtendedState();
-            boolean isIconified = (winState & Frame.ICONIFIED) != 0;
-            if(isIconified){
-                winState &= ~(Frame.ICONIFIED);
-                frame.setExtendedState(winState);
-                frame.setVisible(true);
-                return;
-            }
-        }
-
-        if(window.isVisible()){
-            window.setVisible(false);
-            window.dispose();
-        }else{
-            window.setVisible(true);
-        }
         return;
     }
 
@@ -1423,181 +1372,154 @@ public class Controller
     }
 
     /**
-     * {@inheritDoc}
-     * ツリーリストで何らかの要素（国、村）がクリックされたときの処理。
-     * @param event イベント {@inheritDoc}
+     * 国を選択する。
+     *
+     * @param land 国
      */
-    @Override
-    public void valueChanged(TreeSelectionEvent event){
-        TreePath path = event.getNewLeadSelectionPath();
-        if(path == null) return;
+    private void selectedLand(Land land){
+        String landName = land.getLandDef().getLandName();
+        setFrameTitle(landName);
 
-        Object selObj = path.getLastPathComponent();
+        this.actionManager.exposeVillage(false);
+        this.actionManager.exposePeriod(false);
 
-        if( selObj instanceof Land ){
-            Land land = (Land) selObj;
-            setFrameTitle(land.getLandDef().getLandName());
-            this.topView.showLandInfo(land);
-            this.actionManager.appearVillage(false);
-            this.actionManager.appearPeriod(false);
-        }else if( selObj instanceof Village ){
-            final Village village = (Village) selObj;
+        this.topView.showLandInfo(land);
 
-            Executor executor = Executors.newCachedThreadPool();
-            executor.execute(new Runnable(){
-                @Override
-                public void run(){
-                    setBusy(true);
-                    updateStatusBar("村情報を読み込み中…");
+        return;
+    }
 
-                    try{
-                        Village.updateVillage(village);
-                    }catch(IOException e){
-                        showNetworkError(village, e);
-                        return;
-                    }finally{
-                        updateStatusBar("村情報の読み込み完了");
-                        setBusy(false);
-                    }
+    /**
+     * 村を選択する。
+     *
+     * @param village 村
+     */
+    private void selectedVillage(Village village){
+        setFrameTitle(village.getVillageFullName());
+        if(village.isLocalArchive()){
+            this.actionManager.exposeVillageLocal(true);
+        }else{
+            this.actionManager.exposeVillage(true);
+        }
 
-                    Controller.this.actionManager.appearVillage(true);
-                    setFrameTitle(village.getVillageFullName());
-
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            Controller.this.topView.showVillageInfo(village);
-                            return;
-                        }
-                    });
-
-                    return;
+        Runnable task = () -> {
+            try{
+                if( ! village.hasSchedule() ){
+                    VillageInfoLoader.updateVillageInfo(village);
                 }
+            }catch(IOException e){
+                showNetworkError(village, e);
+                return;
+            }
+
+            EventQueue.invokeLater(() -> {
+                this.topView.showVillageInfo(village);
             });
-        }
+        };
+
+        submitHeavyBusyTask(
+                task,
+                "村情報を読み込み中…",
+                "村情報の読み込み完了"
+        );
 
         return;
     }
 
     /**
      * {@inheritDoc}
-     * Periodがタブ選択されたときもしくは発言フィルタが操作されたときの処理。
-     * @param event イベント {@inheritDoc}
+     *
+     * <p>主にメニュー選択やボタン押下などのアクションをディスパッチする。
+     *
+     * <p>ビジーな状態では何もしない。
+     *
+     * @param ev {@inheritDoc}
      */
     @Override
-    public void stateChanged(ChangeEvent event){
-        Object source = event.getSource();
-
-        if(source == this.windowManager.getFilterPanel()){
-            filterChanged();
-        }else if(source instanceof TabBrowser){
-            updateFindPanel();
-            updatePeriod(false);
-            PeriodView periodView = currentPeriodView();
-            if(periodView == null) this.actionManager.appearPeriod(false);
-            else                   this.actionManager.appearPeriod(true);
-        }
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 主にメニュー選択やボタン押下など。
-     * @param e イベント {@inheritDoc}
-     */
-    @Override
-    public void actionPerformed(ActionEvent e){
+    public void actionPerformed(ActionEvent ev){
         if(this.isBusyNow) return;
 
-        String cmd = e.getActionCommand();
-        if(cmd.equals(ActionManager.CMD_ACCOUNT)){
-            actionShowAccount();
-        }else if(cmd.equals(ActionManager.CMD_EXIT)){
+        String cmd = ev.getActionCommand();
+        if(cmd == null) return;
+
+        switch(cmd){
+        case ActionManager.CMD_OPENXML:
+            actionOpenXml();
+            break;
+        case ActionManager.CMD_EXIT:
             actionExit();
-        }else if(cmd.equals(ActionManager.CMD_COPY)){
+            break;
+        case ActionManager.CMD_COPY:
             actionCopySelected();
-        }else if(cmd.equals(ActionManager.CMD_SHOWFIND)){
+            break;
+        case ActionManager.CMD_SHOWFIND:
             actionShowFind();
-        }else if(cmd.equals(ActionManager.CMD_SEARCHNEXT)){
+            break;
+        case ActionManager.CMD_SEARCHNEXT:
             actionSearchNext();
-        }else if(cmd.equals(ActionManager.CMD_SEARCHPREV)){
+            break;
+        case ActionManager.CMD_SEARCHPREV:
             actionSearchPrev();
-        }else if(cmd.equals(ActionManager.CMD_ALLPERIOD)){
+            break;
+        case ActionManager.CMD_ALLPERIOD:
             actionLoadAllPeriod();
-        }else if(cmd.equals(ActionManager.CMD_SHOWDIGEST)){
+            break;
+        case ActionManager.CMD_SHOWDIGEST:
             actionShowDigest();
-        }else if(cmd.equals(ActionManager.CMD_WEBVILL)){
+            break;
+        case ActionManager.CMD_WEBVILL:
             actionShowWebVillage();
-        }else if(cmd.equals(ActionManager.CMD_WEBWIKI)){
+            break;
+        case ActionManager.CMD_WEBWIKI:
             actionShowWebWiki();
-        }else if(cmd.equals(ActionManager.CMD_RELOAD)){
+            break;
+        case ActionManager.CMD_RELOAD:
             actionReloadPeriod();
-        }else if(cmd.equals(ActionManager.CMD_DAYSUMMARY)){
+            break;
+        case ActionManager.CMD_DAYSUMMARY:
             actionDaySummary();
-        }else if(cmd.equals(ActionManager.CMD_DAYEXPCSV)){
+            break;
+        case ActionManager.CMD_DAYEXPCSV:
             actionDayExportCsv();
-        }else if(cmd.equals(ActionManager.CMD_WEBDAY)){
+            break;
+        case ActionManager.CMD_WEBDAY:
             actionShowWebDay();
-        }else if(cmd.equals(ActionManager.CMD_OPTION)){
+            break;
+        case ActionManager.CMD_OPTION:
             actionOption();
-        }else if(cmd.equals(ActionManager.CMD_LANDF)){
+            break;
+        case ActionManager.CMD_LANDF:
             actionChangeLaF();
-        }else if(cmd.equals(ActionManager.CMD_SHOWFILT)){
+            break;
+        case ActionManager.CMD_SHOWFILT:
             actionShowFilter();
-        }else if(cmd.equals(ActionManager.CMD_SHOWEDIT)){
-            actionTalkPreview();
-        }else if(cmd.equals(ActionManager.CMD_SHOWLOG)){
+            break;
+        case ActionManager.CMD_SHOWLOG:
             actionShowLog();
-        }else if(cmd.equals(ActionManager.CMD_HELPDOC)){
+            break;
+        case ActionManager.CMD_HELPDOC:
             actionHelp();
-        }else if(cmd.equals(ActionManager.CMD_SHOWPORTAL)){
+            break;
+        case ActionManager.CMD_SHOWPORTAL:
             actionShowPortal();
-        }else if(cmd.equals(ActionManager.CMD_ABOUT)){
+            break;
+        case ActionManager.CMD_ABOUT:
             actionAbout();
-        }else if(cmd.equals(ActionManager.CMD_VILLAGELIST)){
+            break;
+        case ActionManager.CMD_VILLAGELIST:
             actionReloadVillageList();
-        }else if(cmd.equals(ActionManager.CMD_COPYTALK)){
+            break;
+        case ActionManager.CMD_COPYTALK:
             actionCopyTalk();
-        }else if(cmd.equals(ActionManager.CMD_JUMPANCHOR)){
+            break;
+        case ActionManager.CMD_JUMPANCHOR:
             actionJumpAnchor();
-        }else if(cmd.equals(ActionManager.CMD_WEBTALK)){
+            break;
+        case ActionManager.CMD_WEBTALK:
             actionShowWebTalk();
+            break;
+        default:
+            break;
         }
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 村選択ツリーリストが畳まれるとき呼ばれる。
-     * @param event ツリーイベント {@inheritDoc}
-     */
-    @Override
-    public void treeWillCollapse(TreeExpansionEvent event){
-        return;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 村選択ツリーリストが展開されるとき呼ばれる。
-     * @param event ツリーイベント {@inheritDoc}
-     */
-    @Override
-    public void treeWillExpand(TreeExpansionEvent event){
-        if(!(event.getSource() instanceof JTree)){
-            return;
-        }
-
-        TreePath path = event.getPath();
-        Object lastObj = path.getLastPathComponent();
-        if(!(lastObj instanceof Land)){
-            return;
-        }
-        final Land land = (Land) lastObj;
-        if(land.getVillageCount() > 0){
-            return;
-        }
-
-        submitReloadVillageList(land);
 
         return;
     }
@@ -1618,112 +1540,43 @@ public class Controller
         final Anchor anchor = event.getAnchor();
         final Discussion discussion = periodView.getDiscussion();
 
-        Executor executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable(){
-            @Override
-            public void run(){
-                setBusy(true);
-                updateStatusBar("アンカーの展開中…");
-
-                if(anchor.hasTalkNo()){
-                    // TODO もう少し賢くならない？
-                    taskLoadAllPeriod();
-                }
-
-                final List<Talk> talkList;
-                try{
-                    talkList = village.getTalkListFromAnchor(anchor);
-                    if(talkList == null || talkList.size() <= 0){
-                        updateStatusBar(
-                                  "アンカーの展開先["
-                                + anchor.toString()
-                                + "]が見つかりません");
-                        return;
-                    }
-                    EventQueue.invokeLater(new Runnable(){
-                        @Override
-                        public void run(){
-                            talkDraw.showAnchorTalks(anchor, talkList);
-                            discussion.layoutRows();
-                            return;
-                        }
-                    });
-                    updateStatusBar(
-                              "アンカー["
-                            + anchor.toString()
-                            + "]の展開完了");
-                }catch(IOException e){
-                    updateStatusBar(
-                            "アンカーの展開中にエラーが起きました");
-                }finally{
-                    setBusy(false);
-                }
-
-                return;
+        Runnable task = () -> {
+            if(anchor.hasTalkNo()){
+                // TODO もう少し賢くならない？
+                taskLoadAllPeriod();
             }
-        });
 
-        return;
-    }
-
-    /**
-     * ヘビーなタスク実行をアピール。
-     * プログレスバーとカーソルの設定を行う。
-     * @param isBusy trueならプログレスバーのアニメ開始&WAITカーソル。
-     *                falseなら停止&通常カーソル。
-     */
-    private void setBusy(final boolean isBusy){
-        this.isBusyNow = isBusy;
-
-        Runnable microJob = new Runnable(){
-            @Override
-            public void run(){
-                Cursor cursor;
-                if(isBusy){
-                    cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-                }else{
-                    cursor = Cursor.getDefaultCursor();
+            final List<Talk> talkList;
+            try{
+                loadAnchoredPeriod(village, anchor);
+                talkList = village.getTalkListFromAnchor(anchor);
+                if(talkList == null || talkList.size() <= 0){
+                    updateStatusBar(
+                            "アンカーの展開先["
+                                    + anchor.toString()
+                                    + "]が見つかりません");
+                    return;
                 }
-
-                Component glass = getTopFrame().getGlassPane();
-                glass.setCursor(cursor);
-                glass.setVisible(isBusy);
-                Controller.this.topView.setBusy(isBusy);
-
-                return;
+                EventQueue.invokeLater(() -> {
+                    talkDraw.showAnchorTalks(anchor, talkList);
+                    discussion.layoutRows();
+                });
+                updateStatusBar(
+                        "アンカー["
+                                + anchor.toString()
+                                + "]の展開完了");
+            }catch(IOException e){
+                updateStatusBar(
+                        "アンカーの展開中にエラーが起きました");
             }
         };
 
-        if(SwingUtilities.isEventDispatchThread()){
-            microJob.run();
-        }else{
-            try{
-                SwingUtilities.invokeAndWait(microJob);
-            }catch(InvocationTargetException | InterruptedException e){
-                LOGGER.log(Level.SEVERE, "ビジー処理で失敗", e);
-            }
-        }
+        submitHeavyBusyTask(
+                task,
+                "アンカーの展開中…",
+                null
+        );
 
-        return;
-    }
-
-    /**
-     * ステータスバーを更新する。
-     * @param message メッセージ
-     */
-    private void updateStatusBar(String message){
-        this.topView.updateSysMessage(message);
-    }
-
-    /**
-     * トップフレームのタイトルを設定する。
-     * タイトルは指定された国or村名 + " - Jindolf"
-     * @param name 国or村名
-     */
-    private void setFrameTitle(String name){
-        String title = VerInfo.getFrameTitle(name);
-        TopFrame topFrame = this.windowManager.getTopFrame();
-        topFrame.setTitle(title);
         return;
     }
 
@@ -1739,12 +1592,6 @@ public class Controller
             configStore.saveHistoryConfig(findConf);
         }
 
-        TalkPreview talkPreview = this.windowManager.getTalkPreview();
-        JsObject draftConf = talkPreview.getJson();
-        if( ! talkPreview.hasConfChanged(draftConf) ){
-            configStore.saveDraftConfig(draftConf);
-        }
-
         this.appSetting.saveConfig();
 
         LOGGER.info("VMごとアプリケーションを終了します。");
@@ -1752,6 +1599,171 @@ public class Controller
 
         assert false;
         return;
+    }
+
+
+    /**
+     * 発言フィルタ操作を監視する。
+     */
+    private class FilterWatcher implements ChangeListener{
+
+        /**
+         * constructor.
+         */
+        FilterWatcher(){
+            super();
+            return;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>発言フィルタが操作されたときの処理。
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void stateChanged(ChangeEvent event){
+            Object source = event.getSource();
+
+            if(source == Controller.this.windowManager.getFilterPanel()){
+                filterChanged();
+            }
+
+            return;
+        }
+
+    }
+
+    /**
+     * Period一覧タブのタブ操作を監視する。
+     */
+    private class TabPeriodWatcher implements ChangeListener{
+
+        /**
+         * constructor.
+         */
+        TabPeriodWatcher(){
+            super();
+            return;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>Periodがタブ選択されたときの処理。
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void stateChanged(ChangeEvent event){
+            Object source = event.getSource();
+
+            if(source instanceof TabBrowser){
+                updateFindPanel();
+                updatePeriod(false);
+                PeriodView periodView = currentPeriodView();
+                boolean hasCurrentPeriod;
+                if(periodView == null) hasCurrentPeriod = false;
+                else                   hasCurrentPeriod = true;
+                Controller.this.actionManager.exposePeriod(hasCurrentPeriod);
+                if(hasCurrentPeriod){
+                    Village village = getVillage();
+                    if(village.isLocalArchive()){
+                        Controller.this.actionManager.exposeVillageLocal(hasCurrentPeriod);
+                    }else{
+                        Controller.this.actionManager.exposeVillage(hasCurrentPeriod);
+                    }
+                }
+            }
+
+            return;
+        }
+
+    }
+
+    /**
+     * 国村選択リストの選択展開操作を監視する。
+     */
+    private class VillageTreeWatcher
+            implements TreeSelectionListener, TreeWillExpandListener{
+
+        /**
+         * Constructor.
+         */
+        VillageTreeWatcher(){
+            super();
+            return;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>ツリーリストで何らかの要素（国、村）がクリックされたときの処理。
+         *
+         * @param event {@inheritDoc}
+         */
+        @Override
+        public void valueChanged(TreeSelectionEvent event){
+            TreePath path = event.getNewLeadSelectionPath();
+            if(path == null) return;
+
+            Object selObj = path.getLastPathComponent();
+            if(selObj instanceof Land){
+                Land land = (Land) selObj;
+                selectedLand(land);
+            }else if(selObj instanceof Village){
+                Village village = (Village) selObj;
+                village.setLocalArchive(false);
+                selectedVillage(village);
+            }
+
+            return;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>村選択ツリーリストが畳まれるとき呼ばれる。
+         *
+         * @param event ツリーイベント {@inheritDoc}
+         */
+        @Override
+        public void treeWillCollapse(TreeExpansionEvent event){
+            return;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * <p>村選択ツリーリストが展開されるとき呼ばれる。
+         *
+         * @param event ツリーイベント {@inheritDoc}
+         */
+        @Override
+        public void treeWillExpand(TreeExpansionEvent event){
+            if(!(event.getSource() instanceof JTree)){
+                return;
+            }
+
+            TreePath path = event.getPath();
+            Object lastObj = path.getLastPathComponent();
+            if(!(lastObj instanceof Land)){
+                return;
+            }
+            Land land = (Land) lastObj;
+            if(land.getVillageCount() > 0){
+                return;
+            }
+
+            submitReloadVillageList(land);
+
+            return;
+        }
+
     }
 
 }

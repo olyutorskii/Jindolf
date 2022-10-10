@@ -6,7 +6,7 @@
 
 <!--
     Checkstyle modules
-    for Checkstyle 8.20 or later
+    for Checkstyle 8.31 or later
 
     [ https://checkstyle.org/ ]
 
@@ -20,18 +20,21 @@
     <property name="localeCountry" value="JP" />
     <property name="localeLanguage" value="en" />
     <!--property name="localeLanguage" value="ja" /-->
-    <property name="fileExtensions" value="java, xml, properties" />
+    <property name="fileExtensions" value="java, properties, xml, xsd, md, txt" />
     <property name="severity" value="error" />
 
 
     <!-- Filters -->
+
     <module name="SeverityMatchFilter" />
     <!--module name="SuppressionFilter" /-->
+    <!--module name="SuppressionSingleFilter" /-->
     <module name="SuppressWarningsFilter" />
     <module name="SuppressWithPlainTextCommentFilter" />
 
 
     <!-- Headers -->
+
     <module name="Header">
         <property name="header" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;" />
         <property name="fileExtensions" value="xml" />
@@ -44,18 +47,22 @@
 
 
     <!-- Javadoc Comments -->
+
     <module name="JavadocPackage" />
 
 
     <!-- Miscellaneous -->
+
     <module name="NewlineAtEndOfFile">
-        <property name="fileExtensions" value="java" />
+        <property name="fileExtensions" value="java, properties, xml, xsd, md, txt" />
     </module>
+    <module name="OrderedProperties" />
     <module name="Translation" />
     <module name="UniqueProperties" />
 
 
     <!-- Regexp -->
+
     <module name="RegexpMultiline">
         <property name="format" value="[\u000b\f\u001a]" />
     </module>
@@ -70,10 +77,16 @@
 
 
     <!-- Size Violations -->
+
     <module name="FileLength" />
+    <module name="LineLength">
+        <property name="fileExtensions" value="java" />
+        <property name="max" value="78" />
+    </module>
 
 
     <!-- Whitespace -->
+
     <module name="FileTabCharacter" />
 
 
@@ -138,7 +151,9 @@
     <!-- Coding -->
 
         <module name="ArrayTrailingComma" />
+        <module name="AvoidDoubleBraceInitialization" />
         <module name="AvoidInlineConditionals" />
+        <module name="AvoidNoArgumentSuperConstructorCall" />
         <module name="CovariantEquals" />
         <module name="DeclarationOrder" />
         <module name="DefaultComesLast" />
@@ -172,7 +187,9 @@
         <module name="NestedForDepth" />
         <module name="NestedIfDepth" />
         <module name="NestedTryDepth" />
+        <module name="NoArrayTrailingComma" />
         <module name="NoClone" />
+        <module name="NoEnumTrailingComma" />
         <module name="NoFinalizer" />
         <module name="OneStatementPerLine" />
         <module name="OverloadMethodsDeclarationOrder" />
@@ -191,6 +208,10 @@
         <module name="SuperClone" />
         <module name="SuperFinalize" />
         <module name="UnnecessaryParentheses" />
+        <module name="UnnecessarySemicolonAfterOuterTypeDeclaration" />
+        <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
+        <module name="UnnecessarySemicolonInEnumeration" />
+        <module name="UnnecessarySemicolonInTryWithResources" />
         <module name="VariableDeclarationUsageDistance" />
 
 
@@ -209,6 +230,9 @@
     <!-- Javadoc Comments -->
 
         <module name="AtclauseOrder" />
+        <module name="InvalidJavadocPosition" />
+        <module name="JavadocBlockTagLocation" />
+        <module name="JavadocContentLocationCheck" />
         <module name="JavadocMethod" />
         <module name="JavadocParagraph" />
         <module name="JavadocStyle">
@@ -223,6 +247,9 @@
         <module name="JavadocVariable">
             <property name="scope" value="protected" />
         </module>
+        <module name="MissingJavadocMethod" />
+        <module name="MissingJavadocPackage" />
+        <module name="MissingJavadocType" />
         <module name="NonEmptyAtclauseDescription" />
         <module name="SingleLineJavadoc" />
         <module name="SummaryJavadocCheck" />
@@ -313,9 +340,6 @@
 
         <module name="AnonInnerLength" />
         <module name="ExecutableStatementCount" />
-        <module name="LineLength">
-            <property name="max" value="78" />
-        </module>
         <module name="MethodCount" />
         <module name="MethodLength" />
         <module name="OuterTypeNumber" />

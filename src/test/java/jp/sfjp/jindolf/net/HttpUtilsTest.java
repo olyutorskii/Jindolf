@@ -73,6 +73,11 @@ public class HttpUtilsTest {
         result = HttpUtils.escapeHttpComment(comment);
         assertEquals(expResult, result);
 
+        comment = "a🐑b";
+        expResult = "(a?b)";
+        result = HttpUtils.escapeHttpComment(comment);
+        assertEquals(expResult, result);
+
         return;
     }
 
@@ -113,6 +118,7 @@ public class HttpUtilsTest {
 
     /**
      * Test of formatHttpStat method, of class HttpUtils.
+     * @throws java.lang.Exception
      */
     @Test
     public void testFormatHttpStat() throws Exception{
@@ -150,6 +156,7 @@ public class HttpUtilsTest {
 
     /**
      * Test of getHTMLCharset method, of class HttpUtils.
+     * @throws java.lang.Exception
      */
     @Test
     public void testGetHTMLCharset_URLConnection() throws Exception{

@@ -35,7 +35,7 @@ import javax.swing.JOptionPane;
 public final class JreChecker {
 
     /** Jindolfが実行時に必要とするJREの版。 */
-    public static final String REQUIRED_JRE_VER = "1.7";
+    public static final String REQUIRED_JRE_VER = "1.8";
 
     /** 互換性エラーの終了コード。 */
     public static final int EXIT_CODE_INCOMPAT_JRE = 1;
@@ -63,6 +63,7 @@ public final class JreChecker {
 
     /**
      * クラス名に相当するクラスがロードできるか判定する。
+     *
      * @param klassName FQDNなクラス名
      * @return ロードできたらtrue
      */
@@ -81,96 +82,116 @@ public final class JreChecker {
 
     /**
      * JRE 1.1 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.io.Serializable
      */
-    public static boolean has11Runtime(){
+    public static boolean has1_1Runtime(){
         boolean result = hasClass("java.io.Serializable");
         return result;
     }
 
     /**
      * JRE 1.2 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.util.Iterator
      */
-    public static boolean has12Runtime(){
+    public static boolean has1_2Runtime(){
         boolean result;
-        if(has11Runtime()) result = hasClass("java.util.Iterator");
+        if(has1_1Runtime()) result = hasClass("java.util.Iterator");
         else               result = false;
         return result;
     }
 
     /**
      * JRE 1.3 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.util.TimerTask
      */
-    public static boolean has13Runtime(){
+    public static boolean has1_3Runtime(){
         boolean result;
-        if(has12Runtime()) result = hasClass("java.util.TimerTask");
+        if(has1_2Runtime()) result = hasClass("java.util.TimerTask");
         else               result = false;
         return result;
     }
 
     /**
      * JRE 1.4 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.lang.CharSequence
      */
-    public static boolean has14Runtime(){
+    public static boolean has1_4Runtime(){
         boolean result;
-        if(has13Runtime()) result = hasClass("java.lang.CharSequence");
+        if(has1_3Runtime()) result = hasClass("java.lang.CharSequence");
         else               result = false;
         return result;
     }
 
     /**
      * JRE 1.5 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.lang.Appendable
      */
-    public static boolean has15Runtime(){
+    public static boolean has1_5Runtime(){
         boolean result;
-        if(has14Runtime()) result = hasClass("java.lang.Appendable");
+        if(has1_4Runtime()) result = hasClass("java.lang.Appendable");
         else               result = false;
         return result;
     }
 
     /**
      * JRE 1.6 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.util.Deque
      */
-    public static boolean has16Runtime(){
+    public static boolean has1_6Runtime(){
         boolean result;
-        if(has15Runtime()) result = hasClass("java.util.Deque");
+        if(has1_5Runtime()) result = hasClass("java.util.Deque");
         else               result = false;
         return result;
     }
 
     /**
      * JRE 1.7 相当のランタイムライブラリが提供されているか判定する。
+     *
      * @return 提供されているならtrue
      * @see java.lang.AutoCloseable
      */
-    public static boolean has17Runtime(){
+    public static boolean has1_7Runtime(){
         boolean result;
-        if(has16Runtime()) result = hasClass("java.lang.AutoCloseable");
+        if(has1_6Runtime()) result = hasClass("java.lang.AutoCloseable");
         else               result = false;
         return result;
     }
 
-    // TODO JRE1.8 対応
+    /**
+     * JRE 1.8 相当のランタイムライブラリが提供されているか判定する。
+     *
+     * @return 提供されているならtrue
+     * @see java.lang.AutoCloseable
+     */
+    public static boolean has1_8Runtime(){
+        boolean result;
+        if(has1_7Runtime()) result = hasClass("java.util.stream.Stream");
+        else               result = false;
+        return result;
+    }
 
     /**
      * JREもしくは<code>java.lang</code>パッケージの
      * 仕様バージョンを返す。
+     *
      * <ol>
      * <li>システムプロパティ<code>java.specification.version</code>
      * <li>システムプロパティ<code>java.version</code>
      * <li><code>java.lang</code>パッケージの仕様バージョン
      * </ol>の順でバージョンが求められる。
+     *
      * @return 仕様バージョン文字列。不明ならnull
      */
     public static String getLangPkgSpec(){
@@ -199,7 +220,9 @@ public final class JreChecker {
 
     /**
      * JREのインストール情報を返す。
-     * システムプロパティ<code>java.home</code>の取得が試みられる。
+     *
+     * <p>システムプロパティ<code>java.home</code>の取得が試みられる。
+     *
      * @return インストール情報。不明ならnull
      */
     public static String getJreHome(){
@@ -216,6 +239,7 @@ public final class JreChecker {
 
     /**
      * 非互換エラーメッセージを組み立てる。
+     *
      * @return エラーメッセージ
      */
     public static String buildErrMessage(){
@@ -277,19 +301,19 @@ public final class JreChecker {
     }
 
     /**
-     * JRE環境をチェックする。(JRE1.7)
+     * JRE環境をチェックする。(JRE1.8)
      *
      * <p>もしJREの非互換性が検出されたらエラーメッセージを報告する。
      *
      * @return 互換性があれば0、無ければ非0
      */
     public static int checkJre(){
-        if(has17Runtime()) return 0;
+        if(has1_8Runtime()) return 0;
 
         String message = buildErrMessage();
         STDERR.println(message);
         STDERR.flush();
-        if(has12Runtime()){
+        if(has1_2Runtime()){
             showErrorDialog(message);
         }
 
