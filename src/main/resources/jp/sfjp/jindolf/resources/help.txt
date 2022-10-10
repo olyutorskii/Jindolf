@@ -1,0 +1,58 @@
+#
+# 起動オプションの説明（tty端末出力用）定義ファイル
+#   ※ UTF-8 で書いてね！ #で始まる行はコメントだよ。
+#
+# Copyright(c) 2008 olyutorskii
+#
+Jindolfは、人狼BBSを閲覧するために開発された、GUIを利用するプログラムです。
+
+起動オプション一覧:
+
+-antialias [on|off]
+    発言表示用フォントのアンチエイリアス描画指定を行う。
+
+-boldMetal
+    MetalLookAndFeelに対し、BOLDフォントの利用を許可する。
+    デフォルトではBOLDフォントの利用を禁止。
+
+-confdir [ディレクトリ名]
+    デフォルトと異なる設定格納ディレクトリを指定する。
+
+-noconfdir
+    設定格納ディレクトリを使わない。
+
+-consolelog
+    コンソールにログを出力する。
+
+-fractional [on|off]
+    発言表示用フォントのサブピクセル描画指定を行う。
+
+-initfont FONTIDENTIFIER
+    発言表示用フォントを指定する。
+    具体的な書式はJRE1.6のjava.awt.Font#decode()を参照せよ。
+    「SansSerif-BOLD-16」
+        →SansSerifファミリBoldフェース16ポイントのフォントを指定する。
+
+-geometry WIDTHxHEIGHT[+X+Y]
+    アプリケーションウィンドウの初期表示サイズと初期表示位置を指定する。
+    デフォルトでの表示サイズは 800 pixel × 600 pixel。
+    デフォルトでの表示位置はウィンドウシステムにおまかせ。
+    「1000x700」
+        →幅1000pixel高さ700pixel。
+    「1000x700+100+150」
+        →幅1000pixel高さ700pixel、表示位置は左上からX軸100pixel、Y軸150pixel。
+
+-h
+-help
+--help
+-?
+    このヘルプ表示を出力して即時終了する。
+
+-version
+    バージョン情報を出力して即時終了する。
+
+-vminfo
+    VMの情報を出力する。
+
+バグ報告は https://osdn.jp/projects/jindolf/ まで。
+# --- EOF ---
