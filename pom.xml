@@ -16,7 +16,7 @@
     <groupId>jp.sourceforge.jindolf</groupId>
     <artifactId>jindolf</artifactId>
 
-    <version>4.101.6</version>
+    <version>4.101.7-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>Jindolf</name>
