@@ -7,24 +7,28 @@
 
 package jp.sfjp.jindolf.log;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * なにもしない一時的なロギングハンドラ。
- * なにがロギングされたのかあとから一括して取得することができる。
+ *
+ * <p>なにがロギングされたのかあとから一括して取得することができる。
  *
  * <p>知らないうちにメモリを圧迫しないよう注意。
  */
 public class MomentaryHandler extends Handler{
 
     private final List<LogRecord> logList =
-            Collections.synchronizedList(new LinkedList<LogRecord>());
+            Collections.synchronizedList(new LinkedList<>());
     private final List<LogRecord> unmodList =
             Collections.unmodifiableList(this.logList);
 
@@ -40,36 +44,39 @@ public class MomentaryHandler extends Handler{
 
     /**
      * ロガーに含まれる{@link MomentaryHandler}型ハンドラのリストを返す。
+     *
      * @param logger ロガー
      * @return {@link MomentaryHandler}型ハンドラのリスト
      */
     public static List<MomentaryHandler>
             getMomentaryHandlers(Logger logger){
-        List<MomentaryHandler> result = new LinkedList<>();
+        List<MomentaryHandler> result;
 
-        for(Handler handler : logger.getHandlers()){
-            if( ! (handler instanceof MomentaryHandler) ) continue;
-            MomentaryHandler momentaryHandler = (MomentaryHandler) handler;
-            result.add(momentaryHandler);
-        }
+        result = Arrays.stream(logger.getHandlers())
+                .filter(handler -> handler instanceof MomentaryHandler)
+                .map(handler -> (MomentaryHandler) handler)
+                .collect(Collectors.toList());
 
         return result;
     }
 
     /**
      * ロガーに含まれる{@link MomentaryHandler}型ハンドラを全て削除する。
+     *
      * @param logger ロガー
      */
     public static void removeMomentaryHandlers(Logger logger){
-        for(MomentaryHandler handler : getMomentaryHandlers(logger)){
+        getMomentaryHandlers(logger).forEach(handler -> {
             logger.removeHandler(handler);
-        }
+        });
         return;
     }
 
     /**
      * 蓄積されたログレコードのリストを返す。
-     * 古いログが先頭に来る。
+     *
+     * <p>古いログが先頭に来る。
+     *
      * @return 刻一刻と成長するログレコードのリスト。変更不可。
      */
     public List<LogRecord> getRecordList(){
@@ -78,7 +85,9 @@ public class MomentaryHandler extends Handler{
 
     /**
      * {@inheritDoc}
-     * ログを内部に溜め込む。
+     *
+     * <p>ログを内部に溜め込む。
+     *
      * @param record {@inheritDoc}
      */
     @Override
@@ -89,6 +98,7 @@ public class MomentaryHandler extends Handler{
             return;
         }
 
+        // recording caller method
         record.getSourceMethodName();
 
         this.logList.add(record);
@@ -98,7 +108,8 @@ public class MomentaryHandler extends Handler{
 
     /**
      * {@inheritDoc}
-     * （何もしない）。
+     *
+     * <p>（何もしない）。
      */
     @Override
     public void flush(){
@@ -107,7 +118,8 @@ public class MomentaryHandler extends Handler{
 
     /**
      * {@inheritDoc}
-     * 以降のログ出力を無視する。
+     *
+     * <p>以降のログ出力を無視する。
      */
     @Override
     public void close(){
@@ -119,19 +131,21 @@ public class MomentaryHandler extends Handler{
     /**
      * 自分自身をクローズし、
      * 蓄積したログを他のハンドラへまとめて出力する。
-     * 最後に蓄積されたログを解放する。
+     *
+     * <p>最後に蓄積されたログを解放する。
+     *
      * @param handler 他のハンドラ
      * @throws NullPointerException 引数がnull
      */
     public void transfer(Handler handler) throws NullPointerException {
-        if(handler == null) throw new NullPointerException();
+        Objects.nonNull(handler);
         if(handler == this) return;
 
         close();
 
-        for(LogRecord record : this.logList){
+        this.logList.forEach(record -> {
             handler.publish(record);
-        }
+        });
 
         handler.flush();
         this.logList.clear();
