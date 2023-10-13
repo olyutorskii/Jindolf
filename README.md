@@ -54,7 +54,7 @@ Jindolfに関する問い合わせををninjin氏へ投げかけないように�
 
 
 [BBS]: http://ninjinix.com/
-[OSDN]: https://ja.osdn.net/projects/jindolf/scm/git/JinCore/
+[OSDN]: https://ja.osdn.net/projects/jindolf/scm/git/Jindolf/
 [MIT]: https://opensource.org/licenses/MIT
 
 
