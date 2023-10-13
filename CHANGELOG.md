@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [4.101.8] - 2023-10-13
+
 ### Changed
 - ホスティングをOSDNからGitHubへ移行。
+- JUnit4からJUnit5へ移行
 
 ### Fixed
 - Maven plugins のJDK20対応
+
+### Build
+- JinParser v2.102.8 に対応
+- Jovsonz v1.101.108 に対応。
 
 
 ## [4.101.6] - 2022-10-10
@@ -47,7 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## → CHANGELOG.old (2008-2019) へ続く…
 
 
-[Unreleased]: https://github.com/olyutorskii/Jindolf/compare/v4.101.6...HEAD
+[Unreleased]: https://github.com/olyutorskii/Jindolf/compare/v4.101.8...HEAD
+[4.101.8]: https://github.com/olyutorskii/Jindolf/compare/v4.101.6...v4.101.8
 [4.101.6]: https://github.com/olyutorskii/Jindolf/compare/release-4.101.4...v4.101.6
 [4.101.4]: https://github.com/olyutorskii/Jindolf/compare/v4.101.2...release-4.101.4
 [4.101.2]: https://github.com/olyutorskii/Jindolf/releases/tag/v4.101.2
