@@ -26,12 +26,12 @@
 -->専用クライアントを製作するために発足したオープンソースプロジェクトです。<!--
  --></description>
 
-    <url>http://jindolf.osdn.jp/</url>
+    <url>https://github.com/olyutorskii/Jindolf</url>
     <inceptionYear>2008</inceptionYear>
 
     <organization>
         <name>Jindolf Partners</name>
-        <url>https://ja.osdn.net/projects/jindolf/devel/</url>
+        <url>https://github.com/olyutorskii/Jindolf</url>
     </organization>
 
     <licenses>
@@ -44,10 +44,10 @@
 
     <developers>
         <developer>
-            <id>olyutorskii</id>
-            <url>https://sites.google.com/site/olyutorskiipit/</url>
+            <id>Olyutorskii</id>
+            <url>https://github.com/olyutorskii</url>
             <organization>Jindolf Partners</organization>
-            <organizationUrl>https://ja.osdn.net/projects/jindolf/devel/</organizationUrl>
+            <organizationUrl>https://github.com/olyutorskii/Jindolf</organizationUrl>
             <roles>
                 <role>Project Founder</role>
                 <role>Java Developer</role>
@@ -63,18 +63,25 @@
     <modules/>
 
     <scm>
-        <connection>scm:git:git://git.osdn.net/gitroot/jindolf/Jindolf.git</connection>
-        <developerConnection>scm:git:https://scm.osdn.net/gitroot/jindolf/Jindolf.git</developerConnection>
-        <url>https://osdn.net/projects/jindolf/scm/git/Jindolf/</url>
+        <connection>scm:git:git://github.com/olyutorskii/Jindolf.git</connection>
+        <developerConnection>scm:git:git@github.com:olyutorskii/Jindolf.git</developerConnection>
+        <url>https://github.com/olyutorskii/Jindolf</url>
     </scm>
 
     <issueManagement>
-        <system>OSDN.net</system>
-        <url>https://ja.osdn.net/projects/jindolf/ticket/</url>
+        <system>GitHub</system>
+        <url>https://github.com/olyutorskii/Jindolf/issues</url>
     </issueManagement>
 
     <ciManagement/>
-    <distributionManagement/>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/olyutorskii/Jindolf</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
