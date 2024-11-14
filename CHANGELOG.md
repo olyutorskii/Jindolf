@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Update Jacoco & SpotBugs for JDK23
 - Update Maven plugins
+- Update PMD & Checkstyle
 
 ### Build
 - Bump Jovsonz to 1.101.112
