@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Update Jacoco & SpotBugs for JDK23
+- Update Maven plugins
+
+### Build
+- Bump Jovsonz to 1.101.112
+- Bump QuetexJ to 1.0.10
 
 
 ## [4.101.8] - 2023-10-13
