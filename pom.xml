@@ -63,7 +63,7 @@
     <modules/>
 
     <scm>
-        <connection>scm:git:git://github.com/olyutorskii/Jindolf.git</connection>
+        <connection>scm:git:https://github.com/olyutorskii/Jindolf.git</connection>
         <developerConnection>scm:git:git@github.com:olyutorskii/Jindolf.git</developerConnection>
         <url>https://github.com/olyutorskii/Jindolf</url>
     </scm>
@@ -196,7 +196,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.10</version>
+                    <version>0.8.12</version>
                 </plugin>
 
                 <plugin>
@@ -293,12 +293,12 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.7.3.6</version>
+                    <version>4.8.6.6</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.8.0</version>
+                            <version>4.8.6</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -350,7 +350,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[3.3.9,)</version>
+                                    <version>[3.6.3,)</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
                                     <version>[1.8,)</version>
@@ -644,15 +644,8 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>checkstyle</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
 
             <plugin>
@@ -673,16 +666,35 @@
                 </reportSets>
             </plugin>
 
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-            </plugin>
-
         </plugins>
 
     </reporting>
 
     <profiles>
+
+        <!-- JDK11 or later -->
+        <profile>
+            <id>jdk11later</id>
+            <activation>
+                <jdk>[11</jdk>
+            </activation>
+            <reporting>
+                <plugins>
+                    <!-- Checkstyle 10.0+ require JDK11+ -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <report>checkstyle</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
 
         <profile>
             <id>release-profile</id>
@@ -712,8 +724,9 @@
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
+                                <phase>package</phase>
                                 <goals>
-                                    <goal>jar-no-fork</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -734,6 +747,7 @@
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
