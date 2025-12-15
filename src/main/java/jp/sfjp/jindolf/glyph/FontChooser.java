@@ -39,7 +39,7 @@ import jp.sfjp.jindolf.util.Monodizer;
  * 発言表示フォント選択パネル。
  */
 @SuppressWarnings("serial")
-public class FontChooser extends JPanel
+public final class FontChooser extends JPanel
         implements ListSelectionListener,
                    ActionListener,
                    ItemListener {

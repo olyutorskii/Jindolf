@@ -18,7 +18,7 @@ import javax.swing.text.JTextComponent;
  * 各種クリップボード操作(カット、コピー、ペースト、etc.)を備える。
  */
 @SuppressWarnings("serial")
-public class TextPopup extends JPopupMenu {
+public final class TextPopup extends JPopupMenu {
 
     private final Action cutAction    = ClipboardAction.cutAction();
     private final Action copyAction   = ClipboardAction.copyAction();

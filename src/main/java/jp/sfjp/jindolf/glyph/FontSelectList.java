@@ -19,7 +19,7 @@ import javax.swing.event.ListDataListener;
  * <p>フォント一覧の遅延読み込みに対応。
  */
 @SuppressWarnings("serial")
-public class FontSelectList extends JList<String>
+public final class FontSelectList extends JList<String>
         implements ListDataListener {
 
     private String selectedFamily = null;

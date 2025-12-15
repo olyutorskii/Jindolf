@@ -30,7 +30,7 @@ import jp.sfjp.jindolf.util.GUIUtils;
  * 複数行の文字列を矩形内に描画する。
  * 制御文字は'\n'のみサポート。
  */
-public class GlyphDraw extends AbstractTextRow implements SwingConstants{
+public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     private static final Color COLOR_SELECTION = new Color(0xb8cfe5);
     private static final Color COLOR_SEARCHHIT = new Color(0xb2b300);

@@ -92,7 +92,7 @@ import org.xml.sax.SAXException;
 /**
  * いわゆるMVCでいうとこのコントローラ。
  */
-public class Controller
+public final class Controller
         implements ActionListener,
                    AnchorHitListener {
     private static final Logger LOGGER = Logger.getAnonymousLogger();

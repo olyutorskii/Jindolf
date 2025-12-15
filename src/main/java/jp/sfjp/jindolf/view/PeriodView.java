@@ -54,7 +54,7 @@ import jp.sourceforge.jindolf.corelib.TalkType;
  * を担当する。
  */
 @SuppressWarnings("serial")
-public class PeriodView extends JPanel implements ItemListener{
+public final class PeriodView extends JPanel implements ItemListener{
 
     private static final Color COLOR_SELECT = new Color(0xffff80);
     private static final Color COLOR_NORMALBG = Color.BLACK;

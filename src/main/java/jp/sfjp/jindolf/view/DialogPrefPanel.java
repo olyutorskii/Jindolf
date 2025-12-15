@@ -27,7 +27,7 @@ import jp.sfjp.jindolf.data.DialogPref;
  * 発言表示の各種設定パネル。
  */
 @SuppressWarnings("serial")
-public class DialogPrefPanel
+public final class DialogPrefPanel
         extends JPanel
         implements ActionListener,
                    ItemListener {

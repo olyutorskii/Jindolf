@@ -40,7 +40,7 @@ import jp.sfjp.jindolf.util.Monodizer;
  * @see <a href="http://www.ietf.org/rfc/rfc1928.txt">RFC1928</a>
  */
 @SuppressWarnings("serial")
-public class ProxyChooser extends JPanel implements ItemListener{
+public final class ProxyChooser extends JPanel implements ItemListener{
 
     private final JRadioButton isDirect =
             new JRadioButton("直接接続");

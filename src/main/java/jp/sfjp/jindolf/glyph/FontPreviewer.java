@@ -20,7 +20,7 @@ import javax.swing.JComponent;
  * <p>発言表示部と同じビジュアルを再現する必要のため、GlyphDrawで描画する。
  */
 @SuppressWarnings("serial")
-public class FontPreviewer extends JComponent {
+public final class FontPreviewer extends JComponent {
 
     private static final int MARGIN = 5;
 

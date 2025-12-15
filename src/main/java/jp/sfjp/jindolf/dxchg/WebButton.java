@@ -28,7 +28,7 @@ import jp.sfjp.jindolf.util.Monodizer;
  * Webブラウザ起動ボタン。
  */
 @SuppressWarnings("serial")
-public class WebButton extends JPanel implements ActionListener{
+public final class WebButton extends JPanel implements ActionListener{
 
     private static final String ACTION_SHOWWEB = "SHOWWEB";
 

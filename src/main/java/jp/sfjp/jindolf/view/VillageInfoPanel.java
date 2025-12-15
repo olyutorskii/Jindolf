@@ -18,7 +18,7 @@ import jp.sfjp.jindolf.data.Village;
  * 村情報表示パネル。
  */
 @SuppressWarnings("serial")
-public class VillageInfoPanel extends JPanel{
+public final class VillageInfoPanel extends JPanel{
 
     private Village village;
 

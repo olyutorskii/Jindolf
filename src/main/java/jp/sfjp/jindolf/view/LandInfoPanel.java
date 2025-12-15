@@ -25,7 +25,7 @@ import jp.sourceforge.jindolf.corelib.LandState;
  * 国情報表示パネル。
  */
 @SuppressWarnings("serial")
-public class LandInfoPanel extends JPanel{
+public final class LandInfoPanel extends JPanel{
 
     private final JLabel landName       = new JLabel();
     private final JLabel landIdentifier = new JLabel();

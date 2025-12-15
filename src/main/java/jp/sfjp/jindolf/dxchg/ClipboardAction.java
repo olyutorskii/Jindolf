@@ -19,7 +19,7 @@ import javax.swing.text.TextAction;
  * テキストコンポーネント-クリップボード間操作用にカスタム化したAction。
  */
 @SuppressWarnings("serial")
-public class ClipboardAction extends TextAction{
+public final class ClipboardAction extends TextAction{
 
     /** アクション{@value}。 */
     public static final String ACTION_CUT    = "ACTION_CUT";
