@@ -35,7 +35,7 @@ public final class CoreData{
                 | URISyntaxException
                 | ParserConfigurationException
                 | SAXException e
-                ){
+        ){
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -63,8 +63,7 @@ public final class CoreData{
             IOException,
             URISyntaxException,
             ParserConfigurationException,
-            SAXException
-    {
+            SAXException {
         DocumentBuilder builder = XmlUtils.createDocumentBuilder();
         List<LandDef> result = LandDef.buildLandDefList(builder);
         return result;
@@ -84,8 +83,7 @@ public final class CoreData{
             IOException,
             URISyntaxException,
             ParserConfigurationException,
-            SAXException
-    {
+            SAXException {
         DocumentBuilder builder = XmlUtils.createDocumentBuilder();
         List<PreDefAvatar> result =
                 PreDefAvatar.buildPreDefAvatarList(builder);

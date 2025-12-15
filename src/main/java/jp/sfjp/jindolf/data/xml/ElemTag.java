@@ -70,7 +70,7 @@ public enum ElemTag {
      * constructor.
      *
      * @param name element name
-     * @param isSysEvent true if SysEvent
+     * @param type event type
      */
     ElemTag(String name, SysEventType type){
         this.name = name;

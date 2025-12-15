@@ -62,6 +62,7 @@ public class FontListModel extends AbstractListModel<String> {
 
     /**
      * {@inheritDoc}
+     *
      * @param index {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -73,6 +74,7 @@ public class FontListModel extends AbstractListModel<String> {
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override

@@ -50,6 +50,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * コンストラクタ。
+     *
      * @param source 文字列
      */
     public GlyphDraw(CharSequence source){
@@ -59,6 +60,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * コンストラクタ。
+     *
      * @param source 文字列
      * @param fontInfo フォント設定
      */
@@ -78,6 +80,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 前景色を得る。
+     *
      * @return 前景色
      */
     public Color getColor(){
@@ -86,6 +89,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 前景色を設定する。
+     *
      * @param color 前景色
      */
     public void setColor(Color color){
@@ -97,6 +101,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
      * アンカーを設定する。
      * アンカーの位置指定はコンストラクタに与えた文字列に対するものでなければ
      * ならない。
+     *
      * @param anchorSet アンカーの集合
      */
     public void setAnchorSet(Collection<Anchor> anchorSet){
@@ -106,6 +111,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 文字列の占めるピクセル幅を返す。
+     *
      * @param fromPos 文字列開始位置
      * @param toPos 文字列終了位置
      * @return ピクセル幅
@@ -119,6 +125,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 指定領域の文字列から行情報を生成し内部に登録する。
+     *
      * @param from 文字列開始位置
      * @param to 文字列終了位置
      * @return 行情報
@@ -131,6 +138,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     // TODO 最後が \n で終わるダイアログが無限再帰を起こす？
@@ -195,6 +203,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * {@inheritDoc}
+     *
      * @param fontInfo {@inheritDoc}
      */
     @Override
@@ -214,6 +223,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 指定された点座標が文字列のどこを示すか判定する。
+     *
      * @param pt 点座標
      * @return 文字位置。座標が文字列以外を示す場合は-1を返す。
      */
@@ -245,6 +255,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * {@inheritDoc}
+     *
      * @param appendable {@inheritDoc}
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
@@ -272,6 +283,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 指定した部分文字列を選択された状態にする。
+     *
      * @param start 文字列開始位置
      * @param last 文字列終了位置
      */
@@ -290,6 +302,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * {@inheritDoc}
+     *
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
@@ -389,6 +402,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 文字列検索がヒットした箇所のハイライト描画を行う。
+     *
      * @param g グラフィックスコンテキスト
      */
     private void paintRegexHitted(Graphics2D g){
@@ -446,6 +460,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 選択文字列のハイライト描画を行う。
+     *
      * @param g グラフィックスコンテキスト
      */
     private void paintSelected(Graphics2D g){
@@ -495,6 +510,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * アンカー文字列のハイライト描画を行う。
+     *
      * @param g グラフィックスコンテキスト
      */
     private void paintAnchorBack(Graphics2D g){
@@ -549,6 +565,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * {@inheritDoc}
+     *
      * @param g {@inheritDoc}
      */
     @Override
@@ -579,6 +596,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 与えられた座標にアンカー文字列が存在すればAnchorを返す。
+     *
      * @param pt 座標
      * @return アンカー
      */
@@ -599,6 +617,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 与えられた座標に検索マッチ文字列があればそのインデックスを返す。
+     *
      * @param pt 座標
      * @return 検索マッチインデックス
      */
@@ -621,6 +640,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 検索文字列パターンを設定する。
+     *
      * @param searchRegex パターン
      * @return ヒット数
      */
@@ -643,6 +663,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 検索ハイライトインデックスを返す。
+     *
      * @return 検索ハイライトインデックス。見つからなければ-1。
      */
     public int getHotTargetIndex(){
@@ -651,6 +672,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 検索ハイライトを設定する。
+     *
      * @param index ハイライトインデックス。負ならハイライト全クリア。
      */
     public void setHotTargetIndex(int index){
@@ -664,6 +686,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 検索一致件数を返す。
+     *
      * @return 検索一致件数
      */
     public int getRegexMatches(){
@@ -680,6 +703,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
     /**
      * 特別な検索ハイライト領域の寸法を返す。
+     *
      * @return ハイライト領域寸法
      */
     public Rectangle getHotTargetRectangle(){
@@ -742,6 +766,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
         /**
          * コンストラクタ。
+         *
          * @param startPos ヒット開始位置
          * @param endPos ヒット終了位置
          */
@@ -754,6 +779,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
         /**
          * ヒット開始位置を取得する。
+         *
          * @return ヒット開始位置
          */
         public int getStartPos(){
@@ -762,6 +788,7 @@ public final class GlyphDraw extends AbstractTextRow implements SwingConstants{
 
         /**
          * ヒット終了位置を取得する。
+         *
          * @return ヒット終了位置
          */
         public int getEndPos(){

@@ -23,6 +23,7 @@ public class AnchorHitEvent extends EventObject{
 
     /**
      * コンストラクタ。
+     *
      * @param source イベント発生源
      * @param talkDraw 会話描画コンポーネント
      * @param anchor アンカー
@@ -39,6 +40,7 @@ public class AnchorHitEvent extends EventObject{
 
     /**
      * 会話描画コンポーネントを返す。
+     *
      * @return 会話描画コンポーネント
      */
     public TalkDraw getTalkDraw(){
@@ -47,6 +49,7 @@ public class AnchorHitEvent extends EventObject{
 
     /**
      * アンカーを返す。
+     *
      * @return アンカー
      */
     public Anchor getAnchor(){
@@ -55,6 +58,7 @@ public class AnchorHitEvent extends EventObject{
 
     /**
      * マウス座標を返す。
+     *
      * @return マウス座標
      */
     public Point getPoint(){

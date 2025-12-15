@@ -53,6 +53,7 @@ public final class TextPopup extends JPopupMenu {
 
     /**
      * テキストコンポーネントに選択中文字列があるか判定する。
+     *
      * @param textComp テキストコンポーネント
      * @return 選択中文字列があればtrue
      */
@@ -69,6 +70,7 @@ public final class TextPopup extends JPopupMenu {
 
     /**
      * テキストコンポーネントに文字列があるか判定する。
+     *
      * @param textComp テキストコンポーネント
      * @return 文字列があればtrue
      */
@@ -82,6 +84,7 @@ public final class TextPopup extends JPopupMenu {
     /**
      * {@inheritDoc}
      * 文字列選択状況によって一部のポップアップメニューをマスクする。
+     *
      * @param invoker {@inheritDoc}
      * @param x {@inheritDoc}
      * @param y {@inheritDoc}

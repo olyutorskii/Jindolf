@@ -27,6 +27,7 @@ public class DialogPref{
 
     /**
      * デカキャラモードを使うか否か状態を返す。
+     *
      * @return デカキャラモードを使うならtrue
      */
     public boolean useBodyImage(){
@@ -35,6 +36,7 @@ public class DialogPref{
 
     /**
      * 遺影モードを使うか否か状態を返す。
+     *
      * @return 遺影モードを使うならtrue
      */
     public boolean useMonoImage(){
@@ -43,6 +45,7 @@ public class DialogPref{
 
     /**
      * シンプル表示モードを使うか否か状態を返す。
+     *
      * @return シンプルモードならtrue
      */
     public boolean isSimpleMode(){
@@ -51,6 +54,7 @@ public class DialogPref{
 
     /**
      * バルーン幅揃えモードを使うか否か状態を返す。
+     *
      * @return バルーン幅揃えモードならtrue
      */
     public boolean alignBaloonWidth(){
@@ -59,6 +63,7 @@ public class DialogPref{
 
     /**
      * デカキャラモードの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setBodyImageSetting(boolean setting){
@@ -68,6 +73,7 @@ public class DialogPref{
 
     /**
      * 遺影モードの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setMonoImageSetting(boolean setting){
@@ -77,6 +83,7 @@ public class DialogPref{
 
     /**
      * シンプルモードの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setSimpleMode(boolean setting){
@@ -86,6 +93,7 @@ public class DialogPref{
 
     /**
      * バルーン幅揃えの設定を行う。
+     *
      * @param setting バルーン幅を揃えたいならtrue
      */
     public void setAlignBalooonWidthSetting(boolean setting){
@@ -95,6 +103,7 @@ public class DialogPref{
 
     /**
      * {@inheritDoc}
+     *
      * @param obj {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -113,6 +122,7 @@ public class DialogPref{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override

@@ -86,7 +86,7 @@ public final class LogUtils {
      * {@link MomentaryHandler}ハンドラを登録する。
      *
      * @param useConsoleLog trueなら
-     * {@link java.util.logging.ConsoleHandler}も追加する。
+     *     {@link java.util.logging.ConsoleHandler}も追加する。
      */
     public static void initRootLogger(boolean useConsoleLog){
         if( ! hasLoggingPermission() ){

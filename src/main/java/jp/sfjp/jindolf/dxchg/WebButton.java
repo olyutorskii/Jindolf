@@ -79,6 +79,7 @@ public final class WebButton extends JPanel implements ActionListener{
 
     /**
      * {@inheritDoc}
+     *
      * @param b {@inheritDoc}
      */
     @Override
@@ -91,6 +92,7 @@ public final class WebButton extends JPanel implements ActionListener{
     /**
      * キャプション文字列の変更。
      * 起動URLには影響しない。
+     *
      * @param seq キャプション文字列
      */
     public void setCaption(CharSequence seq){
@@ -101,6 +103,7 @@ public final class WebButton extends JPanel implements ActionListener{
     /**
      * Webブラウザに表示させるURLを設定する。
      * キャプション文字列も更新される。
+     *
      * @param url URL
      */
     public void setURL(URL url){
@@ -111,6 +114,7 @@ public final class WebButton extends JPanel implements ActionListener{
     /**
      * Webブラウザに表示させるURIを設定する。
      * キャプション文字列も更新される。
+     *
      * @param uri URI
      */
     public void setURI(URI uri){
@@ -121,6 +125,7 @@ public final class WebButton extends JPanel implements ActionListener{
     /**
      * Webブラウザに表示させるURL文字列を設定する。
      * キャプション文字列も更新される。
+     *
      * @param urlText URL文字列
      */
     public void setURLText(CharSequence urlText){
@@ -151,6 +156,7 @@ public final class WebButton extends JPanel implements ActionListener{
 
     /**
      * ボタン押下イベントの受信。
+     *
      * @param event イベント
      */
     @Override

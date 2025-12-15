@@ -37,18 +37,18 @@ public final class XmlDecoder {
         PeriodType result;
 
         switch (type) {
-            case "prologue":
-                result = PeriodType.PROLOGUE;
-                break;
-            case "progress":
-                result = PeriodType.PROGRESS;
-                break;
-            case "epilogue":
-                result = PeriodType.EPILOGUE;
-                break;
-            default:
-                assert false;
-                throw new SAXException("invalid period type:" + type);
+        case "prologue":
+            result = PeriodType.PROLOGUE;
+            break;
+        case "progress":
+            result = PeriodType.PROGRESS;
+            break;
+        case "epilogue":
+            result = PeriodType.EPILOGUE;
+            break;
+        default:
+            assert false;
+            throw new SAXException("invalid period type:" + type);
         }
 
         return result;
@@ -66,21 +66,21 @@ public final class XmlDecoder {
         TalkType result;
 
         switch (type) {
-            case "public":
-                result = TalkType.PUBLIC;
-                break;
-            case "wolf":
-                result = TalkType.WOLFONLY;
-                break;
-            case "private":
-                result = TalkType.PRIVATE;
-                break;
-            case "grave":
-                result = TalkType.GRAVE;
-                break;
-            default:
-                assert false;
-                throw new SAXException("invalid talk type: " + type);
+        case "public":
+            result = TalkType.PUBLIC;
+            break;
+        case "wolf":
+            result = TalkType.WOLFONLY;
+            break;
+        case "private":
+            result = TalkType.PRIVATE;
+            break;
+        case "grave":
+            result = TalkType.GRAVE;
+            break;
+        default:
+            assert false;
+            throw new SAXException("invalid talk type: " + type);
         }
 
         return result;
@@ -127,33 +127,33 @@ public final class XmlDecoder {
         GameRole result;
 
         switch (role) {
-            case "innocent":
-                result = GameRole.INNOCENT;
-                break;
-            case "wolf":
-                result = GameRole.WOLF;
-                break;
-            case "seer":
-                result = GameRole.SEER;
-                break;
-            case "shaman":
-                result = GameRole.SHAMAN;
-                break;
-            case "madman":
-                result = GameRole.MADMAN;
-                break;
-            case "hunter":
-                result = GameRole.HUNTER;
-                break;
-            case "frater":
-                result = GameRole.FRATER;
-                break;
-            case "hamster":
-                result = GameRole.HAMSTER;
-                break;
-            default:
-                assert false;
-                throw new SAXException("invalid role: " + role);
+        case "innocent":
+            result = GameRole.INNOCENT;
+            break;
+        case "wolf":
+            result = GameRole.WOLF;
+            break;
+        case "seer":
+            result = GameRole.SEER;
+            break;
+        case "shaman":
+            result = GameRole.SHAMAN;
+            break;
+        case "madman":
+            result = GameRole.MADMAN;
+            break;
+        case "hunter":
+            result = GameRole.HUNTER;
+            break;
+        case "frater":
+            result = GameRole.FRATER;
+            break;
+        case "hamster":
+            result = GameRole.HAMSTER;
+            break;
+        default:
+            assert false;
+            throw new SAXException("invalid role: " + role);
         }
 
         return result;

@@ -123,6 +123,7 @@ public final class Controller
 
     /**
      * コントローラの生成。
+     *
      * @param model 最上位データモデル
      * @param windowManager ウィンドウ管理
      * @param actionManager アクション管理
@@ -216,6 +217,7 @@ public final class Controller
 
     /**
      * フレーム表示のトグル処理。
+     *
      * @param window フレーム
      */
     private static void toggleWindow(Window window){
@@ -263,6 +265,7 @@ public final class Controller
 
     /**
      * ウィンドウマネジャを返す。
+     *
      * @return ウィンドウマネジャ
      */
     public WindowManager getWindowManager(){
@@ -271,6 +274,7 @@ public final class Controller
 
     /**
      * アプリ最上位フレームを返す。
+     *
      * @return アプリ最上位フレーム
      */
     public TopFrame getTopFrame(){
@@ -281,6 +285,7 @@ public final class Controller
     /**
      * トップフレームのタイトルを設定する。
      * タイトルは指定された国or村名 + " - Jindolf"
+     *
      * @param name 国or村名
      */
     private void setFrameTitle(String name){
@@ -292,6 +297,7 @@ public final class Controller
 
     /**
      * 現在選択中のPeriodを内包するPeriodViewを返す。
+     *
      * @return PeriodView
      */
     private PeriodView currentPeriodView(){
@@ -302,6 +308,7 @@ public final class Controller
 
     /**
      * 現在選択中のPeriodを内包するDiscussionを返す。
+     *
      * @return Discussion
      */
     private Discussion currentDiscussion(){
@@ -324,6 +331,7 @@ public final class Controller
 
     /**
      * ステータスバーを更新する。
+     *
      * @param message メッセージ
      */
     private void updateStatusBar(String message){
@@ -466,6 +474,7 @@ public final class Controller
 
     /**
      * 例外発生による警告ダイアログへの反応を促す。
+     *
      * @param title タイトル文字列
      * @param message メッセージ
      * @param e 例外
@@ -499,7 +508,7 @@ public final class Controller
     /**
      * LookAndFeelの実際の更新を行う軽量タスク。
      *
-     * @param lnf LookAndFeel
+     * @param className LookAndFeel class name
      */
     private void taskChangeLaF(String className){
         assert EventQueue.isDispatchThread();
@@ -576,6 +585,7 @@ public final class Controller
 
     /**
      * フォント設定を変更する。
+     *
      * @param newFontInfo 新フォント設定
      */
     private void updateFontInfo(final FontInfo newFontInfo){
@@ -596,6 +606,7 @@ public final class Controller
 
     /**
      * プロクシ設定を変更する。
+     *
      * @param newProxyInfo 新プロクシ設定
      */
     private void updateProxyInfo(ProxyInfo newProxyInfo){
@@ -614,6 +625,7 @@ public final class Controller
 
     /**
      * 発言表示設定を更新する。
+     *
      * @param newDialogPref 表示設定
      */
     private void updateDialogPref(DialogPref newDialogPref){
@@ -1000,8 +1012,8 @@ public final class Controller
      * @param village 村
      * @param anchor アンカー
      * @return アンカー先を含むPeriod。
-     * アンカーがG国発言番号ならnull。
-     * Periodが見つからないならnull。
+     *     アンカーがG国発言番号ならnull。
+     *     Periodが見つからないならnull。
      * @throws IOException 入力エラー
      */
     private Period loadAnchoredPeriod(Village village, Anchor anchor)
@@ -1120,6 +1132,7 @@ public final class Controller
 
     /**
      * 指定した国の村一覧を読み込むジョブを投下。
+     *
      * @param land 国
      */
     private void submitReloadVillageList(final Land land){
@@ -1133,6 +1146,7 @@ public final class Controller
 
     /**
      * 指定した国の村一覧を読み込む。(ヘビータスク本体).
+     *
      * @param land 国
      */
     private void taskReloadVillageList(Land land){
@@ -1155,6 +1169,7 @@ public final class Controller
 
     /**
      * Period表示の更新処理。
+     *
      * @param force trueならPeriodデータを強制再読み込み。
      */
     private void updatePeriod(final boolean force){
@@ -1216,6 +1231,7 @@ public final class Controller
     /**
      * ネットワークエラーを通知するモーダルダイアログを表示する。
      * OKボタンを押すまでこのメソッドは戻ってこない。
+     *
      * @param village 村
      * @param e ネットワークエラー
      */
@@ -1228,6 +1244,7 @@ public final class Controller
     /**
      * ネットワークエラーを通知するモーダルダイアログを表示する。
      * OKボタンを押すまでこのメソッドは戻ってこない。
+     *
      * @param land 国
      * @param e ネットワークエラー
      */
@@ -1412,6 +1429,7 @@ public final class Controller
 
     /**
      * {@inheritDoc}
+     *
      * @param event {@inheritDoc}
      */
     @Override

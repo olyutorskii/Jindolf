@@ -56,6 +56,7 @@ public class InterVMLock{
     /**
      * コンストラクタ。
      * この時点ではまだロックファイルの存在は確認されない。
+     *
      * @param lockFile ロックファイル
      * @throws NullPointerException 引数がnull
      */
@@ -83,6 +84,7 @@ public class InterVMLock{
 
     /**
      * シャットダウン処理進行中or完了済みか否か判定する。
+     *
      * @return 進行中or完了済みならtrue
      */
     protected static boolean isShutdownGoing(){
@@ -93,6 +95,7 @@ public class InterVMLock{
 
     /**
      * このオブジェクトがロックファイルの作者であるか判定する。
+     *
      * @return 作者ならtrue
      */
     public boolean isFileOwner(){
@@ -102,6 +105,7 @@ public class InterVMLock{
 
     /**
      * ロックファイルがディスク上に存在するか判定する。
+     *
      * @return 存在すればtrue
      */
     public boolean isExistsFile(){
@@ -126,6 +130,7 @@ public class InterVMLock{
      * ロックファイルのオープン中のストリームを返す。
      * ※ 排他制御目的のリソースなので、
      * 勝手に読み込んだりクローズしたりしないように。
+     *
      * @return オープン中のストリーム。オープンしてなければnull
      */
     protected InputStream getOpenedStream(){
@@ -142,6 +147,7 @@ public class InterVMLock{
 
     /**
      * ロックファイルの強制削除を試みる。
+     *
      * @return 強制削除に成功すればtrue
      */
     public boolean forceRemove(){
@@ -166,6 +172,7 @@ public class InterVMLock{
     /**
      * ロックを試みる。
      * このメソッドは実行をブロックしない。
+     *
      * @return すでにロック済みもしくはロックに成功すればtrue
      */
     public boolean tryLock(){
@@ -181,6 +188,7 @@ public class InterVMLock{
 
     /**
      * 自身によるロックに成功しているか判定する。
+     *
      * @return 自身によるロック中であればtrue
      */
     public boolean hasLockedByMe(){
@@ -203,6 +211,7 @@ public class InterVMLock{
      * 生成されるロックファイルはVM終了時に削除されるよう登録される。
      * このメソッド実行中にVM終了が重なると、
      * ロックファイルが正しく削除されない場合がありうる。
+     *
      * @return 成功すればtrue
      */
     protected boolean touchLockFile(){

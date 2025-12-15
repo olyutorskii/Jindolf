@@ -33,6 +33,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param fontInfo フォント設定
      */
     protected AbstractTextRow(FontInfo fontInfo){
@@ -42,6 +43,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param newWidth {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -54,6 +56,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -63,6 +66,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param xPos {@inheritDoc}
      * @param yPos {@inheritDoc}
      */
@@ -75,6 +79,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -84,6 +89,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -93,6 +99,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param fontInfo {@inheritDoc}
      */
     @Override
@@ -103,6 +110,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -112,6 +120,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param visible {@inheritDoc}
      */
     @Override
@@ -122,6 +131,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * 文字列からグリフ集合を生成する。
+     *
      * @param iterator 文字列
      * @return グリフ集合
      */
@@ -131,6 +141,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * 文字列からグリフ集合を生成する。
+     *
      * @param seq 文字列
      * @return グリフ集合
      */
@@ -142,6 +153,7 @@ public abstract class AbstractTextRow implements TextRow{
 
     /**
      * 文字列からグリフ集合を生成する。
+     *
      * @param seq 文字列
      * @param from 開始位置
      * @param to 終了位置

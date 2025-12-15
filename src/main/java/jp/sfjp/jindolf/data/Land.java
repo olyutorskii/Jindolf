@@ -23,7 +23,7 @@ import jp.sourceforge.jindolf.corelib.LandDef;
 /**
  * いわゆる「国」。
  *
- * 人狼BBSのサーバと1:1の概念。
+ * <p>人狼BBSのサーバと1:1の概念。
  */
 public class Land {
 

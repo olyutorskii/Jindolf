@@ -83,6 +83,7 @@ public final class FontChooser extends JPanel
 
     /**
      * コンストラクタ。
+     *
      * @param fontInfo 初期フォント設定
      * @throws NullPointerException 引数がnull
      */
@@ -140,6 +141,7 @@ public final class FontChooser extends JPanel
 
     /**
      * フォント情報に関するログ出力。
+     *
      * @param info フォント情報
      */
     private static void logging(FontInfo info){
@@ -163,6 +165,7 @@ public final class FontChooser extends JPanel
 
     /**
      * GUIのデザイン、レイアウトを行う。
+     *
      * @param content コンテナ
      */
     private void design(Container content){
@@ -207,6 +210,7 @@ public final class FontChooser extends JPanel
 
     /**
      * フォント設定画面を生成する。
+     *
      * @return フォント設定画面
      */
     private JPanel createFontPrefPanel(){
@@ -259,6 +263,7 @@ public final class FontChooser extends JPanel
 
     /**
      * プレビュー画面を生成する。
+     *
      * @return プレビュー画面
      */
     private JPanel createPreviewPanel(){
@@ -278,6 +283,7 @@ public final class FontChooser extends JPanel
 
     /**
      * フォントデコード名表示パネルを生成する。
+     *
      * @return フォントデコード名表示パネル
      */
     private JPanel createFontDecodePanel(){
@@ -306,6 +312,7 @@ public final class FontChooser extends JPanel
 
     /**
      * フォント設定を返す。
+     *
      * @return フォント設定
      */
     public FontInfo getFontInfo(){
@@ -314,6 +321,7 @@ public final class FontChooser extends JPanel
 
     /**
      * フォント設定を適用する。
+     *
      * @param newInfo 新設定
      * @throws NullPointerException 引数がnull
      */
@@ -388,6 +396,7 @@ public final class FontChooser extends JPanel
 
     /**
      * {@inheritDoc}
+     *
      * @param isVisible trueなら表示 {@inheritDoc}
      */
     @Override
@@ -405,6 +414,7 @@ public final class FontChooser extends JPanel
     /**
      * {@inheritDoc}
      * フォントファミリリスト選択操作のリスナ。
+     *
      * @param event 操作イベント {@inheritDoc}
      */
     @Override
@@ -432,6 +442,7 @@ public final class FontChooser extends JPanel
     /**
      * {@inheritDoc}
      * ボタン操作及びフォントサイズ指定コンボボックス操作のリスナ。
+     *
      * @param event 操作イベント {@inheritDoc}
      */
     @Override
@@ -483,6 +494,7 @@ public final class FontChooser extends JPanel
     /**
      * {@inheritDoc}
      * チェックボックス操作のリスナ。
+     *
      * @param event 操作イベント {@inheritDoc}
      */
     @Override

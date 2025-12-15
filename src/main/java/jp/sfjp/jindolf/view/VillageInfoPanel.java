@@ -108,6 +108,7 @@ public final class VillageInfoPanel extends JPanel{
 
     /**
      * 村を返す。
+     *
      * @return 村
      */
     public Village getVillage(){
@@ -116,6 +117,7 @@ public final class VillageInfoPanel extends JPanel{
 
     /**
      * 村情報を更新する。
+     *
      * @param villageArg 村
      */
     public final void updateVillage(Village villageArg){

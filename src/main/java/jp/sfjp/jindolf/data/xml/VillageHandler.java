@@ -104,7 +104,7 @@ public class VillageHandler implements ContentHandler{
      * @param uri URI of namespace
      * @param localName local name
      * @param qName Qname
-     * @return
+     * @return ElemTag instance
      */
     private ElemTag decodeElemTag(String uri,
                                   String localName,
@@ -501,7 +501,8 @@ public class VillageHandler implements ContentHandler{
     /**
      * SysEvent 開始の受信。
      *
-     * @param type SysEvent種別
+     * @param tag タグ
+     * @param atts 属性
      */
     private void startSysEvent(ElemTag tag, Attributes atts){
         this.sysEvent = new SysEvent();
@@ -515,35 +516,35 @@ public class VillageHandler implements ContentHandler{
             startAssault(atts);
         }else{
             switch(tag){
-                case ONSTAGE:
-                    startOnStage(atts);
-                    break;
-                case PLAYERLIST:
-                    startPlayerList(atts);
-                    break;
-                case EXECUTION:
-                    startExecution(atts);
-                    break;
-                case SUDDENDEATH:
-                    startSuddenDeath(atts);
-                    break;
-                case COUNTING:
-                    startCounting(atts);
-                    break;
-                case JUDGE:
-                    startJudge(atts);
-                    break;
-                case GUARD:
-                    startGuard(atts);
-                    break;
-                case VANISH:
-                    startVanish(atts);
-                    break;
-                case CHECKOUT:
-                    startCheckOut(atts);
-                    break;
-                default:
-                    break;
+            case ONSTAGE:
+                startOnStage(atts);
+                break;
+            case PLAYERLIST:
+                startPlayerList(atts);
+                break;
+            case EXECUTION:
+                startExecution(atts);
+                break;
+            case SUDDENDEATH:
+                startSuddenDeath(atts);
+                break;
+            case COUNTING:
+                startCounting(atts);
+                break;
+            case JUDGE:
+                startJudge(atts);
+                break;
+            case GUARD:
+                startGuard(atts);
+                break;
+            case VANISH:
+                startVanish(atts);
+                break;
+            case CHECKOUT:
+                startCheckOut(atts);
+                break;
+            default:
+                break;
             }
         }
 
@@ -554,8 +555,6 @@ public class VillageHandler implements ContentHandler{
 
     /**
      * SysEvent 終了の受信。
-     *
-     * @return パースしたSysEvent。
      */
     private void endSysEvent(){
         Topic topic;
@@ -565,26 +564,26 @@ public class VillageHandler implements ContentHandler{
             topic = this.talk;
         }else{
             switch(eventType){
-                case PLAYERLIST:
-                    endPlayerList();
-                    break;
-                case EXECUTION:
-                    endExecution();
-                    break;
-                case COUNTING:
-                    endCounting();
-                    break;
-                case COUNTING2:
-                    endCounting2();
-                    break;
-                case MURDERED:
-                    endMurdered();
-                    break;
-                case SURVIVOR:
-                    endSurvivor();
-                    break;
-                default:
-                    break;
+            case PLAYERLIST:
+                endPlayerList();
+                break;
+            case EXECUTION:
+                endExecution();
+                break;
+            case COUNTING:
+                endCounting();
+                break;
+            case COUNTING2:
+                endCounting2();
+                break;
+            case MURDERED:
+                endMurdered();
+                break;
+            case SURVIVOR:
+                endSurvivor();
+                break;
+            default:
+                break;
             }
 
             DecodedContent decoded = new DecodedContent(this.content);
@@ -825,35 +824,35 @@ public class VillageHandler implements ContentHandler{
         }
 
         switch(tag){
-            case VILLAGE:
-                startVillage(atts);
-                break;
-            case AVATAR:
-                startAvatar(atts);
-                break;
-            case PERIOD:
-                startPeriod(atts);
-                break;
-            case TALK:
-                startTalk(atts);
-                break;
-            case LI:
-                startLi(atts);
-                break;
-            case PLAYERINFO:
-                startPlayerInfo(atts);
-                break;
-            case NOMINATED:
-                startNominated(atts);
-                break;
-            case VOTE:
-                startVote(atts);
-                break;
-            case AVATARREF:
-                startAvatarRef(atts);
-                break;
-            default:
-                break;
+        case VILLAGE:
+            startVillage(atts);
+            break;
+        case AVATAR:
+            startAvatar(atts);
+            break;
+        case PERIOD:
+            startPeriod(atts);
+            break;
+        case TALK:
+            startTalk(atts);
+            break;
+        case LI:
+            startLi(atts);
+            break;
+        case PLAYERINFO:
+            startPlayerInfo(atts);
+            break;
+        case NOMINATED:
+            startNominated(atts);
+            break;
+        case VOTE:
+            startVote(atts);
+            break;
+        case AVATARREF:
+            startAvatarRef(atts);
+            break;
+        default:
+            break;
         }
 
         return;
@@ -879,17 +878,17 @@ public class VillageHandler implements ContentHandler{
         }
 
         switch(tag){
-            case PERIOD:
-                endPeriod();
-                break;
-            case TALK:
-                endTalk();
-                break;
-            case LI:
-                endLi();
-                break;
-            default:
-                break;
+        case PERIOD:
+            endPeriod();
+            break;
+        case TALK:
+            endTalk();
+            break;
+        case LI:
+            endLi();
+            break;
+        default:
+            break;
         }
 
         return;

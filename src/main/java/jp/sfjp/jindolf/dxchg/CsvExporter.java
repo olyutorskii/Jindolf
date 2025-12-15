@@ -42,6 +42,7 @@ import jp.sourceforge.jindolf.corelib.TalkType;
 /**
  * 任意のPeriodの発言内容をCSVファイルへエクスポートする。
  * according to RFC4180 (text/csv)
+ *
  * @see <a href="https://www.ietf.org/rfc/rfc4180.txt">RFC4180</a>
  */
 public final class CsvExporter{
@@ -94,6 +95,7 @@ public final class CsvExporter{
 
     /**
      * Charsetが日本語エンコーダを持っているか確認する。
+     *
      * @param cs Charset
      * @return 日本語エンコーダを持っていればtrue
      */
@@ -112,6 +114,7 @@ public final class CsvExporter{
 
     /**
      * 日本語Charset一覧を生成する。
+     *
      * @return 日本語Charset一覧
      */
     private static List<Charset> buildCharsetList(){
@@ -145,6 +148,7 @@ public final class CsvExporter{
 
     /**
      * チューザーをビルドする。
+     *
      * @return チューザー
      */
     private static JFileChooser buildChooser(){
@@ -167,6 +171,7 @@ public final class CsvExporter{
     /**
      * チューザのアクセサリを生成する。
      * エンコード指定のコンボボックス。
+     *
      * @return アクセサリ
      */
     private static JComponent buildAccessory(){
@@ -202,6 +207,7 @@ public final class CsvExporter{
 
     /**
      * ファイルに書き込めない／作れないエラー用のダイアログを表示する。
+     *
      * @param file 書き込もうとしたファイル。
      */
     private static void writeError(File file){
@@ -218,6 +224,7 @@ public final class CsvExporter{
 
     /**
      * ファイル上書き確認ダイアログを表示する。
+     *
      * @param file 上書き対象ファイル
      * @return 上書きOKが指示されたらtrue
      */
@@ -239,6 +246,7 @@ public final class CsvExporter{
 
     /**
      * チューザーのタイトルを設定する。
+     *
      * @param period エクスポート対象の日
      */
     private static void setTitle(Period period){
@@ -252,6 +260,7 @@ public final class CsvExporter{
 
     /**
      * エクスポート先ファイルの名前を生成する。
+     *
      * @param period エクスポート対象の日
      * @return エクスポートファイル名
      */
@@ -297,6 +306,7 @@ public final class CsvExporter{
 
     /**
      * Period情報をダンプする。
+     *
      * @param out 格納先
      * @param period ダンプ対象Period
      * @param topicFilter 発言フィルタ
@@ -353,6 +363,7 @@ public final class CsvExporter{
 
     /**
      * ダイアログ操作に従いPeriodをエクスポートする。
+     *
      * @param period エクスポート対象のPeriod
      * @param topicFilter 発言フィルタ
      * @return エクスポートしたファイル
@@ -433,6 +444,7 @@ public final class CsvExporter{
     /**
      * CSV用のエスケープシーケンス処理を行う。
      * RFC4180準拠。
+     *
      * @param app 格納先
      * @param seq エスケープシーケンス対象
      * @return appと同じもの
@@ -468,6 +480,7 @@ public final class CsvExporter{
      * ファイル名が任意の拡張子を持つか判定する。
      * 英字大小は同一視される。
      * 拡張子の前は必ず一文字以上何かがなければならない。
+     *
      * @param filename ファイル名
      * @param extent '.'で始まる拡張子文字列
      * @return 指定された拡張子を持つならtrue
@@ -498,6 +511,7 @@ public final class CsvExporter{
      * 先頭が.で始まるファイル名は拡張子を持たない。
      * 末尾が.で終わるファイル名は拡張子を持たない。
      * それ以外の.を含むファイル名は拡張子を持つとみなす。
+     *
      * @param filename パス名抜きのファイル名
      * @return 拡張子を持っていればtrue
      */
@@ -534,6 +548,7 @@ public final class CsvExporter{
 
         /**
          * {@inheritDoc}
+         *
          * @param file {@inheritDoc}
          * @return {@inheritDoc}
          */
@@ -549,6 +564,7 @@ public final class CsvExporter{
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override

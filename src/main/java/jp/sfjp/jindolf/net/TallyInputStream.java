@@ -33,6 +33,7 @@ public class TallyInputStream extends InputStream{
 
     /**
      * コンストラクタ。
+     *
      * @param conn HTTPコネクション
      * @throws java.io.IOException 入出力エラー
      */
@@ -56,6 +57,7 @@ public class TallyInputStream extends InputStream{
 
     /**
      * HTTPコネクションから入力ストリームを得る。
+     *
      * @param conn HTTPコネクション
      * @return 入力ストリーム
      * @throws java.io.IOException 入出力エラー
@@ -67,6 +69,7 @@ public class TallyInputStream extends InputStream{
 
     /**
      * 読み込みバイト数を返す。
+     *
      * @return 読み込みバイト数。
      */
     protected long getCount(){
@@ -88,6 +91,7 @@ public class TallyInputStream extends InputStream{
     /**
      * {@inheritDoc}
      * 今までに読み込んだバイト数のスループットをログ出力する。
+     *
      * @throws java.io.IOException {@inheritDoc}
      */
     @Override

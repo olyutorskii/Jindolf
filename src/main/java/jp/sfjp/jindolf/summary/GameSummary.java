@@ -90,6 +90,7 @@ public class GameSummary{
 
     /**
      * コンストラクタ。
+     *
      * @param village 村
      */
     public GameSummary(Village village){

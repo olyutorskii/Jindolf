@@ -80,6 +80,7 @@ public final class JindolfJre18 {
     /**
      * GUI環境の有無をチェックする。
      * GUI環境に接続できなければJVMを終了させる。
+     *
      * @return 成功すれば0。失敗したら0以外。
      */
     private static int proveGuiEnv(){
@@ -106,6 +107,7 @@ public final class JindolfJre18 {
 
     /**
      * エラーダイアログの出力。
+     *
      * @param errmsg エラーメッセージ
      * @param title タイトル
      */
@@ -146,6 +148,7 @@ public final class JindolfJre18 {
 
     /**
      * MANIFEST.MFパッケージ定義エラーの検出。
+     *
      * @return 成功すれば0。失敗したら0以外。
      */
     private static int checkPackageDefinition(){

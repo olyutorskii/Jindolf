@@ -102,6 +102,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param talk 一発言
      */
     public TalkDraw(Talk talk){
@@ -111,6 +112,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param talk 一発言
      * @param dialogPref 発言表示設定
      * @param fontInfo フォント設定
@@ -139,6 +141,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 指定した色で描画したクサビイメージを取得する。
+     *
      * @param color 色
      * @return クサビイメージ
      */
@@ -163,6 +166,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 指定した色で描画した泡イメージを取得する。
+     *
      * @param color 色
      * @return 泡イメージ
      */
@@ -184,6 +188,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 指定した色で描画した長方形イメージを返す。
+     *
      * @param color 色
      * @return 長方形イメージ
      */
@@ -202,6 +207,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 会話表示用フォントからアンカー表示用フォントを派生させる。
+     *
      * @param font 派生元フォント
      * @return 派生先フォント
      */
@@ -213,6 +219,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 会話表示用フォント設定からアンカー表示用フォント設定を派生させる。
+     *
      * @param info 派生元フォント設定
      * @return 派生先フォント設定
      */
@@ -224,6 +231,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 発言種別毎の色を返す。
+     *
      * @param type 発言種別
      * @return 色
      */
@@ -258,6 +266,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * Talk取得。
+     *
      * @return Talkインスタンス
      */
     public Talk getTalk(){
@@ -266,6 +275,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 顔イメージを返す。
+     *
      * @return 顔イメージ
      */
     private BufferedImage getFaceImage(){
@@ -304,6 +314,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * キャプション文字列を取得する。
+     *
      * @return キャプション文字列
      */
     private CharSequence getCaptionString(){
@@ -342,6 +353,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 会話部背景色を返す。
+     *
      * @return 会話部背景色
      */
     protected Color getTalkBgColor(){
@@ -355,6 +367,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -435,6 +448,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param xPos {@inheritDoc}
      * @param yPos {@inheritDoc}
      */
@@ -450,6 +464,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * アイコンイメージとフキダシを繋ぐ補助イメージを返す。
+     *
      * @return 補助イメージ
      */
     private BufferedImage getTipImage(){
@@ -486,6 +501,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param g {@inheritDoc}
      */
     @Override
@@ -551,6 +567,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param fontInfo {@inheritDoc}
      */
     @Override
@@ -573,6 +590,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 発言設定を更新する。
+     *
      * @param pref 発言設定
      */
     public void setDialogPref(DialogPref pref){
@@ -591,6 +609,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
@@ -606,6 +625,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param appendable {@inheritDoc}
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
@@ -638,6 +658,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 与えられた座標にアンカー文字列が存在すればAnchorを返す。
+     *
      * @param pt 座標
      * @return アンカー
      */
@@ -649,6 +670,7 @@ public class TalkDraw extends AbstractTextRow{
     /**
      * アンカーを展開表示する。
      * アンカーにnullを指定すればアンカー表示は非表示となる。
+     *
      * @param anchor アンカー
      * @param talkList アンカーの示す一連のTalk
      */
@@ -678,6 +700,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 与えられた座標に検索マッチ文字列があればそのインデックスを返す。
+     *
      * @param pt 座標
      * @return 検索マッチインデックス
      */
@@ -688,6 +711,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 検索文字列パターンを設定する。
+     *
      * @param searchRegex パターン
      * @return ヒット数
      */
@@ -706,6 +730,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 検索ハイライトインデックスを返す。
+     *
      * @return 検索ハイライトインデックス。見つからなければ-1。
      */
     public int getHotTargetIndex(){
@@ -714,6 +739,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 検索ハイライトを設定する。
+     *
      * @param index ハイライトインデックス。負ならハイライト全クリア。
      */
     public void setHotTargetIndex(int index){
@@ -723,6 +749,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 検索一致件数を返す。
+     *
      * @return 検索一致件数
      */
     public int getRegexMatches(){
@@ -739,6 +766,7 @@ public class TalkDraw extends AbstractTextRow{
 
     /**
      * 特別な検索ハイライト領域の寸法を返す。
+     *
      * @return ハイライト領域寸法
      */
     public Rectangle getHotTargetRectangle(){

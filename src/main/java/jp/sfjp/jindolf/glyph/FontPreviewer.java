@@ -30,6 +30,7 @@ public final class FontPreviewer extends JComponent {
 
     /**
      * コンストラクタ。
+     *
      * @param source 文字列
      * @param fontInfo フォント設定
      */
@@ -68,6 +69,7 @@ public final class FontPreviewer extends JComponent {
 
     /**
      * フォント設定の変更。
+     *
      * @param newFontInfo フォント設定
      */
     public void setFontInfo(FontInfo newFontInfo){
@@ -82,6 +84,7 @@ public final class FontPreviewer extends JComponent {
     /**
      * {@inheritDoc}
      * 文字列の描画。
+     *
      * @param g {@inheritDoc}
      */
     @Override

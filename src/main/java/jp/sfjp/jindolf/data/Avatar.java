@@ -94,7 +94,7 @@ public class Avatar implements Comparable<Avatar> {
     /**
      * Avatarリストを生成する。
      *
-     * Avatarの全インスタンスはこのリストに含まれる。
+     * <p>Avatarの全インスタンスはこのリストに含まれる。
      *
      * @return ソートされた定義済みAvatarのリスト
      */
@@ -216,7 +216,8 @@ public class Avatar implements Comparable<Avatar> {
     /**
      * {@inheritDoc}
      *
-     * 通し番号順に順序づける。
+     * <p>通し番号順に順序づける。
+     *
      * @param avatar {@inheritDoc}
      * @return {@inheritDoc}
      */

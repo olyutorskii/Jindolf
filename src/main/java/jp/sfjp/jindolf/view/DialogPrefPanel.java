@@ -59,6 +59,7 @@ public final class DialogPrefPanel
 
     /**
      * レイアウトを行う。
+     *
      * @param content コンテナ
      */
     private void design(Container content){
@@ -89,6 +90,7 @@ public final class DialogPrefPanel
 
     /**
      * アイコン設定パネルを生成する。
+     *
      * @return アイコン設定パネル
      */
     private JComponent buildIconPanel(){
@@ -133,6 +135,7 @@ public final class DialogPrefPanel
 
     /**
      * デカキャラモードを使うか否か画面の状態を返す。
+     *
      * @return デカキャラモードを使うならtrue
      */
     public boolean useBodyImage(){
@@ -141,6 +144,7 @@ public final class DialogPrefPanel
 
     /**
      * 遺影モードを使うか否か画面の状態を返す。
+     *
      * @return 遺影モードを使うならtrue
      */
     public boolean useMonoImage(){
@@ -149,6 +153,7 @@ public final class DialogPrefPanel
 
     /**
      * シンプル表示モードか否か画面の状態を返す。
+     *
      * @return シンプル表示モードならtrue
      */
     public boolean isSimpleMode(){
@@ -157,6 +162,7 @@ public final class DialogPrefPanel
 
     /**
      * フキダシ幅を揃えるか否か画面の状態を返す。
+     *
      * @return フキダシ幅を揃えるならtrue
      */
     public boolean alignBaloon(){
@@ -165,6 +171,7 @@ public final class DialogPrefPanel
 
     /**
      * デカキャラモードの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setBodyImageSetting(boolean setting){
@@ -174,6 +181,7 @@ public final class DialogPrefPanel
 
     /**
      * 遺影モードの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setMonoImageSetting(boolean setting){
@@ -183,6 +191,7 @@ public final class DialogPrefPanel
 
     /**
      * シンプル表示モードの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setSimpleModeSetting(boolean setting){
@@ -193,6 +202,7 @@ public final class DialogPrefPanel
 
     /**
      * フキダシ幅揃えの設定を行う。
+     *
      * @param setting 有効にするならtrue
      */
     public void setAlignBaloonSetting(boolean setting){
@@ -202,6 +212,7 @@ public final class DialogPrefPanel
 
     /**
      * 発言表示設定を設定する。
+     *
      * @param pref 表示設定
      */
     public void setDialogPref(DialogPref pref){
@@ -215,6 +226,7 @@ public final class DialogPrefPanel
 
     /**
      * 発言表示設定を返す。
+     *
      * @return 表示設定
      */
     public DialogPref getDialogPref(){
@@ -228,6 +240,7 @@ public final class DialogPrefPanel
 
     /**
      * デフォルトボタン押下処理。
+     *
      * @param event ボタン押下イベント
      */
     @Override
@@ -244,6 +257,7 @@ public final class DialogPrefPanel
 
     /**
      * チェックボックス操作の受信。
+     *
      * @param event チェックボックス操作イベント
      */
     @Override

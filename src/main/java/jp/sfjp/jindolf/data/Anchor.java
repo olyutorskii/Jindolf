@@ -78,6 +78,7 @@ public final class Anchor{
 
     /**
      * アンカーのコンストラクタ。
+     *
      * @param source アンカーが含まれる文字列
      * @param startPos アンカーの始まる位置
      * @param endPos アンカーの終わる位置
@@ -102,6 +103,7 @@ public final class Anchor{
 
     /**
      * アンカーのコンストラクタ。
+     *
      * @param source アンカーが含まれる文字列
      * @param startPos アンカーの始まる位置
      * @param endPos アンカーの終わる位置
@@ -127,6 +129,7 @@ public final class Anchor{
 
     /**
      * 与えられた範囲指定文字列からアンカーを抽出する。
+     *
      * @param source 検索対象文字列
      * @param regionStart 範囲開始位置
      * @param regionEnd 範囲終了位置
@@ -149,6 +152,7 @@ public final class Anchor{
 
     /**
      * 与えられた文字列から全アンカーを抽出する。
+     *
      * @param source 検索対象文字列
      * @param currentDay 相対日付の基本となる日
      * @return アンカーのリスト（出現順）
@@ -172,6 +176,7 @@ public final class Anchor{
 
     /**
      * 文字列とそのMatcherからアンカーを抽出する。
+     *
      * @param source 検索対象文字列
      * @param matcher Matcher
      * @param currentDay 相対日付の基本となる日
@@ -289,6 +294,7 @@ public final class Anchor{
 
     /**
      * アンカーの含まれる文字列を返す。
+     *
      * @return アンカーの含まれる文字列
      */
     public CharSequence getSource(){
@@ -297,6 +303,7 @@ public final class Anchor{
 
     /**
      * アンカーの開始位置を返す。
+     *
      * @return アンカー開始位置
      */
     public int getStartPos(){
@@ -305,6 +312,7 @@ public final class Anchor{
 
     /**
      * アンカーの終了位置を返す。
+     *
      * @return アンカー終了位置
      */
     public int getEndPos(){
@@ -313,6 +321,7 @@ public final class Anchor{
 
     /**
      * アンカーの示す日付を返す。
+     *
      * @return 日付
      */
     public int getDay(){
@@ -321,6 +330,7 @@ public final class Anchor{
 
     /**
      * アンカーの示す時刻を返す。
+     *
      * @return 時刻(0-23)
      */
     public int getHour(){
@@ -329,6 +339,7 @@ public final class Anchor{
 
     /**
      * アンカーの示す分を返す。
+     *
      * @return 分(0-59)
      */
     public int getMinute(){
@@ -337,6 +348,7 @@ public final class Anchor{
 
     /**
      * アンカーの示す公開発言番号を返す。
+     *
      * @return 公開発言番号。公開発言番号でない場合は0以下の値。
      */
     public int getTalkNo(){
@@ -345,6 +357,7 @@ public final class Anchor{
 
     /**
      * このアンカーが公開発言番号による物か判定する。
+     *
      * @return 公開発言番号由来であるならtrue
      */
     public boolean hasTalkNo(){
@@ -353,6 +366,7 @@ public final class Anchor{
 
     /**
      * 明示的なエピローグへのアンカーか判定する。
+     *
      * @return 明示的なエピローグへのアンカーならtrue
      */
     public boolean isEpilogueDay(){
@@ -363,6 +377,7 @@ public final class Anchor{
     /**
      * アンカーの文字列表記を返す。
      * 出典：まとめサイトの用語集
+     *
      * @return アンカーの文字列表記
      */
     @Override

@@ -222,7 +222,7 @@ public class ConfigStore {
      * 設定ディレクトリを絶対パスで返す。
      *
      * @return 設定ディレクトリの絶対パス。
-     * 設定ディレクトリを使わない場合はnull
+     *     設定ディレクトリを使わない場合はnull
      */
     public Path getConfigDir(){
         return this.configDir;
@@ -241,7 +241,7 @@ public class ConfigStore {
      * ローカル画像格納ディレクトリを絶対パスで返す。
      *
      * @return 格納ディレクトリの絶対パス。
-     * 格納ディレクトリを使わない場合はnull
+     *     格納ディレクトリを使わない場合はnull
      */
     public Path getLocalImgDir(){
         if( ! this.useStoreFile ) return null;
@@ -257,7 +257,7 @@ public class ConfigStore {
      * ロックファイルを絶対パスで返す。
      *
      * @return ロックファイルの絶対パス。
-     * 格納ディレクトリを使わない場合はnull
+     *     格納ディレクトリを使わない場合はnull
      */
     public Path getLockFile(){
         if( ! this.useStoreFile ) return null;

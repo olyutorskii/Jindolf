@@ -42,6 +42,7 @@ public final class FontSelectList extends JList<String>
     /**
      * {@link #setModel(ListModel)} の下請けメソッド。
      * 与えられたモデルの更新は監視対象となる。
+     *
      * @param model リストモデル
      */
     private void setModelImpl(ListModel<String> model){
@@ -60,6 +61,7 @@ public final class FontSelectList extends JList<String>
     /**
      * {@inheritDoc}
      * 与えられたモデルの更新は監視対象となる。
+     *
      * @param model {@inheritDoc}
      */
     @Override
@@ -70,6 +72,7 @@ public final class FontSelectList extends JList<String>
 
     /**
      * 指定したフォントファミリ名が選択された状態にする。
+     *
      * @param family フォントファミリ名
      */
     public void setSelectedFamily(String family){
@@ -80,6 +83,7 @@ public final class FontSelectList extends JList<String>
 
     /**
      * 選択されたファミリ名を返す。
+     *
      * @return 選択されたファミリ名。何も選択されていなければnull
      */
     public String getSelectedFamily(){
@@ -101,6 +105,7 @@ public final class FontSelectList extends JList<String>
     /**
      * {@inheritDoc}
      * データモデル変更に伴い再選択処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -112,6 +117,7 @@ public final class FontSelectList extends JList<String>
     /**
      * {@inheritDoc}
      * データモデル変更に伴い再選択処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
@@ -123,6 +129,7 @@ public final class FontSelectList extends JList<String>
     /**
      * {@inheritDoc}
      * データモデル変更に伴い再選択処理を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override
