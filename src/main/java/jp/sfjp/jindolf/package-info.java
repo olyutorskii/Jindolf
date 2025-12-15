@@ -10,7 +10,7 @@
  *
  * <p>Jindolf プロジェクトは、
  * CGIゲーム
- * 「<a href="http://ninjinix.com/">人狼BBS</a>」
+ * 「<a href="https://ninjinix.com/">人狼BBS</a>」
  * を快適にプレイするための専用クライアントを製作するために発足した
  * オープンソースプロジェクトです。
  *
@@ -50,10 +50,8 @@
  *
  * <hr>
  *
- * @see <a href="http://jindolf.osdn.jp/">
- * Jindolfポータルサイト</a>
- * @see <a href="https://osdn.jp/projects/jindolf/">
- * Jindolf開発プロジェクト</a>
+ * @see <a href="https://github.com/olyutorskii/Jindolf">
+ *     Jindolf開発リポジトリ</a>
  */
 
 package jp.sfjp.jindolf;

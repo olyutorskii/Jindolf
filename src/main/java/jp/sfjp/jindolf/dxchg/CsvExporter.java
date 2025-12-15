@@ -42,7 +42,7 @@ import jp.sourceforge.jindolf.corelib.TalkType;
 /**
  * 任意のPeriodの発言内容をCSVファイルへエクスポートする。
  * according to RFC4180 (text/csv)
- * @see <a href="http://www.ietf.org/rfc/rfc4180.txt">RFC4180</a>
+ * @see <a href="https://www.ietf.org/rfc/rfc4180.txt">RFC4180</a>
  */
 public final class CsvExporter{
 

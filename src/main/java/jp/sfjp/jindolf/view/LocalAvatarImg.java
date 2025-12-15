@@ -23,8 +23,8 @@ import jp.sfjp.jindolf.data.Avatar;
  * <p>2020-04現在、凪庵氏作の新旧Avatarイメージは
  * 人狼BBSサーバ群より公衆送信中。
  *
- * @see <a href="http://ninjinix.com/">NINJINIX.COM</a>
- * @see <a href="http://yoroz.jp/">路地裏萬亭</a>
+ * @see <a href="https://ninjinix.com/">NINJINIX.COM</a>
+ * @see <a href="https://yoroz.jp/">路地裏萬亭</a>
  */
 public final class LocalAvatarImg {
 
