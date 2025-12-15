@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Jacoco, SpotBugs, and PMD for JDK25
 - Update Checkstyle
 - Update Maven plugins
+- JUnit5からJUnit6へ移行
 
 ### Build
 - Bump Jovsonz to 1.101.112

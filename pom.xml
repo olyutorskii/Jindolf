@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.14.0</version>
+            <version>6.0.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -697,6 +697,22 @@
 
                 </plugins>
             </reporting>
+        </profile>
+
+        <!-- before JDK17 -->
+        <profile>
+            <id>jdk17before</id>
+            <activation>
+                <jdk>(,17)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                    <version>5.14.1</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
         </profile>
 
         <!-- JDK17 or later -->
