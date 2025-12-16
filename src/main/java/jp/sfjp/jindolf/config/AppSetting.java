@@ -77,6 +77,7 @@ public class AppSetting{
 
     /**
      * コンストラクタ。
+     *
      * @param info コマンドライン引数
      */
     public AppSetting(OptionInfo info){
@@ -93,6 +94,7 @@ public class AppSetting{
 
     /**
      * 設定格納ディレクトリ関係の解析。
+     *
      * @param option コマンドラインオプション情報
      * @return 設定ディレクトリ情報
      */
@@ -125,6 +127,7 @@ public class AppSetting{
 
     /**
      * ウィンドウジオメトリ関係の設定。
+     *
      * @param option コマンドラインオプション情報
      * @return ウィンドウ矩形。
      */
@@ -154,6 +157,7 @@ public class AppSetting{
 
     /**
      * フォントオプションの解析。
+     *
      * @param baseFont 元のフォント設定。
      * @return コマンドライン設定で補正されたフォント設定
      */
@@ -188,6 +192,7 @@ public class AppSetting{
 
     /**
      * コマンドラインオプション情報を返す。
+     *
      * @return コマンドラインオプション情報
      */
     public OptionInfo getOptionInfo(){
@@ -196,6 +201,7 @@ public class AppSetting{
 
     /**
      * 設定格納情報を返す。
+     *
      * @return 設定格納情報
      */
     public ConfigStore getConfigStore(){
@@ -213,6 +219,7 @@ public class AppSetting{
 
     /**
      * 初期のフレーム幅を返す。
+     *
      * @return 初期のフレーム幅
      */
     public int initialFrameWidth(){
@@ -222,6 +229,7 @@ public class AppSetting{
 
     /**
      * 初期のフレーム高を返す。
+     *
      * @return 初期のフレーム高
      */
     public int initialFrameHeight(){
@@ -232,6 +240,7 @@ public class AppSetting{
     /**
      * 初期のフレーム位置のX座標を返す。
      * 特に指示されていなければInteger.MIN_VALUEを返す。
+     *
      * @return 初期のフレーム位置のX座標
      */
     public int initialFrameXpos(){
@@ -242,6 +251,7 @@ public class AppSetting{
     /**
      * 初期のフレーム位置のY座標を返す。
      * 特に指示されていなければInteger.MIN_VALUEを返す。
+     *
      * @return 初期のフレーム位置のY座標
      */
     public int initialFrameYpos(){
@@ -251,6 +261,7 @@ public class AppSetting{
 
     /**
      * フォント設定を返す。
+     *
      * @return フォント設定
      */
     public FontInfo getFontInfo(){
@@ -262,6 +273,7 @@ public class AppSetting{
 
     /**
      * フォント設定を更新する。
+     *
      * @param fontInfo フォント設定
      */
     public void setFontInfo(FontInfo fontInfo){
@@ -271,6 +283,7 @@ public class AppSetting{
 
     /**
      * プロクシ設定を返す。
+     *
      * @return プロクシ設定
      */
     public ProxyInfo getProxyInfo(){
@@ -279,6 +292,7 @@ public class AppSetting{
 
     /**
      * プロクシ設定を更新する。
+     *
      * @param proxyInfo プロクシ設定。nullならプロクシなしと解釈される。
      */
     public void setProxyInfo(ProxyInfo proxyInfo){
@@ -289,6 +303,7 @@ public class AppSetting{
 
     /**
      * 発言表示設定を返す。
+     *
      * @return 表示設定
      */
     public DialogPref getDialogPref(){
@@ -297,6 +312,7 @@ public class AppSetting{
 
     /**
      * 発言表示設定を返す。
+     *
      * @param pref 表示設定
      */
     public void setDialogPref(DialogPref pref){

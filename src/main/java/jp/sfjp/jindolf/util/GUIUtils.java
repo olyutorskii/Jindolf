@@ -128,6 +128,7 @@ public final class GUIUtils{
 
     /**
      * 描画品質優先の描画ヒントを返す。
+     *
      * @return 描画ヒント
      */
     public static RenderingHints getQualityHints(){
@@ -136,6 +137,7 @@ public final class GUIUtils{
 
     /**
      * ロゴイメージを得る。
+     *
      * @return ロゴイメージ
      */
     public static BufferedImage getLogoImage(){
@@ -158,6 +160,7 @@ public final class GUIUtils{
 
     /**
      * 各種ウィンドウのアイコンイメージを得る。
+     *
      * @return アイコンイメージ
      */
     public static BufferedImage getWindowIconImage(){
@@ -179,6 +182,7 @@ public final class GUIUtils{
 
     /**
      * ロゴアイコンを得る。
+     *
      * @return ロゴアイコン
      */
     public static Icon getLogoIcon(){
@@ -194,6 +198,7 @@ public final class GUIUtils{
 
     /**
      * WWWアイコンを得る。
+     *
      * @return WWWアイコン
      */
     public static Icon getWWWIcon(){
@@ -208,6 +213,7 @@ public final class GUIUtils{
 
     /**
      * NoImageイメージを得る。
+     *
      * @return NoImageイメージ
      */
     public static BufferedImage getNoImage(){
@@ -249,6 +255,7 @@ public final class GUIUtils{
      * ・矩形の下辺より下に点座標が位置すればSwingContants.SOUTH
      * ・矩形の上辺と下辺内に収まるが右辺からはみ出すときはSwingContants.EAST
      * ・矩形の上辺と下辺内に収まるが左辺からはみ出すときはSwingContants.WEST
+     *
      * @param rect 矩形
      * @param pt 点座標
      * @return 判定結果
@@ -271,6 +278,7 @@ public final class GUIUtils{
 
     /**
      * ウィンドウ属性を設定する。
+     *
      * @param window ウィンドウ
      * @param isResizable リサイズ可ならtrue
      * @param isDynamic リサイズに伴う再描画ならtrue
@@ -299,6 +307,7 @@ public final class GUIUtils{
 
     /**
      * コンポーネントの既存ボーダー内側にマージンをもうける。
+     *
      * @param comp 対象コンポーネント
      * @param top 上マージン
      * @param left 左マージン
@@ -329,6 +338,7 @@ public final class GUIUtils{
     /**
      * 任意のイメージを多階調モノクロ化する。
      * 寸法は変わらない。
+     *
      * @param image イメージ
      * @return モノクロ化イメージ
      */

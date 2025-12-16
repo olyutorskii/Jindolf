@@ -48,6 +48,7 @@ public class XmlResourceResolver
     /**
      * 絶対URIと相対URIを合成したURIを返す。
      * 正規化も行われる。
+     *
      * @param base 絶対URIでなければならない。nullでもよい。
      * @param relative 絶対URIでもよいがその場合baseは無視される。null可。
      * @return 合成結果のURLオブジェクト。必ず絶対URIになる。
@@ -84,6 +85,7 @@ public class XmlResourceResolver
 
     /**
      * LSInput実装を生成する。
+     *
      * @return LSInput実装
      */
     public static LSInput createLSInput(){
@@ -93,6 +95,7 @@ public class XmlResourceResolver
 
     /**
      * 変換後のリソースの入力ストリームを得る。
+     *
      * @param originalURI オリジナルURI
      * @return 入力ストリーム
      * @throws java.io.IOException 入出力エラー
@@ -109,6 +112,7 @@ public class XmlResourceResolver
     /**
      * {@inheritDoc}
      * URL変換したあとの入力ソースを返す。
+     *
      * @param type {@inheritDoc}
      * @param namespaceURI {@inheritDoc}
      * @param publicId {@inheritDoc}
@@ -150,6 +154,7 @@ public class XmlResourceResolver
     /**
      * {@inheritDoc}
      * URL変換したあとの入力ソースを返す。
+     *
      * @param publicId {@inheritDoc}
      * @param systemId {@inheritDoc}
      * @return {@inheritDoc}
@@ -204,6 +209,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -213,6 +219,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param baseURI {@inheritDoc}
          */
         @Override
@@ -223,6 +230,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -232,6 +240,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param byteStream {@inheritDoc}
          */
         @Override
@@ -241,6 +250,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -250,6 +260,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param certifiedText {@inheritDoc}
          */
         @Override
@@ -260,6 +271,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -269,6 +281,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param characterStream {@inheritDoc}
          */
         @Override
@@ -278,6 +291,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -287,6 +301,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param encoding {@inheritDoc}
          */
         @Override
@@ -297,6 +312,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -306,6 +322,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param publicId {@inheritDoc}
          */
         @Override
@@ -316,6 +333,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -325,6 +343,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param stringData {@inheritDoc}
          */
         @Override
@@ -335,6 +354,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @return {@inheritDoc}
          */
         @Override
@@ -344,6 +364,7 @@ public class XmlResourceResolver
 
         /**
          * {@inheritDoc}
+         *
          * @param systemId {@inheritDoc}
          */
         @Override

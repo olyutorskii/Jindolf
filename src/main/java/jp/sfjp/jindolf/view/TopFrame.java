@@ -38,7 +38,7 @@ import javax.swing.JFrame;
  * <p>各種モーダルダイアログの親となる。
  */
 @SuppressWarnings("serial")
-public class TopFrame extends JFrame{
+public final class TopFrame extends JFrame{
 
     private final TopView topView = new TopView();
 

@@ -36,11 +36,11 @@ import jp.sfjp.jindolf.util.Monodizer;
 /**
  * プロクシサーバ選択画面。
  *
- * @see <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
- * @see <a href="http://www.ietf.org/rfc/rfc1928.txt">RFC1928</a>
+ * @see <a href="https://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
+ * @see <a href="https://www.ietf.org/rfc/rfc1928.txt">RFC1928</a>
  */
 @SuppressWarnings("serial")
-public class ProxyChooser extends JPanel implements ItemListener{
+public final class ProxyChooser extends JPanel implements ItemListener{
 
     private final JRadioButton isDirect =
             new JRadioButton("直接接続");

@@ -28,6 +28,7 @@ public final class StringUtils{
     /**
      * 長い文字列を三点リーダで省略する。
      * 「abcdefg」→「abc…efg」
+     *
      * @param str 文字列
      * @return 省略した文字列
      */
@@ -44,6 +45,7 @@ public final class StringUtils{
 
     /**
      * サブシーケンス同士を比較する。
+     *
      * @param seq1 サブシーケンス1
      * @param start1 開始インデックス1
      * @param end1 終了インデックス1
@@ -82,6 +84,7 @@ public final class StringUtils{
 
     /**
      * 文字シーケンスとサブシーケンスを比較する。
+     *
      * @param seq1 文字シーケンス
      * @param seq2 サブシーケンス
      * @param start2 開始インデックス

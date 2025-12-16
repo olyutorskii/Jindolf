@@ -101,6 +101,7 @@ public class RegexPattern{
 
     /**
      * 正規表現とまぎらわしい字を含むか判定する。
+     *
      * @param seq 文字列
      * @return 紛らわしい字を含むならtrue
      */
@@ -115,6 +116,7 @@ public class RegexPattern{
 
     /**
      * 任意の文字列を必要に応じて正規表現シーケンス化する。
+     *
      * @param text 文字列
      * @return 引数と同じ内容の正規表現。必要がなければ引数そのまま
      */
@@ -127,6 +129,7 @@ public class RegexPattern{
 
     /**
      * JSON形式に変換する。
+     *
      * @param regex 正規表現
      * @return JSON Object
      */
@@ -157,6 +160,7 @@ public class RegexPattern{
 
     /**
      * JSON形式から復元する。
+     *
      * @param object JSON Object
      * @return 正規表現
      */
@@ -216,6 +220,7 @@ public class RegexPattern{
 
     /**
      * 元の入力文字列を返す。
+     *
      * @return 入力文字列
      */
     public String getEditSource(){
@@ -224,6 +229,7 @@ public class RegexPattern{
 
     /**
      * コメントを返す。
+     *
      * @return コメント
      */
     public String getComment(){
@@ -232,6 +238,7 @@ public class RegexPattern{
 
     /**
      * 元の入力文字列が正規表現か否か返す。
+     *
      * @return 正規表現ならtrue
      */
     public boolean isRegex(){
@@ -240,6 +247,7 @@ public class RegexPattern{
 
     /**
      * 正規表現フラグを返す。
+     *
      * @return 正規表現フラグ。
      * @see java.util.regex.Pattern#flags()
      */
@@ -249,6 +257,7 @@ public class RegexPattern{
 
     /**
      * コンパイルされた正規表現形式を返す。
+     *
      * @return コンパイルされた正規表現形式
      */
     public Pattern getPattern(){
@@ -257,6 +266,7 @@ public class RegexPattern{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -266,6 +276,7 @@ public class RegexPattern{
 
     /**
      * {@inheritDoc}
+     *
      * @param obj {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -291,6 +302,7 @@ public class RegexPattern{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override

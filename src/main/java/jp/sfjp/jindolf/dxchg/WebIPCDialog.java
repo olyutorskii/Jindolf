@@ -46,7 +46,7 @@ import jp.sfjp.jindolf.util.Monodizer;
  * Webブラウザ起動用の専用ダイアログ。
  */
 @SuppressWarnings("serial")
-public class WebIPCDialog extends JDialog {
+public final class WebIPCDialog extends JDialog {
 
     /** logger. */
     protected static final Logger LOGGER = Logger.getAnonymousLogger();

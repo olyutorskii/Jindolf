@@ -54,5 +54,5 @@ Jindolfは、人狼BBSを閲覧するために開発された、GUIを利用す�
 -vminfo
     VMの情報を出力する。
 
-バグ報告は https://osdn.jp/projects/jindolf/ まで。
+バグ報告は https://github.com/olyutorskii/Jindolf/issues まで。
 # --- EOF ---

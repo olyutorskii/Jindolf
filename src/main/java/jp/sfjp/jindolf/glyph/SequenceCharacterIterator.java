@@ -24,6 +24,7 @@ public class SequenceCharacterIterator
 
     /**
      * コンストラクタ。
+     *
      * @param source ソース文字列
      * @param cursorBegin カーソル開始位置
      * @param cursorEnd カーソル終了位置
@@ -50,6 +51,7 @@ public class SequenceCharacterIterator
 
     /**
      * コンストラクタ。
+     *
      * @param source ソース文字列
      */
     public SequenceCharacterIterator(CharSequence source){
@@ -64,6 +66,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -74,6 +77,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -84,6 +88,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -101,6 +106,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -111,6 +117,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -121,6 +128,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @param newPos {@inheritDoc}
      * @return {@inheritDoc}
      * @throws java.lang.IllegalArgumentException {@inheritDoc}
@@ -136,6 +144,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -145,6 +154,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -154,6 +164,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -163,6 +174,7 @@ public class SequenceCharacterIterator
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override

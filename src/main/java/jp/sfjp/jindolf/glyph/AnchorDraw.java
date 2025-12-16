@@ -57,6 +57,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param talk 発言
      */
     public AnchorDraw(Talk talk){
@@ -66,6 +67,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param talk 発言
      * @param pref 発言表示設定
      * @param fontInfo フォント設定
@@ -86,6 +88,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * 顔アイコンイメージを返す。
+     *
      * @return アイコンイメージ
      */
     private BufferedImage getFaceImage(){
@@ -121,6 +124,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * キャプション文字列の取得。
+     *
      * @return キャプション文字列
      */
     private CharSequence getCaptionString(){
@@ -139,6 +143,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -196,6 +201,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param fontInfo {@inheritDoc}
      */
     @Override
@@ -212,6 +218,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * 発言設定を更新する。
+     *
      * @param pref 発言設定
      */
     public void setDialogPref(DialogPref pref){
@@ -225,6 +232,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
@@ -237,6 +245,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param appendable {@inheritDoc}
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
@@ -261,6 +270,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * 検索文字列パターンを設定する。
+     *
      * @param searchRegex パターン
      * @return ヒット数
      */
@@ -274,6 +284,7 @@ public class AnchorDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param g {@inheritDoc}
      */
     @Override

@@ -38,7 +38,7 @@ import jp.sourceforge.jindolf.corelib.GameRole;
  * <p>PukiWikiベース。
  *
  * @see <a href="https://wolfbbs.jp/">まとめサイト</a>
- * @see <a href="https://pukiwiki.osdn.jp/">PukiWiki</a>
+ * @see <a href="https://pukiwiki.sourceforge.io/">PukiWiki</a>
  */
 public final class WolfBBS{
 
@@ -416,10 +416,10 @@ public final class WolfBBS{
         float s = hsb[1];
         float b = hsb[2];
 
-        if(b < 0.5){
-            b += 0.03;
+        if(b < 0.5f){
+            b += 0.03f;
         }else{
-            b -= 0.03;
+            b -= 0.03f;
         }
 
         Color result = Color.getHSBColor(h, s, b);

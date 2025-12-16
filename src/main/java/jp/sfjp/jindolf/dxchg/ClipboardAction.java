@@ -19,7 +19,7 @@ import javax.swing.text.TextAction;
  * テキストコンポーネント-クリップボード間操作用にカスタム化したAction。
  */
 @SuppressWarnings("serial")
-public class ClipboardAction extends TextAction{
+public final class ClipboardAction extends TextAction{
 
     /** アクション{@value}。 */
     public static final String ACTION_CUT    = "ACTION_CUT";
@@ -33,6 +33,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * コンストラクタ。
+     *
      * @param name ポップアップメニュー名
      * @param command アクションコマンド名
      */
@@ -45,6 +46,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * 文字列をクリップボードにコピーする。
+     *
      * @param data 文字列
      */
     public static void copyToClipboard(CharSequence data){
@@ -57,6 +59,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * カット用Actionの生成。
+     *
      * @return カット用Action
      */
     public static ClipboardAction cutAction(){
@@ -65,6 +68,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * コピー用Actionの生成。
+     *
      * @return コピー用Action
      */
     public static ClipboardAction copyAction(){
@@ -73,6 +77,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * ペースト用Actionの生成。
+     *
      * @return ペースト用Action
      */
     public static ClipboardAction pasteAction(){
@@ -81,6 +86,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * 全選択用Actionの生成。
+     *
      * @return 全選択用Action
      */
     public static ClipboardAction selectallAction(){
@@ -89,6 +95,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * アクションコマンド名を設定する。
+     *
      * @param actionCommand アクションコマンド名
      */
     private void setActionCommand(String actionCommand){
@@ -98,6 +105,7 @@ public class ClipboardAction extends TextAction{
 
     /**
      * アクションコマンド名を取得する。
+     *
      * @return アクションコマンド名
      */
     protected String getActionCommand(){
@@ -112,6 +120,7 @@ public class ClipboardAction extends TextAction{
     /**
      * {@inheritDoc}
      * アクションの受信によってクリップボード操作を行う。
+     *
      * @param event {@inheritDoc}
      */
     @Override

@@ -53,7 +53,7 @@ Jindolfに関する問い合わせををninjin氏へ投げかけないように�
 必要です。
 
 
-[BBS]: http://ninjinix.com/
+[BBS]: https://ninjinix.com/
 [OSDN]: https://ja.osdn.net/projects/jindolf/scm/git/Jindolf/
 [MIT]: https://opensource.org/licenses/MIT
 

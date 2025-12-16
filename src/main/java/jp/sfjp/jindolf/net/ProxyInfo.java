@@ -52,6 +52,7 @@ public class ProxyInfo{
 
     /**
      * コンストラクタ。
+     *
      * @param proxy プロクシ
      */
     public ProxyInfo(Proxy proxy){
@@ -73,6 +74,7 @@ public class ProxyInfo{
 
     /**
      * コンストラクタ。
+     *
      * @param type プロクシの種別
      * @param hostName ホスト名
      * @param port ポート番号
@@ -84,6 +86,7 @@ public class ProxyInfo{
 
     /**
      * コンストラクタ。
+     *
      * @param type プロクシの種別
      * @param inetAddr 端点
      */
@@ -108,6 +111,7 @@ public class ProxyInfo{
 
     /**
      * プロクシ設定をJSON形式にエンコードする。
+     *
      * @param proxyInfo プロクシ設定
      * @return JSON object
      */
@@ -126,6 +130,7 @@ public class ProxyInfo{
 
     /**
      * JSONからのプロクシ設定復元。
+     *
      * @param obj JSON object
      * @return 復元されたプロクシ設定。
      */
@@ -162,6 +167,7 @@ public class ProxyInfo{
 
     /**
      * {@inheritDoc}
+     *
      * @param obj {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -183,6 +189,7 @@ public class ProxyInfo{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -193,6 +200,7 @@ public class ProxyInfo{
     /**
      * プロクシを返す。
      * 直結プロクシだった場合、ホスト名とポート番号には何が入っているか不明。
+     *
      * @return プロクシ
      */
     public Proxy getProxy(){
@@ -201,6 +209,7 @@ public class ProxyInfo{
 
     /**
      * プロクシ種別を返す。
+     *
      * @return プロクシ種別
      */
     public Proxy.Type getType(){
@@ -209,6 +218,7 @@ public class ProxyInfo{
 
     /**
      * ソケット端点を返す。
+     *
      * @return ソケット端点
      */
     public InetSocketAddress address(){
@@ -217,6 +227,7 @@ public class ProxyInfo{
 
     /**
      * ホスト名を返す。
+     *
      * @return ホスト名
      */
     public String getHostName(){
@@ -225,6 +236,7 @@ public class ProxyInfo{
 
     /**
      * ポート番号を返す。
+     *
      * @return ポート番号
      */
     public int getPort(){

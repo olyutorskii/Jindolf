@@ -47,6 +47,7 @@ public class UriExporter implements Transferable{
 
     /**
      * コンストラクタ。
+     *
      * @param uri URI
      */
     public UriExporter(URI uri){
@@ -57,6 +58,7 @@ public class UriExporter implements Transferable{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -76,6 +78,7 @@ public class UriExporter implements Transferable{
 
     /**
      * {@inheritDoc}
+     *
      * @param flavor {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -90,6 +93,7 @@ public class UriExporter implements Transferable{
     /**
      * {@inheritDoc}
      * エクスポートするURI文字列を返す。
+     *
      * @param flavor {@inheritDoc}
      * @return {@inheritDoc}
      * @throws java.awt.datatransfer.UnsupportedFlavorException {@inheritDoc}

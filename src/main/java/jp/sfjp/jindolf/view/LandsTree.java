@@ -33,7 +33,7 @@ import jp.sfjp.jindolf.data.LandsTreeModel;
  * 人狼BBSサーバ国および村一覧ツリーから構成される。
  */
 @SuppressWarnings("serial")
-public class LandsTree extends JPanel{
+public final class LandsTree extends JPanel{
 
     private static final String TIP_ASCEND =
             "押すと降順に";

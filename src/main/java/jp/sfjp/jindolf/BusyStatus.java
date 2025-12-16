@@ -66,7 +66,7 @@ public class BusyStatus {
      * 全てグラブされるため無視される。
      *
      * @param flag trueならプログレスバーのアニメ開始&amp;WAITカーソル。
-     * falseなら停止&amp;通常カーソル。
+     *     falseなら停止&amp;通常カーソル。
      * @param msg フッタメッセージ。nullなら変更なし。
      */
     public void setBusy(boolean flag, String msg){

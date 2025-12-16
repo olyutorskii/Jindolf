@@ -16,6 +16,7 @@ public interface TopicFilter {
 
     /**
      * 与えられたTopicをフィルタリングする。
+     *
      * @param topic Topic
      * @return フィルタリングするならtrue
      */
@@ -23,6 +24,7 @@ public interface TopicFilter {
 
     /**
      * フィルタの内部状態を表すインスタンスを取得する。
+     *
      * @return フィルタの内部状態
      */
     FilterContext getFilterContext();
@@ -30,6 +32,7 @@ public interface TopicFilter {
     /**
      * 以前得られたフィルタ内部状態と同じフィルタリング条件を
      * 現在も保っているか判別する。
+     *
      * @param context フィルタの内部状態
      * @return 同じ状態ならtrue
      */

@@ -15,6 +15,7 @@ import java.util.EventListener;
 public interface AnchorHitListener extends EventListener{
     /**
      * アンカーがクリックされたときに呼び出される。
+     *
      * @param event イベント
      */
     void anchorHitted(AnchorHitEvent event);

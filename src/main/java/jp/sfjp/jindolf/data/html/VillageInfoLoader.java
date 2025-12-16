@@ -51,8 +51,8 @@ public final class VillageInfoLoader {
      * 若干の冗長なコードが残存する。
      *
      * <p>例: G1000村(エピローグ終了状態)の村情報ページは
-     * <a href="http://www.wolfg.x0.com/index.rb?vid=1000">
-     * http://www.wolfg.x0.com/index.rb?vid=1000</a>
+     * <a href="https://ninjinix.x0.com/wolfg/index.rb?vid=1000">
+     * https://ninjinix.x0.com/wolfg/index.rb?vid=1000</a>
      *
      * @param village 村
      * @return HTML文書

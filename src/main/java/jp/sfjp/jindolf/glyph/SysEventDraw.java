@@ -42,6 +42,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param sysEvent システムイベント
      */
     public SysEventDraw(SysEvent sysEvent){
@@ -51,6 +52,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * コンストラクタ。
+     *
      * @param sysEvent システムイベント
      * @param pref 発言表示設定
      * @param fontInfo フォント設定
@@ -90,6 +92,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * システムイベントの取得。
+     *
      * @return システムイベント
      */
     public SysEvent getSysEvent(){
@@ -98,6 +101,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * イベント種別に応じた前景色を返す。
+     *
      * @return イベント種別前景色
      */
     private Color getEventColor(){
@@ -121,6 +125,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -136,6 +141,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param fontInfo {@inheritDoc}
      */
     @Override
@@ -148,6 +154,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * 発言設定を更新する。
+     *
      * @param pref 発言設定
      */
     public void setDialogPref(DialogPref pref){
@@ -161,6 +168,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param from {@inheritDoc}
      * @param to {@inheritDoc}
      */
@@ -172,6 +180,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param appendable {@inheritDoc}
      * @return {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
@@ -194,6 +203,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param xPos {@inheritDoc}
      * @param yPos {@inheritDoc}
      */
@@ -206,6 +216,7 @@ public class SysEventDraw extends AbstractTextRow{
 
     /**
      * {@inheritDoc}
+     *
      * @param g {@inheritDoc}
      */
     @Override
@@ -240,4 +251,5 @@ public class SysEventDraw extends AbstractTextRow{
 
         return;
     }
+
 }

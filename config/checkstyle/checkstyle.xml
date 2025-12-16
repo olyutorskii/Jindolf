@@ -6,7 +6,7 @@
 
 <!--
     Checkstyle modules
-    for Checkstyle 10.10.0 or later
+    for Checkstyle 12.1.0 or later
 
     [ https://checkstyle.org/ ]
 
@@ -40,6 +40,7 @@
         <property name="header" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;" />
         <property name="fileExtensions" value="xml" />
     </module>
+    <module name="MultiFileRegexpHeader" />
     <module name="RegexpHeader">
         <property name="header" value="^/\*$\n^ \*( .*)?$\n^ \*/$\n" />
         <property name="multiLines" value="2" />
@@ -82,7 +83,7 @@
     <module name="FileLength" />
     <module name="LineLength">
         <property name="fileExtensions" value="java" />
-        <property name="max" value="100" />
+        <property name="max" value="128" />
     </module>
 
 
@@ -107,9 +108,9 @@
     <!-- Filters -->
 
         <module name="SuppressionCommentFilter" />
-        <module name="SuppressWithNearbyCommentFilter" />
         <!--module name="SuppressionXpathFilter" /-->
         <!--module name="SuppressionXpathSingleFilter" /-->
+        <module name="SuppressWithNearbyCommentFilter" />
 
 
     <!-- Annotations -->
@@ -145,6 +146,7 @@
         <module name="InterfaceIsType" />
         <module name="MutableException" />
         <module name="OneTopLevelClass" />
+        <module name="SealedShouldHavePermitsList" />
         <module name="ThrowsCount" />
         <module name="VisibilityModifier" />
 
@@ -155,6 +157,7 @@
         <module name="AvoidDoubleBraceInitialization" />
         <module name="AvoidInlineConditionals" />
         <module name="AvoidNoArgumentSuperConstructorCall" />
+        <module name="ConstructorsDeclarationGrouping" />
         <module name="CovariantEquals" />
         <module name="DeclarationOrder" />
         <module name="DefaultComesLast" />
@@ -182,6 +185,7 @@
         <module name="MagicNumber" />
         <module name="MatchXpath" />
         <module name="MissingCtor" />
+        <module name="MissingNullCaseInSwitch" />
         <module name="MissingSwitchDefault" />
         <module name="ModifiedControlVariable" />
         <module name="MultipleStringLiterals" />
@@ -210,6 +214,7 @@
         <module name="StringLiteralEquality" />
         <module name="SuperClone" />
         <module name="SuperFinalize" />
+        <module name="UnnecessaryNullCheckWithInstanceOf" />
         <module name="UnnecessaryParentheses" />
         <module name="UnnecessarySemicolonAfterOuterTypeDeclaration" />
         <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
@@ -217,6 +222,7 @@
         <module name="UnnecessarySemicolonInTryWithResources" />
         <module name="UnusedLocalVariable" />
         <module name="VariableDeclarationUsageDistance" />
+        <module name="WhenShouldBeUsed" />
 
 
     <!-- Imports -->
@@ -237,6 +243,7 @@
         <module name="InvalidJavadocPosition" />
         <module name="JavadocBlockTagLocation" />
         <module name="JavadocContentLocationCheck" />
+        <module name="JavadocLeadingAsteriskAlign" />
         <module name="JavadocMethod" />
         <module name="JavadocMissingLeadingAsterisk" />
         <module name="JavadocMissingWhitespaceAfterAsterisk" />
@@ -251,12 +258,13 @@
         <module name="JavadocTagContinuationIndentation" />
         <module name="JavadocType" />
         <module name="JavadocVariable">
-            <property name="scope" value="protected" />
+            <property name="accessModifiers" value="public, protected, package" />
         </module>
         <module name="MissingJavadocMethod" />
         <module name="MissingJavadocPackage" />
         <module name="MissingJavadocType" />
         <module name="NonEmptyAtclauseDescription" />
+        <module name="RequireEmptyLineBeforeBlockTagGroup" />
         <module name="SingleLineJavadoc" />
         <module name="SummaryJavadocCheck" />
         <module name="WriteTag" />
@@ -276,14 +284,15 @@
 
         <module name="ArrayTypeStyle" />
         <module name="AvoidEscapedUnicodeCharacters">
-            <property name="allowEscapesForControlCharacters" value="true" />
             <property name="allowByTailComment" value="true" />
+            <property name="allowEscapesForControlCharacters" value="true" />
             <property name="allowIfAllCharactersEscaped" value="true" />
             <property name="allowNonPrintableEscapes" value="true" />
         </module>
         <module name="CommentsIndentation" />
         <module name="DescendantToken" />
         <module name="FinalParameters" />
+        <module name="HexLiteralCase" />
         <module name="Indentation">
             <property name="caseIndent" value="0" />
         </module>

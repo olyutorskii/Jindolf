@@ -18,7 +18,7 @@ import jp.sfjp.jindolf.data.Village;
  * 村情報表示パネル。
  */
 @SuppressWarnings("serial")
-public class VillageInfoPanel extends JPanel{
+public final class VillageInfoPanel extends JPanel{
 
     private Village village;
 
@@ -108,6 +108,7 @@ public class VillageInfoPanel extends JPanel{
 
     /**
      * 村を返す。
+     *
      * @return 村
      */
     public Village getVillage(){
@@ -116,6 +117,7 @@ public class VillageInfoPanel extends JPanel{
 
     /**
      * 村情報を更新する。
+     *
      * @param villageArg 村
      */
     public final void updateVillage(Village villageArg){

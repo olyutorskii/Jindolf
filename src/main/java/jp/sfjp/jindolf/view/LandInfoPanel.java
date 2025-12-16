@@ -25,7 +25,7 @@ import jp.sourceforge.jindolf.corelib.LandState;
  * 国情報表示パネル。
  */
 @SuppressWarnings("serial")
-public class LandInfoPanel extends JPanel{
+public final class LandInfoPanel extends JPanel{
 
     private final JLabel landName       = new JLabel();
     private final JLabel landIdentifier = new JLabel();
@@ -56,6 +56,7 @@ public class LandInfoPanel extends JPanel{
 
     /**
      * 国の状態を文字列化する。
+     *
      * @param state 国状態
      * @return 文字列化された国状態
      */
@@ -77,6 +78,7 @@ public class LandInfoPanel extends JPanel{
 
     /**
      * 一行分レイアウトする。
+     *
      * @param item 項目名
      * @param comp コンポーネント
      */
@@ -128,6 +130,7 @@ public class LandInfoPanel extends JPanel{
 
     /**
      * 国情報を更新する。
+     *
      * @param land 国
      */
     public void update(Land land){

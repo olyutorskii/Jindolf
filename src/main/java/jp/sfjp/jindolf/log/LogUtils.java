@@ -12,16 +12,11 @@ import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
-import java.util.logging.LoggingPermission;
 
 /**
  * ロギングの各種ユーティリティ。
  */
 public final class LogUtils {
-
-    /** ログ管理用パーミッション。 */
-    public static final LoggingPermission PERM_LOGCTL =
-            new LoggingPermission("control", null);
 
     private static final PrintStream STDERR = System.err;
     private static final String ERRMSG_LOGPERM =
@@ -86,7 +81,7 @@ public final class LogUtils {
      * {@link MomentaryHandler}ハンドラを登録する。
      *
      * @param useConsoleLog trueなら
-     * {@link java.util.logging.ConsoleHandler}も追加する。
+     *     {@link java.util.logging.ConsoleHandler}も追加する。
      */
     public static void initRootLogger(boolean useConsoleLog){
         if( ! hasLoggingPermission() ){

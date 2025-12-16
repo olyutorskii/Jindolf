@@ -24,6 +24,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * コンストラクタ。
+     *
      * @param url 由来のURL
      * @param datems 受信時刻(エポックミリ秒)
      * @param html HTML本文
@@ -42,6 +43,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * URLを返す。
+     *
      * @return URL
      */
     public URL getURL(){
@@ -51,6 +53,7 @@ public class HtmlSequence implements CharSequence{
     /**
      * 受信時刻を返す。
      * 単位はエポック時からのミリ秒。
+     *
      * @return 受信時刻
      */
     public long getDateMs(){
@@ -59,6 +62,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * HTML文字列を返す。
+     *
      * @return HTML文字列
      */
     public DecodedContent getContent(){
@@ -67,6 +71,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * {@inheritDoc}
+     *
      * @param index {@inheritDoc}
      * @return {@inheritDoc}
      */
@@ -77,6 +82,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override
@@ -86,6 +92,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * {@inheritDoc}
+     *
      * @param start {@inheritDoc}
      * @param end {@inheritDoc}
      * @return {@inheritDoc}
@@ -97,6 +104,7 @@ public class HtmlSequence implements CharSequence{
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc}
      */
     @Override

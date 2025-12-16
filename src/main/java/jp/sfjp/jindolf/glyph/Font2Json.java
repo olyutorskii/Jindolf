@@ -38,6 +38,7 @@ public final class Font2Json {
 
     /**
      * フォント設定をJSON形式にエンコードする。
+     *
      * @param fontInfo フォント設定
      * @return JSON Object
      */
@@ -67,6 +68,7 @@ public final class Font2Json {
 
     /**
      * JSONからフォントを復元。
+     *
      * @param obj JSON Object
      * @return フォント
      */
@@ -119,6 +121,7 @@ public final class Font2Json {
 
     /**
      * JSONからフォント描画設定を復元。
+     *
      * @param obj JSON Object
      * @param font デフォルトフォント
      * @return フォント描画設定
@@ -163,6 +166,7 @@ public final class Font2Json {
 
     /**
      * JSONからのフォント設定復元。
+     *
      * @param obj JSON Object
      * @return フォント設定
      */

@@ -23,6 +23,7 @@ public class FaceIconSet{
 
     /**
      * コンストラクタ。
+     *
      * @param caption 説明
      * @param author 作者
      * @param urlText URL文字列
@@ -37,6 +38,7 @@ public class FaceIconSet{
 
     /**
      * 説明文字列を得る。
+     *
      * @return 説明文字列
      */
     public String getCaption(){
@@ -45,6 +47,7 @@ public class FaceIconSet{
 
     /**
      * 作者名を得る。
+     *
      * @return 作者名
      */
     public String getAuthor(){
@@ -53,6 +56,7 @@ public class FaceIconSet{
 
     /**
      * URL文字列を得る。
+     *
      * @return URL文字列
      */
     public String getUrlText(){
@@ -61,6 +65,7 @@ public class FaceIconSet{
 
     /**
      * Avatarに対するWiki表記を登録する。
+     *
      * @param avatar Avatar
      * @param wiki Wiki表記
      */
@@ -71,6 +76,7 @@ public class FaceIconSet{
 
     /**
      * Avatarに対するWiki表記を取得する。
+     *
      * @param avatar Avatar
      * @return Wiki表記
      */
@@ -82,6 +88,7 @@ public class FaceIconSet{
     /**
      * アイコンセットの文字列化。
      * コンボボックスアイテムの表記などで使われることを想定。
+     *
      * @return 文字列
      */
     @Override

@@ -52,6 +52,7 @@ public class SysEvent implements Topic{
 
     /**
      * イベントファミリを取得する。
+     *
      * @return イベントファミリ
      */
     public EventFamily getEventFamily(){
@@ -60,6 +61,7 @@ public class SysEvent implements Topic{
 
     /**
      * イベントファミリを設定する。
+     *
      * @param eventFamily イベントファミリ
      * @throws NullPointerException 引数がnull
      */
@@ -71,6 +73,7 @@ public class SysEvent implements Topic{
 
     /**
      * イベント種別を取得する。
+     *
      * @return イベント種別
      */
     public SysEventType getSysEventType(){
@@ -79,6 +82,7 @@ public class SysEvent implements Topic{
 
     /**
      * イベント種別を設定する。
+     *
      * @param type イベント種別
      * @throws NullPointerException 引数がnull
      */
@@ -91,6 +95,7 @@ public class SysEvent implements Topic{
 
     /**
      * イベントメッセージを取得する。
+     *
      * @return イベントメッセージ
      */
     public DecodedContent getContent(){
@@ -99,6 +104,7 @@ public class SysEvent implements Topic{
 
     /**
      * イベントメッセージを設定する。
+     *
      * @param content イベントメッセージ
      * @throws NullPointerException 引数がnull
      */
@@ -111,6 +117,7 @@ public class SysEvent implements Topic{
 
     /**
      * Avatarリストを取得する。
+     *
      * @return Avatarリスト
      */
     public List<Avatar> getAvatarList(){
@@ -120,6 +127,7 @@ public class SysEvent implements Topic{
 
     /**
      * Roleリストを取得する。
+     *
      * @return Roleリスト
      */
     public List<GameRole> getRoleList(){
@@ -129,6 +137,7 @@ public class SysEvent implements Topic{
 
     /**
      * Integerリストを取得する。
+     *
      * @return Integerリスト
      */
     public List<Integer> getIntegerList(){
@@ -138,6 +147,7 @@ public class SysEvent implements Topic{
 
     /**
      * CharSequenceリストを取得する。
+     *
      * @return CharSequenceリスト
      */
     public List<CharSequence> getCharSequenceList(){
@@ -181,6 +191,7 @@ public class SysEvent implements Topic{
 
     /**
      * Avatar一覧を追加する。
+     *
      * @param list Avatar一覧
      */
     public void addAvatarList(List<Avatar> list){
@@ -190,6 +201,7 @@ public class SysEvent implements Topic{
 
     /**
      * 役職一覧を追加する。
+     *
      * @param list 役職一覧
      */
     public void addRoleList(List<GameRole> list){
@@ -199,6 +211,7 @@ public class SysEvent implements Topic{
 
     /**
      * 数値一覧を追加する。
+     *
      * @param list 数値一覧
      */
     public void addIntegerList(List<Integer> list){
@@ -208,6 +221,7 @@ public class SysEvent implements Topic{
 
     /**
      * 文字列一覧を追加する。
+     *
      * @param list 文字列一覧
      */
     public void addCharSequenceList(List<CharSequence> list){
@@ -237,6 +251,7 @@ public class SysEvent implements Topic{
 
     /**
      * InterPlay一覧を追加する。
+     *
      * @param list InterPlay一覧
      */
     public void addInterPlayList(List<InterPlay> list){
@@ -247,6 +262,7 @@ public class SysEvent implements Topic{
     /**
      * システムイベントを解析し、処刑されたAvatarを返す。
      * G国運用中の時点で、処刑者が出るのはCOUNTINGとEXECUTIONのみ。
+     *
      * @return 処刑されたAvatar。いなければnull
      */
     public Avatar getExecutedAvatar(){
@@ -272,6 +288,7 @@ public class SysEvent implements Topic{
     /**
      * 投票に参加したAvatarの集合を返す。
      * G国運用中の時点で、投票者が出るのはCOUNTINGとCOUNTING2のみ。
+     *
      * @param set 結果格納先。nullなら自動的に確保される。
      * @return 投票に参加したAvatarのSet
      */

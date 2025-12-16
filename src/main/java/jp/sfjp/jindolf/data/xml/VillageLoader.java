@@ -172,8 +172,7 @@ public class VillageLoader {
      * @param schema スキーマ
      * @return ファクトリ
      * @see <a href="https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html">
-     *     XML External Entity Prevention Cheat Sheet
-     * </a>
+     *     XML External Entity Prevention Cheat Sheet</a>
      */
     private static SAXParserFactory buildFactory(Schema schema){
         SAXParserFactory factory = SAXParserFactory.newInstance();

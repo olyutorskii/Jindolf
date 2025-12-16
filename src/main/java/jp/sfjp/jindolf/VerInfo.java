@@ -155,6 +155,7 @@ public final class VerInfo {
 
     /**
      * About画面用メッセージを生成する。
+     *
      * @return About画面用メッセージ
      */
     public static String getAboutMessage(){

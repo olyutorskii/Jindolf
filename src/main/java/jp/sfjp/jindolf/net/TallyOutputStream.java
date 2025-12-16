@@ -31,6 +31,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * コンストラクタ。
+     *
      * @param conn HTTPコネクション
      * @throws java.io.IOException 入出力エラー
      */
@@ -53,6 +54,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * HTTPコネクションから出力ストリームを得る。
+     *
      * @param conn HTTPコネクション
      * @return 出力ストリーム
      * @throws java.io.IOException 入出力エラー
@@ -64,6 +66,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * 書き込みバイト数を返す。
+     *
      * @return 書き込みバイト数。
      */
     protected long getCount(){
@@ -73,6 +76,7 @@ public class TallyOutputStream extends OutputStream{
     /**
      * {@inheritDoc}
      * 今までに書き込んだバイト数のスループットをログ出力する。
+     *
      * @throws java.io.IOException {@inheritDoc}
      */
     @Override
@@ -90,6 +94,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * {@inheritDoc}
+     *
      * @throws java.io.IOException {@inheritDoc}
      */
     @Override
@@ -100,6 +105,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * {@inheritDoc}
+     *
      * @param b {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */
@@ -115,6 +121,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * {@inheritDoc}
+     *
      * @param b {@inheritDoc}
      * @param off {@inheritDoc}
      * @param len {@inheritDoc}
@@ -132,6 +139,7 @@ public class TallyOutputStream extends OutputStream{
 
     /**
      * {@inheritDoc}
+     *
      * @param b {@inheritDoc}
      * @throws java.io.IOException {@inheritDoc}
      */

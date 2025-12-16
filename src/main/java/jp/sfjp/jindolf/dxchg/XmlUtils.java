@@ -46,6 +46,7 @@ public final class XmlUtils{
     /**
      * リゾルバ経由でリソースにアクセスし、
      * 共通スキーマによるバリデーションを行うためのDocumentBuilderを生成する。
+     *
      * @return ビルダ
      * @throws URISyntaxException URIが不正
      * @throws IOException 入出力エラー
@@ -66,6 +67,7 @@ public final class XmlUtils{
     /**
      * 共通コアスキーマを得る。
      * このスキーマはLSResourceResolverによるリダイレクトをサポートする。
+     *
      * @param resolver リゾルバ
      * @return スキーマ
      * @throws URISyntaxException URIが不正
@@ -90,6 +92,7 @@ public final class XmlUtils{
 
     /**
      * スキーマによる妥当性検証を兼用するDocumentBuilderを生成する。
+     *
      * @param schema スキーマ
      * @param resolver リゾルバ
      * @return DOM用ビルダ
@@ -125,6 +128,7 @@ public final class XmlUtils{
 
         /**
          * {@inheritDoc}
+         *
          * @param e {@inheritDoc} エラー情報
          * @throws org.xml.sax.SAXException {@inheritDoc} 引数と同じ物
          */
@@ -135,6 +139,7 @@ public final class XmlUtils{
 
         /**
          * {@inheritDoc}
+         *
          * @param e {@inheritDoc} エラー情報
          * @throws org.xml.sax.SAXException {@inheritDoc} 引数と同じ物
          */
@@ -145,6 +150,7 @@ public final class XmlUtils{
 
         /**
          * {@inheritDoc}
+         *
          * @param e {@inheritDoc} エラー情報
          * @throws org.xml.sax.SAXException {@inheritDoc} 引数と同じ物
          */
