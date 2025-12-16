@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.101.10] - 2025-12-16
+
 ### Changed
 - 人狼BBSのURLを http: から https: へ変更。
 
@@ -69,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## → CHANGELOG.old (2008-2019) へ続く…
 
 
-[Unreleased]: https://github.com/olyutorskii/Jindolf/compare/v4.101.8...HEAD
+[Unreleased]: https://github.com/olyutorskii/Jindolf/compare/v4.101.10...HEAD
+[4.101.10]: https://github.com/olyutorskii/Jindolf/compare/v4.101.8...v4.101.10
 [4.101.8]: https://github.com/olyutorskii/Jindolf/compare/v4.101.6...v4.101.8
 [4.101.6]: https://github.com/olyutorskii/Jindolf/compare/release-4.101.4...v4.101.6
 [4.101.4]: https://github.com/olyutorskii/Jindolf/compare/v4.101.2...release-4.101.4
