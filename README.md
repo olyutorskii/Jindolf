@@ -21,7 +21,7 @@ Jindolfに関する問い合わせををninjin氏へ投げかけないように�
 
 ## ビルド方法 ##
 
-* Jindolfはビルドに際して [Maven 3.3.9+](https://maven.apache.org/)
+* Jindolfはビルドに際して [Maven 3.8.9+](https://maven.apache.org/)
 と JDK 1.8+ を要求します。
 
 * Jindolfはビルドに際してJinParser、Jovsonz、QuetexJ などのライブラリを必要とします。
